@@ -9,7 +9,7 @@ Lambda Expressions
 ``auto`` as a lambda expression
 """""""""""""""""""""""""""""""
 
-If you place the blow expression inside of a ``main()`` function (for example), this will work::
+If you place the below expression inside of a ``main()`` function (for example), this will work::
 
    const auto lambda_momentum = [] (const double &px,
                                      const double &py){
@@ -22,7 +22,7 @@ If you place the blow expression inside of a ``main()`` function (for example), 
 ``auto`` as type deduction
 """"""""""""""""""""""""""
 
-``auto`` can be used as a type. This is very useful when objects are very large and hard to handle. 
+``auto`` can be used as a type. This is very useful when objects are very large and hard to handle. See the ``auto`` documentation for more explanation about type deduction. 
 For example: ``std::map<std::string,int>::iterator``::
 
    for (auto it=StringIntMap.begin();
@@ -50,6 +50,7 @@ References
 """"""""""
 
 [Meyer] Scott Meyers, http://ftp.factor.lg.ua/books/Effective_Modern_C__.pdf
+
 [Sutter&Alexandrescu] Herb Sutter and Andrei Alexandrescu,  C++ Coding Standards. 
 
 Full examples:
