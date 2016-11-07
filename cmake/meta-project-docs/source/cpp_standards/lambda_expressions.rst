@@ -1,5 +1,5 @@
 Lambda Expressions
------------------
+------------------
 
 * "A lambda expression is just that: an expression. It is part of the source code" [Meyer].
 * In other words, we can say that a lambda expression allows to write a function inside of another function.
