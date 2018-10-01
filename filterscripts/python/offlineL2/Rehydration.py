@@ -73,9 +73,12 @@ def Rehydration(tray, name, dstfile = None, mc = False, doNotQify = True, pass2=
             pulses = dataclasses.I3RecoPulseSeriesMap.from_frame(frame, 'I3SuperDST')
             ii_mask = dataclasses.I3RecoPulseSeriesMapMask(frame, 'I3SuperDST')
             it_mask = dataclasses.I3RecoPulseSeriesMapMask(frame, 'I3SuperDST')
+            omgeo = frame['I3Geometry']
             for omkey in pulses.keys():
-                ii_mask.set(omkey, omkey.om <= 60)
-                it_mask.set(omkey, omkey.om > 60)
+                g = omgeo[omkey]
+                ii_mask.set(omkey, g.omtype == dataclasses.I3OMGeo.IceCube)
+                it_mask.set(omkey, g.omtype == dataclasses.I3OMGeo.IceTop)
+
             frame['InIceDSTPulses']  = ii_mask
             frame['IceTopDSTPulses'] = it_mask
         else:
