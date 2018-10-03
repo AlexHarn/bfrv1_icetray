@@ -43,12 +43,12 @@ set(LIB_${PROJECT_NAME}_TESTS
 )
 
 # FIXME: See https://code.icecube.wisc.edu/projects/icecube/ticket/2194
-if (SPRNG_FOUND)
-    # this test requires SPRNG
-    LIST(APPEND LIB_${PROJECT_NAME}_TESTS
-        private/PROPOSAL-icetray/test/Repeatability.cxx
-    )
-endif (SPRNG_FOUND)
+#if (SPRNG_FOUND)
+#    # this test requires SPRNG
+#    LIST(APPEND LIB_${PROJECT_NAME}_TESTS
+#        private/PROPOSAL-icetray/test/Repeatability.cxx
+#    )
+#endif (SPRNG_FOUND)
 
 
 i3_test_executable(test
