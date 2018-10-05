@@ -8,6 +8,7 @@ if(SUITESPARSE_FOUND)
 	i3_add_library(wavedeform
 		private/wavedeform/I3Wavedeform.cxx
 		private/wavedeform/nnls.cxx
+		private/wavedeform/rnnls.cxx
 		private/wavedeform/nnls_wrapper.cxx
 
 		USE_TOOLS boost python suitesparse blas lapack

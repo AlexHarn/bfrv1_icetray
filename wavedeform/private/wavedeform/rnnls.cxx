@@ -267,7 +267,7 @@ rnnls_solve(rnnls_context *cxt) {
 
     /* Step 6c: Sanity check solution */
     for (long i = 0; i < cxt->nP; ++i) {
-      if (isnan(px[P[i]]) || isinf(px[P[i]])) {
+      if (std::isnan(px[P[i]]) || std::isinf(px[P[i]])) {
 
         // This should not happen with reasonable optimal_tolerance.
         // Solve (expensively) by QR factorization of the subproblem.
