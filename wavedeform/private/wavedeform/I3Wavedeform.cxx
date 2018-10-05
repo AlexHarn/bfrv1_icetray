@@ -17,6 +17,7 @@
 #include <cholmod.h>
 
 #include "nnls.h"
+#include "rnnls.h"
 
 /* Simple class to hold together ATWD and FADC
  * templates along with a validity flag and waveform features */
@@ -66,6 +67,7 @@ class I3Wavedeform : public I3ConditionalModule
 
 		bool deweight_fadc_;
 		bool apply_spe_corr_;
+		bool reduce_;
 
 		// Template for old-toroid and new-toroid DOMs, respectively
 		WaveformTemplate oldTemplate_;
@@ -113,6 +115,8 @@ I3Wavedeform::I3Wavedeform(const I3Context &context) :
 	    " should leave it set to the default value.", true);
 	AddParameter("ApplySPECorrections", "Whether to apply DOM-by-DOM"
 	    " corrections to the pulse charge scaling if available", false);
+	AddParameter("Reduce", "Find the optimal NNLS solution, then eliminate"
+	    " basis members until tolerance is reached", false);
 
 	cholmod_l_start(&c);
 }
@@ -129,6 +133,7 @@ I3Wavedeform::Configure()
 	GetParameter("BasisThreshold", basis_threshold_);
 	GetParameter("DeweightFADC", deweight_fadc_);
 	GetParameter("ApplySPECorrections", apply_spe_corr_);
+	GetParameter("Reduce", reduce_);
 
 	double range;
 
@@ -426,9 +431,16 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 	double min_spe_spacing = DBL_MAX;
 	for (j = 0, wf = firstWF; wf != lastWF; wf++) {
 
-		// Start, end two bins early
+		// Start, end two bins early if not HLC
 		double present = wf->GetStartTime() - 2.*wf->GetBinWidth();
 		double max = present + wf->GetWaveform().size()*wf->GetBinWidth();
+
+		// If HLC, don't start before the wf start time.  We know we didn't
+		// pass the discriminator threshold, and basis members with poor
+		// support can have poorly constrained amplitudes.
+		if (wf->IsHLC()) {
+		  present = wf->GetStartTime();
+		}
 		double spacing = wf->GetBinWidth() / spes_per_bin_;
 		if (spacing < min_spe_spacing) {
 			min_spe_spacing = spacing;
@@ -655,8 +667,12 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 	cholmod_l_free_triplet(&basis_trip, &c);
 
 	// Solve for SPE heights
-	unfolded = nnls_lawson_hanson(basis, data, tolerance_,
-	    0, 1000, nspes, 0, 1, 0, &c);
+	if (reduce_) {
+	    unfolded = rnnls(basis, data, tolerance_, 1000, 0, &c);
+	} else {
+	    unfolded = nnls_lawson_hanson(basis, data, tolerance_,
+	            0, 1000, nspes, 0, 1, 0, &c);
+	}
 
 	cholmod_l_free_sparse(&basis, &c);
 	cholmod_l_free_dense(&data, &c);
