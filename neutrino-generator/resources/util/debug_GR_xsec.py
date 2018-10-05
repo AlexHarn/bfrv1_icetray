@@ -39,3 +39,21 @@ interactionGR = neutrino_generator.InteractionGR(random, steer)
 interactionGR.debug_print("GRdebug.txt", 10000)
 
 
+elogmin = 2
+elogmax = 8
+nebins = 100.
+de = (elogmax - elogmin) /nebins
+
+import numpy as np
+elogs = np.linspace(elogmin, elogmax, nebins)
+
+
+for elog in elogs :
+    xsec = interactionGR.xsec_cgs(10**elog)
+    print("elog %f, xsec %g" % (elog, xsec))
+    
+
+
+
+
+
