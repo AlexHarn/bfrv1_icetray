@@ -112,10 +112,12 @@ def generate_histogram_configuration_list(i3files):
     '''
     histograms = dict()
 
+    filelist = [i3files] if isinstance(i3files, str) else i3files
+    
     file_counter = 0
-    for filename in i3files:
+    for filename in filelist:
         file_counter += 1
-        print("Processing file (%d/%d): %s " % (file_counter, len(i3files), filename))
+        print("Processing file (%d/%d): %s " % (file_counter, len(filelist), filename))
         _configure(filename, histograms)
 
     histogram_list = list()
