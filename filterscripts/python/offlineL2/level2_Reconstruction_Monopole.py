@@ -330,8 +330,6 @@ def MonopoleL2(tray, name,
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
     # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
 
-    C=0.299792458
-
     pretagIC="MM_IC_"
     pretagDC="MM_DC_"
     CleanedPulses='MM_Cleaned_'+pulses
