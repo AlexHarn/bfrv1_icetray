@@ -118,7 +118,7 @@ class ChargeCleaning(icetray.I3Module):
                 domCharges.append([entry.key(),charge])
 
         ### Sort list of DOMs by charge
-        domCharges.sort(key=lambda item: item[1],reverse=True)#print domCharges
+        domCharges.sort(key=lambda item: item[1],reverse=True)
 
         ### Get DOMs with hightest integrated charge
         keylist = []
@@ -181,7 +181,6 @@ def mpfilter(frame, verbose=False, softcuts=True):
 
     # soft cuts = larger passing rate
     if softcuts:
-        #print("Using soft selection")
         ICndomvalue=6
         ICspeedvalue=0.8
         IClength=250
@@ -195,7 +194,6 @@ def mpfilter(frame, verbose=False, softcuts=True):
         DCfwhm=2500
     # hard cuts = smaller passing rate
     else:
-        #print("Using hard selection")
         ICndomvalue=6
         ICspeedvalue=0.8
         IClength=400
@@ -209,10 +207,9 @@ def mpfilter(frame, verbose=False, softcuts=True):
         DCfwhm=2500
 
     # IC Filter
-    if verbose: print("IC Frames found:", (pretagIC+hmv) in frame, \
-                                          (pretagIC+"LineFitI") in frame, \
-                                          (pretagIC+tcv) in frame, \
-                                          (pretagIC+tv) in frame)
+    icetray.logging.log_debug(
+        'IC Frames found: {0} {1} {2} {3}'.format((pretagIC + hmv) in frame, (pretagIC + "LineFitI") in frame,
+                                                  (pretagIC + tcv) in frame, (pretagIC + tv) in frame))
     ICKeep=False
     if (pretagIC+hmv) in frame and (pretagIC+"LineFitI") in frame and \
             (pretagIC+tcv) in frame and (pretagIC+tv) in frame:
@@ -260,7 +257,11 @@ def mpfilter(frame, verbose=False, softcuts=True):
     frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
 
     # DC Filter
-    if verbose: print("DC Frames found:", (pretagDC+hmv+SelectedDCPulses) in frame, (pretagDC+"LineFitI_"+SelectedDCPulses) in frame, (pretagDC+tv+SelectedDCPulses) in frame, (pretagDC+tcv+SelectedDCPulses) in frame)
+    icetray.logging.log_debug(
+        'DC Frames found: {0} {1} {2} {3}'.format((pretagDC + hmv + SelectedDCPulses) in frame,
+                                                  (pretagDC + "LineFitI_" + SelectedDCPulses) in frame,
+                                                  (pretagDC + tv + SelectedDCPulses) in frame,
+                                                  (pretagDC + tcv + SelectedDCPulses) in frame))
     DCKeep=False
     if (pretagDC+hmv+SelectedDCPulses) in frame and (pretagDC+"LineFitI_"+SelectedDCPulses) in frame and \
             (pretagDC+tv+SelectedDCPulses) in frame and (pretagDC+tcv+SelectedDCPulses) in frame:
