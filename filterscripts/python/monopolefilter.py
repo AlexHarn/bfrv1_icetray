@@ -178,8 +178,6 @@ def checkThreshold(frame, name, threshold=None):
 #############################################################################################
 
 def mpfilter(frame, verbose=False, softcuts=True):
-    if verbose: print("Filter")
-
     from icecube.filterscripts import filter_globals
 
     DCPulses="MM_DC_Pulses"
@@ -228,8 +226,6 @@ def mpfilter(frame, verbose=False, softcuts=True):
     if (pretagIC+hmv) in frame and (pretagIC+"LineFitI") in frame and \
             (pretagIC+tcv) in frame and (pretagIC+tv) in frame:
 
-        if verbose: print("Check IC")
-
         n_doms=frame[pretagIC+hmv].n_hit_doms
 
         lf=frame[pretagIC+"LineFitI"]
@@ -242,25 +238,25 @@ def mpfilter(frame, verbose=False, softcuts=True):
 
         time=frame[pretagIC+tv].timelength_last_first
 
-        if verbose:
-            decisionPairs=[
-                [ "ndom", n_doms, ">",ICndomvalue],
-                [ "status", status, "==",0],
-                [ "speed", speed, ">",0.0],
-                [ "speed", speed, "<",ICspeedvalue],
-                [ "lengths", lengths, ">",IClength],
-                [ "gap", gap, "<",ICgap],
-                [ "time", time, ">",ICtime],
-                ]
-            for name, var, sign, thre in decisionPairs:
-                keep=False
-                if (sign==">" and var > thre) or \
-                        (sign=="<" and var < thre) or \
-                        ((sign=="==" or sign=="=") and var == thre) or \
-                        (sign=="!=" and var != thre):
-                    keep=True
-
-                if verbose: print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
+        #this was only for debugging purposes
+        #if verbose:
+        #    decisionPairs=[
+        #        [ "ndom", n_doms, ">",ICndomvalue],
+        #        [ "status", status, "==",0],
+        #        [ "speed", speed, ">",0.0],
+        #        [ "speed", speed, "<",ICspeedvalue],
+        #        [ "lengths", lengths, ">",IClength],
+        #        [ "gap", gap, "<",ICgap],
+        #        [ "time", time, ">",ICtime],
+        #        ]
+        #    for name, var, sign, thre in decisionPairs:
+        #        keep=False
+        #        if (sign==">" and var > thre) or \
+        #                (sign=="<" and var < thre) or \
+        #                ((sign=="==" or sign=="=") and var == thre) or \
+        #                (sign=="!=" and var != thre):
+        #            keep=True
+        #        print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
         if (n_doms > ICndomvalue) and \
                 (status == 0) and \
@@ -271,15 +267,12 @@ def mpfilter(frame, verbose=False, softcuts=True):
                 (time > ICtime ):
             ICKeep=True
     frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
-    if verbose: print("ICFilter", ICKeep)
 
     # DC Filter
     if verbose: print("DC Frames found:", (pretagDC+hmv+SelectedDCPulses) in frame, (pretagDC+"LineFitI_"+SelectedDCPulses) in frame, (pretagDC+tv+SelectedDCPulses) in frame, (pretagDC+tcv+SelectedDCPulses) in frame)
     DCKeep=False
     if (pretagDC+hmv+SelectedDCPulses) in frame and (pretagDC+"LineFitI_"+SelectedDCPulses) in frame and \
             (pretagDC+tv+SelectedDCPulses) in frame and (pretagDC+tcv+SelectedDCPulses) in frame:
-
-        if verbose: print("Check DC")
 
         n_doms=frame[pretagDC+hmv+SelectedDCPulses].n_hit_doms
 
@@ -293,26 +286,25 @@ def mpfilter(frame, verbose=False, softcuts=True):
 
         gap=frame[pretagDC+tcv+SelectedDCPulses].empty_hits_track_length
 
-
-        if verbose:
-            decisionPairs=[
-                [ "ndom", n_doms, ">",DCndomvalue],
-                [ "status", status, "==",0],
-                [ "speed", speed, ">",0.0],
-                [ "speed", speed, "<",DCspeedvalue],
-                [ "gap", gap, "<",DCgap],
-                [ "time", time, ">",DCTime],
-                [ "fwhm", fwhm, ">",DCfwhm],
-                ]
-            for name, var, sign, thre in decisionPairs:
-                keep=False
-                if (sign==">" and var > thre) or \
-                        (sign=="<" and var < thre) or \
-                        ((sign=="==" or sign=="=") and var == thre) or \
-                        (sign=="!=" and var != thre):
-                    keep=True
-
-                if verbose: print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
+        #this was only for debugging purposes
+        #if verbose:
+        #    decisionPairs=[
+        #        [ "ndom", n_doms, ">",DCndomvalue],
+        #        [ "status", status, "==",0],
+        #        [ "speed", speed, ">",0.0],
+        #        [ "speed", speed, "<",DCspeedvalue],
+        #        [ "gap", gap, "<",DCgap],
+        #        [ "time", time, ">",DCTime],
+        #        [ "fwhm", fwhm, ">",DCfwhm],
+        #        ]
+        #    for name, var, sign, thre in decisionPairs:
+        #        keep=False
+        #        if (sign==">" and var > thre) or \
+        #                (sign=="<" and var < thre) or \
+        #                ((sign=="==" or sign=="=") and var == thre) or \
+        #                (sign=="!=" and var != thre):
+        #            keep=True
+        #        print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
 
         if (n_doms > DCndomvalue) and \
@@ -325,14 +317,12 @@ def mpfilter(frame, verbose=False, softcuts=True):
             DCKeep=True
 
     frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
-    if verbose: print("DCFilter", DCKeep)
 
     # decision
     if ICKeep or DCKeep:
         MMFilter=icetray.I3Bool(True)
     else:
         MMFilter=icetray.I3Bool(False)
-    if verbose: print("MMFilter", MMFilter)
 
     frame[filter_globals.MonopoleFilter+"_key"] = MMFilter
     return True
@@ -490,7 +480,6 @@ def MonopoleFilter(tray,name,
                    ])
 
     if not keepFrames:
-        if verbose: print("Remove")
         tray.AddModule("Delete",'MM_leftOvers',
                        Keys=remove,
                        If = If,
