@@ -102,8 +102,8 @@ class ChargeCleaning(icetray.I3Module):
             return True
 
         ### Get the input data
-        if frame.Has(self.input):
-            pulsemap = frame.Get(self.input)
+        if self.input in frame:
+            pulsemap = frame[self.input]
             if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
                 pulsemap = pulsemap.apply(frame)
         else:
@@ -146,16 +146,16 @@ class ChargeCleaning(icetray.I3Module):
             NewPulseMap[entry] = NewPulseVector
             nhits+=1
 
-        frame.Put("MM_DC_nHits", dataclasses.I3Double(nhits))
-        frame.Put(self.out, NewPulseMap)
+        frame["MM_DC_nHits"] = dataclasses.I3Double(nhits)
+        frame[self.out] = NewPulseMap
         self.PushFrame(frame)
         return True
 
 #############################################################################################
 
 def checkIfPulsesInFrame(frame, name):
-    if frame.Has(name):
-        pulsemap=frame.Get(name)
+    if name in frame:
+        pulsemap=frame[name]
         if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
             pulsemap = pulsemap.apply(frame)
         for entry in pulsemap:
@@ -166,12 +166,12 @@ def checkIfPulsesInFrame(frame, name):
     return False
 
 def checkIfInFrame(frame, name):
-    if frame.Has(name):
+    if name in frame:
         return True
     return False
 
 def checkThreshold(frame, name, threshold=None):
-    if frame.Get(name) > threshold:
+    if frame[name] > threshold:
         return True
 
 #############################################################################################
@@ -219,27 +219,27 @@ def mpfilter(frame, verbose=False, softcuts=True):
         DCfwhm=2500
 
     # IC Filter
-    if verbose: print("IC Frames found:", frame.Has(pretagIC+hmv), \
-                                          frame.Has(pretagIC+"LineFitI"), \
-                                          frame.Has(pretagIC+tcv), \
-                                          frame.Has(pretagIC+tv))
+    if verbose: print("IC Frames found:", (pretagIC+hmv) in frame, \
+                                          (pretagIC+"LineFitI") in frame, \
+                                          (pretagIC+tcv) in frame, \
+                                          (pretagIC+tv) in frame)
     ICKeep=False
-    if frame.Has(pretagIC+hmv) and frame.Has(pretagIC+"LineFitI") and \
-            frame.Has(pretagIC+tcv) and frame.Has(pretagIC+tv):
+    if (pretagIC+hmv) in frame and (pretagIC+"LineFitI") in frame and \
+            (pretagIC+tcv) in frame and (pretagIC+tv) in frame:
 
         if verbose: print("Check IC")
 
-        n_doms=frame.Get(pretagIC+hmv).n_hit_doms
+        n_doms=frame[pretagIC+hmv].n_hit_doms
 
-        lf=frame.Get(pretagIC+"LineFitI")
+        lf=frame[pretagIC+"LineFitI"]
         status=lf.fit_status
         speed=lf.speed / dataclasses.I3Constants.c
 
-        tc=frame.Get(pretagIC+tcv)
+        tc=frame[pretagIC+tcv]
         lengths=tc.track_hits_separation_length
         gap=tc.empty_hits_track_length
 
-        time=frame.Get(pretagIC+tv).timelength_last_first
+        time=frame[pretagIC+tv].timelength_last_first
 
         if verbose:
             decisionPairs=[
@@ -273,24 +273,24 @@ def mpfilter(frame, verbose=False, softcuts=True):
     if verbose: print("ICFilter", ICKeep)
 
     # DC Filter
-    if verbose: print("DC Frames found:", frame.Has(pretagDC+hmv+SelectedDCPulses), frame.Has(pretagDC+"LineFitI_"+SelectedDCPulses), frame.Has(pretagDC+tv+SelectedDCPulses), frame.Has(pretagDC+tcv+SelectedDCPulses))
+    if verbose: print("DC Frames found:", (pretagDC+hmv+SelectedDCPulses) in frame, (pretagDC+"LineFitI_"+SelectedDCPulses) in frame, (pretagDC+tv+SelectedDCPulses) in frame, (pretagDC+tcv+SelectedDCPulses) in frame)
     DCKeep=False
-    if frame.Has(pretagDC+hmv+SelectedDCPulses) and frame.Has(pretagDC+"LineFitI_"+SelectedDCPulses) and \
-            frame.Has(pretagDC+tv+SelectedDCPulses) and frame.Has(pretagDC+tcv+SelectedDCPulses):
+    if (pretagDC+hmv+SelectedDCPulses) in frame and (pretagDC+"LineFitI_"+SelectedDCPulses) in frame and \
+            (pretagDC+tv+SelectedDCPulses) in frame and (pretagDC+tcv+SelectedDCPulses) in frame:
 
         if verbose: print("Check DC")
 
-        n_doms=frame.Get(pretagDC+hmv+SelectedDCPulses).n_hit_doms
+        n_doms=frame[pretagDC+hmv+SelectedDCPulses].n_hit_doms
 
-        lf=frame.Get(pretagDC+"LineFitI_"+SelectedDCPulses)
+        lf=frame[pretagDC+"LineFitI_"+SelectedDCPulses]
         status=lf.fit_status
         speed=lf.speed / dataclasses.I3Constants.c
 
-        t=frame.Get(pretagDC+tv+SelectedDCPulses)
+        t=frame[pretagDC+tv+SelectedDCPulses]
         time=t.timelength_last_first
         fwhm=t.timelength_fwhm
 
-        gap=frame.Get(pretagDC+tcv+SelectedDCPulses).empty_hits_track_length
+        gap=frame[pretagDC+tcv+SelectedDCPulses].empty_hits_track_length
 
 
         if verbose:
