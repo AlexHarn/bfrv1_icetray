@@ -5,7 +5,6 @@
 
 import I3Tray
 from icecube import icetray, dataclasses
-import numpy as np
 
 
 @icetray.traysegment
@@ -203,7 +202,7 @@ def mpfilter(frame, verbose=False, softcuts=True):
         #
         DCndomvalue=6
         DCspeedvalue=0.7
-        DCgap=np.inf
+        DCgap=float('inf')
         DCTime=2750
         DCfwhm=2500
     # hard cuts = smaller passing rate
