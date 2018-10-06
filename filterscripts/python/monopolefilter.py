@@ -166,15 +166,6 @@ def checkIfPulsesInFrame(frame, name):
                     return True
     return False
 
-def checkIfInFrame(frame, name):
-    if name in frame:
-        return True
-    return False
-
-def checkThreshold(frame, name, threshold=None):
-    if frame[name] > threshold:
-        return True
-
 #############################################################################################
 
 def mpfilter(frame, verbose=False, softcuts=True):
@@ -434,13 +425,13 @@ def MonopoleFilter(tray,name,
                    InputRecoPulses  = DCPulses,
                    OutputRecoPulses = SelectedDCPulses,
                    ChargeFraction   = 0.5,
-                   If = lambda f: If(f) and checkIfInFrame(f, DCPulses)
+                   If = lambda f: If(f) and DCPulses in f
                   )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LFDC"+SelectedDCPulses,
                     inputResponse= SelectedDCPulses,
                     fitName = pretagDC+"LineFitI_"+SelectedDCPulses,
-                    If = lambda f: If(f) and checkIfInFrame(f, DCPulses)
+                    If = lambda f: If(f) and DCPulses in f
                     )
 
     monopoleCV(tray,"CV_DC",
@@ -449,9 +440,9 @@ def MonopoleFilter(tray,name,
                tag=SelectedDCPulses,
                pretag=pretagDC,
                If = lambda f: If(f) and \
-                   checkIfInFrame(f, "MM_DC_nHits") and \
-                   checkThreshold(f, "MM_DC_nHits" , threshold=0) and \
-                   checkIfInFrame(f, pretagDC+"LineFitI_"+SelectedDCPulses)
+                   "MM_DC_nHits" in f and \
+                   f["MM_DC_nHits"] > 0 and \
+                   (pretagDC+"LineFitI_"+SelectedDCPulses) in f
                )
     remove.extend([DCPulses, pretagDC+"Selection", DCPulses+"_First", SelectedDCPulses,
                    pretagDC+"LineFitI_"+SelectedDCPulses, DCPulses+"CleanedKeys", "MM_DC_nHits"])

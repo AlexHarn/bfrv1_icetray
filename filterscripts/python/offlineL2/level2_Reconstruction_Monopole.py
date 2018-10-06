@@ -148,25 +148,6 @@ class ChargeCleaning(icetray.I3Module):
 
 #############################################################################################
 
-def checkFilterMask(frame, verbose=False):
-        if "FilterMask" in frame:
-            if frame["FilterMask"]["MonopoleFilter_16"].condition_passed:
-                    return True
-        return False
-
-#############################################################################################
-
-def checkIfInFrame(frame, name, threshold=None, verbose=False):
-        if name in frame:
-            if threshold==None:
-                return True
-            else:
-                if frame[name] > threshold:
-                    return True
-        return False
-
-#############################################################################################
-
 def mpfilter(frame, verbose=False, softcuts=True):
     from icecube.filterscripts import filter_globals
 
@@ -328,6 +309,8 @@ def MonopoleL2(tray, name,
                 seededRTConfig = "",
                 If = lambda f: True
                 ):
+    #modifying If to keep difference between filter and offline to a minimum //FHL
+    If = lambda f: "FilterMask" in f and f["FilterMask"]["MonopoleFilter_16"].condition_passed and If(f)
 
 
 
@@ -370,7 +353,7 @@ def MonopoleL2(tray, name,
                    SeedProcedure          = 'AllHLCHits',
                    MaxNIterations         = -1,
                    Streams                = [icetray.I3Frame.Physics],
-                   If = lambda f: If(f) and checkFilterMask(f)
+                   If = If
     )
 
 
@@ -385,13 +368,13 @@ def MonopoleL2(tray, name,
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPulses,
                    SelectInverse = True,
-                   If = lambda f: If(f) and checkFilterMask(f)
+                   If = If
                    )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LF",
 		     inputResponse= ICPulses,
 		     fitName = pretagIC+"LineFitI",
-		     If = lambda f: If(f) and checkFilterMask(f)
+		     If = If
 		     )
 
     CV(tray,"CV_IC",
@@ -399,7 +382,7 @@ def MonopoleL2(tray, name,
             ParticleName= pretagIC+"LineFitI",
             tag="",
             pretag=pretagIC,
-            If = lambda f: If(f) and checkFilterMask(f)
+            If = If
             )
 
     # ------------------------------------------------------------------------------------
@@ -411,20 +394,20 @@ def MonopoleL2(tray, name,
                    InputResponse = CleanedPulses,
                    OutputResponse = DCPulses,
                    OutputOMSelection = pretagDC+'Selection',
-                   If = lambda f: If(f) and checkFilterMask(f)
+                   If = If
                    )
 
     tray.AddModule(ChargeCleaning, name+"ChargeCleaning_First_05",
                    InputRecoPulses  = DCPulses,
                    OutputRecoPulses = SelectedDCPulses,
                    ChargeFraction   = 0.5,
-                   If = lambda f: If(f) and checkIfInFrame(f, DCPulses) and checkFilterMask(f)
+                   If = lambda f: If(f) and DCPulses in f
                   )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LFDC"+SelectedDCPulses,
          inputResponse= SelectedDCPulses,
          fitName = pretagDC+"LineFitI_"+SelectedDCPulses,
-         If = lambda f: If(f) and checkIfInFrame(f, DCPulses) and checkFilterMask(f)
+         If = lambda f: If(f) and DCPulses in f
          )
 
     CV(tray,"CV_DC",
@@ -433,13 +416,13 @@ def MonopoleL2(tray, name,
         tag=SelectedDCPulses,
         pretag=pretagDC,
         If = lambda f: If(f) and \
-        checkFilterMask(f) and \
-        checkIfInFrame(f, "MM_DC_nHits" , threshold=0) and \
-        checkIfInFrame(f, pretagDC+"LineFitI_"+SelectedDCPulses)
+        "MM_DC_nHits" in f and \
+        f["MM_DC_nHits"]>0 and \
+        (pretagDC+"LineFitI_"+SelectedDCPulses) in f
         )
 
     # ------------------------------------------------------------------------------------
     # restore information which filter selection was fulfilled: IC or DC
     tray.AddModule(mpfilter, name+"_filter",
-                   If = lambda f: If(f) and checkFilterMask(f)
+                   If = If
                    )
