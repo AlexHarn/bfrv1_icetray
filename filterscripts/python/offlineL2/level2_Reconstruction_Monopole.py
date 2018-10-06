@@ -191,9 +191,14 @@ def mpfilter(frame, verbose=False, softcuts=True):
     icetray.logging.log_debug(
         'IC Frames found: {0} {1} {2} {3}'.format((pretagIC + hmv) in frame, (pretagIC + "LineFitI") in frame,
                                                   (pretagIC + tcv) in frame, (pretagIC + tv) in frame))
-    ICKeep=False
-    if (pretagIC+hmv) in frame and (pretagIC+"LineFitI") in frame and \
-            (pretagIC+tcv) in frame and (pretagIC+tv) in frame:
+    #caching the frame set because we need to use if for the DC part as well
+    cachedoriginalframekeysset = set(frame.keys())
+    # check that everything we need is in frame, utilizing issubset
+    ICKeep = False
+    if {pretagIC + hmv,
+        pretagIC + "LineFitI",
+        pretagIC + tcv,
+        pretagIC + tv} <= cachedoriginalframekeysset:
 
         n_doms=frame[pretagIC+hmv].n_hit_doms
 
@@ -244,8 +249,11 @@ def mpfilter(frame, verbose=False, softcuts=True):
                                                   (pretagDC + tv + SelectedDCPulses) in frame,
                                                   (pretagDC + tcv + SelectedDCPulses) in frame))
     DCKeep=False
-    if (pretagDC+hmv+SelectedDCPulses) in frame and (pretagDC+"LineFitI_"+SelectedDCPulses) in frame and \
-            (pretagDC+tv+SelectedDCPulses) in frame and (pretagDC+tcv+SelectedDCPulses) in frame:
+    # check that everything we need is in frame, utilizing issubset
+    if {pretagDC + hmv + SelectedDCPulses,
+        pretagDC + "LineFitI_" + SelectedDCPulses,
+        pretagDC + tv + SelectedDCPulses,
+        pretagDC + tcv + SelectedDCPulses} <= cachedoriginalframekeysset:
 
         n_doms=frame[pretagDC+hmv+SelectedDCPulses].n_hit_doms
 
