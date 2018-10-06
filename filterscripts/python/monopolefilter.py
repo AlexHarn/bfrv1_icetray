@@ -89,7 +89,7 @@ class ChargeCleaning(icetray.I3Module):
         self.frac  = self.GetParameter("ChargeFraction")
         self.If    = self.GetParameter("If")
 
-        if self.frac <= 0 or self.frac > 1:
+        if not 0 < self.frac <= 1:
            raise RuntimeError("Charge fraction must be between 0 and 1. Current value %f" %self.frac)
 
     # ------------------------------------------------------------------------------------
@@ -247,14 +247,14 @@ def mpfilter(frame, verbose=False, softcuts=True):
         #            keep=True
         #        print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
-        if (n_doms > ICndomvalue) and \
+        ICKeep = (n_doms > ICndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
                 (speed < ICspeedvalue ) and \
                 (lengths < -IClength or lengths > IClength ) and \
                 (gap < ICgap ) and \
-                (time > ICtime ):
-            ICKeep=True
+                (time > ICtime )
+
     frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
 
     # DC Filter
@@ -299,25 +299,19 @@ def mpfilter(frame, verbose=False, softcuts=True):
         #            keep=True
         #        print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
-
-        if (n_doms > DCndomvalue) and \
+        DCKeep = (n_doms > DCndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
                 (speed < DCspeedvalue ) and \
                 (time > DCTime ) and \
                 (gap < DCgap ) and \
-                (fwhm > DCfwhm):
-            DCKeep=True
+                (fwhm > DCfwhm)
 
     frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
 
     # decision
-    if ICKeep or DCKeep:
-        MMFilter=icetray.I3Bool(True)
-    else:
-        MMFilter=icetray.I3Bool(False)
-
-    frame[filter_globals.MonopoleFilter+"_key"] = MMFilter
+    MMFilter = ICKeep or DCKeep
+    frame[filter_globals.MonopoleFilter+"_key"] = icetray.I3Bool(MMFilter)
     return True
 
 #############################################################################################

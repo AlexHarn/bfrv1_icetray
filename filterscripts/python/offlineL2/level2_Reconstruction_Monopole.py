@@ -85,7 +85,7 @@ class ChargeCleaning(icetray.I3Module):
         self.frac  = self.GetParameter("ChargeFraction")
         self.If    = self.GetParameter("If")
 
-        if self.frac <= 0 or self.frac > 1:
+        if not 0 < self.frac <= 1:
            raise RuntimeError("Charge fraction must be between 0 and 1. Current value %f" %self.frac)
 
     # ------------------------------------------------------------------------------------
@@ -290,13 +290,8 @@ def mpfilter(frame, verbose=False, softcuts=True):
             DCKeep=True
 
     frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
-
-    if ICKeep or DCKeep:
-        MMFilter=icetray.I3Bool(True)
-    else:
-        MMFilter=icetray.I3Bool(False)
-
-    frame[filter_globals.MonopoleFilter+"_key"] = MMFilter
+    MMFilter = ICKeep or DCKeep
+    frame[filter_globals.MonopoleFilter+"_key"] = icetray.I3Bool(MMFilter)
 
     return True
 
