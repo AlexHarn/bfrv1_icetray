@@ -104,7 +104,7 @@ class ChargeCleaning(icetray.I3Module):
         ### Get the input data
         if self.input in frame:
             pulsemap = frame[self.input]
-            if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
+            if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
                 pulsemap = pulsemap.apply(frame)
         else:
             self.PushFrame(frame)

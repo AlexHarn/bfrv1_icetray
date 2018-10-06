@@ -104,7 +104,7 @@ class ChargeCleaning(icetray.I3Module):
         ### Get the input data
         if self.input in frame:
             pulsemap = frame[self.input]
-            if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
+            if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
                 pulsemap = pulsemap.apply(frame)
         else:
             self.PushFrame(frame)
@@ -153,13 +153,15 @@ class ChargeCleaning(icetray.I3Module):
 
 #############################################################################################
 
+
 def checkIfPulsesInFrame(frame, name):
+    # this looks like something added as a bug fix
+    # I have no idea why there should be pulsemaps with no charge at all //FHL
     if name in frame:
         pulsemap=frame[name]
-        if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
+        if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
             pulsemap = pulsemap.apply(frame)
         for entry in pulsemap:
-            charge = 0
             for pulse in entry.data():
                 if pulse.charge !=0:
                     return True
