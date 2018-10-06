@@ -358,11 +358,6 @@ def MonopoleFilter(tray,name,
     domlist = DOMS.DOMS("IC86") # only one layer of IC DOMs around DC
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
     # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
-    ICDOMlist=[]
-    for string in domlist.exclusiveIceCubeStrings:
-        for DOMNumber in range(1,61):
-            DOMkey=icetray.OMKey(string, DOMNumber)
-            ICDOMlist.append(DOMkey)
 
     CleanedPulses='MM_Cleaned_'+pulses
     ICPulses='MM_IC_Pulses'
@@ -396,7 +391,7 @@ def MonopoleFilter(tray,name,
     # this is for IC
 
     tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectICDOMS',
-                   OmittedKeys = ICDOMlist,
+                   OmittedStrings=list(domlist.exclusiveIceCubeStrings),
                    OutputOMSelection = pretagIC+'Selection',
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPulses,
