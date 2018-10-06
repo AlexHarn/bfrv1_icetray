@@ -4,8 +4,20 @@
 # 0.1c to 0.75c independent of their brightness
 
 from icecube import icetray, dataclasses
+import decimal
+
 
 #############################################################################################
+
+def round_ceiling(val):
+    # for some reason this code used a function called ceil which was actually a round with ceiling round (ROUND_CEILING)
+    # instead of bankers round (or ROUND_HALF_EVEN) as in the normal python round function
+    # not sure if this was planned or if this was an accident, need to contact original author,
+    # changing to a bankers round now would alter the physics of the filter as the usecase at the moment is
+    # 0.5 * N
+    # //FHL
+    return decimal.Decimal.from_float(val).quantize(1, rounding=decimal.ROUND_UP)
+
 
 @icetray.traysegment
 def monopoleCV(tray, name,RecoPulses,ParticleName,
@@ -82,19 +94,6 @@ class ChargeCleaning(icetray.I3Module):
 
     # ------------------------------------------------------------------------------------
 
-    def ceil(self, number):
-        integer=int(number)     # 1.9 -> 1   1.4 -> 1
-        diff = number-integer   # 0.9        0.4
-        if diff==0:
-            return integer
-        else:
-            if number>0 and diff >= 0.5 :
-                return integer+1
-            elif number<0 and diff <= -0.5:
-                return integer-1
-            else:
-                return integer
-
     def Physics(self, frame):
 
         if not self.If(frame):
@@ -127,7 +126,7 @@ class ChargeCleaning(icetray.I3Module):
 
         ### Get DOMs with hightest integrated charge
         keylist = []
-        nSelect = max( int(self.ceil(self.frac*len(domCharges))), min(2,len(domCharges)) )
+        nSelect = max( int(round_ceiling(self.frac*len(domCharges))), min(2,len(domCharges)) )
         for i in range(nSelect):
            keylist.append(domCharges[i][0])
 
