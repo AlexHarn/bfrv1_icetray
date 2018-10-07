@@ -151,7 +151,7 @@ class ChargeCleaning(icetray.I3Module):
 
 #############################################################################################
 
-def mpfilter(frame, verbose=False, softcuts=True):
+def mpfilter(frame, softcuts=True):
     from icecube.filterscripts import filter_globals
 
     pretagIC="MM_IC_"
