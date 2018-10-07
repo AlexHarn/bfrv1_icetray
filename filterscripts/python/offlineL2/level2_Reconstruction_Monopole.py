@@ -3,9 +3,11 @@
 # This filter is supposed to select tracks with velocities
 # 0.1c to 0.75c independent of their brightness
 
-import I3Tray
 from icecube import icetray, dataclasses
 import decimal
+
+
+#############################################################################################
 
 def round_ceiling(val):
     # for some reason this code used a function called ceil which was actually a round with ceiling round (ROUND_CEILING)
@@ -15,6 +17,7 @@ def round_ceiling(val):
     # 0.5 * N
     # //FHL
     return decimal.Decimal.from_float(val).quantize(1, rounding=decimal.ROUND_UP)
+
 
 @icetray.traysegment
 def CV(tray, name,RecoPulses,ParticleName,
@@ -191,6 +194,7 @@ def mpfilter(frame, verbose=False, softcuts=True):
     icetray.logging.log_debug(
         'IC Frames found: {0} {1} {2} {3}'.format((pretagIC + hmv) in frame, (pretagIC + "LineFitI") in frame,
                                                   (pretagIC + tcv) in frame, (pretagIC + tv) in frame))
+
     #caching the frame set because we need to use if for the DC part as well
     cachedoriginalframekeysset = set(frame.keys())
     # check that everything we need is in frame, utilizing issubset
@@ -232,14 +236,14 @@ def mpfilter(frame, verbose=False, softcuts=True):
         #            keep=True
         #        print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
-        if (n_doms > ICndomvalue) and \
+        ICKeep = (n_doms > ICndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
                 (speed < ICspeedvalue ) and \
                 (lengths < -IClength or lengths > IClength ) and \
                 (gap < ICgap ) and \
-                (time > ICtime ):
-            ICKeep=True
+                (time > ICtime )
+
     frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
 
     # DC Filter
@@ -287,22 +291,20 @@ def mpfilter(frame, verbose=False, softcuts=True):
         #            keep=True
         #        print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
 
-
-        if (n_doms > DCndomvalue) and \
+        DCKeep = (n_doms > DCndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
                 (speed < DCspeedvalue ) and \
                 (time > DCTime ) and \
                 (gap < DCgap ) and \
-                (fwhm > DCfwhm):
-            DCKeep=True
+                (fwhm > DCfwhm)
 
     frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
+
+    # decision
     MMFilter = ICKeep or DCKeep
     frame[filter_globals.MonopoleFilter+"_key"] = icetray.I3Bool(MMFilter)
-
     return True
-
 
 #############################################################################################
 
@@ -310,8 +312,7 @@ def mpfilter(frame, verbose=False, softcuts=True):
 def MonopoleL2(tray, name,
                 pulses= "SplitInIcePulses",
                 seededRTConfig = "",
-                If = lambda f: True
-                ):
+                If = lambda f: True):
     #modifying If to keep difference between filter and offline to a minimum //FHL
     If = lambda f: "FilterMask" in f and f["FilterMask"]["MonopoleFilter_16"].condition_passed and If(f)
 

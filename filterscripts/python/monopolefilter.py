@@ -36,26 +36,28 @@ def monopoleCV(tray, name,RecoPulses,ParticleName,
 
 
     ##Common Variables
+
     tray.AddSegment(hit_multiplicity.I3HitMultiplicityCalculatorSegment, pretag +hmv+tag,
-                    PulseSeriesMapName = RecoPulses,
-                    OutputI3HitMultiplicityValuesName = pretag+hmv+tag,
-                    BookIt = False,
-                    If = If,
-                    )
+		     PulseSeriesMapName                = RecoPulses,
+		     OutputI3HitMultiplicityValuesName = pretag+hmv+tag,
+		     BookIt                            = False,
+		     If = If,
+		     )
 
     tray.AddSegment(track_characteristics.I3TrackCharacteristicsCalculatorSegment, pretag+tcv+tag,
-                    PulseSeriesMapName = RecoPulses,
-                    OutputI3TrackCharacteristicsValuesName = pretag+tcv+tag,
-                    ParticleName = ParticleName,
-                    TrackCylinderRadius = 100/icetray.I3Units.m,
-                    If = If,
-                    )
+            PulseSeriesMapName              = RecoPulses,
+            OutputI3TrackCharacteristicsValuesName = pretag+tcv+tag,
+            ParticleName                    = ParticleName,
+            TrackCylinderRadius             = 100/icetray.I3Units.m,
+            If = If,
+
+	        )
 
     tray.AddModule(time_characteristics.I3TimeCharacteristicsCalculator, pretag+tv+tag,
-                   PulseSeriesMapName = RecoPulses,
-                   OutputI3TimeCharacteristicsValuesName = pretag+tv+tag,
-                   If = If,
-                   )
+            PulseSeriesMapName              = RecoPulses,
+            OutputI3TimeCharacteristicsValuesName = pretag+tv+tag,
+            If = If,
+    )
 
     remove.extend([pretag+hmv+tag, pretag+tcv+tag, pretag+tv+tag])
 
@@ -171,10 +173,11 @@ def checkIfPulsesInFrame(frame, name):
 def mpfilter(frame, verbose=False, softcuts=True):
     from icecube.filterscripts import filter_globals
 
-    DCPulses="MM_DC_Pulses"
-    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
     pretagIC="MM_IC_"
     pretagDC="MM_DC"
+    DCPulses=pretagDC+"_Pulses"
+    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
+
     hmv="HitMultiplicityValues"
     tcv="TrackCharacteristicsValues"
     tv="TimeCharacteristics"
@@ -325,12 +328,11 @@ def mpfilter(frame, verbose=False, softcuts=True):
 #############################################################################################
 
 @icetray.traysegment
-def MonopoleFilter(tray,name,
+def MonopoleFilter(tray, name,
                    # this is split by topo.splitter ("InIceSplit") but not cleaned, only non-split ("NullSplit") filter is the slop filter
-                   pulses = "SplitUncleanedInIcePulses",
+                   pulses= "SplitUncleanedInIcePulses",
                    seededRTConfig = "",
                    keepFrames=False,
-                   verbose=False,
                    If=lambda f: True):
 
     from icecube.filterscripts import filter_globals
@@ -352,12 +354,12 @@ def MonopoleFilter(tray,name,
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
     # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
 
-    CleanedPulses='MM_Cleaned_'+pulses
-    ICPulses='MM_IC_Pulses'
-    DCPulses="MM_DC_Pulses"
-    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
     pretagIC="MM_IC_"
     pretagDC="MM_DC"
+    CleanedPulses='MM_Cleaned_'+pulses
+    ICPulses=pretagIC+'Pulses'
+    DCPulses=pretagDC+"_Pulses"
+    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
 
     remove=[]
     # ------------------------------------------------------------------------------------
@@ -373,7 +375,7 @@ def MonopoleFilter(tray,name,
                    SeedProcedure          = 'AllHLCHits',
                    MaxNIterations         = -1,
                    Streams                = [icetray.I3Frame.Physics],
-                   If = If,
+                   If = If
     )
 
     remove.append(CleanedPulses)
@@ -381,22 +383,22 @@ def MonopoleFilter(tray,name,
     # no time window cleaning to get more than 6000 ns
 
     # ------------------------------------------------------------------------------------
-    # this is for IC
+    # IceCube
 
     tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectICDOMS',
-                   OmittedStrings=list(domlist.exclusiveIceCubeStrings),
+                   OmittedStrings = list(domlist.exclusiveIceCubeStrings),
                    OutputOMSelection = pretagIC+'Selection',
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPulses,
                    SelectInverse = True,
-                   If = If,
+                   If = If
                    )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LF",
-                    inputResponse= ICPulses,
-                    fitName = pretagIC+"LineFitI",
-                    If = If,
-                    )
+		     inputResponse= ICPulses,
+		     fitName = pretagIC+"LineFitI",
+		     If = If
+		     )
 
     monopoleCV(tray,"CV_IC",
                RecoPulses=ICPulses, # same as in filter
@@ -404,9 +406,8 @@ def MonopoleFilter(tray,name,
                tag="",
                pretag=pretagIC,
                remove=remove,
-               If =  lambda f: If(f) and checkIfPulsesInFrame(f, ICPulses),
+               If =  lambda f: If(f) and checkIfPulsesInFrame(f, ICPulses)
                )
-    #tray.AddModule("Dump", "dump")
 
     remove.extend([pretagIC+"Selection", ICPulses,
                    pretagIC+"LineFitI", ICPulses+"CleanedKeys"
@@ -420,7 +421,7 @@ def MonopoleFilter(tray,name,
                    InputResponse = CleanedPulses,
                    OutputResponse = DCPulses,
                    OutputOMSelection = pretagDC+'Selection',
-                   If = If,
+                   If = If
                    )
 
     tray.AddModule(ChargeCleaning, name+"ChargeCleaning_First_05",
@@ -431,29 +432,31 @@ def MonopoleFilter(tray,name,
                   )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LFDC"+SelectedDCPulses,
-                    inputResponse= SelectedDCPulses,
-                    fitName = pretagDC+"LineFitI_"+SelectedDCPulses,
-                    If = lambda f: If(f) and DCPulses in f
-                    )
+         inputResponse= SelectedDCPulses,
+         fitName = pretagDC+"LineFitI_"+SelectedDCPulses,
+         If = lambda f: If(f) and DCPulses in f
+         )
 
     monopoleCV(tray,"CV_DC",
-               RecoPulses=SelectedDCPulses, # same as in filter
-               ParticleName= pretagDC+"LineFitI_"+SelectedDCPulses,
-               tag=SelectedDCPulses,
-               pretag=pretagDC,
-               If = lambda f: If(f) and \
-                   "MM_DC_nHits" in f and \
-                   f["MM_DC_nHits"] > 0 and \
-                   (pretagDC+"LineFitI_"+SelectedDCPulses) in f
-               )
+        RecoPulses=SelectedDCPulses, # same as in filter
+        ParticleName= pretagDC+"LineFitI_"+SelectedDCPulses,
+        tag=SelectedDCPulses,
+        pretag=pretagDC,
+        If = lambda f: If(f) and \
+        "MM_DC_nHits" in f and \
+        f["MM_DC_nHits"]>0 and \
+        (pretagDC+"LineFitI_"+SelectedDCPulses) in f
+        )
+
     remove.extend([DCPulses, pretagDC+"Selection", DCPulses+"_First", SelectedDCPulses,
                    pretagDC+"LineFitI_"+SelectedDCPulses, DCPulses+"CleanedKeys", "MM_DC_nHits"])
+
 
     # ------------------------------------------------------------------------------------
     # Filter and end
 
     tray.AddModule(mpfilter, name+"_filter",
-                   If = If,
+                   If = If
                    )
 
     tray.AddModule("I3FilterModule<I3BoolFilter>",name + "_MonopoleFilter",
