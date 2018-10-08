@@ -95,7 +95,7 @@ class ChargeCleaning(icetray.I3Module):
                           "HighChargePulseSeriesReco")
 
         self.AddParameter("ChargeFraction",
-                          "",
+                          "Minimal fraction of all DOMs selected for OutputRecoPulses",
                           "0.5")
 
         self.AddParameter("If", "", lambda f: True)
