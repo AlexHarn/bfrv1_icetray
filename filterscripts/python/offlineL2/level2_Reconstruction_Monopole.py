@@ -136,32 +136,23 @@ class ChargeCleaning(icetray.I3Module):
             if charge != 0: # obi: avoid charge=0 -> Feature extractore couldn't reconstruct the puls from waveform
                 domCharges.append([entry.key(),charge])
 
-        ### Sort list of DOMs by charge
-        domCharges.sort(key=lambda item: item[1],reverse=True)
+        # Sort list of DOMs by charge
+        domCharges.sort(key=lambda item: item[1], reverse=True)
+        # Calculate the number of DOMs to be copied into the new map
+        nSelect = max(int(round_ceiling(self.frac * len(domCharges))), min(2, len(domCharges)))
 
-        ### Get DOMs with hightest integrated charge
-        keylist = []
-        nSelect = max( int(round_ceiling(self.frac*len(domCharges))), min(2,len(domCharges)) )
-        for i in range(nSelect):
-           keylist.append(domCharges[i][0])
+        # list of DOMs where we want to pick the first pulse
+        selectedDOMs = [omkey for omkey, charge in domCharges[:nSelect] if not len(pulsemap[omkey]) == 0]
+        # not sure why we need the check for the number of pulses for the dom, it was in the old code with a
+        # comment that this is needed to process the whole pulsemap, if think it is not required but will leave it here
+        # //FHL
 
-        ### Make a new RecoPulseSeriesMap
-        NewPulseMap = dataclasses.I3RecoPulseSeriesMap()
-        nhits=0
-        for entry in keylist:
+        # Mask of first Pulse of the selected DOMs
+        frame[self.out] = dataclasses.I3RecoPulseSeriesMapMask(frame, self.input, lambda omkey, index, pulse:
+                                                               index == 0 and omkey in selectedDOMs
+                                                               )
 
-            ### this is needed to process the full RecoPulseSeriesMap
-            if len(pulsemap[entry]) == 0:
-                continue
-
-            # use only the first pulse!
-            NewPulseVector = dataclasses.I3RecoPulseSeries()
-            NewPulseVector.append(pulsemap[entry][0])
-            NewPulseMap[entry] = NewPulseVector
-            nhits+=1
-
-        frame[DC_NHITS] = dataclasses.I3Double(nhits)
-        frame[self.out] = NewPulseMap
+        frame[DC_NHITS] = dataclasses.I3Double(len(selectedDOMs))
         self.PushFrame(frame)
         return True
 
