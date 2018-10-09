@@ -21,9 +21,9 @@ def MaskMaker(frame, Output):
     ii_mask = dataclasses.I3RecoPulseSeriesMapMask(frame, 'I3SuperDST')
     it_mask = dataclasses.I3RecoPulseSeriesMapMask(frame, 'I3SuperDST')
     
-    omgeo = frame['I3Geometry']
+    i3geometry = frame['I3Geometry']
     for omkey in pulses.keys():
-        g = omgeo[omkey]
+        g = i3geometry.omgeo[omkey]
         ii_mask.set(omkey, g.omtype == dataclasses.I3OMGeo.IceCube)
         it_mask.set(omkey, g.omtype == dataclasses.I3OMGeo.IceTop)
     frame['InIce'+Output]  = ii_mask
