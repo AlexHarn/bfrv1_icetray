@@ -353,6 +353,7 @@ then norm_for_all will be a factor two larger than norm_per_type.
 Instead of using oneweight / type_weight, you may use OneWeightPerType, because
 
 .. code-block:: python
+
  oneweightpertype = oneweight / type_weight
 
 
