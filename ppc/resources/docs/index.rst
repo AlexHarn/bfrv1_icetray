@@ -558,6 +558,29 @@ since we have ice organized in layers of constant optical properties the integra
 on any segment the direction is fixed and absorption coefficient is modified according to the anisotropy model. It should be easy to do the same to the scattering coefficient, if necessary.
 
 
+Specific code details requested in tickets
+------------------------------------------
+
+Cable shadow
+++++++++++++
+
+Cable shadow is implemented in ppc as a folloowing approximation: the photon landing coordinates (on a DOM) and final direction are used to "backtrack" the photon to sek whether it could have intersected with cable positioned next to the DOM before landing on the surface of the DOM. The cable shape is implemented as a vertical cylinder with a radius of 23 mm that is touching the surface of the DOM (for the nominally oriented DOM, at the equator). An implementation of the cable as a curve touching the DOM surface but asymptotically aligning with the DOM axis above and below the DOM, also exists within the llh/DirectFit code. This code can be switched on by setting CYLR=0. The location of the cable wrt. the DOM is specified via angle to the cable in the configuration file dx.dat.
+
+The cable shadow code is implemented outside of the propagate kernel (which runs on the GPU), thus executing on the CPU side, during the post-processing of the hits (the code is in file f2k.cxx).
+
+Hole Ice
+++++++++
+
+The hole ice is implemented to describe the following physical construction precisely: A vertical infinite cylinder column of constant ice properties, going through the center of the string (for each string). The ice properties are specified in the cfg.txt file in the optional block as described in the configuration files section above. The configuration describes the radius of the cylindrical column, scattering and absorption coefficients, and shape parameters of the scattering function: f_SL and g. If all of the DOMs of the string have exactly the same x and y coordinates, the hole ice column is simulated as concentric with the DOMs. In order to simulate the situation where the hole ice is to a side of the DOM, the DOM coordinates need to be adjusted. Keep in mind that this will in turn modify the average x and y of the string (i.e. of the center of the string), so the coordinates of the rest of the DOMs need to be adjusted in the opposite direction by a small amount (1/60th for a nominal IceCube string). Since this implementation is currently just a placeholder, still awaiting detailed calibration of the hole ice properties, a more verstile configuration has not yet been implemented. It may turn out that the future configurations fully implementing hole ice can be fully specified with the existing scheme, or that modification may be required.
+
+DOM tilt
+++++++++
+
+DOM tilt is implemented by assuming a tilt in the DOM axis (i.e. deviation from the vertical) during application of the angular DOM sensitivity. This is done for either the "effective" angular DOM sensitivity that only depends on the direction of the photon (and then the angle on which the angular sensitivity depends is calculated wrt. the DOM tilt axis rather than the vertical), or the new DARD-style DOM sensitivity which accepts photons a certain distance down from the DOM equator (i.e., effectively simulating a sensitive survace of the PMT). The tilt directions of DOMs are specifies in the configuration file cx.dat.
+
+The DOM tilt code is implemented outside of the propagate kernel (which runs on the GPU), thus executing on the CPU side, during the post-processing of the hits (the code is in file f2k.cxx).
+
+
 
 References:
 -----------
