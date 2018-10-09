@@ -148,7 +148,7 @@ angle, and are given in different units::
 	>>> weights = p_int*(flux(ptype, energy, cos_theta)/unit)/generator(energy, ptype, cos_theta)
 
 TotalInteractionProbabilityWeight is renamed to TotalWeight after icesim V04-01-XX.
-All renamed parameters are listed in `here <http://software.icecube.wisc.edu/documentation/projects/neutrino-generator/weightdict.html`_ .
+All renamed parameters are listed in `here <http://software.icecube.wisc.edu/documentation/projects/neutrino-generator/weightdict.html>`_ .
 
 NeutrinoGenerator calculates and stores a quantity called "OneWeight" that is
 analogous to the inverse of the generated fluence. In this case we can use it
