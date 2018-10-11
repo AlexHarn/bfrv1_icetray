@@ -149,6 +149,11 @@ def ehe_wg_Qstream(frame):
     else:
         return 0
 
+### Monopole ###
+def monopole_wg(frame):
+    return "FilterMask" in frame and frame["FilterMask"][filter_globals.MonopoleFilter].condition_passed
+
+
 ###################################################
 ####### PHOTON TABLES :( ##########################
 ###################################################

@@ -4,7 +4,7 @@ from icecube.icetray import I3Units
 from icecube.filterscripts.offlineL2 import Globals
 from icecube.filterscripts.offlineL2.Globals import (deepcore_wg, 
     muon_wg, wimp_wg, cascade_wg, 
-    fss_wg, fss_wg_finiteReco, ehe_wg, ehe_wg_Qstream)
+    fss_wg, fss_wg_finiteReco, ehe_wg, ehe_wg_Qstream, monopole_wg)
 from icecube.filterscripts.offlineL2.Rehydration import Rehydration, Dehydration
 from icecube.filterscripts.offlineL2.level2_IceTop_CalibrateAndExtractPulses import CalibrateAndExtractIceTop
 from icecube.filterscripts.offlineL2.level2_EHE_Calibration import EHECalibration
@@ -190,6 +190,6 @@ def OfflineFilter(tray, name,
     tray.AddSegment(MonopoleL2, "monopole",
                     pulses= "SplitInIcePulses",
                     seededRTConfig = seededRTConfig,
-                    If = which_split(split_name='InIceSplit')
+                    If = which_split(split_name='InIceSplit') & monopole_wg
     )
     

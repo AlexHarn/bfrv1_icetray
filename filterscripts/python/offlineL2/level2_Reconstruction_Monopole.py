@@ -324,10 +324,6 @@ def MonopoleL2(tray, name,
     from icecube.common_variables import track_characteristics
     from icecube.common_variables import time_characteristics
 
-    #modifying If to keep difference between filter and offline to a minimum //FHL
-    If = lambda f: "FilterMask" in f and f["FilterMask"][filter_globals.MonopoleFilter].condition_passed and If(f)
-
-
 
     domlist = DOMS.DOMS("IC86") # only one layer of IC DOMs around DC
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
