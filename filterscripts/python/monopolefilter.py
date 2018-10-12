@@ -160,6 +160,8 @@ class ChargeCleaning(icetray.I3Module):
 def checkIfPulsesInFrame(frame, name):
     # this looks like something added as a bug fix
     # I have no idea why there should be pulsemaps with no charge at all //FHL
+    # the more I think about is the less sense this makes, why do we not need to check the same
+    # thing for the DC part?
     if name in frame:
         pulsemap=frame[name]
         if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
@@ -326,17 +328,12 @@ def MonopoleFilter(tray, name,
                    seededRTConfig = "",
                    keepFrames=False,
                    If=lambda f: True):
+    # Filter is split into two parts, IceCube (IC) and DeepCore (DC)
 
     from icecube.filterscripts import filter_globals
     icetray.load("filterscripts",False)
-    from icecube import dataclasses
+    from icecube import dataclasses, linefit
     from icecube.DeepCore_Filter import DOMS
-    from icecube import linefit
-
-    from icecube.common_variables import hit_multiplicity
-    from icecube.common_variables import track_characteristics
-    from icecube.common_variables import time_characteristics
-
 
     domlist = DOMS.DOMS("IC86") # only one layer of IC DOMs around DC
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
@@ -346,8 +343,6 @@ def MonopoleFilter(tray, name,
 
     remove=[]
     # ------------------------------------------------------------------------------------
-
-    # split into DC and IC sample
 
     # taken from DC filter: keeps much more hits of luminescence tracks!
     # Perform SeededRT using HLC instead of HLCCore.
@@ -369,7 +364,7 @@ def MonopoleFilter(tray, name,
     # IceCube
 
     tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'_selectICDOMS',
-                   OmittedStrings = list(domlist.exclusiveIceCubeStrings),
+                   OmittedStrings = domlist.exclusiveIceCubeStrings,
                    OutputOMSelection = PRETAGIC+'Selection',
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPULSES,
@@ -393,8 +388,7 @@ def MonopoleFilter(tray, name,
                )
 
     remove.extend([PRETAGIC+"Selection", ICPULSES,
-                   PRETAGIC+LINEFIT, ICPULSES+"CleanedKeys"
-                   ])
+                   PRETAGIC+LINEFIT])
     # ------------------------------------------------------------------------------------
     # DeepCore
 
@@ -432,7 +426,7 @@ def MonopoleFilter(tray, name,
         )
 
     remove.extend([DCPULSES, PRETAGDC+"Selection", DCSELECTEDPULSES,
-                   PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES, DCPULSES+"CleanedKeys", DC_NHITS])
+                   PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES, DC_NHITS])
 
 
     # ------------------------------------------------------------------------------------

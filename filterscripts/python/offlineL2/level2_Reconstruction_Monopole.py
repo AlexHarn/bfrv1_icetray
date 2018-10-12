@@ -306,17 +306,12 @@ def MonopoleL2(tray, name,
                 pulses= "SplitInIcePulses",
                 seededRTConfig = "",
                 If = lambda f: True):
+    # Filter is split into two parts, IceCube (IC) and DeepCore (DC)
 
     from icecube.filterscripts import filter_globals
     icetray.load("filterscripts",False)
-    from icecube import dataclasses
+    from icecube import dataclasses, linefit
     from icecube.DeepCore_Filter import DOMS
-    from icecube import linefit
-
-    from icecube.common_variables import hit_multiplicity
-    from icecube.common_variables import track_characteristics
-    from icecube.common_variables import time_characteristics
-
 
     domlist = DOMS.DOMS("IC86") # only one layer of IC DOMs around DC
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
@@ -324,9 +319,6 @@ def MonopoleL2(tray, name,
 
     CleanedPulses=PRETAGLEVEL + '_Cleaned_'+pulses
 
-
-
-    # split into DC and IC sample
 
     # taken from DC filter: keeps much more hits of luminescence tracks!
     # Perform SeededRT using HLC instead of HLCCore.
@@ -347,7 +339,7 @@ def MonopoleL2(tray, name,
     # IceCube
 
     tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'_selectICDOMS',
-                   OmittedStrings = list(domlist.exclusiveIceCubeStrings),
+                   OmittedStrings = domlist.exclusiveIceCubeStrings,
                    OutputOMSelection = PRETAGIC+'Selection',
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPULSES,
