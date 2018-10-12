@@ -21,7 +21,6 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/sim-services/I3MCPEConverters.cxx
   private/sim-services/MCPEMCPulseTools.cxx
   private/sim-services/I3SimConstants.cxx
-  private/sim-services/I3CrossSection.cxx
   private/sim-services/I3PrimaryPulseMapper.cxx
 )
 SET(LIB_${PROJECT_NAME}_TOOLS python boost)
@@ -39,7 +38,6 @@ i3_add_pybindings(sim_services
   private/pybindings/I3SumGenerator.cxx
   private/pybindings/I3PropagatorService.cxx
   private/pybindings/I3SimConstants.cxx
-  private/pybindings/I3CrossSection.cxx
   private/pybindings/module.cxx
   USE_TOOLS ${LIB_${PROJECT_NAME}_TOOLS}
   USE_PROJECTS sim-services
