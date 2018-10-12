@@ -30,7 +30,7 @@ i3_add_library(sim-services
 
   USE_TOOLS ${LIB_${PROJECT_NAME}_TOOLS}
 
-  USE_PROJECTS serialization icetray photospline phys-services dataclasses simclasses
+  USE_PROJECTS serialization icetray phys-services dataclasses simclasses
 )
 
 i3_add_pybindings(sim_services
