@@ -52,7 +52,6 @@ def monopoleCV(tray, name,RecoPulses,ParticleName,
     tray.AddSegment(hit_multiplicity.I3HitMultiplicityCalculatorSegment, name+'_'+pretag +HMV+tag,
 		     PulseSeriesMapName                = RecoPulses,
 		     OutputI3HitMultiplicityValuesName = pretag+HMV+tag,
-		     BookIt                            = False,
 		     If = If,
 		     )
 
