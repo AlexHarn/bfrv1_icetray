@@ -47,10 +47,7 @@ def monopoleCV(tray, name,RecoPulses,ParticleName,
     from icecube.common_variables import track_characteristics
     from icecube.common_variables import time_characteristics
 
-
-
     ##Common Variables
-
     tray.AddSegment(hit_multiplicity.I3HitMultiplicityCalculatorSegment, name+'_'+pretag +HMV+tag,
 		     PulseSeriesMapName                = RecoPulses,
 		     OutputI3HitMultiplicityValuesName = pretag+HMV+tag,
@@ -160,9 +157,6 @@ class ChargeCleaning(icetray.I3Module):
 
 def mpfilter(frame, softcuts=True):
     from icecube.filterscripts import filter_globals
-
-
-
     # soft cuts = larger passing rate
     if softcuts:
         ICndomvalue=6
@@ -329,7 +323,7 @@ def MonopoleL2(tray, name,
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
     # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
 
-    CleanedPulses=PRETAGLEVEL + 'Cleaned_'+pulses
+    CleanedPulses=PRETAGLEVEL + '_Cleaned_'+pulses
 
 
 
@@ -337,7 +331,7 @@ def MonopoleL2(tray, name,
 
     # taken from DC filter: keeps much more hits of luminescence tracks!
     # Perform SeededRT using HLC instead of HLCCore.
-    tray.AddModule('I3SeededRTCleaning_RecoPulseMask_Module', name + 'SeededRT',
+    tray.AddModule('I3SeededRTCleaning_RecoPulseMask_Module', name + '_SeededRT',
                    InputHitSeriesMapName  = pulses,
                    OutputHitSeriesMapName = CleanedPulses,
                    STConfigService        = seededRTConfig,
@@ -353,7 +347,7 @@ def MonopoleL2(tray, name,
     # ------------------------------------------------------------------------------------
     # IceCube
 
-    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectICDOMS',
+    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'_selectICDOMS',
                    OmittedStrings = list(domlist.exclusiveIceCubeStrings),
                    OutputOMSelection = PRETAGIC+'Selection',
                    InputResponse = CleanedPulses,
@@ -368,7 +362,7 @@ def MonopoleL2(tray, name,
 		     If = If
 		     )
 
-    monopoleCV(tray,"CV_IC",
+    monopoleCV(tray, name + "_CV_IC",
                RecoPulses=ICPULSES, # same as in filter
                ParticleName= PRETAGIC+LINEFIT,
                tag="",
@@ -379,7 +373,7 @@ def MonopoleL2(tray, name,
     # ------------------------------------------------------------------------------------
     # DeepCore
 
-    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectDCDOMs',
+    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'_selectDCDOMs',
                    OmittedKeys= domlist.DeepCoreFiducialDOMs,
                    SelectInverse = True,
                    InputResponse = CleanedPulses,
@@ -388,20 +382,20 @@ def MonopoleL2(tray, name,
                    If = If
                    )
 
-    tray.AddModule(ChargeCleaning, name+"ChargeCleaning" + POSTTAGSELECTEDPULSES,
+    tray.AddModule(ChargeCleaning, name+"_ChargeCleaning" + POSTTAGSELECTEDPULSES,
                    InputRecoPulses  = DCPULSES,
                    OutputRecoPulses = DCSELECTEDPULSES,
                    ChargeFraction   = 0.5,
                    If = lambda f: If(f) and DCPULSES in f
                   )
 
-    tray.AddSegment(linefit.simple, name + "_imprv_LFDC"+DCSELECTEDPULSES,
+    tray.AddSegment(linefit.simple, name + "_imprv_LFDC_"+DCSELECTEDPULSES,
          inputResponse= DCSELECTEDPULSES,
          fitName = PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES,
          If = lambda f: If(f) and DCPULSES in f #I think this is a bug, should check for DCSELECTEDPULSES //FHL
          )
 
-    monopoleCV(tray,"CV_DC",
+    monopoleCV(tray, name + "_CV_DC",
         RecoPulses=DCSELECTEDPULSES, # same as in filter
         ParticleName= PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES,
         tag=DCSELECTEDPULSES,

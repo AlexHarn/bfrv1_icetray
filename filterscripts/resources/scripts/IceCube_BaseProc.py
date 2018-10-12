@@ -201,10 +201,10 @@ tray.AddModule( "I3Writer", "EventWriter", filename=outputfile,
 		)
 
 
-
 if prettyprint:
     print tray
     exit(0)
+
 
 #tray.Execute()
 tray.Execute(30000)
@@ -213,7 +213,6 @@ tray.PrintUsage(fraction=1.0)
 for entry in tray.Usage():
     stats[entry.key()] = entry.data().usertime
     print entry.key(),':',entry.data().usertime
-
 
 
 stop_time = time.asctime()
