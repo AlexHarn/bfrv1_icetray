@@ -12,6 +12,7 @@ HMV = "HitMultiplicityValues"
 TCV = "TrackCharacteristicsValues"
 TV = "TimeCharacteristicsValues"
 LINEFIT = "LineFitI"
+OMSELECTION = "Selection"
 
 #use different pretags for filter and offline -> you can run both at the same time and compare output easy //FHL
 #PRETAGLEVEL = "MM_F_" #FILTER
@@ -40,8 +41,10 @@ def round_ceiling(val):
 @icetray.traysegment
 def monopoleCV(tray, name,RecoPulses,ParticleName,
                tag="",pretag="",
+               remove=[],
                If=lambda f: True
                ):
+    # Common Variables Modules needed for the MonopoleFilter
 
     from icecube.common_variables import hit_multiplicity
     from icecube.common_variables import track_characteristics
@@ -69,6 +72,7 @@ def monopoleCV(tray, name,RecoPulses,ParticleName,
             If = If,
     )
 
+    remove.extend([pretag+HMV+tag, pretag+TCV+tag, pretag+TV+tag])
 
 
 #############################################################################################
@@ -112,13 +116,9 @@ class ChargeCleaning(icetray.I3Module):
             return True
 
         ### Get the input data
-        if self.input in frame:
-            pulsemap = frame[self.input]
-            if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
-                pulsemap = pulsemap.apply(frame)
-        else:
-            self.PushFrame(frame)
-            return True
+        pulsemap = frame[self.input]
+        if isinstance(pulsemap, dataclasses.I3RecoPulseSeriesMapMask):
+            pulsemap = pulsemap.apply(frame)
 
         # Order Doms by charge (charge is the amount of photons reaching one dom
         # Select the highest charged doms
@@ -129,7 +129,7 @@ class ChargeCleaning(icetray.I3Module):
             charge = 0
             for pulse in entry.data():
                 charge += pulse.charge
-            if charge != 0: # obi: avoid charge=0 -> Feature extractore couldn't reconstruct the puls from waveform
+            if charge != 0: # obi: avoid charge=0 -> Feature extractore couldn't reconstruct the pulse from waveform
                 domCharges.append([entry.key(),charge])
 
         # Sort list of DOMs by charge
@@ -154,8 +154,7 @@ class ChargeCleaning(icetray.I3Module):
 
 #############################################################################################
 
-def mpfilter(frame, softcuts=True):
-    from icecube.filterscripts import filter_globals
+def mpfilter_IC(frame, softcuts=True):
     # soft cuts = larger passing rate
     if softcuts:
         ICndomvalue=6
@@ -163,39 +162,19 @@ def mpfilter(frame, softcuts=True):
         IClength=250
         ICgap=200
         ICtime=4000
-        #
-        DCndomvalue=6
-        DCspeedvalue=0.7
-        DCgap=float('inf')
-        DCTime=2750
-        DCfwhm=2500
-    # hard cuts = smaller passing rate
     else:
         ICndomvalue=6
         ICspeedvalue=0.8
         IClength=400
         ICgap=200
         ICtime=5000
-        #
-        DCndomvalue=6
-        DCspeedvalue=0.6
-        DCgap=100
-        DCTime=3000
-        DCfwhm=2500
 
-    # IC Filter
-    icetray.logging.log_debug(
-        'IC Frames found: {0} {1} {2} {3}'.format((PRETAGIC + HMV) in frame, (PRETAGIC + LINEFIT) in frame,
-                                                  (PRETAGIC + TCV) in frame, (PRETAGIC + TV) in frame))
-
-    #caching the frame set because we need to use if for the DC part as well
-    cachedoriginalframekeysset = set(frame.keys())
     # check that everything we need is in frame, utilizing issubset
     ICKeep = False
     if {PRETAGIC + HMV,
         PRETAGIC + LINEFIT,
         PRETAGIC + TCV,
-        PRETAGIC + TV} <= cachedoriginalframekeysset:
+        PRETAGIC + TV} <= set(frame.keys()):
 
         n_doms=frame[PRETAGIC+HMV].n_hit_doms
 
@@ -209,26 +188,6 @@ def mpfilter(frame, softcuts=True):
 
         time=frame[PRETAGIC+TV].timelength_last_first
 
-        #this was only for debugging purposes
-        #if verbose:
-        #    decisionPairs=[
-        #        [ "ndom", n_doms, ">",ICndomvalue],
-        #        [ "status", status, "==",0],
-        #        [ "speed", speed, ">",0.0],
-        #        [ "speed", speed, "<",ICspeedvalue],
-        #        [ "lengths", lengths, ">",IClength],
-        #        [ "gap", gap, "<",ICgap],
-        #        [ "time", time, ">",ICtime],
-        #        ]
-        #    for name, var, sign, thre in decisionPairs:
-        #        keep=False
-        #        if (sign==">" and var > thre) or \
-        #                (sign=="<" and var < thre) or \
-        #                ((sign=="==" or sign=="=") and var == thre) or \
-        #                (sign=="!=" and var != thre):
-        #            keep=True
-        #        print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
-
         ICKeep = (n_doms > ICndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
@@ -236,21 +195,31 @@ def mpfilter(frame, softcuts=True):
                 (lengths < -IClength or lengths > IClength ) and \
                 (gap < ICgap ) and \
                 (time > ICtime )
+    return ICKeep
 
-    frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
 
-    # DC Filter
-    icetray.logging.log_debug(
-        'DC Frames found: {0} {1} {2} {3}'.format((PRETAGDC + HMV + DCSELECTEDPULSES) in frame,
-                                                  (PRETAGDC + LINEFIT + "_" + DCSELECTEDPULSES) in frame,
-                                                  (PRETAGDC + TV + DCSELECTEDPULSES) in frame,
-                                                  (PRETAGDC + TCV + DCSELECTEDPULSES) in frame))
+
+def mpfilter_DC(frame, softcuts=True):
+    # soft cuts = larger passing rate
+    if softcuts:
+        DCndomvalue=6
+        DCspeedvalue=0.7
+        DCgap=float('inf')
+        DCTime=2750
+        DCfwhm=2500
+    else:
+        DCndomvalue=6
+        DCspeedvalue=0.6
+        DCgap=100
+        DCTime=3000
+        DCfwhm=2500
+
     DCKeep=False
     # check that everything we need is in frame, utilizing issubset
     if {PRETAGDC + HMV + DCSELECTEDPULSES,
         PRETAGDC + LINEFIT + "_" + DCSELECTEDPULSES,
         PRETAGDC + TV + DCSELECTEDPULSES,
-        PRETAGDC + TCV + DCSELECTEDPULSES} <= cachedoriginalframekeysset:
+        PRETAGDC + TCV + DCSELECTEDPULSES} <= set(frame.keys()):
 
         n_doms=frame[PRETAGDC+HMV+DCSELECTEDPULSES].n_hit_doms
 
@@ -264,26 +233,6 @@ def mpfilter(frame, softcuts=True):
 
         gap=frame[PRETAGDC+TCV+DCSELECTEDPULSES].empty_hits_track_length
 
-        #this was only for debugging purposes
-        #if verbose:
-        #    decisionPairs=[
-        #        [ "ndom", n_doms, ">",DCndomvalue],
-        #        [ "status", status, "==",0],
-        #        [ "speed", speed, ">",0.0],
-        #        [ "speed", speed, "<",DCspeedvalue],
-        #        [ "gap", gap, "<",DCgap],
-        #        [ "time", time, ">",DCTime],
-        #        [ "fwhm", fwhm, ">",DCfwhm],
-        #        ]
-        #    for name, var, sign, thre in decisionPairs:
-        #        keep=False
-        #        if (sign==">" and var > thre) or \
-        #                (sign=="<" and var < thre) or \
-        #                ((sign=="==" or sign=="=") and var == thre) or \
-        #                (sign=="!=" and var != thre):
-        #            keep=True
-        #        print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
-
         DCKeep = (n_doms > DCndomvalue) and \
                 (status == 0) and \
                 (speed > 0.0 ) and \
@@ -291,20 +240,38 @@ def mpfilter(frame, softcuts=True):
                 (time > DCTime ) and \
                 (gap < DCgap ) and \
                 (fwhm > DCfwhm)
+    return DCKeep
 
-    frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
 
-    # decision
-    MMFilter = ICKeep or DCKeep
-    frame[filter_globals.MonopoleFilter+"_key"] = icetray.I3Bool(MMFilter)
+def mpfilter(frame, softcuts=True):
+    from icecube.filterscripts import filter_globals
+    # IC Filter
+    icetray.logging.log_debug(
+        'IC Frames found: {0} {1} {2} {3}'.format((PRETAGIC + HMV) in frame, (PRETAGIC + LINEFIT) in frame,
+                                                  (PRETAGIC + TCV) in frame, (PRETAGIC + TV) in frame))
+    # DC Filter
+    icetray.logging.log_debug(
+        'DC Frames found: {0} {1} {2} {3}'.format((PRETAGDC + HMV + DCSELECTEDPULSES) in frame,
+                                                  (PRETAGDC + LINEFIT + "_" + DCSELECTEDPULSES) in frame,
+                                                  (PRETAGDC + TV + DCSELECTEDPULSES) in frame,
+                                                  (PRETAGDC + TCV + DCSELECTEDPULSES) in frame))
+
+    ICFulfilled = mpfilter_IC(frame, softcuts)
+    DCFulfilled = mpfilter_DC(frame, softcuts)
+    frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICFulfilled)
+    frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCFulfilled)
+    frame[filter_globals.MonopoleFilter+"_key"] = icetray.I3Bool(ICFulfilled or DCFulfilled)
     return True
+
 
 #############################################################################################
 
+#"SplitInIcePulses" for L2
 @icetray.traysegment
 def MonopoleL2(tray, name,
-                pulses= "SplitInIcePulses",
+                pulses,
                 seededRTConfig = "",
+                keepKeys=True,
                 If = lambda f: True):
     # Filter is split into two parts, IceCube (IC) and DeepCore (DC)
 
@@ -317,8 +284,10 @@ def MonopoleL2(tray, name,
     # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
     # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
 
-    CleanedPulses=PRETAGLEVEL + '_Cleaned_'+pulses
+    CleanedPulses=PRETAGLEVEL + 'Cleaned_'+pulses
 
+    remove=[]
+    # ------------------------------------------------------------------------------------
 
     # taken from DC filter: keeps much more hits of luminescence tracks!
     # Perform SeededRT using HLC instead of HLCCore.
@@ -332,6 +301,7 @@ def MonopoleL2(tray, name,
                    If = If
     )
 
+    remove.append(CleanedPulses)
 
     # no time window cleaning to get more than 6000 ns
 
@@ -340,7 +310,7 @@ def MonopoleL2(tray, name,
 
     tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'_selectICDOMS',
                    OmittedStrings = domlist.exclusiveIceCubeStrings,
-                   OutputOMSelection = PRETAGIC+'Selection',
+                   OutputOMSelection = PRETAGIC+OMSELECTION,
                    InputResponse = CleanedPulses,
                    OutputResponse = ICPULSES,
                    SelectInverse = True,
@@ -350,17 +320,20 @@ def MonopoleL2(tray, name,
     tray.AddSegment(linefit.simple, name + "_imprv_LF",
 		     inputResponse= ICPULSES,
 		     fitName = PRETAGIC+LINEFIT,
-		     If = If
+		     If = lambda f: ICPULSES in f and len(f[ICPULSES])>0
 		     )
 
     monopoleCV(tray, name + "_CV_IC",
-               RecoPulses=ICPULSES, # same as in filter
+               RecoPulses=ICPULSES,
                ParticleName= PRETAGIC+LINEFIT,
                tag="",
                pretag=PRETAGIC,
-               If =  If
+               remove=remove,
+               If = lambda f: PRETAGIC + LINEFIT in f
                )
 
+    remove.extend([PRETAGIC+OMSELECTION, ICPULSES,
+                   PRETAGIC+LINEFIT])
     # ------------------------------------------------------------------------------------
     # DeepCore
 
@@ -369,7 +342,7 @@ def MonopoleL2(tray, name,
                    SelectInverse = True,
                    InputResponse = CleanedPulses,
                    OutputResponse = DCPULSES,
-                   OutputOMSelection = PRETAGDC+'Selection',
+                   OutputOMSelection = PRETAGDC+OMSELECTION,
                    If = If
                    )
 
@@ -377,28 +350,49 @@ def MonopoleL2(tray, name,
                    InputRecoPulses  = DCPULSES,
                    OutputRecoPulses = DCSELECTEDPULSES,
                    ChargeFraction   = 0.5,
-                   If = lambda f: If(f) and DCPULSES in f
+                   If = lambda f: DCPULSES in f and len(f[DCPULSES]) > 0
                   )
 
     tray.AddSegment(linefit.simple, name + "_imprv_LFDC_"+DCSELECTEDPULSES,
          inputResponse= DCSELECTEDPULSES,
          fitName = PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES,
-         If = lambda f: If(f) and DCPULSES in f #I think this is a bug, should check for DCSELECTEDPULSES //FHL
+         If = lambda f: DCSELECTEDPULSES in f and f[DCSELECTEDPULSES].any()
          )
 
     monopoleCV(tray, name + "_CV_DC",
-        RecoPulses=DCSELECTEDPULSES, # same as in filter
+        RecoPulses=DCSELECTEDPULSES,
         ParticleName= PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES,
         tag=DCSELECTEDPULSES,
         pretag=PRETAGDC,
-        If = lambda f: If(f) and \
-        DC_NHITS in f and \
-        f[DC_NHITS]>0 and \
+        If = lambda f: DC_NHITS in f and \
+        f[DC_NHITS] != 0 and \
         (PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES) in f
         )
 
-    # ------------------------------------------------------------------------------------
-    # restore information which filter selection was fulfilled: IC or DC
+    remove.extend([DCPULSES, PRETAGDC+OMSELECTION, DCSELECTEDPULSES,
+                   PRETAGDC+ LINEFIT + "_" + DCSELECTEDPULSES, DC_NHITS])
+
+
+
     tray.AddModule(mpfilter, name+"_filter",
                    If = If
                    )
+
+    #no need to add this already existing inormation back
+    #tray.AddModule("I3FilterModule<I3BoolFilter>",name + "_MonopoleFilter",
+    #               Boolkey = filter_globals.MonopoleFilter+"_key",
+    #               DecisionName = filter_globals.MonopoleFilter,
+    #               DiscardEvents = False,
+    #               If = If,
+    #               )
+
+    remove.extend([filter_globals.MonopoleFilter+"_DC",
+                   filter_globals.MonopoleFilter+"_IC",
+                   filter_globals.MonopoleFilter+"_key"
+                   ])
+
+    if not keepKeys:
+        tray.AddModule("Delete",'MM_leftOvers',
+                       Keys=remove,
+                       If = If,
+                       )
