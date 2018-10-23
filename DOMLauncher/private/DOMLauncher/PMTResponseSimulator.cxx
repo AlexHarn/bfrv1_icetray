@@ -128,18 +128,24 @@ void PMTResponseSimulator::Configure(){
 		log_warn("Enabling 'low memory' mode, which will attempt to reduce memory use at the cost of longer run time");
 	}
 
-	//TODO: store these constants somewhere else
-	//Also, use constants derived from data rather than lifted from pmt-simulator
+	// This generic charge distribution was taken as the average charge distribution from in-ice data. See https://wiki.icecube.wisc.edu/index.php/SPE_templates.
 	genericChargeDistribution_ = boost::make_shared<I3SumGenerator>(randomService_,
-	    pmtChargeDistribution(0.5057, //exponential width
-	                          1., //gaussian mean
-	                          0.2916, //gaussian width
-	                          1.624367847034316), //amplitude ratio
+	    SPEChargeDistribution(
+	        6.9, //exp1_amp
+	        0.032, //exp1_width
+	        0.564111709633, //exp2_amp
+	        0.426704575986, //exp2_width
+	        0.710004984597, //gaus_amp
+	        1.0, //gaus_mean
+	        0.304733427686, //gaus_width
+	        1.313, // compensation factor
+	        1. // SLC mean
+	    ),
 	    0, //minimum value
 	    3, //maximum value
 	    1000, //number of bins
 	    12 //when to switch to gaussian sampling
-	    );
+	);
 }
 
 bool earlierHit(const I3MCPE& h1, const I3MCPE& h2){ return(h1.time < h2.time); }
@@ -248,6 +254,28 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 	}
 	std::vector<I3ParticleID> parents;
 
+	//ensure that we have an up-to-date charge distribution for the DOM
+	boost::shared_ptr<I3SumGenerator> speDistribution;
+	if(!chargeDistributions_.count(dom)){
+	    auto rawDistribution=calibration.GetCombinedSPEChargeDistribution();
+		if(rawDistribution.IsValid()){
+			speDistribution=boost::make_shared<I3SumGenerator>(randomService_,
+			                  calibration.GetCombinedSPEChargeDistribution(),
+							  0, //minimum value
+							  3, //maximum value
+							  1000, //number of bins
+							  12 //when to switch to gaussian sampling
+							  );
+		}
+		else{
+			log_debug_stream("Falling back to generic charge distribution for " << dom);
+			speDistribution=genericChargeDistribution_;
+		}
+		chargeDistributions_.insert(std::make_pair(dom,speDistribution)).first;
+	}
+	else
+		speDistribution=chargeDistributions_.find(dom)->second;
+
 	const double pmtVoltage=status.pmtHV;
 	uint32_t peIndex=0; //index of the pe we are processing
 	uint32_t pulseIndex=0; //index of the pulse we are generating
@@ -287,7 +315,7 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 			if(ran<(1.-prePulseProbability_-latePulseProbability_)){ //regular pulse
 				log_trace("creating an SPE");
 				pulse.source=I3MCPulse::PE;
-				pulse.charge=normalHitWeight(1,dom);
+				pulse.charge=normalHitWeight(1,speDistribution);
 				pulse.time+=PMTJitter();
 			}
 			else if(ran<(1.-latePulseProbability_)){ //prepulse
@@ -301,7 +329,7 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 			}
 			else{ //late pulse
 				log_trace("creating a late pulse");
-				createLatePulse(pulse,dom,pmtVoltage);
+				createLatePulse(pulse,speDistribution,pmtVoltage);
 			}
 			outputHits.push_back(pulse);
 			particleMap[pid].push_back(pulseIndex++);
@@ -314,7 +342,7 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 				log_trace("adding an afterpulse");
 				I3MCPulse afterPulse;
 				afterPulse.time=afterpulseBaseTime; //use the parent hit's time
-				createAfterPulse(afterPulse,dom,pmtVoltage);
+				createAfterPulse(afterPulse,speDistribution,pmtVoltage);
 				afterpulseBaseTime=afterPulse.time; //set the base time for a possible subsidiary afterpulse
 				outputHits.push_back(afterPulse);
 				particleMap[pid].push_back(pulseIndex++);
@@ -351,15 +379,10 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 	return(result);
 }
 
-double PMTResponseSimulator::normalHitWeight(unsigned int w, OMKey om){
+double PMTResponseSimulator::normalHitWeight(unsigned int w, const boost::shared_ptr<I3SumGenerator>& speDistribution){
 	if(!useSPEDistribution_)
 		return(w);
-	auto distIt=chargeDistributions_.find(om);
-	if(distIt==chargeDistributions_.end()){ //did not find this OM
-		//TODO: use actual calibration data for the DOM in question
-		distIt=chargeDistributions_.insert(std::make_pair(om,genericChargeDistribution_)).first;
-	}
-	return(distIt->second->Generate(w));
+	return(speDistribution->Generate(w));
 }
 
 //Taken directly from the I3HitMaker code
@@ -425,7 +448,7 @@ struct pulseComponent{
 //This suggests to the compiler that var is 'used', suppressing unhelpful warnings
 #define used_var(var) while(0){ var++; }
 
-void PMTResponseSimulator::createLatePulse(I3MCPulse& hit, OMKey om, double voltage){
+void PMTResponseSimulator::createLatePulse(I3MCPulse& hit, const boost::shared_ptr<I3SumGenerator>& speDistribution, double voltage){
 	//data for different types of late pulses
 	const static unsigned int nComponents=5;
 	const static pulseComponent pulseTypes[nComponents]={
@@ -459,10 +482,10 @@ void PMTResponseSimulator::createLatePulse(I3MCPulse& hit, OMKey om, double volt
 	timeDelay *= sqrt(referenceVoltage/voltage);
 	hit.time+=timeDelay;
 
-	hit.charge=normalHitWeight(1,om);
+	hit.charge=normalHitWeight(1,speDistribution);
 }
 
-void PMTResponseSimulator::createAfterPulse(I3MCPulse& hit, OMKey om, double voltage){
+void PMTResponseSimulator::createAfterPulse(I3MCPulse& hit, const boost::shared_ptr<I3SumGenerator>& speDistribution, double voltage){
 	const static unsigned int nComponents=11;
 	//From hit-maker; should be derived from https://wiki.icecube.wisc.edu/index.php/Afterpulse_Data
 	//Note that early after pulse components produce multiple p.e. of charge, so
@@ -505,7 +528,7 @@ void PMTResponseSimulator::createAfterPulse(I3MCPulse& hit, OMKey om, double vol
 	if(pulseType.source==I3MCPulse::EARLY_AFTER_PULSE)
 		hit.charge=earlyAfterPulseWeight();
 	else
-		hit.charge=normalHitWeight(1,om);
+		hit.charge=normalHitWeight(1,speDistribution);
 }
 
 struct saturationParams{
@@ -596,21 +619,3 @@ double PMTResponseSimulator::fisherTippett(double location, double scale,
 	return(location - scale * log(-log(randomService_->Uniform(logLowerBound,logUpperBound))));
 }
 
-PMTResponseSimulator::pmtChargeDistribution::pmtChargeDistribution(double exp_width_,
-                                                                   double gaus_mean_,
-                                                                   double gaus_width_,
-                                                                   double amp_ratio_):
-exp_width(exp_width_),
-gaus_mean(gaus_mean_),
-gaus_width(gaus_width_),
-amp_ratio(amp_ratio_),
-normalization(1./(exp_width_ + amp_ratio_*constants::root_two_pi<double>()*gaus_width_))
-{
-	assert(exp_width>0.0); assert(gaus_mean>0.0);
-	assert(gaus_width>0.0); assert(amp_ratio>0.0);
-}
-
-double PMTResponseSimulator::pmtChargeDistribution::operator()(double q) const{
-	double e=(q-gaus_mean)/gaus_width;
-	return(normalization*(exp(-q/exp_width) + amp_ratio*exp(-0.5*e*e)));
-}

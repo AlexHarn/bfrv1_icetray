@@ -83,10 +83,10 @@ private:
 	///  photoelectrons
 	///
 	///\param w The weight of the hit in photons
-	///\param om The OM for which the charge is to be computed
+	///\param speDistribution The amplification distribution from which to sample 
 	///\return  The amount of charge produced by the PMT for this hit, in units of the ideal charge
 	///         produced by a single photoelectron
-	double normalHitWeight(unsigned int w, OMKey om);
+	double normalHitWeight(unsigned int w, const boost::shared_ptr<I3SumGenerator>& speDistribution);
 
 	///Generates a random time jitter value for a hit
 	///\return A random time offset, in nanoseconds
@@ -110,15 +110,15 @@ private:
 
 	///Alters the properies of the given hit to describe a late pulse
 	///\param hit The existing raw hit to be turned into a late pulse hit
-	///\param om The DOM in which the hit is being detected
+	///\param speDistribution The speDistribution for the DOM on which the hit is being detected
 	///\param voltage The operating voltage of the PMT
-	void createLatePulse(I3MCPulse& hit, OMKey om, double voltage);
+	void createLatePulse(I3MCPulse& hit, const boost::shared_ptr<I3SumGenerator>& speDistribution, double voltage);
 
 	///Alters the properies of the given hit to describe an afterpulse
 	///\param hit The existing raw hit to be turned into an afterpulse hit
-	///\param om The DOM in which the hit is being detected
+	///\param speDistribution The speDistribution for the DOM on which the hit is being detected
 	///\param voltage The operating voltage of the PMT
-	void createAfterPulse(I3MCPulse& hit, OMKey om, double voltage);
+	void createAfterPulse(I3MCPulse& hit, const boost::shared_ptr<I3SumGenerator>& speDistribution, double voltage);
 
 public:
 	///Applies all transformations to a set of hits on a single DOM
@@ -194,27 +194,6 @@ private:
 	///\param logUpperBound Indirectly determines the upper cutoff of the distribution
 	double fisherTippett(double location, double scale, double logLowerBound, double logUpperBound);
 
-	///A helper object for storing and evaluating pulse charge distributions with the form of the
-	///sum of an exponential and a gaussian component.
-	struct pmtChargeDistribution{
-	private:
-		///The width parameter for the exponential component, with units of the ideal s.p.e. result charge
-		double exp_width;
-		///The location of the peak of the gaussian component, with units of the ideal s.p.e. result charge
-		double gaus_mean;
-		///The width parameter for the gaussian component, with units of the ideal s.p.e. result charge
-		double gaus_width;
-		///The amplitude of the gaussian component divided by the amplitude of the exponential component
-		double amp_ratio;
-		///Overall multiplicative factor to ensure that the function has integral 1
-		double normalization;
-
-	public:
-		pmtChargeDistribution(double exp_width_, double gaus_mean_,
-		                      double gaus_width_, double amp_ratio_);
-		///Evaulates normalization * (exp(-q/exp_width) + amp_ratio * exp(-.5((q-gaus_mean)/gaus_width)^2))
-		double operator()(double q) const;
-	};
 	SET_LOGGER("PMTResponseSimulator");
 	friend class PMTResponseSimulatorTestSetup;
 };
