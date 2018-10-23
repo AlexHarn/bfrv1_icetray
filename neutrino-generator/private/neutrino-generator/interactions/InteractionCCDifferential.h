@@ -15,7 +15,7 @@
  *   Standard Model cross-sections derived from sigma
  */
 
-#include "sim-services/I3CrossSection.h"
+#include "phys-services/I3CrossSection.h"
 #include "neutrino-generator/interactions/InteractionCC.h"
 
 namespace nugen {
