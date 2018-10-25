@@ -54,10 +54,11 @@ i3_add_pybindings(simclasses
   private/pybindings/I3MCPE.cxx
   private/pybindings/I3Photon.cxx
   private/pybindings/I3CompressedPhoton.cxx
-  private/pybindings/I3WimpParams.cxx
+  private/pybindings/I3WimpParams.cxx  
+  private/pybindings/I3CylinderMap.cxx  
   private/pybindings/module.cxx
   USE_TOOLS boost python
-  USE_PROJECTS simclasses icetray tableio
+  USE_PROJECTS simclasses icetray tableio clsim
   )
 
 i3_test_scripts(resources/test/*.py)

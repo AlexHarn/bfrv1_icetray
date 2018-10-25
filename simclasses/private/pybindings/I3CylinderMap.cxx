@@ -1,7 +1,8 @@
 #include <simclasses/I3CylinderMap.h>
 #include <icetray/python/dataclass_suite.hpp>
 
-using namespace boost::python;
+using boost::python::class_;
+using boost::python::dataclass_suite;
 
 void register_I3CylinderMap()
 {
@@ -9,6 +10,4 @@ void register_I3CylinderMap()
     boost::shared_ptr<I3CylinderMap>>("I3CylinderMap")
     .def(dataclass_suite<I3CylinderMap>())
     ;
-
-  register_pointer_conversions<I3CylinderMap>();
 }
