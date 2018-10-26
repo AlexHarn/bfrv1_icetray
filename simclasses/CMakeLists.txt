@@ -14,7 +14,7 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/simclasses/I3ParticleIDMap.cxx
   private/simclasses/I3Photon.cxx
   private/simclasses/I3CompressedPhoton.cxx
-  
+  public/simclasses/I3CylinderMap.h  
   
   # tableio converters
   private/simclasses/converter/I3PhotonConverter.cxx
@@ -57,6 +57,7 @@ i3_add_pybindings(simclasses
   private/pybindings/I3WimpParams.cxx  
   private/pybindings/I3CylinderMap.cxx  
   private/pybindings/module.cxx
+  private/pybindings/I3CylinderMap.cxx
   USE_TOOLS boost python
   USE_PROJECTS simclasses icetray tableio clsim
   )
