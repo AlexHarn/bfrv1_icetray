@@ -14,6 +14,9 @@
  */
 
 #include <complex>
+#include <vector>
+#include <set>
+#include <algorithm>
 #include <SuiteSparseQR_C.h>
 
 #include "rnnls.h"
@@ -228,29 +231,6 @@ rnnls_set_active(long pidx,
 }
 
 
-long
-rnnls_find_smallest_passive(rnnls_context *cxt) {
-
-  if (cxt->nP == 0) {
-    return -1;
-  }
-
-  double *xx = (double*)((cxt->x)->x);
-  long* P = cxt->P;
-
-  long minidx = 0;
-  double minval = xx[P[0]];
-  for (long i = 1; i < cxt->nP; ++i) {
-    if (xx[P[i]] < minval) {
-      minval = xx[P[i]];
-      minidx = i;
-    }
-  }
-
-  return minidx;
-}
-
-
 int
 rnnls_solve(rnnls_context *cxt) {
 
@@ -370,6 +350,65 @@ rnnls_solve(rnnls_context *cxt) {
 
 
 /*
+ *  Sort members of P by amplitude, ascending.
+ */
+void
+rnnls_sort_P_by_amplitude(rnnls_context *cxt) {
+  std::vector<std::pair<double, long> > pNew;
+  double *xx = (double *)((cxt->x)->x);
+  long *P = cxt->P;
+  for (long i = 0; i < cxt->nP; ++i) {
+    pNew.push_back(std::pair<double, long>(xx[P[i]], P[i]));
+  }
+  std::sort(pNew.begin(), pNew.end());
+  for (long i = 0; i < cxt->nP; ++i) {
+    P[i] = (pNew[i]).second;
+  }
+}
+
+/*
+ *  Find the index in Z of member idx
+ */
+int
+rnnls_find_in_Z(long idx,
+                rnnls_context *cxt) {
+
+  for (long i = cxt->nZ - 1; i >= 0; --i) {
+    if ((cxt->Z)[i] == idx) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+
+/*
+ *  Perform one forward iteration of NNLS
+ */
+int
+rnnls_iterate(double tolerance,
+              rnnls_context *cxt) {
+
+  // Find the member of the active set to free next
+  long next_free = rnnls_next_free(tolerance, cxt);
+  if (next_free == -1) {
+    // We've converged.
+    return -1;
+  }
+
+  // Free member at index Z[next_free] and re-solve
+  rnnls_set_passive(next_free, cxt);
+  if (rnnls_solve(cxt) < 0) {
+    // Solution is cycling or cannot be improved.
+    return -1;
+  }
+
+  return 0;
+}
+
+
+/*
  *  Note: Here we avoid explicitly calculating AtA because of CPU cost.
  *  Calculate only the entries of AtA we need.  Since we solve in the
  *  normal equations, the problem must be sufficiently well-conditioned.
@@ -391,45 +430,63 @@ rnnls(cholmod_sparse *A, cholmod_dense *y, double tolerance,
       tol = tolerance;
     }
 
-    // Find the member of the active set to free next
-    long next_free = rnnls_next_free(tol, cxt);
-    if (next_free == -1) {
-      // We've converged.
-      break;
-    }
-
-    // Free member at index Z[next_free] and re-solve
-    rnnls_set_passive(next_free, cxt);
-    if (rnnls_solve(cxt) < 0) {
-      // Solution is cycling or cannot be improved.
+    // Do an iteration of NNLS
+    if (rnnls_iterate(tol, cxt) == -1) {
       break;
     }
   }
 
-  // We've found the optimal solution.  Now remove passive members
-  // until we hit the specified tolerance
+  // We've found the optimal solution.  Now remove passive members in order
+  // of increasing amplitude.  Put them back if we cannot stay under tolerance
   // NB: we need to reset last_free since there is now no danger of cycling
   //     and any passive member can reasonably be removed.
   cxt->last_free = -1;
   cholmod_dense *ret = cholmod_l_copy_dense(cxt->x, c);
-  while (rnnls_next_free(tolerance, cxt) == -1) {
 
-    // We're below tolerance.  Accept the current solution
-    cholmod_l_copy_dense2(cxt->x, ret, c);
+  // Track members we haven't checked.  Positions of members in P may change.
+  std::set<long> Pset(cxt->P, cxt->P + cxt->nP);
+  rnnls_sort_P_by_amplitude(cxt);
+  for (;;) {
 
-    // Find the passive member with minimum amplitude
-    long next_active = rnnls_find_smallest_passive(cxt);
-    if (next_active < 0) {
-      // We've already removed all the passive members
+    // Find next member to test.
+    long next_active = -1;
+    for (long i = 0; i < cxt->nP; ++i) {
+      if (Pset.count((cxt->P)[i]) > 0) {
+        next_active = i;
+        Pset.erase((cxt->P)[i]);
+        break;
+      }
+    }
+
+    // We're done when there is no member left to test.  Also, we already
+    // know that if we have one passive member and we remove it, we'll be
+    // above tolerance.
+    if (next_active == -1 || cxt->nP == 1) {
       break;
     }
 
     // Remove the member at P[next_active] and solve the system again
+    long member_index = (cxt->P)[next_active];
     rnnls_set_active(next_active, cxt);
     if (rnnls_solve(cxt) < 0) {
       // This should never happen as we're only removing passive members
       fprintf(stderr, "%s line %d: Solve failed\n", __FILE__, __LINE__);
       exit(1);
+    }
+
+    // Check tolerance
+    if (rnnls_next_free(tolerance, cxt) == -1) {
+
+      // We're below tolerance.  Accept the current solution and re-sort P
+      cholmod_l_copy_dense2(cxt->x, ret, c);
+      rnnls_sort_P_by_amplitude(cxt);
+
+    } else {
+
+      // We're above tolerance, so put this member back. No need to re-sort P
+      rnnls_set_passive(rnnls_find_in_Z(member_index, cxt), cxt);
+      cxt->last_free = -1;
+      cholmod_l_copy_dense2(ret, cxt->x, c);
     }
   }
 
