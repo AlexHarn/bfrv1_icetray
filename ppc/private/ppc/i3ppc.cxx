@@ -143,14 +143,25 @@ public:
 		  if(!isfinite(hv) || hv<0) hv=0;
 
 		  double eff=1.0;
+		  double spe_compensation_factor = 1.0;
+
 		  if(calib){
 		    map<OMKey, I3DOMCalibration>::const_iterator om_cal = calib->domCal.find(omkey);
-		    if(om_cal!=calib->domCal.end()) eff=om_cal->second.GetRelativeDomEff();
+		    if(om_cal!=calib->domCal.end()) {
+			eff=om_cal->second.GetRelativeDomEff();
+
+			SPEChargeDistribution spe_charge_dist = om_cal->second.GetCombinedSPEChargeDistribution();
+			if (!std::isnan(spe_charge_dist.compensation_factor)) {
+				spe_compensation_factor = spe_charge_dist.compensation_factor;
+			} else {
+                            log_debug("OM (%i/%u): spe compensation factor = %g (default (was: NaN))", spe_compensation_factor);
+			} 
+		    }
 		    if(!isfinite(eff) || eff<0) eff=1.0;
 		  }
 
 		  xppc::hvs[om]=hv;
-		  xppc::rdes[om]=make_pair(eff, 0);
+		  xppc::rdes[om]=make_pair(eff*spe_compensation_factor, 0);
 		}
 	      }
 
