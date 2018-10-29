@@ -2,7 +2,7 @@
 import logging
 logging.basicConfig()
 rootLogger = logging.getLogger('')
-rootLogger.setLevel(logging.INFO)
+rootLogger.setLevel(logging.DEBUG)
 
 from icecube.simprod.modules import ClSim
 

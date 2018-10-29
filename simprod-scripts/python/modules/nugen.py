@@ -50,6 +50,7 @@ class NuGen(ipmodule.ParsingModule):
         self.AddParameter('CrossSectionsPath','cross section tables path',None,explicit_type='string')
         self.AddParameter('ParamsMap','any other parameters',dict())
         self.AddParameter('PROPOSALParams','any other parameters for proposal',dict())
+        self.AddParameter('PropagateMuons','Run PROPOSAL (by default this should be done at photonprop',False)
         self.AddParameter('BackgroundFile','pre-generated coincident showers file',"")
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
@@ -96,7 +97,6 @@ class NuGen(ipmodule.ParsingModule):
              streamnum = self.nproc + self.procnum)
 
         tray.context['I3RandomService'] = randomService
-        tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
 
         summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
@@ -144,10 +144,12 @@ class NuGen(ipmodule.ParsingModule):
                     rate = 5.0*I3Units.kilohertz,
            ) 
         
-        tray.AddSegment(segments.PropagateMuons, 'propagator',
+        if self.propagatemuons:
+        	tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
+        	tray.AddSegment(segments.PropagateMuons, 'propagator',
                         RandomService= randomServiceForPropagators,
                         **self.proposalparams
-        ) 
+        	) 
 
         tray.AddModule(BasicCounter, "count_g",
                        Streams=[icetray.I3Frame.DAQ],

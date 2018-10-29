@@ -58,6 +58,8 @@ def PPCTraySegment(tray,
              ppcIceModel = expandvars(IceModelLocation+"/spice_3.2")
         elif IceModel == "Spice3.2.1":
              ppcIceModel = expandvars(IceModelLocation+"/spice_3.2.1")
+        elif os.path.exists(expandvars(IceModelLocation+"/"+IceModel)):
+             ppcIceModel = expandvars(IceModelLocation+"/"+IceModel)
         else:
              raise RuntimeError("Unknown ice model: %s", IceModel)
 
@@ -88,7 +90,8 @@ def PPCTraySegment(tray,
                if toks[1].startswith("over-R:"):
                   toks[0] = str(oversize)
                if toks[1].startswith("overall DOM efficiency"):
-                  toks[0] = str(efficiency)
+                  icemodel_efficiency_factor = float(toks[0]) 
+                  toks[0] = str(efficiency*icemodel_efficiency_factor)
             icetray.logging.log_debug("  #".join(toks))
             ppc_cfg_out.write("  #".join(toks)+'\n')
         ppc_cfg_in.close()
@@ -155,6 +158,8 @@ class PPC(ipmodule.ParsingModule):
         self.AddParameter("KeepEmptyEvents","Don't discard events with no MCPEs", False) 
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
+        self.AddParameter('PropagateMuons', 'Run PROPOSAL to do in-ice propagation', True)
+        self.AddParameter('PROPOSALParams','any other parameters for proposal',dict())
         self.AddParameter('TempDir', 'Temporary working directory with the ice model', None)
         self.configured = False
 
@@ -182,6 +187,22 @@ class PPC(ipmodule.ParsingModule):
 
         # Configure IceTray modules 
         tray.AddModule("I3Reader", "reader",filenamelist=[self.gcdfile]+self.inputfilelist)
+
+        from .. import segments
+        if self.propagatemuons:
+        	randomServiceForPropagators = phys_services.I3SPRNGRandomService(
+             		seed = self.seed,
+             		nstreams = self.nproc*2,
+             		streamnum = self.nproc + self.procnum)
+        	tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
+
+        	tray.AddModule("Rename","rename_corsika_mctree",Keys=['I3MCTree','I3MCTree_preMuonProp'])
+        	tray.AddSegment(segments.PropagateMuons, 'propagator',
+                        RandomService= randomServiceForPropagators,
+                        **self.proposalparams
+        	) 
+
+
         
         tray.AddSegment(PPCTraySegment,"ppc_photons",
 			gpu = self.gpu,

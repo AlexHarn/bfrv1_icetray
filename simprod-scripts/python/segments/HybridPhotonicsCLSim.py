@@ -280,8 +280,8 @@ def PropagatePhotons(tray, name,
         else:
             DoNotParallelize=not UseAllCPUCores
             threading.Thread(target=resetTasksetThreads,args=(os.getpid(),)).start()
-        logging.debug('tasksetInUse = ',tasksetInUse())
-        logging.debug('DoNotParallelize = ',DoNotParallelize)
+        logging.debug('tasksetInUse = %s' % tasksetInUse())
+        logging.debug('DoNotParallelize = %s' % DoNotParallelize)
 
         # simulate tracks (with clsim)
         tray.AddSegment(clsim.I3CLSimMakeHits, name+"_makeCLSimHits",
