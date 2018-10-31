@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <float.h>
 
 #include <cholmod.h>
@@ -270,8 +271,16 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 	unsigned j, k;
 	int nbins = 0;
 
-	for (wf = firstWF; wf != lastWF; wf++)
+	// Determine the total number of WF bins and ATWD support time ranges
+	std::set<std::pair<double, double> > atwdStartStop;
+	for (wf = firstWF; wf != lastWF; wf++) {
 		nbins += wf->GetWaveform().size();
+		if (wf->GetDigitizer() == I3Waveform::ATWD) {
+		  double st = wf->GetStartTime();
+		  double duration = wf->GetWaveform().size() * wf->GetBinWidth();
+		  atwdStartStop.insert(std::pair<double, double>(st, st + duration));
+		}
+	}
 
 	// If we have no data, nothing to do
 	if (nbins == 0 || !std::isfinite(spe_charge) || spe_charge == 0)
@@ -363,17 +372,23 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 			if (sources[j+k] & I3RecoPulse::ATWD)
 				weights[j+k] /= (1.0 + channels[j+k]);
 
-			/* Deweight first few FADC bins when we expect the ATWD
-			 * to also be on. This is motivated by a study from 2014
-			 * showing the ATWD template is generally much more accurate,
-			 * and additionally using the less-accurate FADC template often
-			 * results in split pulses
+			/*
+			 * Deweight FADC bins with concurrent support from the ATWD.
+			 * This is motivated by a study from 2014 showing the ATWD template
+			 * is generally much more accurate, and additionally using the less-
+			 * accurate FADC template often results in split pulses.
+			 * NB: The inner loop results in no significant performance decrease
+			 * when using IceCube raw data.
 			 */
-			if (deweight_fadc_){
-				if (k < 16 && ((sources[j+k] &
-				    (I3RecoPulse::FADC | I3RecoPulse::LC)) ==
-				    (I3RecoPulse::FADC | I3RecoPulse::LC)))
-					weights[j+k] /= 20.;
+			if (deweight_fadc_ && (sources[j+k] & I3RecoPulse::FADC)) {
+			  for (auto atwdTRPtr =  atwdStartStop.begin();
+			       atwdTRPtr !=  atwdStartStop.end(); ++atwdTRPtr) {
+			    if (redges[j+k] > (atwdTRPtr->first + (2. * wf->GetBinWidth())) &&
+			        redges[j+k] < atwdTRPtr->second) {
+			      weights[j+k] /= 20.;
+			      break;
+			    }
+			  }
 			}
 
 			// Remove waveform bins that were crazy for some reason
