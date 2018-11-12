@@ -7,6 +7,12 @@ Release Notes
 
 trunk
 --------------
+
+
+
+Nov. 12, 2018 Juan Carlos Diaz Velez (juancarlos@icecube.umd.edu)
+--------------------------------------------------------------------
+Release V02-03-00
 * Added variables to I3CorsikaShowerInfo needed to delegate surface 
 sampling from corsika reader to a later stage in the simulation chain.
 
