@@ -3,8 +3,11 @@ Release Notes
 
 trunk
 -----
-* Added support for re(over) sampling of corsika showers in photon propagation
-stage.
+
+Release V01-11-00
+-----------------
+* Added support for re(over) sampling of corsika showers in photon propagation stage.
+* Support for individual SPE templates.
 
 Release V01-10-04
 -----------------

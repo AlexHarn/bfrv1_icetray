@@ -166,6 +166,7 @@ class ClSim(ipmodule.ParsingModule):
         tray.AddSegment(segments.PropagatePhotons, "normalpes",
             RandomService = "I3RandomService",
             HybridMode = False,
+            GCDFile = self.gcdfile,
             IgnoreMuons = False,
             IgnoreCascades = False,
             UseCascadeExtension = False,

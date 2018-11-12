@@ -7,6 +7,7 @@ def GenerateAirShowers(tray, name,
     GCDFile=None,
     NEvents=1,
     OverSampling=1,
+    LegacyOverSampling=False,
     CylinderHeight=1200,
     CylinderRadius=600,
     SimulateIceTop=True,
@@ -36,9 +37,10 @@ def GenerateAirShowers(tray, name,
 	if SimulateIceTop:
 		kwargs['ParticlesToWrite'] = [] # emit everything for IceTop simulation
 
+
 	tray.Add(corsika_reader.ReadCorsika, "reader", 
 		GCDFILE=GCDFile, FileNameList=Files, NEvents=NEvents, 
-		OverSampling=OverSampling, **kwargs)
+		OverSampling=OverSampling,LegacyOverSampling=LegacyOverSampling, **kwargs)
 
 
 	if SimulateIceTop:

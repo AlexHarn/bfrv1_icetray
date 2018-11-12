@@ -36,7 +36,7 @@ def weighted_choice(weights,rng):
 
 def CorsikaReaderTraySegment(tray,name,
       gcdfile, randomService,
-      cors, oversampling, 
+      cors, oversampling, legacyoversampling=False,
       stats={}, 
       propagate_muons=False, 
       select_neutrino=False, 
@@ -65,6 +65,7 @@ def CorsikaReaderTraySegment(tray,name,
          GCDFile=gcdfile,
          NEvents=cors.nevents,
          OverSampling=oversampling,
+         LegacyOverSampling=legacyoversampling,
          CylinderRadius = 500, CylinderHeight = 1000,
          SimulateIceTop = SimulateIceTop,
          TankResponse="param",
@@ -262,7 +263,8 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         self.AddParameter("eprimarymin","CR min energy",600.0)
         self.AddParameter("fluxsum","", 0.131475115)
         self.AddParameter("length","",1600.0)
-        self.AddParameter("oversampling","Number of times to sample each shower",1)
+        self.AddParameter("OverSampling","Number of times to sample each shower",1)
+        self.AddParameter("LegacyOverSampling","Legacy mode for oversmapling ",False)
         self.AddParameter("radius","",800.0)
         
         self.AddParameter("model","corsika model","sibyll")
@@ -296,9 +298,11 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         self.stats=stats
         if not ipmodule.ParsingModule.Execute(self,self.stats): return 0
 
-        #if self.oversampling > 1 and self.usepipe:
-        #    self.logger.fatal("Oversampling is not compatible with UsePIPE at this time")
-        #    sys.exit(1)
+        if self.legacyoversampling:
+            self.logger.warn("You are using a deprecated mode for oversampling.")
+            if self.oversampling > 1 and self.usepipe: 
+               self.logger.fatal("LegacyOversampling is not compatible with UsePIPE at this time")
+               sys.exit(1)
 
         from I3Tray import I3Tray
         from icecube import icetray,phys_services, dataio, dataclasses
@@ -371,6 +375,7 @@ class CorsikaGenerator(ipmodule.ParsingModule):
                   gcdfile=self.gcdfile, randomService=randomService,
                   SimulateIceTop=self.simulateicetop,
                   select_neutrino=self.selectneutrino, 
+                  legacyoversampling=self.legacyoversampling,
                   oversampling=self.oversampling, cors=cors, stats=self.stats)
 
 
@@ -436,7 +441,8 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         self.AddParameter("eprimarymin","CR min energy",600.0)
         self.AddParameter("fluxsum","", 0.131475115)
         self.AddParameter("length","",1600.0)
-        self.AddParameter("oversampling","Oversampling factor",1)
+        self.AddParameter("OverSampling","Oversampling factor",1)
+        self.AddParameter("LegacyOverSampling","Legacy mode Oversampling",False)
         self.AddParameter("radius","",800.0)
         
         self.AddParameter("model","corsika model","sibyll")
@@ -568,6 +574,7 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
                generator.SetParameter("RepoURL",self.repourl)
                generator.SetParameter("CVMFS",self.cvmfs)
                generator.SetParameter('OverSampling',self.oversampling)
+               generator.SetParameter('LegacyOverSampling',self.legacyoversampling)
                generator.SetParameter('SimulateIceTop',self.simulateicetop)
                generator.SetParameter('SelectNeutrino',self.selectneutrino)
                generator.SetParameter('UsePipe', self.usepipe)

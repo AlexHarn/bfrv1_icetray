@@ -316,7 +316,7 @@ class Corsika(ipmodule.ParsingModule):
            self.logger.info("CVMFS directory found: '%s'",cvmfs_path)
            par['topdir'] = cvmfs_path
         else:
-           self.logger.warn("No CVMFS repo. Downloading tarball from: '%s'",self.url)
+           self.logger.warn("No CVMFS repo. Downloading '%s' tarball from: '%s'" %(meta['filebase'],self.url))
            fetch_tarball(meta,cachedir)
            par['topdir'] = meta['path']
 

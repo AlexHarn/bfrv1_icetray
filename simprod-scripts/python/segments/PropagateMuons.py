@@ -13,7 +13,7 @@ import icecube.cmc
 import icecube.PROPOSAL
 
 default_media_definition = os.path.expandvars(
-    "$I3_BUILD/PROPOSAL/resources/config_icesim.json")
+    "$I3_BUILD/PROPOSAL/resources/mediadef")
 
 
 @icecube.icetray.traysegment
@@ -167,14 +167,49 @@ def make_propagator(
         parametrization to use
     :param str nuclear_shadowing:
         Nuclear shadowing parametrization to use
-    
-    Note: the new PROPOSAL version only needs a configuration file
-    everything (cross section, continuous loss output, etc.)
-    can/should be defined there.
 
     """
+    if not hasattr(icecube.PROPOSAL.BremsstrahlungParametrization,
+                   bremsstrahlung):
+        bremsstrahlung = "KelnerKokoulinPetrukhin"
+
+    bremsstrahlung_parametrization = getattr(
+        icecube.PROPOSAL.BremsstrahlungParametrization,
+        bremsstrahlung)
+
+    if not hasattr(icecube.PROPOSAL.PhotonuclearParametrizationFamily,
+                   photonuclear_family):
+        photonuclear_family = "AbramowiczLevinLevyMaor"
+
+    photonuclear_parametrization_family = getattr(
+        icecube.PROPOSAL.PhotonuclearParametrizationFamily,
+        photonuclear_family)
+
+    if not hasattr(icecube.PROPOSAL.PhotonuclearParametrization,
+                   photonuclear):
+        photonuclear = "AbramowiczLevinLevyMaor97"
+
+    photonuclear_parametrization = getattr(
+        icecube.PROPOSAL.PhotonuclearParametrization,
+        photonuclear)
+
+    if not hasattr(icecube.PROPOSAL.ShadowingParametrization,
+                   nuclear_shadowing):
+        nuclear_shadowing = "Butkevich"
+
+    nuclear_shadowing_parametrization = getattr(
+        icecube.PROPOSAL.ShadowingParametrization,
+        nuclear_shadowing)
 
     propagator_service = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
-        config_file=media_definition)
+        emitTrackSegments=emitTrackSegments,
+        mediadef=media_definition,
+        cylinderRadius=cylinder_radius*icecube.icetray.I3Units.m,
+        cylinderHeight=cylinder_length*icecube.icetray.I3Units.m,
+        type=particle_type,
+        bremsstrahlungParametrization=bremsstrahlung_parametrization,
+        photonuclearParametrizationFamily=photonuclear_parametrization_family,
+        photonuclearParametrization=photonuclear_parametrization,
+        nuclearShadowingParametrization=nuclear_shadowing_parametrization)
 
     return propagator_service

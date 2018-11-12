@@ -101,6 +101,7 @@ def PropagatePhotons(tray, name,
     HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
     InputMCTree="I3MCTree",
     MMCTrackListName="MMCTrackList",
+    GCDFile=None,
     OutputPESeriesMapName="I3MCPESeriesMap",
     OutputPhotonSeriesName=None,
 ):
@@ -223,6 +224,7 @@ def PropagatePhotons(tray, name,
                 IceModelLocation=clsimIceModel,
                 DOMOversizeFactor=DOMOversizeFactor,
                 UseCascadeExtension=UseCascadeExtension,
+                GCDFile=GCDFile,
                 DisableTilt=True)
 
             # re-assign the output hits from the sliced tree to the original tree
@@ -303,6 +305,7 @@ def PropagatePhotons(tray, name,
             DOMOversizeFactor=DOMOversizeFactor,
             HoleIceParameterization=HoleIceParameterization,
             IceModelLocation=clsimIceModel,
+            GCDFile=GCDFile,
             UseCascadeExtension=UseCascadeExtension)
 
         sliceRemoverAdditionalParams = dict()
