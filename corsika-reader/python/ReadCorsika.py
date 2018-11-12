@@ -7,6 +7,7 @@ def ReadCorsika(tray, name,
     GCDFile='',
     NEvents=1,
     OverSampling=1,
+    LegacyOverSampling=False,
     CylinderHeight=1200,
     CylinderRadius=600,
     RandomService="I3RandomService",
@@ -29,8 +30,15 @@ def ReadCorsika(tray, name,
     	
 	random = tray.context[RandomService]
 	kwargs = dict()
+
+	legacy_ov_samp = 1
+	ov_samp = OverSampling
+	if LegacyOverSampling: 
+		legacy_ov_samp = OverSampling
+		ov_samp = 1
+
 	tray.Add('I3CORSIKAReader', 'reader', filenamelist=filenamelist, NEvents=NEvents,
-	    Prefix=GCDFile, **kwargs)
+	    Prefix=GCDFile, LegacyOverSampling=legacy_ov_samp, **kwargs)
 
 	if TrimShower:
 		# Then drop all the surface crap
@@ -42,7 +50,7 @@ def ReadCorsika(tray, name,
 
 	if OverSampling > 0:
 		tray.AddModule("CORSIKAResampler","resample",
-	        	OverSampling=OverSampling,
+	        	OverSampling=ov_samp,
 	        	CylinderHeight=CylinderHeight, CylinderRadius=CylinderRadius)
 
 

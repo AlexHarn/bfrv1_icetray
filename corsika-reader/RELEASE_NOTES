@@ -7,7 +7,12 @@ Release Notes
 
 On the trunk
 ------------
+
+Nov 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-------------------------------------------------------------------
+V00-02-00
 * Separated surface sampling (and oversampling) to CORSIKAResampler module. 
+* Legacy mode oversampling parameter (needed for background coincident showers).
 
 
 Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)

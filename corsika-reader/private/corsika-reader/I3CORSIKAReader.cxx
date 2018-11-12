@@ -62,6 +62,7 @@ class I3CORSIKAReader : public I3Module
 	std::vector<I3Particle::ParticleType> particles_to_write_;
 	std::string weightdictname_; 
 	int nevents_;
+	int legacy_oversampling_;
 	bool runComplete_;
 	bool checkOnly_;
 	unsigned lastEventID_;
@@ -97,6 +98,7 @@ I3CORSIKAReader::I3CORSIKAReader(const I3Context& context)
 	    "the run number. If value is wrong, will fail (with a useful "
 	    "message) at run time. Negative values disable weight checking. ",
 	    0);
+	AddParameter("LegacyOverSampling", "(deprecated) number of times to oversample showers ",1);
 	particles_to_write_.push_back(I3Particle::MuMinus);
 	particles_to_write_.push_back(I3Particle::MuPlus);
 	particles_to_write_.push_back(I3Particle::NuE);
@@ -130,15 +132,19 @@ void I3CORSIKAReader::Configure()
 	if (!file_stager_)
 		file_stager_ = I3TrivialFileStager::create();
 
+	GetParameter("LegacyOverSampling", legacy_oversampling_);
 	GetParameter("FilenameList", filenames_);
 
 	GetParameter("Prefix", filename);
 	if (filename.length() > 0)
 		file_stager_->WillReadLater(filename);
 
-	for ( filenames_iter_ = filenames_.begin(); filenames_iter_ != filenames_.end(); filenames_iter_++)
+	// Oversampling by reading input files multiple times
+	for ( int f_i = 0; f_i < legacy_oversampling_ ; f_i++)
+	{
+	    for ( filenames_iter_ = filenames_.begin(); filenames_iter_ != filenames_.end(); filenames_iter_++)
 		files_.push_back(*filenames_iter_);
-
+	}
 	filenames_iter_ = files_.begin();
 	for ( ; filenames_iter_ != files_.end(); filenames_iter_++)
 		file_stager_->WillReadLater(*filenames_iter_);
@@ -398,7 +404,7 @@ I3CORSIKAReader::ProcessEventHeader(float *corsika_block, I3FramePtr frame,
 		weightMap_["EnergyPrimaryMin"] = corsika_block[59]*I3Units::GeV;
 		weightMap_["EnergyPrimaryMax"] = corsika_block[60]*I3Units::GeV;
 		weightMap_["PrimarySpectralIndex"] = corsika_block[58];
-		weightMap_["NEvents"] = nevents_;
+		weightMap_["NEvents"] = nevents_*legacy_oversampling_;
 		// In VOLUMEDET mode, the angular density of injected showers is
 		// uniform, but the projected area of the target cylinder is not,
 		// so diagonal showers have to be spread out over a larger area than
@@ -416,6 +422,7 @@ I3CORSIKAReader::ProcessEventHeader(float *corsika_block, I3FramePtr frame,
 	(*weightdict)["ThetaMax"] = thetaMax;
 	(*weightdict)["PrimaryEnergy"] = primary.GetEnergy();
 	(*weightdict)["PrimaryType"] = (double)primary.GetType();
+	(*weightdict)["OverSampling"] = (double)legacy_oversampling_;
 
 	frame->Put(weightdictname_, weightdict);
 }
