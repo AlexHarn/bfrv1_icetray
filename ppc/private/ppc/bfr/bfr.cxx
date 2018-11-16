@@ -225,6 +225,46 @@ public:
     no=n, ne=n, beta=0;
   }
 
+  void set_s(myvect s, photon & o, photon & e){
+    s.normalize();
+
+    o.p=this->np(s);
+    o.n=no;
+    o.k=s;
+    o.k.multiply(o.n);
+
+    e.E=s.cross(o.p);
+    myvect tmp=this->cross(o.p);
+    e.D=(*this)*(this->dot(e.E)*(ne*ne))+tmp*(tmp.dot(e.E)*(no*no));
+    e.D.normalize();
+    e.p=e.D;
+    e.k=o.p.cross(e.D);
+
+    // TODO
+
+    e.p=e.k.cross(o.p);
+    double cs=this->dot(e.k)/no, sn=this->dot(e.p)/ne;
+    e.n=1/sqrt(cs*cs+sn*sn);
+    e.k.multiply(e.n);
+
+    if(verbose){
+      cout<<"       "<<o.k<<endl;
+      cout<<"       "<<e.k<<endl;
+    }
+
+    o.D=o.p;
+    o.E=o.p/(no*no);
+    o.H=o.k.cross(o.E);
+    o.s=o.E.cross(o.H);
+
+    e.D=e.p;
+    tmp=this->cross(o.p);
+    e.E=(*this)*(this->dot(e.D)/(ne*ne))+tmp*(tmp.dot(e.D)/(no*no));
+    e.H=e.k.cross(e.E);
+    e.s=e.E.cross(e.H);
+
+  }
+
   void set_k(myvect k, photon & o, photon & e){ // o: ordinary; e: extraordinary
 
     k.normalize();
@@ -239,6 +279,7 @@ public:
     e.n=1/sqrt(cs*cs+sn*sn);
     e.k=k;
     e.k.multiply(e.n);
+
     if(verbose){
       cout<<"       "<<o.k<<endl;
       cout<<"       "<<e.k<<endl;
@@ -251,7 +292,7 @@ public:
 
     e.D=e.p;
     myvect tmp=this->cross(o.p);
-    e.E=e.D*(this->dot(e.D)/(ne*ne))+tmp*(this->dot(tmp)/(no*no));
+    e.E=(*this)*(this->dot(e.D)/(ne*ne))+tmp*(tmp.dot(e.D)/(no*no));
     e.H=e.k.cross(e.E);
     e.s=e.E.cross(e.H);
 
