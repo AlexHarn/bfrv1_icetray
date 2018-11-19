@@ -176,6 +176,78 @@ SPE_FIT_JSON = """
 }
 """
 
+
+SPENCER_FIT_JSON = """
+{
+ "1,61": {
+  "ATWD_fit": {
+   "PVR": 2.6963012910021176, 
+   "amp2": 32.52649795388698, 
+   "amp2_error": 47.79754039598474, 
+   "chi2": 895.7371849008988, 
+   "compensation_factor": 1.2535007845267907, 
+   "exp1_amp": 6.9, 
+   "exp1_amp_error": 32.698037900712755, 
+   "exp1_width": 0.032, 
+   "exp1_width_error": 0.0399064981752148, 
+   "exp2_amp": 0.5439097946821353, 
+   "exp2_amp_error": 0.1565590123775168, 
+   "exp2_width": 0.43767916504836674, 
+   "exp2_width_error": 0.025070096354673735, 
+   "gaus_amp": 0.7453731951866129, 
+   "gaus_amp_error": 0.19691915017204345, 
+   "gaus_mean": 1.0132495950223077, 
+   "gaus_mean_error": 0.005479567517981075, 
+   "gaus_width": 0.28970067994005266, 
+   "gaus_width_error": 0.00255863084761282, 
+   "mean_charge": 0.6597085558220753, 
+   "ndf": 455.0, 
+   "nentries": 224921.00000000006, 
+   "normalization": 1.0618436899351975, 
+   "reduced_chi2": 1.968653153628349, 
+   "valid": "true"
+  }, 
+  "Absorption": 0.014914072500000005, 
+  "DeepCore": 0, 
+  "DeploymentSeason": 2374.0, 
+  "Depth": -1448.0, 
+  "HQE": 0, 
+  "MJD": 2146.0, 
+  "RDE": 0, 
+  "SLC_fit": {
+   "PVR": 2.7366177388398496, 
+   "amp2": 4.305325485666853, 
+   "amp2_error": 89.29069162336422, 
+   "chi2": 957.4123436360804, 
+   "compensation_factor": 1.2125724551743908, 
+   "exp1_amp": 6.9, 
+   "exp1_amp_error": 894.1373735736365, 
+   "exp1_width": 0.032, 
+   "exp1_width_error": 1.7783705132942356, 
+   "exp2_amp": 0.4418347105873974, 
+   "exp2_amp_error": 0.9600372131822785, 
+   "exp2_width": 0.5128817093636443, 
+   "exp2_width_error": 0.09574447960391931, 
+   "gaus_amp": 0.6504630615542399, 
+   "gaus_amp_error": 1.4490744085200387, 
+   "gaus_mean": 1.1605599339723862, 
+   "gaus_mean_error": 0.02358762242353993, 
+   "gaus_width": 0.33902026040854294, 
+   "gaus_width_error": 0.011488088071627356, 
+   "mean_charge": 0.7648175035298809, 
+   "ndf": 81.0, 
+   "nentries": 150361.99999999997, 
+   "normalization": 0.9799294940585747, 
+   "reduced_chi2": 11.819905476988648, 
+   "valid": "true"
+  }, 
+  "Scattering": 0.056356587699999995, 
+  "Temperature": 233.15817963597979, 
+  "Toroid": 0
+ }
+}
+"""
+
 DOMCAL_XML_1_61 = """<?xml version="1.0" encoding="UTF-8"?>
 <domcal version="7.6.0">
   <date>4-3-2015</date>

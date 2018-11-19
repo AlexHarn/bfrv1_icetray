@@ -4,7 +4,7 @@ from contexts import test_db_context, file_context
 from TestData import (BASELINE_XML, VEMCAL_XML, NOISE_RATE_JSON,
                       DOMCAL_XML_1_61, DOMCAL_XML_1_62,
                       GEOMETRY_1_61, GEOMETRY_1_62, DOM_DROOP_1_61,
-                      SPE_FIT_JSON)
+                      SPE_FIT_JSON, SPENCER_FIT_JSON)
 import icecube.gcdserver.DOMCalImport as DOMCalImport
 import icecube.gcdserver.VEMCalImport as VEMCalImport
 import icecube.gcdserver.SPEFitImport as SPEFitImport
@@ -64,8 +64,8 @@ def compareDOMCal(key, val):
         assert val.mean_atwd_charge == 1.0341419190237735
         assert val.mean_fadc_charge == 1.1160816676546705
         spe_charge_dist = val.combined_spe_charge_distribution
-        assert spe_charge_dist.exp_amp == 5630.9241121652794
-        assert spe_charge_dist.exp_width == 0.25054968276866763
+        assert spe_charge_dist.exp1_amp == 5630.9241121652794
+        assert spe_charge_dist.exp1_width == 0.25054968276866763
         assert spe_charge_dist.gaus_amp == 6497.3366978454396
         assert spe_charge_dist.gaus_mean == 1.0325212232516821
         assert spe_charge_dist.gaus_width == 0.25579619731120745
@@ -78,8 +78,8 @@ def compareDOMCal(key, val):
         assert val.mean_atwd_charge == 1.0544911706904694
         assert val.mean_fadc_charge == 1.0715882684510842
         spe_charge_dist = val.combined_spe_charge_distribution
-        assert spe_charge_dist.exp_amp == 6728.183586839823
-        assert spe_charge_dist.exp_width == 0.19590329312561494
+        assert spe_charge_dist.exp1_amp == 6728.183586839823
+        assert spe_charge_dist.exp1_width == 0.19590329312561494
         assert spe_charge_dist.gaus_amp == 8260.8984581176519
         assert spe_charge_dist.gaus_mean == 1.0543760019040789
         assert spe_charge_dist.gaus_width == 0.24293675094300488
@@ -128,6 +128,20 @@ def fillMissingATWDData(atwdCal):
                     o.setSlope(atwd , channel, bin, 0.)
 
 
+RUN_VALID = 1
+
+
+def getI3Calibration(db):
+    # Get the BlobDB instance
+    blobDB = fillBlobDB(db, run=RUN_VALID)
+    # We cut ATWD calibration data to keep TestData small.  Fill it in.
+    for atwdCal in blobDB.calibrationDocuments(C.ObjectType.ATWD_CAL):
+        fillMissingATWDData(atwdCal)
+        
+    # Build I3Calibration
+    return buildI3Calibration(blobDB)
+
+
 def test_calibration():
     with test_db_context() as db:
         # Import geometry data for string 1, DOMs 61 and 62
@@ -136,7 +150,6 @@ def test_calibration():
             geoInserter.insert(G.GeometryObject.wrapdict(GEOMETRY_1_62))
             geoInserter.commit()
         # Import calibration data
-        RUN_VALID = 1
         with file_context(BASELINE_XML) as inputFile:
             BaselineImport.doInsert(db, RUN_VALID, None, [inputFile])
         with file_context(VEMCAL_XML) as inputFile:
@@ -152,14 +165,9 @@ def test_calibration():
         with calDBInserter(db, RUN_VALID) as calInserter:
             calInserter.insert(G.DataObject.wrapdict(DOM_DROOP_1_61))
             calInserter.commit()
-        # Get the BlobDB instance
-        blobDB = fillBlobDB(db, run=RUN_VALID)
-        # We cut ATWD calibration data to keep TestData small.  Fill it in.
-        for atwdCal in blobDB.calibrationDocuments(C.ObjectType.ATWD_CAL):
-            fillMissingATWDData(atwdCal)
-        
+
         # Build I3Calibration
-        cal = buildI3Calibration(blobDB)
+        cal = getI3Calibration(db)
         # Ensure the calibration frame was built correctly
         assert len(cal.vem_cal) == 2
         for (key, val) in cal.vem_cal:
@@ -170,7 +178,29 @@ def test_calibration():
         for (key, val) in cal.dom_cal:
             assert key in [OMKey(1, 61), OMKey(1, 62)]
             compareDOMCal(key, val)
-
+        
+        # Check that we can handle Spencer's new SPE fits
+        with file_context(SPENCER_FIT_JSON) as inputFile:
+            SPEFitImport.doInsert(db, RUN_VALID, None, [inputFile])
+        cal = getI3Calibration(db)
+        assert OMKey(1, 61) in cal.dom_cal
+        for (key, val) in cal.dom_cal:
+            if key == OMKey(1, 61):
+                assert val.is_mean_atwd_charge_valid == True
+                assert val.is_mean_fadc_charge_valid == True
+                assert val.mean_atwd_charge == 1.0132495950223077
+                assert val.mean_fadc_charge == 1.1605599339723862
+                scd = val.combined_spe_charge_distribution
+                assert scd.exp1_amp == 6.9
+                assert scd.exp1_width == 0.032
+                assert scd.exp2_amp == 0.5439097946821353
+                assert scd.exp2_width == 0.43767916504836674
+                assert scd.gaus_amp == 0.7453731951866129
+                assert scd.gaus_mean == 1.0132495950223077
+                assert scd.gaus_width == 0.28970067994005266
+                assert scd.compensation_factor == 1.2535007845267907
+                assert scd.slc_gaus_mean == 1.1605599339723862
+                
 
 if __name__ == "__main__":
     test_calibration()    

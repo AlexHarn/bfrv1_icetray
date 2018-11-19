@@ -194,11 +194,24 @@ def getDOMCalibration(db, omkey, device):
     try:
         rec = loadRecord(db, deviceName, C.ObjectType.JOINT_SPE_CORR)
         spe_charge_dist = dataclasses.SPEChargeDistribution()
-        spe_charge_dist.exp_amp = rec.data[C.Keys.EXP_NORM]
-        spe_charge_dist.exp_width = rec.data[C.Keys.EXP_SCALE]
+        spe_charge_dist.exp1_amp = rec.data[C.Keys.EXP_NORM]
+        spe_charge_dist.exp1_width = rec.data[C.Keys.EXP_SCALE]
         spe_charge_dist.gaus_amp = rec.data[C.Keys.GAUSS_NORM]
         spe_charge_dist.gaus_mean = rec.data[C.Keys.GAUSS_MEAN]
         spe_charge_dist.gaus_width = rec.data[C.Keys.GAUSS_STDDEV]
+        try:
+            # Use data from Spencer's SPE fits if we have it
+            spe_charge_dist.exp2_amp = rec.data[C.Keys.EXP2_NORM]
+            spe_charge_dist.exp2_width = rec.data[C.Keys.EXP2_SCALE]
+            spe_charge_dist.compensation_factor = rec.data[
+                                                    C.Keys.SPE_COMP_FACTOR]
+            # Need to go back to the FADC data for the SLC Gaussian Mean
+            # This is not ideal.
+            rec = loadRecord(db, deviceName, C.ObjectType.FADC_SPE_CORR)
+            spe_charge_dist.slc_gaus_mean = rec.data[C.Keys.GAUSS_MEAN]
+            
+        except KeyError:
+            pass
         cal.combined_spe_charge_distribution = spe_charge_dist
     except InsufficientDataError:
         pass
