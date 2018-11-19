@@ -86,12 +86,6 @@ public:
     else{
       temp=this->cross(q.smallest());
       temp.normalize();
-      myvect aux=temp.cross(q);
-      double phi=0; // 2*M_PI*xrnd();
-      double a=sin(phi), b=cos(phi);
-      temp.x=a*temp.x+b*aux.x;
-      temp.y=a*temp.y+b*aux.y;
-      temp.z=a*temp.z+b*aux.z;
     }
     return temp;
   }
@@ -111,43 +105,18 @@ public:
 
   myvect p1, p2;
 
-  void setp(myvect q){
+  void setp(myvect q){ // (assume |*this|=1)
     q.normalize();
     p1=this->np(q);
     p2=this->cross(p1);
+    // p2.normalize();
   }
 
-  void setp(){
-    myvect r(fabs(x), fabs(y), fabs(z));
-
-    if(r.y>r.z){
-      if(r.y>r.x){
-	p1 = myvect(y, -x, 0);
-	p2 = myvect(0, -z, y);
-      }
-      else{
-	p1 = myvect(-y, x, 0);
-	p2 = myvect(-z, 0, x);
-      }
-    }
-    else{
-      if(r.z>r.x){
-	p1 = myvect(z, 0, -x);
-	p2 = myvect(0, z, -y);
-      }
-      else{
-	p1 = myvect(-y, x, 0);
-	p2 = myvect(-z, 0, x);
-      }
-    }
-
+  void setp(){ // (assume |*this|=1)
+    p1=this->cross(this->smallest());
     p1.normalize();
-    p2.normalize();
-
-    r = p1-p2; p2 = p1 + p2; p1 = r;
-
-    p1.normalize();
-    p2.normalize();
+    p2=this->cross(p1);
+    // p2.normalize();
   }
 
   void rand(){
@@ -173,12 +142,11 @@ public:
   photon(double x, double y, double z) : myvect(x, y, z){}
 
   double n;
-  myvect s; // direction
-  myvect p; // polarization
+  myvect s; // photon propagation direction
   myvect k; // wave vector
   myvect H; // magnetic field
   myvect E; // electric field
-  myvect D; // displacement field
+  myvect D; // displacement field and polarization
 
   void advance(double r){
     set(* this + s * (r/s.norm()));
@@ -188,7 +156,6 @@ public:
 ostream& operator<<(ostream& o, const photon& q){
   o << "n = " << q.n << endl;
   o << "s = " << q.s << endl;
-  o << "p = " << q.p << endl;
   o << "k = " << q.k << endl;
   o << "H = " << q.H << endl;
   o << "E = " << q.E << endl;
@@ -225,77 +192,43 @@ public:
     no=n, ne=n, beta=0;
   }
 
-  void set_s(myvect s, photon & o, photon & e){
-    s.normalize();
+  void set_k(myvect q, photon & o, photon & e, bool p = false){ // o: ordinary; e: extraordinary; q=p?s:k
+    myvect& axis = *this;
 
-    o.p=this->np(s);
+    q.normalize();
+
+    o.D=axis.np(q);
     o.n=no;
-    o.k=s;
+    o.k=q;
     o.k.multiply(o.n);
 
-    e.E=s.cross(o.p);
-    myvect tmp=this->cross(o.p);
-    e.D=(*this)*(this->dot(e.E)*(ne*ne))+tmp*(tmp.dot(e.E)*(no*no));
-    e.D.normalize();
-    e.p=e.D;
-    e.k=o.p.cross(e.D);
+    myvect ort = axis.cross(o.D);
 
-    // TODO
+    if(p){
+      myvect E=q.cross(o.D);
+      e.D=axis*(axis.dot(E)*(ne*ne))+ort*(ort.dot(E)*(no*no));
+      e.D.normalize();
+      q=o.D.cross(e.D);
+    }
+    else e.D=q.cross(o.D);
 
-    e.p=e.k.cross(o.p);
-    double cs=this->dot(e.k)/no, sn=this->dot(e.p)/ne;
+    double cs=axis.dot(q)/no, sn=axis.dot(e.D)/ne;
     e.n=1/sqrt(cs*cs+sn*sn);
+    e.k=q;
     e.k.multiply(e.n);
 
-    if(verbose){
-      cout<<"       "<<o.k<<endl;
-      cout<<"       "<<e.k<<endl;
-    }
-
-    o.D=o.p;
-    o.E=o.p/(no*no);
+    o.E=o.D/(no*no);
     o.H=o.k.cross(o.E);
     o.s=o.E.cross(o.H);
 
-    e.D=e.p;
-    tmp=this->cross(o.p);
-    e.E=(*this)*(this->dot(e.D)/(ne*ne))+tmp*(tmp.dot(e.D)/(no*no));
+    e.E=axis*(axis.dot(e.D)/(ne*ne))+ort*(ort.dot(e.D)/(no*no));
     e.H=e.k.cross(e.E);
     e.s=e.E.cross(e.H);
-
-  }
-
-  void set_k(myvect k, photon & o, photon & e){ // o: ordinary; e: extraordinary
-
-    k.normalize();
-
-    o.p=this->np(k);
-    o.n=no;
-    o.k=k;
-    o.k.multiply(o.n);
-
-    e.p=k.cross(o.p);
-    double cs=this->dot(k)/no, sn=this->dot(e.p)/ne;
-    e.n=1/sqrt(cs*cs+sn*sn);
-    e.k=k;
-    e.k.multiply(e.n);
 
     if(verbose){
-      cout<<"       "<<o.k<<endl;
-      cout<<"       "<<e.k<<endl;
+      cout<<"\tk="<<o.k<<"\ts="<<o.s<<"\tdot="<<o.k.dot(o.s)*o.n*o.n<<endl;
+      cout<<"\tk="<<e.k<<"\ts="<<e.s<<"\tdot="<<e.k.dot(e.s)*e.n*e.n<<endl;
     }
-
-    o.D=o.p;
-    o.E=o.p/(no*no);
-    o.H=o.k.cross(o.E);
-    o.s=o.E.cross(o.H);
-
-    e.D=e.p;
-    myvect tmp=this->cross(o.p);
-    e.E=(*this)*(this->dot(e.D)/(ne*ne))+tmp*(tmp.dot(e.D)/(no*no));
-    e.H=e.k.cross(e.E);
-    e.s=e.E.cross(e.H);
-
   }
 
   vector<photon> set_k(myvect k, surface s, bool same){
@@ -445,7 +378,7 @@ void test(){
   // one.set_n(1), two.set_n(2);
 
   photon o, e;
-  one.set_k(k, o, e);
+  one.set_k(k, o, e, true);
   if(verbose){
     cout << "o:" << endl << o << endl;
     cout << "e:" << endl << e << endl;
@@ -457,7 +390,7 @@ void test(){
   }
 }
 
-void test2(double p){
+void test2(double p, int num){
   for(int j=0; j<100000; j++){
     myvect k(0, 0, 1);
     medium one, two; // two media definitions
@@ -469,13 +402,13 @@ void test2(double p){
     one = flow.randz();
     myvect r(0, 0, 0);
     photon o(r), e(r);
-    one.set_k(k, o, e);
+    one.set_k(k, o, e, true);
     photon p=xrnd()<0.5?o:e;
 
     two = flow.randz();
 
-    for(int i=0; i<1000; i++){
-      p.advance(1.e-3);
+    for(int i=0; i<num; i++){
+      p.advance(1./num);
       plane.rand();
       bool same=interact(one, two, plane, p);
       if(same) two = flow.randz();
@@ -491,6 +424,15 @@ void test2(double p){
 }
 
 main(int arg_c, char *arg_a[]){
-  if(arg_c>1) test2(atof(arg_a[1])*M_PI/180);
+  if(arg_c>1){
+    int inum=1000;
+    {
+      char * bmp=getenv("INUM");
+      if(bmp!=NULL) inum=atoi(bmp);
+      cerr<<"INUM="<<inum<<endl;
+    }
+
+    test2(atof(arg_a[1])*M_PI/180, inum);
+  }
   else test();
 }
