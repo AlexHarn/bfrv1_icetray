@@ -18,7 +18,7 @@ class myvect{
 public:
   double x, y, z;
 
-  myvect(){}
+  myvect() : x(0), y(0), z(0) {}
 
   myvect(double x, double y, double z){
     this->x=x, this->y=y, this->z=z;
@@ -100,8 +100,8 @@ class surface:
   public myvect // normal vector pointing first into second medium
 {
 public:
-  surface() : myvect(){}
-  surface(double x, double y, double z) : myvect(x, y, z){}
+  surface() : myvect() {}
+  surface(double x, double y, double z) : myvect(x, y, z) {}
 
   myvect p1, p2;
 
@@ -137,9 +137,9 @@ class photon:
   public myvect // coordinates
 {
 public:
-  photon() : myvect(){}
-  photon(myvect q) : myvect(q){}
-  photon(double x, double y, double z) : myvect(x, y, z){}
+  photon() : myvect() {}
+  photon(myvect q) : myvect(q) {}
+  photon(double x, double y, double z) : myvect(x, y, z) {}
 
   double n;
   myvect s; // photon propagation direction
@@ -155,6 +155,7 @@ public:
 
 ostream& operator<<(ostream& o, const photon& q){
   o << "n = " << q.n << endl;
+  o << "r = " << (myvect) q << endl;
   o << "s = " << q.s << endl;
   o << "k = " << q.k << endl;
   o << "H = " << q.H << endl;
@@ -170,15 +171,15 @@ public:
   double no,  ne; // refractive indices
   double beta;
 
-  medium() : myvect(){
+  medium() : myvect() {
     set_n();
   }
 
-  medium(myvect q) : myvect(q){
+  medium(myvect q) : myvect(q) {
     set_n();
   }
 
-  medium(double x, double y, double z) : myvect(x, y, z){
+  medium(double x, double y, double z) : myvect(x, y, z) {
     set_n();
   }
 
@@ -411,10 +412,8 @@ void test2(double p, int num){
       p.advance(1./num);
       plane.rand();
       bool same=interact(one, two, plane, p);
-      if(same) two = flow.randz();
-      else{
-	one=two; one = flow.randz();
-      }
+      if(!same) one=two;
+      two = flow.randz();
     }
 
     myvect s=p.s;
