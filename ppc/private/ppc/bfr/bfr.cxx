@@ -184,7 +184,7 @@ public:
   }
 
   void set_n(){
-    no=1.309, ne=1.313;
+    no=1.3185, ne=1.3200; // at 405 nm
     double aux=ne/no;
     beta=aux*aux-1;
   }
