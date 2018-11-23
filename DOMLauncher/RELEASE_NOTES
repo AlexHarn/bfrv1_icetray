@@ -4,6 +4,9 @@
 
 Release Notes
 =============
+V00-02-00
+* Adds support for SPE templates
+
 V00-01-01
 * Minor clean up of import statements
 
