@@ -7,6 +7,7 @@ Release Notes
 
 Since last release:
 --------------------------------------------------------------------
+* Update (r167078): Make new unfolding the default
 * Update (r166506): Use more accurate determination of ATWD time range
                     for FADC deweighting
 * Update (r166430): Generalize new unfolding to remove all basis members

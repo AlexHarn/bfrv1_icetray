@@ -117,7 +117,7 @@ I3Wavedeform::I3Wavedeform(const I3Context &context) :
 	AddParameter("ApplySPECorrections", "Whether to apply DOM-by-DOM"
 	    " corrections to the pulse charge scaling if available", false);
 	AddParameter("Reduce", "Find the optimal NNLS solution, then eliminate"
-	    " basis members until tolerance is reached", false);
+	    " basis members until tolerance is reached", true);
 
 	cholmod_l_start(&c);
 }
