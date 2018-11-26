@@ -113,7 +113,7 @@ rnnls_next_free(double tolerance,
                    cxt->colwork, cxt->rowwork, cxt->c);
 
   /* Find the index of the member in passive set with largest
-   * negative gradient, excluding exclude_idx
+   * negative gradient
    */
 
   // If we have no passive members, we can't free any member
