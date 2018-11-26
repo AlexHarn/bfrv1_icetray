@@ -154,6 +154,7 @@ def GenerateNeutrinos(tray, name,
     injectorServiceArgs['EnergyMinLog'] = EnergyLogRange[0]
     injectorServiceArgs['EnergyMaxLog'] = EnergyLogRange[1]
     injectorServiceArgs['AngleSamplingMode'] = ZenithSamplingMode
+    injectorServiceArgs['RandomService'] = RandomService
 
     if "zenithweightparam" in params :
         if not isinstance(params["zenithweightparam"], float):
@@ -210,6 +211,7 @@ def GenerateNeutrinos(tray, name,
         nugenArgs['InteractionCCFactor'] = params["interactionweight"][0] 
         nugenArgs['InteractionNCFactor'] = params["interactionweight"][1] 
         nugenArgs['InteractionGRFactor'] = params["interactionweight"][2] 
+        nugenArgs['RandomService'] = RandomService
 
     if "propagationweightmode" in params :
         params["propagationweightmode"] = str(params["propagationweightmode"])
