@@ -35,12 +35,13 @@ i3_project(genie-icetray
       colormsg(YELLOW "+-- old-style, non-Q-frame module")
   endif(EXISTS ${CMAKE_SOURCE_DIR}/dataio/private/dataio/QConverter.cxx)
 
-  # we need three extra ROOT libs
+  # we need extra ROOT libs
   find_library(ROOT_GEOM_LIB Geom PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
   find_library(ROOT_EG_LIB EG PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
   find_library(ROOT_EGPYTHIA6_LIB EGPythia6 PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
-  find_library(LHAPDF_LIB LHAPDF PATHS ${I3_PORTS}/lib NO_DEFAULT_PATH)
-  find_library(PYTHIA_SO_LIB Pythia6 PATHS ${I3_PORTS}/lib NO_DEFAULT_PATH)
+  find_library(LHAPDF_LIB LHAPDF PATHS ${I3_PORTS}/lib ${ROOTSYS}/lib NO_DEFAULT_PATH)
+  find_library(PYTHIA_SO_LIB Pythia6 PATHS ${I3_PORTS}/lib ${ROOTSYS}/lib NO_DEFAULT_PATH)
+  find_library(GENVECTOR_LIB GenVector PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
 
   # let the code know where GENIE is located in order to be able to read some data files
   add_definitions(-DGENIE_PATH="${GENIE_PATH}")
@@ -50,7 +51,7 @@ i3_project(genie-icetray
     USE_TOOLS python boost root log4cpp xml2 genie
     USE_PROJECTS serialization icetray dataio dataclasses phys-services
 
-    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB}
+    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB} ${GENVECTOR_LIB}
     )
   # SET_TARGET_PROPERTIES(genie-icetray PROPERTIES LINK_FLAGS -Wl,-u,pydata_)
 
@@ -70,7 +71,7 @@ if (GENIE_ICETRAY_EXEC)
     USE_TOOLS python boost root log4cpp xml2 genie
     USE_PROJECTS icetray genie-icetray
 
-    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB}
+    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB} ${GENVECTOR_LIB}
     )
 
   i3_executable(spladd
@@ -78,7 +79,7 @@ if (GENIE_ICETRAY_EXEC)
     USE_TOOLS python boost root log4cpp xml2 genie
     USE_PROJECTS icetray genie-icetray
 
-    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB}
+    LINK_LIBRARIES ${PYTHIA_SO_LIB} ${ROOT_GEOM_LIB} ${ROOT_EG_LIB} ${ROOT_EGPYTHIA6_LIB} ${LHAPDF_LIB} ${GENVECTOR_LIB}
     )
   
   #i3_test_scripts(resources/test/*.py)
