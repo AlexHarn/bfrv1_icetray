@@ -256,6 +256,7 @@ I3NuGGenie::I3NuGGenie(const I3Context& context)
 //______________________________________________________________
 I3NuGGenie::~I3NuGGenie()
 {
+#ifdef GENIE_RNG_OVERRIDE_AVAILABLE
     // reset the custom RNG
     genie::RandomGen::Instance()->SetRndKine(NULL);
     genie::RandomGen::Instance()->SetRndHadro(NULL);
@@ -269,6 +270,7 @@ I3NuGGenie::~I3NuGGenie()
     genie::RandomGen::Instance()->SetRndNum(NULL);
     genie::RandomGen::Instance()->SetRndPyth(NULL);
     genie::RandomGen::Instance()->SetRndGen(NULL);
+#endif
     
     delete myTRandom_;
     myTRandom_=NULL;
