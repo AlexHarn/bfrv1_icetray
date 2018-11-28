@@ -359,6 +359,7 @@ void I3NuGGenie::Configure()
     if (myTRandom_) delete myTRandom_;
     myTRandom_ = new TRandomWrapperForI3RandomService(random_);
     
+#ifdef GENIE_RNG_OVERRIDE_AVAILABLE
     genie::RandomGen::Instance()->SetRndKine(myTRandom_);
     genie::RandomGen::Instance()->SetRndHadro(myTRandom_);
     genie::RandomGen::Instance()->SetRndDec(myTRandom_);
@@ -371,6 +372,7 @@ void I3NuGGenie::Configure()
     genie::RandomGen::Instance()->SetRndNum(myTRandom_);
     genie::RandomGen::Instance()->SetRndPyth(myTRandom_);
     genie::RandomGen::Instance()->SetRndGen(myTRandom_);
+#endif
 
    
     //load splines (from the XML file)
