@@ -372,6 +372,10 @@ void I3NuGGenie::Configure()
     genie::RandomGen::Instance()->SetRndNum(myTRandom_);
     genie::RandomGen::Instance()->SetRndPyth(myTRandom_);
     genie::RandomGen::Instance()->SetRndGen(myTRandom_);
+#else
+    {
+        genie::RandomGen::Instance()->SetSeed(random_->Integer(0xfffffffe)+1); // seed 0 is invalid
+    }
 #endif
 
    
