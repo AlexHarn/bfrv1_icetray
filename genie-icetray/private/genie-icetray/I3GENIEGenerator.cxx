@@ -564,11 +564,6 @@ void I3GENIEGenerator::Configure()
     genie::RandomGen::Instance()->SetRndPyth(myTRandom);
     genie::RandomGen::Instance()->SetRndGen(myTRandom);
 #else
-#warning You seem not to be using the specially patched
-#warning version of Genie.
-#warning I3RandomServices cannot be used with this version.
-#warning Using a single random number as the rng seed.
-#warning DO NOT USE FOR PRODUCTION
     {
         genie::RandomGen::Instance()->SetSeed(random_->Integer(0xfffffffe)+1); // seed 0 is invalid
     }
