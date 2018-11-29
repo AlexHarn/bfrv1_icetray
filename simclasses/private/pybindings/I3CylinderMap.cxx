@@ -3,11 +3,12 @@
 
 using boost::python::class_;
 using boost::python::dataclass_suite;
+using boost::python::bases;
 
 void register_I3CylinderMap()
 {
-  class_< I3CylinderMap , boost::shared_ptr<I3CylinderMap> >("I3CylinderMap")
-    .def(dataclass_suite<I3CylinderMap>())
+  class_<I3CylinderMap,  I3CylinderMapPtr, bases<I3FrameObject> >("I3CylinderMap")
+    .def(dataclass_suite<I3CylinderMap >())
     ;
-  bp::implicitly_convertible<boost::shared_ptr<I3CylinderMap>, boost::shared_ptr<const I3CylinderMap> >();
+  register_pointer_conversions<I3CylinderMap>();
 }
