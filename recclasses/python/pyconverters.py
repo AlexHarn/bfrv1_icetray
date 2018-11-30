@@ -458,4 +458,50 @@ class I3VetoShortConverter(tableio.I3Converter):
         
         return 1
         
-tableio.I3ConverterRegistry.register(I3VetoShortConverter)
+class I3StartStopParamsConverter(tableio.I3Converter):
+    """The I3StartStopParamsConverter tableio converter converts an
+    I3StartStopParams frame object into a data table verbatim.
+    """
+    booked = I3StartStopParams
+
+    #__________________________________________________________________________
+    def CreateDescription(self,ss_values):
+        desc = tableio.I3TableRowDescription()
+
+        desc.add_field("llhstartingtrack",tableio.types.Float64,'',"LLH of starting track")
+        desc.add_field("llhstoppingtrack",tableio.types.Float64,'',"LLH of stopping track")
+        desc.add_field("llhinfinitetrack",tableio.types.Float64,'',"LLH of infinite track")
+        return desc
+
+    #__________________________________________________________________________
+    def FillRows(self,ss_values,rows):
+        rows['llhstartingtrack'] = ss_values.LLHStartingTrack
+        rows['llhstoppingtrack'] = ss_values.LLHStoppingTrack
+        rows['llhinfinitetrack'] = ss_values.LLHInfTrack
+
+        return 1
+tableio.I3ConverterRegistry.register(I3StartStopParamsConverter)
+
+
+class I3FiniteCutsConverter(tableio.I3Converter):
+    """The I3FiniteCutsConverter tableio converter converts an
+    I3FiniteCuts frame object into a data table verbatim.
+    """
+    booked = I3FiniteCuts
+
+    #__________________________________________________________________________
+    def CreateDescription(self,frc_values):
+        desc = tableio.I3TableRowDescription()
+
+        desc.add_field("length",tableio.types.Float64,"m","The estimated length of the track")
+        desc.add_field("endfraction",tableio.types.Float64,"","Distance between the stop point of the track and the   border of the detector. As border of the detector the last potential Cherenkov emission point on the track is used.   Light emitted up to this point can reach a DOM without scattering.")
+        desc.add_field("startfraction",tableio.types.Float64,"","Distance between the start point of the track and    the border of the detector. As border of the detector the last potential Cherenkov emission point on the track is     used. Light emitted up to this point can reach a DOM without scattering.")
+        return desc
+    #__________________________________________________________________________
+    def FillRows(self,frc_values,rows):
+        rows["length"]        = frc_values.Length
+        rows["endfraction"]   = frc_values.endFraction
+        rows["startfraction"] = frc_values.startFraction
+        return 1
+
+tableio.I3ConverterRegistry.register(I3FiniteCutsConverter)tableio.I3ConverterRegistry.register(I3VetoShortConverter)
