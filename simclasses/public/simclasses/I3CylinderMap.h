@@ -8,7 +8,7 @@
 #include <icetray/I3FrameObject.h>
 #include <map>
 #include <icetray/OMKey.h>
-#include <clsim/shadow/I3ExtraGeometryItemCylinder.h>
+#include <simclasses/I3ExtraGeometryItemCylinder.h>
 #include <dataclasses/I3Map.h>
 
 //typedef std::map<OMKey, I3ExtraGeometryItemCylinder > I3CylinderMap;
