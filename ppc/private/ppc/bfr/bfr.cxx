@@ -9,6 +9,8 @@
 using namespace std;
 
 bool verbose=false;
+bool girdle=true;
+bool orefr=false;
 
 float xrnd(){
   return drand48();
@@ -126,9 +128,17 @@ public:
   }
 
   myvect randz(){
-    double ph=2*M_PI*xrnd();
-    double cp=cos(ph), sp=sin(ph);
-    myvect r=p1*cp+p2*sp;
+    myvect r;
+    if(girdle){
+      double ph=2*M_PI*xrnd();
+      double cp=cos(ph), sp=sin(ph);
+      r=p1*cp+p2*sp;
+    }
+    else{
+      surface q;
+      q.rand();
+      r=q;
+    }
     return r;
   }
 };
@@ -346,13 +356,20 @@ bool interact(medium one, medium two, surface plane, photon & p){
     cout<<"f:"; for(int i=0; i<dim; i++) cout<<" "<<s[i]; cout<<endl;
   }
 
-  bool same;
+  if(orefr){
+    sum=0;
+    for(int i=0; i<refl; i++) s[i]=0;
+    for(int i=refl; i<dim; i++) sum+=s[i];
+    if(sum>0) for(int i=refl; i<dim; i++) s[i]/=sum;
+  }
+
+  bool same=true;
   double y=xrnd();
   sum=0;
 
   for(int i=0; i<dim; i++){
     sum+=s[i];
-    if(y<sum || i==dim-1){
+    if(y<sum){
       if(i<refl){
 	same=true;
 	p=reflected[i];
@@ -391,8 +408,8 @@ void test(){
   }
 }
 
-void test2(double p, int num){
-  for(int j=0; j<100000; j++){
+void test2(double p, int num, int tot){
+  for(int j=0; j<tot; j++){
     myvect k(0, 0, 1);
     medium one, two; // two media definitions
     surface plane; // interface between two media
@@ -423,6 +440,22 @@ void test2(double p, int num){
 }
 
 main(int arg_c, char *arg_a[]){
+  {
+    char * bmp=getenv("SEED");
+    if(bmp!=NULL){
+      int seed=atoi(bmp);
+      srand48(seed);
+      cerr<<"SEED="<<seed<<endl;
+    }
+  }
+  {
+    char * bmp=getenv("ORFR");
+    if(bmp!=NULL && !(*bmp!=0 && atoi(bmp)==0)){
+      orefr=true;
+      cerr<<"Only refraction; no reflection"<<endl;
+    }
+  }
+
   if(arg_c>1){
     int inum=1000;
     {
@@ -430,8 +463,19 @@ main(int arg_c, char *arg_a[]){
       if(bmp!=NULL) inum=atoi(bmp);
       cerr<<"INUM="<<inum<<endl;
     }
+    int jnum=100000;
+    {
+      char * bmp=getenv("JNUM");
+      if(bmp!=NULL) jnum=atoi(bmp);
+      cerr<<"JNUM="<<jnum<<endl;
+    }
 
-    test2(atof(arg_a[1])*M_PI/180, inum);
+    if(arg_c>2) girdle=atof(arg_a[2])>0;
+
+    test2(atof(arg_a[1])*M_PI/180, inum, jnum);
   }
-  else test();
+  else{
+    cerr<<"Usage: [SEED=0] [ORFR=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle]"<<endl;
+    test();
+  }
 }
