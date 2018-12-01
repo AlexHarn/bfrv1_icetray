@@ -360,11 +360,10 @@ bool interact(medium one, medium two, surface plane, photon & p){
     sum=0;
     for(int i=0; i<refl; i++) s[i]=0;
     for(int i=refl; i<dim; i++) sum+=s[i];
-    if(sum>0) for(int i=refl; i<dim; i++) s[i]/=sum;
   }
 
   bool same=true;
-  double y=xrnd();
+  double y=sum*xrnd();
   sum=0;
 
   for(int i=0; i<dim; i++){
