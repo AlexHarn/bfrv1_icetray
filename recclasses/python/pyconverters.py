@@ -28,6 +28,8 @@ from icecube.recclasses import I3HitMultiplicityValues
 from icecube.recclasses import I3HitStatisticsValues
 from icecube.recclasses import I3TimeCharacteristicsValues
 from icecube.recclasses import I3TrackCharacteristicsValues
+from icecube.recclasses import I3StartStopParams
+from icecube.recclasses import I3FiniteCuts
 
 
 class I3DirectHitsValuesConverter(tableio.I3Converter):
@@ -504,4 +506,5 @@ class I3FiniteCutsConverter(tableio.I3Converter):
         rows["startfraction"] = frc_values.startFraction
         return 1
 
-tableio.I3ConverterRegistry.register(I3FiniteCutsConverter)tableio.I3ConverterRegistry.register(I3VetoShortConverter)
+tableio.I3ConverterRegistry.register(I3FiniteCutsConverter)
+tableio.I3ConverterRegistry.register(I3VetoShortConverter)
