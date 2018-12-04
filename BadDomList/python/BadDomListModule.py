@@ -43,9 +43,16 @@ class BadDomListModule(icetray.I3Module):
                           False)
 
         self.AddParameter('IgnoreNewDOMs',
-                          'Ignore going through all the modules in GCD files for Upgrade/Gen2 simulations (string > 86)',
+                          'Ignore going through all the new modules in GCD files for Upgrade/Gen2 simulations'
+                          '(list of ignored OM types defined in NewDOMTypes)',
                           False)
-
+        self.AddParameter('NewDOMTypes', 
+                          'List of new OMTypes to ignore if IgnoreNewDOMs is True',
+                          [dataclasses.I3OMGeo.mDOM, 
+                           dataclasses.I3OMGeo.DEgg, 
+                           dataclasses.I3OMGeo.PDOM, 
+                           dataclasses.I3OMGeo.UnknownType] 
+                          )
         self.AddParameter('DisabledKeysOnly',
                           'Add only disabled doms.',
                           False)
@@ -80,6 +87,10 @@ class BadDomListModule(icetray.I3Module):
         self.i3liveUrlSnapshotExport = self.GetParameter('I3LiveUrlSnapshotExport')
         self.i3liveAuth = self.GetParameter('I3LiveAuth')
         self.ignoreNewDOMs = self.GetParameter('IgnoreNewDOMs')
+        self.newDOMTypes = self.GetParameter("NewDOMTypes")
+        if self.ignoreNewDOMs: 
+            icetray.logging.log_info("In: "+ self.name+ ", the following OMTypes will be ignored: " + 
+                        ", ".join([str(onetype) for onetype in self.newDOMTypes]) )
         self.frame = None
         self.runInfo = None
         self.snapshot = None
@@ -147,7 +158,9 @@ class BadDomListModule(icetray.I3Module):
         # If simulation is True, we need to get the information from the GCD file
         if self.simulation:
             for dom in self.frame['I3Geometry'].omgeo.keys():
-                if self.ignoreNewDOMs and dom.string > 86 : continue
+                if self.ignoreNewDOMs  and \
+                   self.frame['I3Geometry'].omgeo[dom].omtype in self.newDOMTypes : 
+                    continue
                 if dom not in self.frame['I3DetectorStatus'].dom_status.keys() or \
                    self.frame['I3DetectorStatus'].dom_status[dom].pmt_hv == 0:
                     unconfDoms.append(dom)
@@ -176,7 +189,9 @@ class BadDomListModule(icetray.I3Module):
         # If simulation is True, we need to get the information from the GCD file
         if self.simulation:
             for dom in self.frame['I3Geometry'].omgeo.keys():
-                if self.ignoreNewDOMs and dom.string > 86 : continue
+                if self.ignoreNewDOMs and \
+                   self.frame['I3Geometry'].omgeo[dom].omtype in self.newDOMTypes : 
+                    continue
                 if self.frame['I3DetectorStatus'].dom_status[dom].pmt_hv == 0:
                     noHVDoms.append(dom)
         else:
@@ -255,7 +270,9 @@ class BadDomListModule(icetray.I3Module):
         # If simulation is True, we need to get the information from the GCD file
         if self.simulation:
             for dom in self.frame['I3Geometry'].omgeo.keys():
-                if self.ignoreNewDOMs and dom.string > 86 : continue
+                if self.ignoreNewDOMs and \
+                   self.frame['I3Geometry'].omgeo[dom].omtype in self.newDOMTypes : 
+                    continue
                 if dom in self.frame['I3DetectorStatus'].dom_status.keys() and \
                    self.frame['I3DetectorStatus'].dom_status[dom].lc_mode == self.frame['I3DetectorStatus'].dom_status[dom].LCMode.SoftLC and \
                    self.frame['I3DetectorStatus'].dom_status[dom].pmt_hv > 0:
