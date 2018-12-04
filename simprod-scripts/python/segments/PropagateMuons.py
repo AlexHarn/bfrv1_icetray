@@ -121,7 +121,7 @@ def make_standard_propagators(SplitSubPeVCascades=True,
     for pt in "MuMinus", "MuPlus", "TauMinus", "TauPlus":
         key = getattr(icecube.dataclasses.I3Particle.ParticleType, pt)
         propagator_map[key] = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
-            config_file=media_definition)
+            config_file=default_media_definition)
 
     for pt in "DeltaE", "Brems", "PairProd", "NuclInt", "Hadrons",\
               "EMinus", "EPlus":
