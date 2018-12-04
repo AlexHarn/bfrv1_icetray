@@ -26,7 +26,7 @@ def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=None, EndMJD=None):
     NEvents = 0, #default 0
     Oversampling = 0, #default 0
     PositionLimits = [-800.,800.,-800.,800.,-800.,800.], #default [-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter]
-    InjectionRadius = 0*I3Units.meter , #default 0*I3Units.meter
+    InjectionRadius = 0*I3Units.meter , #0*I3Units.meter (ie, inject in a box instead of a cylinder)
     LowerZenCut = 0*I3Units.degree , #default 0*I3Units.degree
     UpperZenCut = 180*I3Units.degree , #default 180*I3Units.degree
     UseElectrons = False, #default False
@@ -71,7 +71,7 @@ def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=None,
     NEvents = 0, #default 0
     Oversampling = 0, #default 0
     PositionLimits = [-800.,800.,-800.,800.,-800.,800.], #default [-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter]
-    InjectionRadius = 0*I3Units.meter , #default 0*I3Units.meter
+    InjectionRadius = 0*I3Units.meter , #0*I3Units.meter (ie, inject in a box instead of a cylinder)
     LowerZenCut = 0*I3Units.degree , #default 0*I3Units.degree
     UpperZenCut = 180*I3Units.degree , #default 180*I3Units.degree
     UseElectrons = False, #default False

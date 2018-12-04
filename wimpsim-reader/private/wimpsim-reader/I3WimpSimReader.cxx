@@ -97,8 +97,11 @@ I3WimpSimReader::I3WimpSimReader(const I3Context &context):I3Module(context),
   AddParameter("RandomServiceName", "Name of the RandomService to be used", randomServiceName_);
   AddParameter("FileNameList", "The WimpSim file to read from", filenames_);
   AddParameter("NEvents", "Number of events to issue, if unconfigured read everything", number_events_);
-  AddParameter("PositionLimits", "Array of xmin,xmax,ymin,ymax,zmin,zmax", position_limits_);
-  AddParameter("InjectionRadius", "If >0, events will be injected in cylinder with zmin, zmax height", radius_);
+  AddParameter("PositionLimits", "Array of xmin,xmax,ymin,ymax,zmin,zmax. Used as the injection volume"
+	       " if InjectionRadius<=0.", position_limits_);
+  AddParameter("InjectionRadius", "If >0, events will be injected in cylinder with zmin, zmax height."
+	       " If 0, inject in a box defined by PositionLimits. Note that the average X/Y/Z position"
+	       " from PositionLimits will be used as the center of the cylinder.", radius_);
   AddParameter("LowerZenCut", "optional lower Zenith Cut in [rad]", zenith_min_);
   AddParameter("UpperZenCut","optional upper Zenith Cut in [rad]", zenith_max_);
   AddParameter("UseElectrons", "Read and simulate electron vertices", electrons_);
@@ -158,10 +161,6 @@ void I3WimpSimReader::Configure() {
         log_fatal("The specified file %s could not be accessed",filenames_[filenames_index].c_str());
     }
   }
-  if (radius_!=0 && radius_ > (-position_limits_[0]+ position_limits_[1])/2)
-    log_warn("Radius exceeds Box limits in x");
-  if (radius_!=0 && radius_ > (-position_limits_[2]+ position_limits_[3])/2)
-    log_warn("Radius exceeds Box limits in y");
   if ((position_limits_[0]+ position_limits_[1])/2 || (position_limits_[2]+ position_limits_[3])/2 || (position_limits_[4]+ position_limits_[5])/2)
     log_warn("Beware, you shift away the box-generator center from the detector center");
 
@@ -177,8 +176,12 @@ void I3WimpSimReader::Configure() {
   if (zenith_min_>zenith_max_)
     log_fatal("LowerZenCut exceeds UpperZenCut");
 
-  if (radius_<=0.)
-    log_fatal("Injection radius must be positive and not zero");
+  if (radius_<0.)
+    log_fatal("Injection radius must be positive or zero");
+  else if (radius_==0.)
+    log_info("Will inject with a box instead of a cylinder.");
+  else
+    log_info("Will inject with a cylinder of radius %3.2f meters between z=%3.2f and z=%3.2f m", radius_, position_limits_[4], position_limits_[5]);
 
   if ((! std::isnan(sensHeight_) || ! std::isnan(sensRadius_)) && (electrons_))
     log_warn("No Implementation for generated Length of this ParticleType: electrons. Will use RandomPosition in InjectionVolume");
@@ -190,7 +193,7 @@ void I3WimpSimReader::Configure() {
   if ( (! std::isnan(sensRadius_) && std::isnan(sensHeight_)) || (std::isnan(sensRadius_) && ! std::isnan(sensHeight_)))
     log_fatal("Configure both 'SensitiveRadius' and 'SensitiveHeight' or none");
 
-  if (! std::isnan(radius_) && ! std::isnan(sensRadius_)  && sensRadius_ > radius_)
+  if (! (std::isnan(radius_) || radius_==0) && ! std::isnan(sensRadius_)  && sensRadius_ > radius_)
     log_warn("SensitiveRadius exceeds InjectionRadius");
 
   if (! std::isnan(sensHeight_) && sensHeight_ > (-position_limits_[2]+ position_limits_[3]))
@@ -559,7 +562,7 @@ bool I3WimpSimReader::ReadFileHeader(ifstream &wimpfile, boost::shared_ptr<WimpS
 I3Position I3WimpSimReader::RandomPosition() const {
   I3Position pos;
 
-  if (std::isnan(radius_)) { // carthesian isotropic
+  if ((std::isnan(radius_) || radius_==0)) { // carthesian isotropic
     pos.SetX( randomService_->Uniform(position_limits_[0], position_limits_[1]) );
     pos.SetY( randomService_->Uniform(position_limits_[2], position_limits_[3]) );
     pos.SetZ( randomService_->Uniform(position_limits_[4], position_limits_[5]) );
@@ -582,7 +585,7 @@ I3Position I3WimpSimReader::RandomPosition() const {
 //_______________________________________________________________________
 double I3WimpSimReader::VolumeBoxOrCylinder() const {
   static double volume;
-  if (std::isnan(radius_)) { // carthesian isotropic
+  if ((std::isnan(radius_) || radius_==0)) { // carthesian isotropic
     volume=std::abs(position_limits_[1]- position_limits_[0])*std::abs(position_limits_[3]- position_limits_[2])*std::abs(position_limits_[5]- position_limits_[4]);
   }
   else { // cylindirical isotropic
