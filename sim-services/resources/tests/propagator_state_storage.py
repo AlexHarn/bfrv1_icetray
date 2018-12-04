@@ -23,8 +23,9 @@ def make_propagators():
 	from icecube.PROPOSAL import I3PropagatorServicePROPOSAL
 	from icecube.cmc import I3CascadeMCService
 	propagators = sim_services.I3ParticleTypePropagatorServiceMap()
-	muprop = I3PropagatorServicePROPOSAL(type=dataclasses.I3Particle.MuMinus)
+	muprop = I3PropagatorServicePROPOSAL()
 	cprop = I3CascadeMCService(phys_services.I3GSLRandomService(1)) # dummy RNG
+	# should one also consider taus?
 	for pt in 'MuMinus', 'MuPlus':
 		propagators[getattr(dataclasses.I3Particle.ParticleType, pt)] = muprop
 	for pt in 'DeltaE', 'Brems', 'PairProd', 'NuclInt', 'Hadrons', 'EMinus', 'EPlus':
