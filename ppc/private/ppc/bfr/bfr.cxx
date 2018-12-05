@@ -11,6 +11,7 @@ using namespace std;
 bool verbose=false;
 bool girdle=true;
 bool orefr=false;
+double xx=1.e-10;
 
 float xrnd(){
   return drand48();
@@ -258,6 +259,7 @@ public:
 
     {
       double D=no*no-kx*kx;
+      if(-xx<D && D<0) D=0;
       if(D>=0){
 	D=sqrt(D);
 	double ry=same?D:-D;
@@ -272,6 +274,7 @@ public:
       double ax=this->dot(X);
       double ay=this->dot(Y);
       double D=ne*ne*(1+beta*ay*ay)-kx*kx*(1+beta*(ax*ax+ay*ay));
+      if(-xx<D && D<0) D=0;
       if(D>=0){
 	D=sqrt(D);
 	double b=-beta*ax*ay*kx, a=1+beta*ay*ay;
@@ -289,16 +292,29 @@ public:
 };
 
 bool interact(medium one, medium two, surface plane, photon & p){
+  if(verbose){
+    cout<<"one: "<<one<<endl;
+    cout<<"two: "<<two<<endl;
+    cout<<"ref: "<<plane<<endl;
+  }
+
+  bool same=true;
+  if(fabs(p.s.dot(plane))<xx){
+    cerr<<"photon collinear to interface surface"<<endl;
+    return same;
+  }
+
   vector<photon> reflected=one.set_k(p.k, plane, true);
   vector<photon> refracted=two.set_k(p.k, plane, false);
 
   int refl=reflected.size();
   int refr=refracted.size();
   int dim=refl+refr, num=6;
+  double chisq=0;
 
   if(dim<=0){
     cerr<<"no dice:"<<endl<<"1 = "<<one<<endl<<"2 = "<<two<<endl<<"i = "<<plane<<endl<<p<<endl;
-    return false;
+    return same;
   }
 
   myvect r(p);
@@ -317,7 +333,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
     f[3]=tmp.H.x, f[4]=tmp.H.y, f[5]=tmp.H.z;
 
     if(i<dim) for(int j=0; j<num; j++) q[j][i]=(i<refl?-1:1)*f[j];
-    s[i]=tmp.s.norm();
+    s[i]=tmp.s.dot(plane); // norm();
   }
 
   {
@@ -332,10 +348,14 @@ bool interact(medium one, medium two, surface plane, photon & p){
     gsl_multifit_linear_workspace * W = gsl_multifit_linear_alloc(num, dim);
     gsl_vector * X = gsl_vector_alloc(dim);
     gsl_matrix * C = gsl_matrix_alloc(dim, dim);
-    double c;
 
-    gsl_multifit_linear(A, B, X, C, &c, W);
-    if(verbose) cout<<refl<<" "<<refr<<"  "<<c;
+    gsl_multifit_linear(A, B, X, C, &chisq, W);
+
+    /*
+    size_t rank;
+    double tol=1.e-8;
+    gsl_multifit_linear_svd(A, B, tol, & rank, X, C, &chisq, W); cout<<"rank="<<rank<<endl;
+    */
 
     for(int i=0; i<dim; i++) x[i]=gsl_vector_get(X, i);
 
@@ -349,7 +369,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
 
   double sum=0;
   for(int i=0; i<dim; i++){ s[i]=fabs(x[i]*x[i]*s[i]/s[dim]); sum+=s[i]; }
-  if(verbose) cout<<" "<<sum<<endl;
+  if(verbose) cout<<refl<<" "<<refr<<"  "<<chisq<<" "<<sum<<" "<<p.k.dot(plane)<<" "<<p.s.dot(plane)<<endl;
 
   if(verbose){
     cout<<"x:"; for(int i=0; i<dim; i++) cout<<" "<<x[i]; cout<<endl;
@@ -362,7 +382,6 @@ bool interact(medium one, medium two, surface plane, photon & p){
     for(int i=refl; i<dim; i++) sum+=s[i];
   }
 
-  bool same=true;
   double y=sum*xrnd();
   sum=0;
 
@@ -381,6 +400,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
     }
   }
 
+  if(verbose) cout<<endl<<endl;
   p.set(r);
   return same;
 }
@@ -422,6 +442,7 @@ void test2(double p, int num, int tot){
     one.set_k(k, o, e, true);
     photon p=xrnd()<0.5?o:e;
 
+    if(verbose) cout<<endl<<endl;
     two = flow.randz();
 
     for(int i=0; i<num; i++){
