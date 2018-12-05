@@ -8,6 +8,9 @@ Release Notes
 trunk
 -----
 
+- Log fatal if `OutputName` is not configured rather than falling back to the
+  module instance name
+
 September 15, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
 -----------------------------------------------------
 Release V01-10-01

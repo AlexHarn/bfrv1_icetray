@@ -223,12 +223,8 @@ void I3SimpleFitter::Configure()
 
     if (fitName_ == "")
     {
-        log_warn("(%s) Parameter \"OutputName\" was not set. Falling back to "
-                 "old behavior and using instance name. Please update your "
-                 "scripts, the fallback will be disabled in the next version.",
-                 GetName().c_str());
-
-        fitName_= GetName();
+      log_fatal("(%s) Parameter \"OutputName\" was not set.",
+                GetName().c_str());
     }
 
     if (nonStdName_ == "")
