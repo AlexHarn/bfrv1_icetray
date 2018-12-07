@@ -123,8 +123,10 @@ public:
   }
 
   void rand(){
-    double th=M_PI*xrnd(), ph=2*M_PI*xrnd();
-    double ct=cos(th), st=sin(th), cp=cos(ph), sp=sin(ph);
+    double ct=2*xrnd()-1;
+    double st=sqrt(1-ct*ct);
+    double ph=2*M_PI*xrnd();
+    double cp=cos(ph), sp=sin(ph);
     x=st*cp, y=st*sp, z=ct;
   }
 
