@@ -182,6 +182,8 @@ def main(options, stats={}):
             'SimTrimmer', # for SimTrimmer flag
             'TimeShift', # the time shift amount
             'WIMP_params', # Wimp-sim
+            'noise_weight', # weights for noise-only vuvuzela simulations
+            'I3GENIEResultDict' # weight informaition for GENIE simulations
            ]
 
     keep_before_merge = filter_globals.q_frame_keeps + [
