@@ -145,6 +145,7 @@ void I3WimpSimReader::Configure() {
   flatMapOpt_ = false; // this is right now hardcoded, but it is a true option
   fixGenLength_ = 100; // this is right now hardcoded, but it is a true option
 
+  
   // Look if everything is configured right
   if (!randomService_){
     randomService_ = context_.Get<I3RandomServicePtr>(randomServiceName_);
@@ -201,6 +202,11 @@ void I3WimpSimReader::Configure() {
 
   if (endmjd_ < startmjd_)
     log_fatal("'EndMJD' is less than 'StartMJD'");
+
+  if (std::isnan(endmjd_) || std::isnan(startmjd_))
+    log_warn("Setting either the start or end MJD to NAN. This is fine for solar wimps, but be aware that all "
+	     "times for Earth wimps will be set to 0 in this case.");
+    
 }
 //_______________________________________________________________________
 void I3WimpSimReader::Process() {
@@ -874,7 +880,12 @@ double I3WimpSimReader::RandomMJD() const {
 }
 //_______________________________________________________________________
 I3Time I3WimpSimReader::RandomMJDTime() const {
+  if(std::isnan(startmjd_) || std::isnan(endmjd_)){
+    return I3Time();
+  }
+
   const double mjd_ = randomService_->Uniform(startmjd_,endmjd_);
+  log_warn("MJD range of %f - %f gave %f", startmjd_, endmjd_, mjd_);
   return I3Time(mjd_);
 }
 
@@ -890,7 +901,10 @@ I3FramePtr I3WimpSimReader::WriteEvent(const boost::shared_ptr<WimpSimBaseHeader
   I3Particle hadron;
 
   I3EventHeaderPtr event_header(new I3EventHeader());
-  event_header->SetStartTime(I3Time(mjd)); //TODO constructor
+
+  // Handle NAN for the start time
+  if(!std::isnan(mjd)) event_header->SetStartTime(I3Time(mjd)); //TODO constructor
+  else event_header->SetStartTime(I3Time());
   event_header->SetRunID(file_index_); // NOTE this should in future be corsika conventions: 4 digits dataset + 5 digits filenumber
   event_header->SetSubRunID(0);
   event_header->SetEventID(WimpEventPtr->eventnbr_);

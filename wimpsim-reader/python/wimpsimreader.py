@@ -8,7 +8,7 @@ from icecube.icetray.i3logging import log_notice
 
 
 @icetray.traysegment
-def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=None, EndMJD=None):
+def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=float('nan'), EndMJD=float('nan')):
   """
   run this traysegement for Sun files
 
@@ -26,7 +26,7 @@ def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=None, EndMJD=None):
     NEvents = 0, #default 0
     Oversampling = 0, #default 0
     PositionLimits = [-800.,800.,-800.,800.,-800.,800.], #default [-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter]
-    InjectionRadius = 0*I3Units.meter , #0*I3Units.meter (ie, inject in a box instead of a cylinder)
+    InjectionRadius = float('nan')*I3Units.meter , #default NAN*I3Units.meter (ie, inject in a box instead of a cylinder)
     LowerZenCut = 0*I3Units.degree , #default 0*I3Units.degree
     UpperZenCut = 180*I3Units.degree , #default 180*I3Units.degree
     UseElectrons = False, #default False
@@ -39,7 +39,7 @@ def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=None, EndMJD=None):
   
   
 @icetray.traysegment
-def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=None, EndMJD=None):
+def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=float('nan'), EndMJD=float('nan')):
   """
   run this traysegement for earth files
 
@@ -71,7 +71,7 @@ def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=None,
     NEvents = 0, #default 0
     Oversampling = 0, #default 0
     PositionLimits = [-800.,800.,-800.,800.,-800.,800.], #default [-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter,-800*I3Units.meter,800*I3Units.meter]
-    InjectionRadius = 0*I3Units.meter , #0*I3Units.meter (ie, inject in a box instead of a cylinder)
+    InjectionRadius = float('nan')*I3Units.meter , #default, NAN*I3Units.meter (ie, inject in a box instead of a cylinder)
     LowerZenCut = 0*I3Units.degree , #default 0*I3Units.degree
     UpperZenCut = 180*I3Units.degree , #default 180*I3Units.degree
     UseElectrons = False, #default False
