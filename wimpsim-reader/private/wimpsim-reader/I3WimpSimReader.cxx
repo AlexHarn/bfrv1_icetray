@@ -200,7 +200,7 @@ void I3WimpSimReader::Configure() {
     log_warn("SensitiveHeight exceeds Box limits in z");
 
   if (endmjd_ < startmjd_)
-    log_fatal("'EndMJD' is lesser 'StartMJD'");
+    log_fatal("'EndMJD' is less than 'StartMJD'");
 }
 //_______________________________________________________________________
 void I3WimpSimReader::Process() {

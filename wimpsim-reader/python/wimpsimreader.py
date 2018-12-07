@@ -52,7 +52,7 @@ def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=None,
     frame = gcdfile.pop_frame()
     while not frame.Has("I3DetectorStatus"):
       frame = gcdfile.pop_frame()
-    return frame.Get("I3DetectorStatus").start_time
+    return frame.Get("I3DetectorStatus").start_time.mod_julian_day_double
 
   time = dataclasses.I3Time()
   if GCDFileName is not None:
