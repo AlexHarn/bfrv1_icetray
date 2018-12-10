@@ -1,6 +1,9 @@
 
 from contextlib import contextmanager
 import os
+import copy
+import bson
+from threading import RLock
 
 import icecube.gcdserver.MongoDB as MongoDB
 from TestData import getRunConfigXML, TRIGGER_CONF_XML, DOM_CONFIG_XML
@@ -72,3 +75,193 @@ def config_file_context(configName, trigConfName=TRIG_CONF_NAME,
                         domConf = "%s/%s.xml" % (domConfDir, domConfName)
                         with file_context(DOM_CONFIG_XML, domConf):
                             yield configFile # Finally!
+
+
+class SimCursor(object):
+    
+    def __init__(self, data):
+        self.__data = data
+
+    def sort(self, match):
+        # Python has a stable sort. Sort by last attribute --> first attribute
+        if len(match) == 0:
+            return self
+        # Support both list and son.SON objects
+        (k, v) = (None, None)
+        try:
+            for (k, v) in match.iteritems():
+                pass
+            match.pop(k)
+        except:
+            (k, v) = match[-1]
+            match.pop()
+        return (SimCursor(sorted(self.__data,
+                    key=lambda x: x[k], reverse=(v < 0)))).sort(match)
+
+    def limit(self, cnt):
+        if cnt <= 0:
+            return self
+        return SimCursor(self.__data[:cnt])
+
+    def count(self):
+        return len(self.__data)
+
+    def __iter__(self):
+        return iter(self.__data)
+
+    def __getitem__(self, idx):
+        return self.__data[idx]
+
+
+class SimInsertResult(object):
+
+    def __init__(self, ids):
+        self.inserted_ids = ids
+
+
+class SimUpdateResult(object):
+
+    def __init__(self, n):
+        self.raw_result = {}
+        self.raw_result['n'] = n
+
+
+def simKeyRecursion(doc, key):
+    keys = key.split('.')
+    ret = doc
+    for k in keys:
+        ret = ret[k]
+    return ret
+
+
+def simDoMatch(doc, k, v):
+    x = None
+    try:
+        x = simKeyRecursion(doc, k)
+    except:
+        return False
+    # Handle $lte, $gte, etc., not $in
+    if type(v) is dict:
+        for (nk, nv) in v.iteritems():
+            if nk == "$lte":
+                return x <= nv
+            elif nk == "$lt":
+                return x < nv
+            elif nk == "$gt":
+                return x > nv
+            elif nk == "$gte":
+                return x >= nv
+            elif nk == "$in":
+                return x in nv
+            else:
+                raise Exception("Unsupported simDB operation: %s" % nk)
+    return x == v
+
+
+def simMatch(x, match):
+    return all(simDoMatch(x, k, v) for (k, v) in match.iteritems())
+
+
+def simFind(data, match):
+    if len(match) == 0:
+        return data
+    return [x for x in data if simMatch(x, match)]
+
+
+class SimCollection(object):
+    
+    def __init__(self, unique=[], name=None):
+        self.__data = []
+        self.__unique = unique
+        self.__lock = RLock()
+        self.__name = name
+
+    def _check_unique(self, doc):
+        for key in self.__unique:
+            value = None
+            try:
+                value = simKeyRecursion(doc, key)
+            except:
+                continue
+            if len(simFind(self.__data, {key: value})) > 0:
+                raise Exception("DBConsistency")
+
+    def insert_one(self, doc):
+        with self.__lock:
+            self._check_unique(doc)
+            newdoc = copy.deepcopy(doc)
+            if "_id" not in newdoc:
+                newdoc['_id'] = bson.ObjectId(os.urandom(12).encode('hex'))
+            self.__data.append(newdoc)
+            self.find()
+            return newdoc['_id']
+
+    def insert_many(self, docs):
+        with self.__lock:
+            return SimInsertResult([self.insert_one(x) for x in docs])
+
+    def delete_many(self, match):
+        docs = simFind(self.__data, match)
+        if len(docs) > 0:
+            # This is ugly
+            self.__data = [x for x in self.__data if x not in docs]
+
+    def update_many(self, match, update):
+        with self.__lock:
+            # Only handle $set
+            docs = simFind(self.__data, match)
+            mod = update["$set"]
+            for (k,v) in mod.iteritems():
+                assert '.' not in k
+                for doc in docs:
+                    doc[k] = copy.deepcopy(v)
+            return SimUpdateResult(len(docs))
+    
+    def find(self, match={}, limit=0):
+        with self.__lock:
+            out = SimCursor(simFind(self.__data, match)).limit(limit)
+            return copy.deepcopy(out)
+
+    def count(self):
+        with self.__lock:
+            return len(self.__data)
+    
+    def ensure_index(self, arg):
+        pass
+
+    def _doAggregate(self, result, cmd, data):
+        # Support $sort, $match, $group
+        if cmd == "$match":
+            return SimCursor(simFind(result, data))
+        elif cmd == "$sort":
+            return result.sort(data)
+        elif cmd == "$group":
+            assert "_id" in data
+            ink = data["_id"]
+            def getKey(doc):
+                # This is super inefficient but clean and good enough
+                ret = []
+                for (k, v) in ink.iteritems():
+                    ret.append(simKeyRecursion(doc, v.strip('$')))
+                return tuple(ret)
+
+            # Make the assumption here of "data": {"$last": "$$ROOT"}
+            # This is specific to the existing gcdserver pipeline and
+            # will break if it is changed.
+            data.pop("_id")
+            assert len(data) == 1
+            outk = data.keys()[0]
+            # Aggregate
+            out = {}
+            for doc in result:
+                out[getKey(doc)] = doc
+            return SimCursor([{outk: x} for x in out.itervalues()])
+    
+    def aggregate(self, pipeline, allowDiskUse=False, cursor={}):
+        with self.__lock:
+            result = SimCursor(self.__data)
+            for entry in pipeline:
+                assert len(entry) == 1
+                (cmd, data) = next(copy.deepcopy(entry).iteritems())
+                result = self._doAggregate(result, cmd, data)
+            return result
