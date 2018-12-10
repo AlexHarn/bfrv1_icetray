@@ -15,13 +15,14 @@ if (PYMONGO_NOT_FOUND)
   message(STATUS "pymongo not found.  Skipping unit tests")
 endif(PYMONGO_NOT_FOUND)
 
+# Exclude TestI3MS, as port 6012 is used on cobalt
+
 if (NOT ZMQ_NOT_FOUND)
   if (NOT PYMONGO_NOT_FOUND)
     no_dotfile_glob(tmp_SCRIPTS resources/test/TestCalibration.py)
     i3_test_scripts(resources/test/TestGeometry.py
                     resources/test/TestCalibration.py
                     resources/test/TestDetectorStatus.py
-                    resources/test/TestDB.py
-                    resources/test/TestI3MS.py)
+                    resources/test/TestDB.py)
   endif(NOT PYMONGO_NOT_FOUND)
 endif(NOT ZMQ_NOT_FOUND)
