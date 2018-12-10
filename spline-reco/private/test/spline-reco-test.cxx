@@ -436,6 +436,7 @@ void prepareSplineReco(I3Tray& tray) {
 void doSplineReco(I3Tray& tray) {
   prepareSplineReco(tray);
   tray.AddModule("I3SimpleFitter", splineRecoName);
+  tray.SetParameter(splineRecoName, "OutputName", splineRecoName);
   tray.SetParameter(splineRecoName, "SeedService", "spline-reco-test_MPESeedNoShift");
   tray.SetParameter(splineRecoName, "Parametrization", "paraname");
   tray.SetParameter(splineRecoName, "LogLikelihood", "spline-reco-test_SplineMPEllh");

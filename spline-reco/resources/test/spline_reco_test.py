@@ -66,7 +66,8 @@ tray.AddService("I3SplineRecoLikelihoodFactory", "spline-reco-test_SplineMPEllh"
 mininame = lilliput.segments.add_minuit_simplex_minimizer_service(tray)
 paraname = lilliput.segments.add_simple_track_parametrization_service(tray)
 
-tray.AddModule("I3SimpleFitter", "spline-reco-test_SplineMPE",
+tray.AddModule("I3SimpleFitter",
+        OutputName = "spline-reco-test_SplineMPE",
         SeedService = "spline-reco-test_MPESeedNoShift",
         Parametrization = paraname,
         LogLikelihood = "spline-reco-test_SplineMPEllh",
