@@ -55,7 +55,8 @@ tray.AddService("I3BasicSeedServiceFactory", "BayesSeed"+Suffix,
                 FirstGuesses=["BestTrack"],
                 TimeShiftType="TFirst")
 
-tray.AddModule("I3IterativeFitter","SPEFit"+Suffix+"Bayesian",
+tray.AddModule("I3IterativeFitter",
+               OutputName="SPEFit"+Suffix+"Bayesian",
                RandomService="SOBOL",
                NIterations=2,
                SeedService="BayesSeed"+Suffix,
