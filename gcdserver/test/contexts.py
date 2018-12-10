@@ -1,6 +1,7 @@
 
 from contextlib import contextmanager
 import os
+import sys
 import copy
 import bson
 from threading import RLock
@@ -20,13 +21,24 @@ def tempdir_context(path):
 
 @contextmanager
 def test_db_context(dbName=MongoDB.TEST_DATABASE_NAME):
-    # For now, assume all tests are run on localhost
-    db = MongoDB.getTestDB('localhost', dbName)
-    MongoDB.initDB(db)
-    try:
+
+    if "-D" in sys.argv:
+        # Use a real MongoDB instance at localhost
+        db = MongoDB.getTestDB('localhost', dbName)
+        MongoDB.initDB(db)
+        try:
+            yield db
+        finally:
+            MongoDB.destroyDB(db)
+    else:
+        # Use an in-memory database
+        db = {}
+        db[MongoDB.GEO_COLLECTION_NAME] = SimCollection()
+        db[MongoDB.CAL_COLLECTION_NAME] = SimCollection()
+        db[MongoDB.STATUS_COLLECTION_NAME] = SimCollection()
+        db[MongoDB.TRANSACTION_COLLECTION_NAME] = SimCollection(
+                                            unique=[MongoDB.TRANSACTION_KEY])
         yield db
-    finally:
-        MongoDB.destroyDB(db)
 
 
 @contextmanager
@@ -170,11 +182,10 @@ def simFind(data, match):
 
 class SimCollection(object):
     
-    def __init__(self, unique=[], name=None):
+    def __init__(self, unique=[]):
         self.__data = []
         self.__unique = unique
         self.__lock = RLock()
-        self.__name = name
 
     def _check_unique(self, doc):
         for key in self.__unique:
