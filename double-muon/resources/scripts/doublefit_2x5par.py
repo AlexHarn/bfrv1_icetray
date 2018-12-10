@@ -119,7 +119,8 @@ tray.AddModule("I3LineFit",
 lflist+=["linefit"]
 
 # regular Pandel fit (using all TW-cleaned pulses)
-tray.AddModule("I3IterativeFitter",fitbase,
+tray.AddModule("I3IterativeFitter",
+    OutputName=fitbase,
     NIterations = Niter,
     SeedService = "seedprep",
     Parametrization = "simpletrack",
@@ -217,7 +218,8 @@ for spl in ["T1","T2","G1","G2"]:
     )
     lflist+=["linefit"+spl]
     # pandel fit
-    tray.AddModule("I3IterativeFitter",fitbase+spl,
+    tray.AddModule("I3IterativeFitter",
+        OutputName=fitbase+spl,
         NIterations = Niter,
         SeedService = "seedprep"+spl,
         Parametrization = "simpletrack",
