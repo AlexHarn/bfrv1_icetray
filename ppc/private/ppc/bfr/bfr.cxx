@@ -135,11 +135,12 @@ public:
   //computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation for directions sampled from sphere and weights according to https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
   void ellipsoid(double a, double b, double c){
 	bool keep=false;
+	float weight=0;
 	float maxweight= max(max(a*c, a*b), b*c);
 	
 	while(!keep){
 		double costheta=2*xrnd()-1;
-		double sintheta=sqrt(1-ct*ct);
+		double sintheta=sqrt(1-costheta*costheta);
 		double ph=2*M_PI*xrnd();
 		double cosphi=cos(ph), sinphi=sin(ph);
 	
