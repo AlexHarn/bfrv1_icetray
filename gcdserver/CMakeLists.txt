@@ -17,7 +17,11 @@ endif(PYMONGO_NOT_FOUND)
 
 if (NOT ZMQ_NOT_FOUND)
   if (NOT PYMONGO_NOT_FOUND)
-    no_dotfile_glob(tmp_SCRIPTS resources/test/Test*.py)
-    i3_test_scripts(${tmp_SCRIPTS})
+    no_dotfile_glob(tmp_SCRIPTS resources/test/TestCalibration.py)
+    i3_test_scripts(resources/test/TestGeometry.py
+                    resources/test/TestCalibration.py
+                    resources/test/TestDetectorStatus.py
+                    resources/test/TestDB.py
+                    resources/test/TestI3MS.py)
   endif(NOT PYMONGO_NOT_FOUND)
 endif(NOT ZMQ_NOT_FOUND)
