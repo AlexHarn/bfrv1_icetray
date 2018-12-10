@@ -122,15 +122,39 @@ public:
     // p2.normalize();
   }
 
-  void rand(){
+  void rand(){ // random from sphere
     double ct=2*xrnd()-1;
     double st=sqrt(1-ct*ct);
     double ph=2*M_PI*xrnd();
     double cp=cos(ph), sp=sin(ph);
     x=st*cp, y=st*sp, z=ct;
   }
+  
+  //random surface segment of an ellipsoid, representing the average grain
+  //a,b,c are the x,y,z radia
+  //computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation for directions sampled from sphere and weights according to https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
+  void ellipsoid(double a, double b, double c){
+	bool keep=false;
+	float maxweight= max(max(a*c, a*b), b*c);
+	
+	while(!keep){
+		double costheta=2*xrnd()-1;
+		double sintheta=sqrt(1-ct*ct);
+		double ph=2*M_PI*xrnd();
+		double cosphi=cos(ph), sinphi=sin(ph);
+	
+		x=sintheta*cosphi/a;
+		y=sintheta*sinphi/b;
+		z=costheta/c;
+			
+		weight=sqrt( pow(a*c* sintheta*sinphi ,2)+ pow(a*b* costheta, 2)+ pow(b*c* sintheta*cosphi,2) );
+		keep=(xrnd() < weight/maxweight);
+	}
+		
+	this->normalize();
+  }
 
-  myvect randz(){
+  myvect randz(){ //c-axis oriention
     myvect r;
     if(girdle){
       double ph=2*M_PI*xrnd();
