@@ -28,18 +28,26 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Cabbibo and Weinberg angles 
+  Cabibbo and Weinberg angles 
   -->
-  <param type="double" name="CabbiboAngle">  0.22853207 </param> <!-- 0.226893 -->  
+  <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Seghal 
+  Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
   resonance model
   -->
   <param type="double" name="RS-Omega"> 1.05  </param>
   <param type="double" name="RS-Zeta">  0.762 </param> <!-- 0.75 -->
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters for the Berger-Sehgal / Kuzmin-Lyubushkin-Naumov Delta models.
+  Set to true to use tuning to axial, vector form factors by MiniBoone (J. Nowak)
+  -->
+  <param type="bool" name="minibooneGA">  true </param>
+  <param type="bool" name="minibooneGV">  true </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,10 +76,14 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Switches controlling the DIS structure function calculation. Those switches specify whether to:
   - include an R (~FL) factor into the calculation
-  - include a nuclear factor (accounting for shadowing/anti-shadowing) 
+  - include a nuclear factor (accounting for shadowing/anti-shadowing)
+  - include corrections for calculating relation between 2xF1 and F2
+  - Select value for Q2 cutoff in relation between 2xF1 and F2
   -->
-  <param type="bool" name="DISSF-IncludeR">       true </param>
-  <param type="bool" name="DISSF-IncludeNuclMod"> true </param>
+  <param type="bool"   name="DISSF-IncludeR">           true </param>
+  <param type="bool"   name="DISSF-IncludeNuclMod">     true </param>
+  <param type="bool"   name="DISSF-Use2016Corrections"> false</param>
+  <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,6 +113,37 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  MEC parameters
+
+  SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
+                     Want `true` for EmpiricalMEC, `false` for NSV
+  -->
+  <param type="bool" name="SetDiNucleonCode"> true </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Empirical MEC parameters
+
+  Mq2d       : Analogous to MA in CCQE (drives Q^2 dependence); units GeV
+  Mass       : units GeV
+  Width      : Width of the gaussian W-dependence in the dip region; units GeV 
+  FracCCQE   : Fraction of CCQE xsec to CCMEC xsec.
+  FracNCQE   : Fraction of NCQE xsec to NCMEC xsec.
+  FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
+  FracPN_CC  : Fraction of pairs in the nucleus that are pn.
+  FracPN_NC  : Fraction of pairs in the nucleus that are pn.
+  -->
+  <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
+  <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
+  <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracCCQE"> 0.45 </param>
+  <param type="double" name="EmpiricalMEC-FracNCQE"> 0.45 </param>
+  <param type="double" name="EmpiricalMEC-FracEMQE"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracPN_NC"> 0.8 </param>
+  <param type="double" name="EmpiricalMEC-FracPN_CC"> 0.8 </param>
+  <param type="double" name="EmpiricalMEC-FracPN_EM"> 0.8 </param>
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and vector masses for resonance production  
   -->
   <param type="double" name="RES-Ma"> 1.120 </param>
@@ -112,11 +155,47 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="COH-Ma"> 1.000 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial and Vector masses for the Delta formfactors in the Alvarez-Ruso model of coherent scattering.
+  The values comes from Scheiner and von Hippel, Nucl Phys. B 58 (1973) p 333.
+  -->
+  <param type="double" name="COHAR-Ma-Delta"> 1.280 </param>
+  <param type="double" name="COHAR-Mv-Delta"> 0.730 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial and Vector masses for the Nucleon formfactors in the Alvarez-Ruso model of coherent scattering.
+  Note that the vector mass comes the BBBA-2003 Quasielastic form factor parametrisation.
+  -->
+  <param type="double" name="COHAR-Ma-Nuc"> 1.000 </param>
+  <param type="double" name="COHAR-Mv-Nuc"> 0.840 </param>
+  <param type="double" name="COHAR-GA0"> 1.2670 </param>
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Value of axial form factor at Q2=0  
   -->
   <param type="double" name="QEL-FA0"> -1.2670 </param>
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Value of E0 for the Kuzmin-Naumov running axial mass model  
+  -->
+  <param type="double" name="CCQE-E0"> 0.334 </param>
+
+<!-- 
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Value of Z-expansion parameters for QEL axial form factor  
+   - Normalization of expansion controlled by QEL-FA0
+   -->
+  <param type="bool"   name="QEL-Q4limit"> true   </param>
+  <param type="int"    name="QEL-Kmax">    4      </param>
+  <param type="double" name="QEL-T0">     -0.28   </param>
+  <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
+  <param type="double" name="QEL-Z_A1">    2.30   </param>
+  <param type="double" name="QEL-Z_A2">   -0.6    </param>
+  <param type="double" name="QEL-Z_A3">   -3.8    </param>
+  <param type="double" name="QEL-Z_A4">    2.3    </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,6 +209,42 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="COH-Ro"> 1.000 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  The $\xi$ scaling variable used to determine \nu_{min} from Paschos-Schalla PRD 80 033005 for 
+  coherent pion reactions. (E * y = nu) Dimensionless units. Set this to a value below zero 
+  to use simple lepton kinematics to set the nu (y) bounds instead.
+  -->
+  <param type="double" name="COH-PaschosSchallaXi"> -1.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Minimum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-Q2-min"> 0.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-Q2-max"> 1.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered t for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-t-max"> 0.250 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  If false, use the pion-nucleon cross section specially computed for the Berger-Sehgal model.
+  If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
+  -->
+  <param type="bool" name="COH-UseRSPionXSec"> false </param>
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Real over imaginary fwd scattering amplitude in coherent interactions 
@@ -139,10 +254,44 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Use a modification to Adler's PCAC theorem that includes the final state lepton mass. 
-  See Rein-Seghal, hep-ph/0606185. Affects the COH CC cross section.
+  See Rein-Sehgal, hep-ph/0606185. Affects the COH CC cross section.
   -->
   <param type="bool" name="COH-UseModifiedPCAC"> true </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  a4,5 and b4,5 are parameters in the parametrisation of C_4^A and C_5^A form factors in the Alvarez-Ruso
+  coherent model.
+  -->
+  <param type="double" name="COHAR-a4"> -1.21 </param>
+  <param type="double" name="COHAR-a5"> -1.21 </param>
+  <param type="double" name="COHAR-b4"> 2.0 </param>
+  <param type="double" name="COHAR-b5"> 2.0 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Pion decay constant for Alvarez-Ruso coherent model (GeV)
+  -->
+  <param type="double" name="COHAR-fPi"> 0.093 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Delta-N coupling constant for Alvarez-Ruso coherent model
+  -->
+  <param type="double" name="COHAR-fStar"> 2.13 </param>
+ 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Nuclear Density for Alvarez-Ruso coherent model
+  -->
+  <param type="double" name="COHAR-Rho0"> 0.17 </param>
+
+  <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Q3 max for Nieves-Simo-Vacas ("Valencia") 2p2h model 
+  -->
+  <param type="double" name="NSV-Q3Max"> 1.2 </param>
+ 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial mass for diffractive scattering (GeV)
@@ -155,6 +304,14 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="DFR-Beta"> 7.0 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="DFR-t-max"> 0.35 </param>
+
+ 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters for neutrino-electron elastic scattering 
@@ -165,6 +322,19 @@ STFC, Rutherford Appleton Laboratory
   Parameters for anomaly mediated neutrino-gamma interactions
   -->
  <param type="double" name="AMNuGamma-Gw"> 20.0 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Pion decay constant (GeV)
+  -->
+ <param type="double" name="PionDecayConstant"> 0.093 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SU(3) parameters D and F
+  -->
+  <param type="double" name="SU3-D"> 0.804 </param>
+  <param type="double" name="SU3-F"> 0.463 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,20 +420,32 @@ STFC, Rutherford Appleton Laboratory
   Nuclear model selection. 
   Options:
    - genie::FGMBodekRitchie/Default
+   - genie::LocalFGM/Default
    - genie::SpectralFunc1d/Default
+   - genie::EffectiveSF/Default  <- See http://arxiv.org/abs/1405.0583
   The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei 
   (typically a Fermi Gas model with the Bodek-Ritchie NN corellatin tail). Refinements for specific 
   nuclei are possible, by specifying the 'NuclearModel@Pdg=10LZZZAAAI' option. 
   Currently the same nuclear model is forced for all isotopes.
+
+  <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
+  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
   -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
+
 <!--
+
   <param type="alg" name="NuclearModel@Pdg=1000060120">   genie::SpectralFunc1d/Default  </param>
   <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
 -->
   <param type="bool" name="IsotopesUseSameNuclearModel">  true                           </param>
-
- <!-- 
+ 
+<!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment. 
+     See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
+-->
+  <param type="bool" name="UseElFFTransverseEnhancement">  false                              </param>
+  <param type="alg" name="TransverseEnhancement"> genie::TransverseEnhancementFFModel/Default </param>
+<!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters related with GENIE's Fermi Gas (RFG) model implementation  
   - RFG-Momentum-CutOff is a momentum cut-off for the NN correlation tail
@@ -368,6 +550,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
   <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
   <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
+  <param type="double" name="KNO-ProbPi0Eta">        0.0 </param> 
+  <param type="double" name="KNO-ProbEtaEta">        0.0   </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -478,6 +662,11 @@ STFC, Rutherford Appleton Laboratory
   Options include:
    - genie::HAIntranuke/Default
    - genie::HNIntranuke/Default
+   - genie::HAIntranuke2014/Default  new 2d spline for piA
+   - genie::HNIntranuke2014/Default
+   - genie::HAIntranuke2015/Default
+   - genie::HNIntranuke2015/Default
+   - genie::HNIntranuke2015/OsetOff
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
@@ -493,17 +682,18 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="INUKE-HadStep">           0.05  </param>
   <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
   <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
-  <param type="double" name="HNINUKE-DelRPion">        0.05  </param>
-  <param type="double" name="HNINUKE-DelRNucleon">     0.2   </param>
-  <param type="double" name="INUKE-NucAbsFac">         2.0   </param>
-  <param type="double" name="INUKE-NucQEFac">          0.5   </param>
-  <param type="double" name="INUKE-NucCEXFac">         0.35  </param>
+  <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
+  <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
+  <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+  <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+  <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
   <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
   <param type="double" name="INUKE-FermiFac">          1.0   </param>
-  <param type="double" name="INUKE-FreeStep">          1.0   </param>
+  <param type="double" name="INUKE-FreeStep">          0.0   </param>
   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
   <param type="bool"   name="INUKE-DoFermi">           true  </param>
   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+  <param type="bool"   name="INUKE-XsecNNCorr">        false  </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -515,18 +705,20 @@ STFC, Rutherford Appleton Laboratory
    -->
   <param type="bool" name="DecayParticleWithCode=111">   false </param>  <!--  pi^{0}            -->
   <!--
-   Charmed hadrons: Decay them! This differs from the original GENIE UserPhysicsOptions.xml
+   Charmed hadrons: Not decayed by default.
+   Switch on charm decays if your detector doesn't see charm hadron tracks and
+   your detector simulation doesn't want to handle these decays.
    -->
-  <param type="bool" name="DecayParticleWithCode=411">   true </param>  <!--  D^{+}             -->
-  <param type="bool" name="DecayParticleWithCode=-411">  true </param>  <!--  D^{-}             -->
-  <param type="bool" name="DecayParticleWithCode=421">   true </param>  <!--  D^{0}             -->
-  <param type="bool" name="DecayParticleWithCode=-421">  true </param>  <!--  \bar{D^{0}}       -->
-  <param type="bool" name="DecayParticleWithCode=431">   true </param>  <!--  D_{s}^{+}         -->
-  <param type="bool" name="DecayParticleWithCode=-431">  true </param>  <!--  D_{s}^{-}         -->
-  <param type="bool" name="DecayParticleWithCode=4122">  true </param>  <!--  Lambda_{c}^{+}    -->
-  <param type="bool" name="DecayParticleWithCode=4112">  true </param>  <!--  Sigma_{c}^{0}     -->
-  <param type="bool" name="DecayParticleWithCode=4212">  true </param>  <!--  Sigma_{c}^{+}     -->
-  <param type="bool" name="DecayParticleWithCode=4222">  true </param>  <!--  Sigma_{c}^{++}    -->
+  <param type="bool" name="DecayParticleWithCode=411">   false </param>  <!--  D^{+}             -->
+  <param type="bool" name="DecayParticleWithCode=-411">  false </param>  <!--  D^{-}             -->
+  <param type="bool" name="DecayParticleWithCode=421">   false </param>  <!--  D^{0}             -->
+  <param type="bool" name="DecayParticleWithCode=-421">  false </param>  <!--  \bar{D^{0}}       -->
+  <param type="bool" name="DecayParticleWithCode=431">   false </param>  <!--  D_{s}^{+}         -->
+  <param type="bool" name="DecayParticleWithCode=-431">  false </param>  <!--  D_{s}^{-}         -->
+  <param type="bool" name="DecayParticleWithCode=4122">  false </param>  <!--  Lambda_{c}^{+}    -->
+  <param type="bool" name="DecayParticleWithCode=4112">  false </param>  <!--  Sigma_{c}^{0}     -->
+  <param type="bool" name="DecayParticleWithCode=4212">  false </param>  <!--  Sigma_{c}^{+}     -->
+  <param type="bool" name="DecayParticleWithCode=4222">  false </param>  <!--  Sigma_{c}^{++}    -->
   <!--
    Taus: Not decayed by default.
    Switch on tau decays if your detector doesn't see tau tracks and
@@ -610,30 +802,76 @@ STFC, Rutherford Appleton Laboratory
   Specify which cross section model is to be used by each GENIE event generation thread.
   The parameter name is build as: "XSecModel@[name of thread]"
   -->
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">       genie::LwlynSmithQELCCPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">       genie::AhrensNCELPXSec/Default          </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">       genie::RosenbluthPXSec/Default          </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">       genie::ReinSeghalRESPXSec/Default       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">       genie::ReinSeghalRESPXSec/Default       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">       genie::ReinSeghalRESPXSec/Default       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">       genie::QPMDISPXSec/Default              </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">       genie::QPMDISPXSec/Default              </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">       genie::QPMDISPXSec/Default              </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::ReinSeghalCOHPiPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::ReinSeghalCOHPiPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/IMD">          genie::BardinIMDRadCorPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">      genie::IMDAnnihilationPXSec/Default     </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">       genie::NuElectronPXSec/Default          </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM"> genie::KovalenkoQELCharmPXSec/Default   </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM"> genie::AivazisCharmPXSecLO/CC-Default   </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">   genie::H3AMNuGammaPXSec/Default         </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">       genie::ReinDFRPXSec/Default             </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">       genie::ReinDFRPXSec/Default             </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">       genie::MECPXSec/Default                 </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">       genie::MECPXSec/Default                 </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">       genie::MECPXSec/Default                 </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/GLRES">        genie::GLRESPXSec/Default               </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay"> genie::DummyPXSec/Default               </param>
+<!-- New Nieves QE model   -->
+<!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/Default         </param>
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default          </param>
+
+  <!-- New Berger-Sehgal resonance model w/MiniBooNE tune... -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::BergerSehgalRESPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::BergerSehgalRESPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::BergerSehgalRESPXSec2014/Default </param>
+   -->
+  
+  <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
+   -->
+	
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::ReinSehgalRESPXSec/Default       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/Default       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/Default       </param>
+  
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::QPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
+
+  <!-- 
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+
+  <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  -->
+
+  <!-- Berger-Sehgal "as in the paper"
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  -->
+
+  <!-- Alvarez-Ruso et al COH pion
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  -->
+
+  <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM">   genie::KovalenkoQELCharmPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM">   genie::AivazisCharmPXSecLO/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-SINGLEK"> genie::AlamSimoAtharVacasSKPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-LAMBDA">  genie::PaisQELLambdaPXSec/Default     </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::NievesSimoVacasMECPXSec2016/Default </param>
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/GLRES">          genie::GLRESPXSec/Default             </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NeutronOsc">     genie::NOscDummyPXSec/Default         </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -645,12 +883,24 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
 
+<!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial form factors used for QEL CC cross section calculation.
+  Options are:
+  - genie::DipoleAxialFormFactorModel
+  - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
+  - genie::KuzminNaumov2016AxialFormFactorModel, K. Kuzmin and V. Naumov, in press (2016).
+  <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+  -->
+  <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GENIE validity range
   -->
-  <param type="double" name="GVLD-Emin">    0.010  </param>
-  <param type="double" name="GVLD-Emax"> 1000.000  </param>
+  <param type="double" name="GVLD-Emin">     0.010  </param>
+  <param type="double" name="GVLD-Emax"> 10000.000  </param>
 
  </param_set>
 
