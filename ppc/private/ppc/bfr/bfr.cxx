@@ -129,33 +129,39 @@ public:
     double cp=cos(ph), sp=sin(ph);
     x=st*cp, y=st*sp, z=ct;
   }
-  
-  //random surface segment of an ellipsoid, representing the average grain
-  //a,b,c are the x,y,z radia
-  //computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation for directions sampled from sphere and weights according to https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
+
+  // random surface segment of an ellipsoid, representing the average grain
+  // a,b,c are the x,y,z radia
+  // computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation
+  // for directions sampled from sphere and weights according to
+  // https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
   void ellipsoid(double a, double b, double c){
-	bool keep=false;
-	float weight=0;
-	float maxweight= max(max(a*c, a*b), b*c);
-	
-	while(!keep){
-		double costheta=2*xrnd()-1;
-		double sintheta=sqrt(1-costheta*costheta);
-		double ph=2*M_PI*xrnd();
-		double cosphi=cos(ph), sinphi=sin(ph);
-	
-		x=sintheta*cosphi/a;
-		y=sintheta*sinphi/b;
-		z=costheta/c;
-			
-		weight=sqrt( pow(a*c* sintheta*sinphi ,2)+ pow(a*b* costheta, 2)+ pow(b*c* sintheta*cosphi,2) );
-		keep=(xrnd() < weight/maxweight);
-	}
-		
-	this->normalize();
+    float weight = 0;
+    float maxweight = min(a, min(b, c));
+
+    do{
+      double costheta=2*xrnd()-1;
+      double sintheta=sqrt(1-costheta*costheta);
+      double ph=2*M_PI*xrnd();
+      double cosphi=cos(ph), sinphi=sin(ph);
+
+      x=sintheta*cosphi/a;
+      y=sintheta*sinphi/b;
+      z=costheta/c;
+
+      weight=maxweight*sqrt(x*x+y*y+z*z);
+    } while(xrnd() >= weight);
+
+    this->normalize();
   }
 
-  myvect randz(){ //c-axis oriention
+  void rand_i(myvect q){
+    // gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
+    // dot product between boundary and poynting vector = probability to see plane
+    do rand(); while(xrnd() >= fabs(this->dot(q)/q.norm()));
+  }
+
+  myvect rand_c(){ // c-axis oriention
     myvect r;
     if(girdle){
       double ph=2*M_PI*xrnd();
@@ -463,28 +469,21 @@ void test2(double p, int num, int tot){
     surface flow(sin(p), 0, cos(p)); // direction of ice flow
     flow.setp();
 
-    one = flow.randz();
+    one = flow.rand_c();
     myvect r(0, 0, 0);
     photon o(r), e(r);
     one.set_k(k, o, e, true);
     photon p=xrnd()<0.5?o:e;
 
     if(verbose) cout<<endl<<endl;
-    two = flow.randz();
+    two = flow.rand_c();
 
     for(int i=0; i<num; i++){
       p.advance(1./num);
-	  
-	  bool keepplane=false;
-	  while(!keepplane){ 
-		plane.rand(); //gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
-		//dot product between boundary and poynting vector = probability to see plane
-		keepplane=(xrnd()< fabs( plane.dot(p.s)/p.s.norm() ));
-	  }
-	  
+      plane.rand_i(p.s);
       bool same=interact(one, two, plane, p);
       if(!same) one=two;
-      two = flow.randz();
+      two = flow.rand_c();
     }
 
     myvect s=p.s;
