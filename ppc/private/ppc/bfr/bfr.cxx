@@ -474,7 +474,14 @@ void test2(double p, int num, int tot){
 
     for(int i=0; i<num; i++){
       p.advance(1./num);
-      plane.rand();
+	  
+	  bool keepplane=false;
+	  while(!keepplane){ 
+		plane.rand(); //gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
+		//dot product between boundary and poynting vector = probability to see plane
+		keepplane=(xrand()< plane.dot(p.s));
+	  }
+	  
       bool same=interact(one, two, plane, p);
       if(!same) one=two;
       two = flow.randz();
