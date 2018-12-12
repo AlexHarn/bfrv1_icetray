@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+December 11, 2018, Alex Olivas (olivas@icecube.umd.edu)
+------------------------------------------------------------
+Release V18-12-00
+
+* Minor tweak to support FreeBSD.
+
 June 13, 2018, Alex Olivas (olivas@icecube.umd.edu)
 ------------------------------------------------------------
 Release V18-06-00
