@@ -479,7 +479,7 @@ void test2(double p, int num, int tot){
 	  while(!keepplane){ 
 		plane.rand(); //gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
 		//dot product between boundary and poynting vector = probability to see plane
-		keepplane=(xrand()< plane.dot(p.s));
+		keepplane=(xrnd()< plane.dot(p.s));
 	  }
 	  
       bool same=interact(one, two, plane, p);
