@@ -638,7 +638,7 @@ TEST(8_WholeShebang){
 	ENSURE_DISTANCE(nLateCountOK/double(nTrials),.68,.05,"Expected number of late pulses");
 	ENSURE_DISTANCE(nAfterCountOK/double(nTrials),.68,.05,"Expected number of afterpulses");
 	//Check that various types of pulses have the right average charges
-	const double expectedAverageRegularCharge=.85;
+	const double expectedAverageRegularCharge=.65;
 	const double expectedAveragePreCharge=(1./15)*(1.365e3*I3Units::V/getTestStatus()->domStatus[testOM].pmtHV);
 	//The following number is _not_ 13.31-3.386*euler_gamma because the tails of the gumbel distribution are cut off
 	const double expectedAverageEarlyAfterCharge=11.97275;
