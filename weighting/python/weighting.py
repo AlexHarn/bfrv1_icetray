@@ -920,7 +920,12 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 					raise ValueError("Unknown CORSIKA configuration!")
 				generator = nevents*MuonGun.corsika_genprob(model)
 			else:
-				generator = FiveComponent(steering['CORSIKA::showers'],
+                                try:
+                                        oversampling = steering['oversampling']
+                                except KeyError:
+                                        oversampling = 1
+
+				generator = FiveComponent(oversampling*steering['CORSIKA::showers'],
 				    emin=steering['CORSIKA::eprimarymin']*I3Units.GeV,
 				    emax=steering['CORSIKA::eprimarymax']*I3Units.GeV,
 				    normalization=norm, gamma=gamma,
