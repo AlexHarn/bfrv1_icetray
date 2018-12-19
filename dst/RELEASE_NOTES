@@ -7,6 +7,11 @@ Release Notes
 
 trunk
 -----
+
+Dec 19, 2018 Juan Carlos
+---------------------------
+Release V00-10-04
+* Added LineFit reconstruction and option for combining files
 * Options to break runs into smaller chunks.
 
 June 12, 2018 Kevin Meagher
