@@ -11,6 +11,7 @@ using namespace std;
 bool verbose=false;
 bool girdle=true;
 bool orefr=false;
+double elong=1.0;
 double xx=1.e-10;
 
 float xrnd(){
@@ -104,6 +105,7 @@ class surface:
 {
 public:
   surface() : myvect() {}
+  surface(myvect q) : myvect(q) {}
   surface(double x, double y, double z) : myvect(x, y, z) {}
 
   myvect p1, p2;
@@ -120,14 +122,6 @@ public:
     p1.normalize();
     p2=this->cross(p1);
     // p2.normalize();
-  }
-
-  void rand(){ // random from sphere
-    double ct=2*xrnd()-1;
-    double st=sqrt(1-ct*ct);
-    double ph=2*M_PI*xrnd();
-    double cp=cos(ph), sp=sin(ph);
-    x=st*cp, y=st*sp, z=ct;
   }
 
   // random surface segment of an ellipsoid, representing the average grain
@@ -155,10 +149,48 @@ public:
     this->normalize();
   }
 
-  void rand_i(myvect q){
+  myvect rand(){ // random from sphere
+    double ct=2*xrnd()-1;
+    double st=sqrt(1-ct*ct);
+    double ph=2*M_PI*xrnd();
+    double cp=cos(ph), sp=sin(ph);
+    return myvect(st*cp, st*sp, ct);
+  }
+
+  double elong_sampling(double p){ // returns the cos(th) value for elongated (stretched) ice
+    double p2=p*p;
+    double weight, xi, num;
+
+    do {
+      xi=2*xrnd()-1;
+      double x2=xi*xi;
+      double px=p2*(1-x2);
+      num=x2+px;
+      weight=num/(p*x2+px);
+    } while(xrnd() >= weight);
+
+    return xi/sqrt(num);
+  }
+
+  myvect rand_x(){ // interface plane orientation
+    myvect r;
+    if(elong!=1){
+      double ct=elong_sampling(elong);
+      double st=sqrt(1-ct*ct);
+      double ph=2*M_PI*xrnd();
+      double cp=cos(ph), sp=sin(ph);
+      r=(*this)*ct+(p1*cp+p2*sp)*st;
+    }
+    else r=rand();
+    return r;
+  }
+
+  myvect rand_i(myvect q){
     // gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
     // dot product between boundary and poynting vector = probability to see plane
-    do rand(); while(xrnd() >= fabs(this->dot(q)/q.norm()));
+    myvect r;
+    do r=rand_x(); while(xrnd() >= fabs(r.dot(q)/q.norm()));
+    return r;
   }
 
   myvect rand_c(){ // c-axis oriention
@@ -168,11 +200,7 @@ public:
       double cp=cos(ph), sp=sin(ph);
       r=p1*cp+p2*sp;
     }
-    else{
-      surface q;
-      q.rand();
-      r=q;
-    }
+    else r=rand();
     return r;
   }
 };
@@ -480,7 +508,7 @@ void test2(double p, int num, int tot){
 
     for(int i=0; i<num; i++){
       p.advance(1./num);
-      plane.rand_i(p.s);
+      plane = flow.rand_i(p.s);
       bool same=interact(one, two, plane, p);
       if(!same) one=two;
       two = flow.rand_c();
@@ -524,11 +552,12 @@ main(int arg_c, char *arg_a[]){
     }
 
     if(arg_c>2) girdle=atof(arg_a[2])>0;
+    if(arg_c>3) elong=atof(arg_a[3]);
 
     test2(atof(arg_a[1])*M_PI/180, inum, jnum);
   }
   else{
-    cerr<<"Usage: [SEED=0] [ORFR=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle]"<<endl;
+    cerr<<"Usage: [SEED=0] [ORFR=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle] [elongation]"<<endl;
     test();
   }
 }
