@@ -166,7 +166,7 @@ public:
       double x2=xi*xi;
       double px=p2*(1-x2);
       num=x2+px;
-      weight=num/(p*x2+px);
+      weight=num/p2;
     } while(xrnd() >= weight);
 
     return xi/sqrt(num);
