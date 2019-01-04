@@ -138,12 +138,16 @@ class SimUpdateResult(object):
         self.raw_result['n'] = n
 
 
-def simKeyRecursion(doc, key):
+def simKeyRecursion(doc, key, newValue=None):
     keys = key.split('.')
     ret = doc
-    for k in keys:
+    # Get the relevant inner dict
+    for k in keys[:-1]:
         ret = ret[k]
-    return ret
+    # Set the new value if requested
+    if newValue is not None:
+        ret[keys[-1]] = copy.deepcopy(newValue)
+    return ret[keys[-1]]
 
 
 def simDoMatch(doc, k, v):
@@ -223,9 +227,8 @@ class SimCollection(object):
             docs = simFind(self.__data, match)
             mod = update["$set"]
             for (k,v) in mod.iteritems():
-                assert '.' not in k
                 for doc in docs:
-                    doc[k] = copy.deepcopy(v)
+                    simKeyRecursion(doc, k, v)
             return SimUpdateResult(len(docs))
     
     def find(self, match={}, limit=0):
