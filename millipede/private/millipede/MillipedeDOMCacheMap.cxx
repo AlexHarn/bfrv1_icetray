@@ -105,18 +105,11 @@ MillipedeDOMCacheMap::UpdateParams(I3GeometryConstPtr geometry,
 		if (isfinite(rde))
 			cache.light_scale *= rde;
 
-		cache.noise_rate = 850*I3Units::hertz;
-		if (isfinite(domCalib->second.GetDomNoiseRate()))
-			cache.noise_rate = domCalib->second.GetDomNoiseRate();
-
+		cache.noise_rate = domCalib->second.GetDomNoiseRate();
 		if (!isfinite(cache.noise_rate) || cache.noise_rate <= 0 ||
 		    cache.noise_rate > 10000*I3Units::hertz) {
-			log_warn("OM (%d,%d) has an invalid noise rate "
-			    "(%e Hz)! Assuming this is bogus, clamping to 850 "
-			    " Hz.", domCalib->first.GetString(),
-			    domCalib->first.GetOM(),
-			    cache.noise_rate/I3Units::hertz);
-			cache.noise_rate = 850*I3Units::hertz;
+			log_fatal_stream(i->first<<" has an invalid noise rate "
+			    "("<<(cache.noise_rate/I3Units::hertz)<<" Hz)!");
 		}
 
 		(*this)[i->first] = cache;
