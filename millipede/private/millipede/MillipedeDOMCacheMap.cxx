@@ -63,7 +63,8 @@ MillipedeDOMCacheMap::UpdateParams(I3GeometryConstPtr geometry,
 	// Recompute everything now we have all the parameters
 	for (I3OMGeoMap::const_iterator i = geometry_->omgeo.begin();
 	    i != geometry_->omgeo.end(); i++) {
-		if (i->second.omtype != I3OMGeo::IceCube)
+		// Skip surface hardware
+		if (i->second.omtype == I3OMGeo::IceTop || i->second.omtype == I3OMGeo::Scintillator)
 			continue;
 
 		MillipedeDOMCache cache;
@@ -74,10 +75,6 @@ MillipedeDOMCacheMap::UpdateParams(I3GeometryConstPtr geometry,
 		cache.noise = NULL;
 		cache.amplitudes_only = true;		
 
-		// Only in-ice DOMs
-		if (cache.geo.omtype != I3OMGeo::IceCube)
-			continue;
-		
 		// Check if the DOM is on
 		std::map<OMKey, I3DOMStatus>::const_iterator domStatus =
 		    status_->domStatus.find(i->first);
