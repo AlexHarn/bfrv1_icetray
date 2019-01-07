@@ -17,7 +17,7 @@ import urllib2
 import os,sys
 
 
-def formatdir(s):
+def format_dir(s):
     date = s.split()[0]
     y, m, d = date.split("-")
     return "%s%s" % (m,d)
@@ -39,6 +39,7 @@ def getdirs(run):
 
     # Parse JSON into a python dict and print some of it
     d = json.loads(response)
+    print (d)
     start = format_dir(d['start'])
     stop = format_dir(d['stop'])
     r = []
@@ -103,6 +104,25 @@ if options.RUN and options.DIR:
     print i3filelist
 
     FileList = [options.GCDFILE]+i3filelist
+elif options.RUN:
+	dirs = getdirs(options.RUN)
+	startday = dirs[0]
+	endday = dirs[0]
+	if len(dirs) > 1:
+		endday = dirs[1] 
+	days = []
+	day = int(startday)
+	print (int(endday))
+	print (day < int(endday))
+	while day % 100 <= 31 and day <= int(endday):
+		days.append("%04d" % day)
+		day +=1 
+		if day % 100 > 31:
+			day = 100*(day/100 +1) +1
+		print day 
+	print (days)
+	   
+	os._exit(0)
 else:
     FileList = [options.GCDFILE]+options.INFILELIST
 print(FileList)

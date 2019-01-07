@@ -485,12 +485,12 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
     log_debug("zenith %f < %f < %f", zenithLo_,reco2->GetZenith(), zenithHi_);
     tdst->isGoodLineFit = tdst->cut_nan(); 
     if (!tdst->cut_nan())
-        log_warn("Event contains NaNs. Does not pass nan cut");
+        log_info("Event contains NaNs. Does not pass nan cut");
 
     if (!tdst->isGoodLineFit) 
-        log_warn("Event Does not have a good line fit");
+        log_info("Event Does not have a good line fit");
     if (!zenith_cut) 
-        log_warn("Event does not pass zenith cut.");
+        log_info("Event does not pass zenith cut.");
 
     tdst->isGoodLLH = tdst->isGoodLLH && zenith_cut;
 
