@@ -156,21 +156,31 @@ def simDoMatch(doc, k, v):
         x = simKeyRecursion(doc, k)
     except:
         return False
-    # Handle $lte, $gte, etc., not $in
-    if type(v) is dict:
+
+    if type(v) is dict and any(key.startswith("$") for key in v):
+        # Handle $lte, $gte, $in, etc. Logically AND by convention.
         for (nk, nv) in v.iteritems():
             if nk == "$lte":
-                return x <= nv
+                if not type(nv)(x) <= nv:
+                    return False
             elif nk == "$lt":
-                return x < nv
+                if not type(nv)(x) < nv:
+                    return False
             elif nk == "$gt":
-                return x > nv
+                if not type(nv)(x) > nv:
+                    return False
             elif nk == "$gte":
-                return x >= nv
+                if not type(nv)(x) >= nv:
+                    return False
             elif nk == "$in":
-                return x in nv
+                if not x in nv:
+                    return False
+            elif nk == "$not":
+                if doMatch(doc, k, nv):
+                    return False
             else:
                 raise Exception("Unsupported simDB operation: %s" % nk)
+        return True
     return x == v
 
 
