@@ -599,13 +599,30 @@ const DOM& flset(int str, int dom){
     }
   }
 
-  if(fwid<0) p.ka=-1, p.up=0; else
-    switch(type){
-    case 1: p.ka=square(fcv*fwid); p.up=fcv*0.0f; break;
-    case 2: p.ka=square(fcv*fwid); p.up=fcv*48.f; break;
-    case 3: p.ka=0.0f;  p.up=fcv*(90.0f-41.13f);  break;
-    case 4: p.ka=0.0f;  p.up=fcv*(41.13f-90.0f);  break;
+  if(fwid<0) p.ka=-1, p.up=0;
+  else{
+    bool sp=fwid>999.f;
+
+    float fzcr=0.f;
+    if(sp) switch(type){
+      case 1: fzcr=2.0f; break;
+      case 2: fzcr=-5.f; break;
+      }
+
+    {
+      char * FZCR=getenv("FZCR");
+      if(FZCR!=NULL){ fzcr=atof(FZCR);
+	cerr<<"Adjusting flasher LED tilt by "<<fzcr<<" degrees"<<endl;
+      }
     }
+
+    switch(type){
+    case 1: p.ka=sp?fwid:square(fcv*fwid); p.up=(-0.2f+fzcr)*fcv; break;
+    case 2: p.ka=sp?fwid:square(fcv*fwid); p.up=(48.1f+fzcr)*fcv; break;
+    case 3: p.ka=0.0f; p.up=(90.0f-41.13f)*fcv; break;
+    case 4: p.ka=0.0f; p.up=(41.13f-90.0f)*fcv; break;
+    }
+  }
 
   p.type=type;
 

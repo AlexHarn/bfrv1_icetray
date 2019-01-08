@@ -111,6 +111,8 @@ typedef struct{
   cl_float lr[LMAX];
   cl_float lp[LMAX][LYRS];
 
+  cl_float k1, k2, kz, fr; // ice absorption anisotropy parameters
+
   cl_uchar is[CX][CY];
   cl_uchar ls[NSTR];
   line sc[NSTR];
@@ -166,6 +168,10 @@ float mrnd(float k, uint4 * s){  // gamma distribution
     } while(r<4.5f*z-c && r<log(z));
   }
   return x;
+}
+
+float grnd(uint4 * s){  // gaussian distribution
+  return sqrt(-2*log(xrnd(s)))*sin(2*FPI*xrnd(s));
 }
 
 float4 my_normalize(float4 n){
@@ -281,6 +287,8 @@ __kernel void propagate(__private uint num,
     int fla, ofla;
 
     if(p.type>0){
+      fla=p.fla, ofla=p.ofla;
+
       if(p.type<=4){
 	float xi=xrnd(&s);
 	if(p.fldr<0) xi*=2*FPI;
@@ -290,19 +298,41 @@ __kernel void propagate(__private uint num,
 	  xi=radians(p.fldr+s*360/r);
 	}
 	n.x=cos(xi), n.y=sin(xi);
-	if(p.ka>0){
-	  float ang=radians(30.f);
-	  float FLZ=OMR*sin(ang), FLR=OMR*cos(ang);
-	  r+=(float4)(FLR*n.x, FLR*n.y, FLZ, OMR*n.w);
-	}
+
+	float FLZ=0.07735f, FLR=0.119f-0.008f, FLB=0.03396f;
+	if(p.ka>0) r=(float4)(FLR*n.x, FLR*n.y, FLZ, 0);
 
 	float np=cos(p.up); n.z=sin(p.up);
 	n.x*=np; n.y*=np;
 
-	if(p.ka!=0){
+	if(p.ka>999.f){
+	  float pf=xrnd(&s);
+
+	  float   s1=0.0191329f, s2=0.0686944f, C1=0.583583f, C2=0.967762f;
+	  switch(p.type){
+	  case 1: s1=0.0196242f, s2=0.0750278f, C1=0.606833f, C2=0.960863f; break;
+	  case 2: s1=0.0185603f, s2=0.0624481f, C1=0.553192f, C2=0.974129f; break;
+	  }
+
+	  xi = pf<C1 ? 1-s1*fabs(grnd(&s)) : pf<C2 ? 1+s2*log(xrnd(&s)) : -1.f;
+
+	  if(xi<=-1.f) xi=2*sqrt(xrnd(&s))-1;
+	  float si=sqrt(1-xi*xi); n=turn(xi, si, n, &s);
+	}
+	else if(p.ka!=0){ // old 2d gaussian
 	  if(p.ka<0) xi=2*xrnd(&s)-1;
 	  else do{ xi=1+p.ka*log(xrnd(&s)); } while (xi<-1);
 	  float si=sqrt(1-xi*xi); n=turn(xi, si, n, &s);
+	}
+
+	if(p.ka>0){
+	  float b=r.x*n.x+r.y*n.y+r.z*n.z;
+	  float c=FLZ*FLZ+FLR*FLR-OMR*OMR;
+	  float t=sqrt(b*b-c)-b;
+	  r+=t*(float4)(n.xyz, e.ocv);
+	  if(fabs(r.z)<FLB) ofla=-2;
+	  else if(r.z<0) if(xrnd(&s)<0.5) ofla=-3;
+	  r+=p.r;
 	}
       }
       else{
@@ -317,10 +347,9 @@ __kernel void propagate(__private uint num,
 	  float si=sqrt(1-xi*xi); n=turn(xi, si, n, &s);
 	}
       }
-
-      fla=p.fla, ofla=p.ofla;
     }
     else{
+      fla=-1, ofla=-1;
       if(l>0) l*=xrnd(&s);
       else l=p.b*mrnd(p.a, &s);
 
@@ -352,7 +381,6 @@ __kernel void propagate(__private uint num,
 	  n=turn(cs, si, n, &s);
 	}
       }
-      fla=-1, ofla=-1;
     }
 
     pbuf f; f.r=r, f.n=n; f.q=j; f.i=niw; f.fla=fla, f.ofla=ofla; bf[i]=f;
@@ -371,6 +399,7 @@ __kernel void propagate(__private uint num,
       ofla=f.ofla;
 
       TOT=-log(xrnd(&s)), SCA=0; // TOT = random number sampled from exponential to give distance to absorption
+      if(ofla<-1) TOT=0;
     }
     float sqd;
 
@@ -388,23 +417,31 @@ __kernel void propagate(__private uint num,
       if(i<0) i=0; else if(i>=e.size) i=e.size-1;
 
       if(TOT>0){ // anisotropic absorption
-	aniz az=ez->az[i];
-	float k1=az.k1, k2=az.k2;
-	float kz=1/(k1*k2);
-
 	float n1= e.azx*n.x+e.azy*n.y;
 	float n2=-e.azy*n.x+e.azx*n.y;
 	float n3= n.z;
 
-	float s1=n1*n1, l1=k1*k1;
-	float s2=n2*n2, l2=k2*k2;
-	float s3=n3*n3, l3=kz*kz;
+	{
+	  aniz az=ez->az[i];
+	  float k1=az.k1, k2=az.k2;
+	  float kz=1/(k1*k2);
 
-	float B2=nr/l1+nr/l2+nr/l3;
-	float nB=s1/l1+s2/l2+s3/l3;
-	float An=s1*l1+s2*l2+s3*l3;
+	  float s1=n1*n1, l1=k1*k1;
+	  float s2=n2*n2, l2=k2*k2;
+	  float s3=n3*n3, l3=kz*kz;
 
-	nr=(B2-nB)*An/2;
+	  float B2=nr/l1+nr/l2+nr/l3;
+	  float nB=s1/l1+s2/l2+s3/l3;
+	  float An=s1*l1+s2*l2+s3*l3;
+
+	  nr=pow((B2-nB)*An/2, e.fr);
+	}
+
+	{ // new absorption anisotropy
+	  n1*=e.k1; n2*=e.k2; n3*=e.kz;
+	  nr/=sqrt(n1*n1 + n2*n2 + n3*n3);
+	}
+
 	TOT/=nr;
       }
 
@@ -423,7 +460,7 @@ __kernel void propagate(__private uint num,
 
       J=j; // get overburden for distance
       if(tot<sca) sca=tot, tot=0; else tot=(tot-sca)*w->z[j].abs;
-    }
+   }
 
     om=-1;
     float del=sca;

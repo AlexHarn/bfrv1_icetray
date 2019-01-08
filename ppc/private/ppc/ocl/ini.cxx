@@ -146,6 +146,20 @@ struct ini{
 	    cerr<<"Ice anisotropy is k("<<thx<<")="<<dk1<<","<<dk2<<","<<dkz<<endl;
 	  }
 	  else dk1=1, dk2=1, dkz=1, d.azx=1, d.azy=0;
+
+	  if(v.size()>=15){
+	    // new absorption anisotropy
+	    d.k1=exp(v[12]); d.k2=exp(v[13]); d.kz=exp(v[14]);
+	    cerr<<"New Ice anisotropy is "<<d.k1<<","<<d.k2<<","<<d.kz<<endl;
+	  }
+	  else d.k1=1, d.k2=1, d.kz=1;
+
+	  if(v.size()>=16){
+	    // scaling for absorption anisotropy (old implementation)
+	    d.fr=v[15];
+	    cerr<<"Ice absorption anisotropy scaling is "<<d.fr<<endl;
+	  }
+	  else d.fr=1;
 	}
 	else{ cerr<<"File cfg.txt did not contain valid data"<<endl; exit(1); }
 	inFile.close();

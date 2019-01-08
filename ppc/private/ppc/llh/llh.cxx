@@ -25,6 +25,7 @@ using namespace std;
 #include "lssl.cxx"
 
 double fdur=70;
+bool norm=false;
 bool fail=false;
 bool fast=false;
 bool oldf=true;
@@ -460,6 +461,10 @@ typedef struct{
   double llh(double dt, double nsim){
     fill(dt);
     double result=0;
+    if(norm){
+      if(stot>0) nsim=stot*drep/dtot;
+      else return 0;
+    }
     for(int k=0; k<fnum; k++) result+=llf(sim[k], dat[k], nsim, drep);
     return result;
   }
@@ -911,7 +916,7 @@ ostream& operator<<(ostream& o, cascade& c){
 }
 
 double fllh(double dt, double nsim){
-  double llh=dat::llf(nohit, 0, nsim, drep);
+  double llh=norm?0:dat::llf(nohit, 0, nsim, drep);
   for(map<key, dat>::iterator i=all.begin(); i!=all.end(); ++i){
     dat & d=i->second;
     if(d.in()) llh+=d.llh(dt, nsim);
@@ -923,6 +928,11 @@ double fllh(const gsl_vector *x, void *p){
   return fllh(gsl_vector_get(x, 0), srep*exp(gsl_vector_get(x, 1)));
 }
 
+double fllt(double x, void * p)
+{
+  (void)(p);
+  return fllh(x, srep);
+}
 
 void cascade::unfold(double Q[], double X[], vector< pair<key, hit> > sto[], int jnum){
   double * A = new double[nchn*jnum]();
@@ -1112,8 +1122,8 @@ void cascade::runc(map< key, vector<hix> > & sim){
 
       for(int l=0; l<2; l++){
 	// if(l==1) for(int j=0; j<jnum; j++) sto[j].clear(), T[j]=0;
-	  size_t qx[jnum]; for(int i=0; i<jnum; i++) qx[i]=i;
-	  gsl_ran_shuffle(xr.r, qx, jnum, sizeof(size_t));
+	size_t qx[jnum]; for(int i=0; i<jnum; i++) qx[i]=i;
+	gsl_ran_shuffle(xr.r, qx, jnum, sizeof(size_t));
 
 	for(int J=0; J<jnum; J++){
 	  int j=qx[J];
@@ -1453,6 +1463,36 @@ double cascade::optte(double &t, double &e){
   double llh;
 
   if(qsim>0){
+    if(norm){
+      const gsl_min_fminimizer_type *T;
+      gsl_min_fminimizer *s;
+      gsl_function F;
+
+      F.function = &fllt;
+      F.params = 0;
+
+      T = gsl_min_fminimizer_brent;
+      s = gsl_min_fminimizer_alloc (T);
+
+      double d = 0, a = -100, b = 100;
+      gsl_min_fminimizer_set (s, &F, d, a, b);
+
+      for(int i=0; i<100; i++){
+	if(GSL_SUCCESS!=gsl_min_fminimizer_iterate(s)) break;
+
+	d = gsl_min_fminimizer_x_minimum(s);
+	a = gsl_min_fminimizer_x_lower(s);
+	b = gsl_min_fminimizer_x_upper(s);
+
+	if(GSL_SUCCESS==gsl_min_test_interval(a, b, 0.1, 0.0)) break;
+      }
+
+      gsl_min_fminimizer_free (s);
+
+      t+=d; llh=fllh(d, srep);
+      cout<<"LLH="<<llh<<" DT="<<d<<endl;
+    }
+    else{
     bool verbose=false;
 
     const int num=2;
@@ -1508,6 +1548,7 @@ double cascade::optte(double &t, double &e){
     gsl_multimin_fminimizer_free(s);
     gsl_vector_free(u);
     gsl_vector_free(x);
+  }
   }
   else llh=fllh(0, srep);
   return llh;
@@ -2040,6 +2081,11 @@ main(int arg_c, char *arg_a[]){
     char * bmp=getenv("LOOP");
     if(bmp!=NULL) loop=atoi(bmp);
     cerr<<"LOOP="<<loop<<endl;
+  }
+  {
+    char * bmp=getenv("NORM");
+    if(bmp!=NULL && !(*bmp!=0 && atoi(bmp)==0)) norm=true;
+    cerr<<"Normalize everything: "<<(norm?"enabled":"not set")<<"."<<endl;
   }
   {
     char * bmp=getenv("FAIL");
