@@ -161,16 +161,16 @@ def simDoMatch(doc, k, v):
         # Handle $lte, $gte, $in, etc. Logically AND by convention.
         for (nk, nv) in v.iteritems():
             if nk == "$lte":
-                if not type(nv)(x) <= nv:
+                if not x <= nv:
                     return False
             elif nk == "$lt":
-                if not type(nv)(x) < nv:
+                if not x < nv:
                     return False
             elif nk == "$gt":
-                if not type(nv)(x) > nv:
+                if not x > nv:
                     return False
             elif nk == "$gte":
-                if not type(nv)(x) >= nv:
+                if not x >= nv:
                     return False
             elif nk == "$in":
                 if not x in nv:
