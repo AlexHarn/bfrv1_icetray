@@ -24,7 +24,7 @@ using namespace std;
 #include "nnls.cxx"
 #include "lssl.cxx"
 
-double fdur=70.18, tau=4.12;
+double fdur=70.14, tau=4.00;
 bool norm=false;
 bool fail=false;
 bool fast=false;
