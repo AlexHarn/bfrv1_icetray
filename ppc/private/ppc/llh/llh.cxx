@@ -24,7 +24,7 @@ using namespace std;
 #include "nnls.cxx"
 #include "lssl.cxx"
 
-double fdur=70;
+double fdur=70.90, tau=4.90;
 bool norm=false;
 bool fail=false;
 bool fast=false;
@@ -1206,7 +1206,9 @@ void cascade::runf(map< key, vector<hix> > & sim){
     for(xppc::outz::const_iterator i=xppc::hitz.begin(); i!=xppc::hitz.end(); ++i){
       const xppc::ihit & h = i->first;
       key om=make_pair(h.omkey.str, h.omkey.dom);
-      sim[om].push_back(hix(t+h.time+width*xrnd(), spe(*i), h.dir));
+      double delay=width*xrnd();
+      if(xrnd()<exp(-delay/tau)) delay+=width; // for tau << fdur only!
+      sim[om].push_back(hix(t+h.time+delay, spe(*i), h.dir));
     }
 
     xppc::efin();
