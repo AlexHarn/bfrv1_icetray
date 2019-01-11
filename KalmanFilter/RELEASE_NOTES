@@ -1,0 +1,68 @@
+.. $Id$
+.. $Author: jacobi $
+.. $Date: 2012-11-26 17:15:11 +0100 (Mo, 26. Nov 2012) $
+..
+.. Project maintainer: Simon Zierke (zierke@physik.rwth-aachen.de)
+
+Release Notes
+=============
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Relese V00-01-05
+
+- Moved test script to the appropriate directory
+
+  -- Emanuel Jacobi
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-04
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Fix FutureWarning about comparison to None
+
+  -- Emanuel Jacobi
+
+
+January 29, 2014, Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-03
+
+- Add option to ignore DeepCore strings. If this option is not configured, KalmanFilter will fall back to the previous behaviour and include all strings.
+
+  -- Emanuel Jacobi
+
+
+August 20, 2013, Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-02
+
+- Make project compatible with Python 3
+- Make project compatible with the dataclasses trunk
+
+  -- Nathan Whitehorn
+
+
+February 23, 2013, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+- Bugfix in the LineFit
+
+  -- Simon Zierke
+
+- Add compatibility with old python
+
+  -- Emanuel Jacobi
+
+
+November 26, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+- Initial Release, moved from http://code.icecube.wisc.edu/svn/sandbox/zierke/KalmanFilter
+

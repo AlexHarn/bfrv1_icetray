@@ -1,0 +1,73 @@
+The short note for EHECriteria setting.
+
+The I3EHEEventSelector has now the option
+to use EHECriteria class to realize the standard
+EHE final cut on the plane of cos(zenith)/dT - NPE plane.
+
+If you do not use the default setting
+defined in the map corded in the head of EHECriteria.cxx,
+you need to put a text file here (ophelia/resources).
+
+Below is an example for illustrating the format of file:
+
+shallow 0.2  1.0e4
+shallow 1.0  1.0e6
+deep 10.0    1.0e4
+deep 100.0   1.0e5
+deep 100000.0 1.0e6
+
+They are pais of (Keys, NPEthreshold) to define
+your criteria on the key-NPE plane.
+This paticular example corresponds to
+the following criteria;
+
+For shallow events
+cosZenith [-1.0 0.2] NPE>= 1.0e4
+cosZenith [0.2 1.0]  NPE>= 1.0e6
+
+For deep events
+
+dT [0.0 10.0] NPE>=1.0e4
+dT [10.0 100.0] NPE>=1.0e5
+dT [100.0 100000.0] NPE>=1.0e6
+
+You see the values of keys in a file should be equal to
+right (larger) boundary of bins.
+They are used by 
+
+bool EHECriteria::PassEHECriteria(double keyForNPE, double npe, int nDOM, bool isThisEventShallow)
+
+to make a judgement of whether a given event satisfies your criteria.
+Also please remember that the key values are NOT necessary cosZenith or
+dT. It simply depends what you put in the key values above
+and what you put "keyForNPE" when you call the function above.
+
+The I3EHEEventSelector relies on this function. 
+
+bool I3EHEEventSelector::PassesEHECriteria(
+                 I3PortiaEventConstPtr portia_event, 
+                 I3PortiaPulseMapConstPtr atwd_pulse,
+                 I3PortiaPulseMapConstPtr fadc_pulse,
+	 I3OpheliaFirstGuessTrackConstPtr fgTrack)
+
+is where it extracts cosZenith and dT for a a given event
+and put them into the EHECriteria function above.
+
+When you used I3EHEEventSlector to pick up EHE events
+A python script allows you to hand out your criteria file
+in ophelia/resources. See below.
+
+tray.AddModule("I3EHEEventSelector","selector")(
+    ("setCriteriaOnJulietParticle", False),
+    ("setCriteriaOnInIceDOMLaunch", False),
+    ("setCriteriaOnPortiaPulse", False),
+    ("setCriteriaOnEHEFirstGuess", False),
+
+    ("setEHECriteria", True),  # EHE cut defined by Ophelia's EHECriteria class
+    ("EHECriteriaFileName", "YourCriteriaFileName"), # Criteria file 
+                                                # No need if you stay with the default EHE criteria
+)
+
+You can comment out  ("EHECriteriaFileName","YourCriteriaFileName")
+if you just simply use the default setting of EHE criteria (presently EHE-IC40).
+

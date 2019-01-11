@@ -1,0 +1,143 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+May 24, 2017 Kevin Meagher(kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V00-04-06
+
+- Add serialization dependency
+
+May 2, 2016 Kevin Meagher(kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V00-04-05
+
+- Switch to Sphinx docs
+- add `boost::` namespace
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-04-04
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-04-03
+
+- Make implicit conversions to bool explicit
+
+  -- Chris Weaver
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-04-02
+
+- Import dataio
+
+  -- Jakob van Santen
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-04-01
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-04-00
+
+- Use topeventcleaning and tpx instead of
+  topwaveprocessor and topeventbuilder
+
+  -- Fabian Kislat
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-03-02
+
+- Added IceTop 81 geometry
+
+  -- Bakhtiyar Ruzybayev
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-03-01
+
+Bugfix:
+
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+
+August 17, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-03-00
+
+Feature:
+
+- Implement IT73 geometry
+
+  -- Bakhtiyar Ruzybayev
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-02-01
+
+Fix test -- Fabian Kislat
+
+
+March 11, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-02-00
+
+Feature:
+
+- Implement IC40 geometry.
+
+  -- Bakhtiyar Ruzybayev
+
+
+November 13, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-01-00
+
+Improvements:
+
+- Implement changes required in code review
+
+  -- Fabian Kislat
+
+Features:
+
+- Module now more general, can also handle other geometries than
+  IC59 --> IcePick renamed to I3SmallShowerFilter
+
+  .. note:: New option "FilterGeometry" must now be set!
+            Only "IC59" supported at the moment.
+
+  -- Fabian Kislat
+
+
+November 08, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-00-01
+
+Initial release
+
+Not yet code reviewed

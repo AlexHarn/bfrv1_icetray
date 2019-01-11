@@ -1,0 +1,145 @@
+..
+.. $Id$
+..
+.. HiveSplitter
+.. Maintainer: Marcel Zoll
+
+Release Notes
+=============
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V00-02-04
+
+July 1th, 2016 Alex Olivas (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+- now able to set the subevent stream name by hand
+
+
+June 10th, 2016 Leif Radel (lraedel@icecube.wisc.edu)
+--------------------------------------------------------------------
+- HiveSplitter does not care about non-standard DOMs (strings 1-86,
+  doms 1-64 are considered standard) in Geometry anymore.
+
+  
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- log_fatal if no G-frame has been passed before the first Q-frame
+- Replace int by size_t to make compilers happy
+
+  -- Marcel Zoll
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+V00-02-00
+
+- Corrected critical bug, which should make sure that the project no 
+  longer gives different results on some systems. In function 
+  BuilingDistanceMaps() a read-beyond-memory has been found when 
+  evaluating the specified ring-limits. This caused sometimes (only on 
+  certain platforms and only if it is a tuesday and a man in an ewok 
+  costume stands outside) that the more rings were included, when DOMs 
+  were to be evaluated for their causal connectivity. Even though this 
+  weakens the separation power of the algorithm, in the practical 
+  use-case the impact is not high, because the evaluation of the 
+  connectivity with the different norms caught many of the cases where 
+  this could have had impact.
+
+  -- Marcel Zoll
+
+
+April 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+V00-01-01
+
+This release and all releases before this can give different results on
+some systems (specifically the SL5 and FreeBSD buildbots, though on
+some other SL5 systems the results are the same as on 'normal' systems),
+use with care.
+
+- Corrected bug in the tests: replaced uint by double
+
+  -- Marcel Zoll
+
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+V00-01-00
+
+First release as a project!
+
+- Added a steamshovel artist
+
+  -- Marcel Zoll
+
+
+Dec 18, 2013  mzoll  (marcel.zoll@fysik.su.se)
+--------------------------------------------------------------------
+* Small changes in the interface behind the scenes, more modularity
+* Fixed Unit-tests
+* Fixed warning from ddeprecated functions
+
+Sept 21, 2013  mzoll  (marcel.zoll@fysik.su.se)
+--------------------------------------------------------------------
+* Experiemental parameter 'ModifyObjects' which will give teh Subframes really individual I3EventHeader and Pulses with according starttimes
+* Now for every P-frame subevent the start and stoptime (first and last hit) are saved in variables [Output]+"StartTime" and [Output]+"StopTime"; This is a workaround for the fact that SubEvents shoudl be able to store their eventtimes also somehow, but can not use teh I3EventHeader, as it would overshadow the base-eventheader in teh q frame
+
+Sept 19, 2013, mzoll  (marcel.zoll@fysik.su.se)
+--------------------------------------------------------------------
+* CodeReview by Samuel and valubale comments by Chris; the following changes have been implemented:
+* DISABLED FUTURE: Additonal Option 'UseDOMSpacings'. Allows to specify RingLimits in units of DOM spacings instead of meters. needs work when comparing different geometry DOMs (DC<->IC because of OM offset)
+* Doumentation updates how RingLimits and eligible Volume works.
+* Unit test now included: Testing library functions and overall performance. Regression test still included (better to have a comprehensive real life test)
+* New function HitSorting::ConvertHits2RecoPulses to revert Hits to Pulses from the info contained within.
+* The Hives have been moved from hardcoded functions to configurable files in /resources; according reading functions have been fitted.
+* BugFix concerning the relative scale factors: the positions of string 79,80 are scaling to regular IceCube positions by 1:3 density not 1:4
+* changed the standard-out of subordinated code from std::cout to log_info/debug/warn ....
+* NOTE: projects makes use of log_fatal_stream; while the function exists compilation fails with icetray, which is older than revision r1678 (8. July)
+* DANGER: Critical Bug with minor impact discovered in legacy code from TopologicalSplitter: if two subevents should start at the (exact) same time the later one never will make it to output.
+* The code has been clean up from (unwanted) residuals
+* HiveSplitter has been separated into a class 'HiveSplitter', which provides the clustering machinery, and the I3Module-wrapper 'I3HiveSplitter'; this also allows the comprehensive writing of Unit-test without going throuh an Icetray environment.
+* Function parameters which are simple types are now copies instead of references
+* The libraries OMKeyHashing, HitSorting and Hive-Lib have grown by some convenience functions (might they find use in future projects)
+* Naming schemes of parameters and members have changed: IC|DC|PinguRingLimits have changed to Single/Double/TrippleDenseRingLimits
+* FUTURE write pybindings for 'HiveSplitter'-class
+* Minor impact bug found and corrected in Topology::DeepCoreDOM(); took a '<' for a '>'
+* Ready for final release?
+
+July 27, 2013, mzoll  (marcel.zoll@fysik.su.se)
+--------------------------------------------------------------------
+* HitSorting and OMKeyHashing now in their own files and namespaces
+
+
+June 3, 2013, mzoll  (marcel.zoll@fysik.su.se)
+--------------------------------------------------------------------
+* Going for a alpha-release of this project
+* Added in the new library Honey
+* Project is compiling an everything
+* LookUp-tables are building, and that fast
+* Splitter is working
+* Project has changed its name to HiveSplitter, while honey still remains in the Hive-library
+* LookUpTables build fast.
+* Inlined what was good and neccessary.
+* Hive-lib gets a new interface to abstract Hives to a lower level. (e.g. convert IC rings into DC rings)
+* ExpandRings() makes from hard coded LookUpTables, bigger semihardcoded ones to higher order of rings
+* Hive-Lib has now a flatter object structure with stl vector and set.
+* Speed Tweaks to limit the number of variable accesses and computations.
+* HiveLib can now abstract Hives and consruct the next following rings by smart algorithms, so there is no limit anymore
+* Add functions for uniting hives (add hives of equal scaling together, while using the union of both ring definitions)
+* Added a function BuildCompletePinguHoneyCombRegister() which does create a Hive with pingu-spacings which does register every and each string!
+* TODO maybe in the future pack hives into class objects with Solify() option to check and enforce uniformity of HoneyCombs registered. 
+
+List of features:
+* Indexing of Doms is performed with a linear function instead of caching (hashing),
+* No more geometry caching during runtime,
+* hit timeorder in evaluation is enforced, which enables exact steering of residuals and dom on ring spacings,
+* Different Noms: Lorentz, Eucledian, Static
+* No SplitMode
+ 

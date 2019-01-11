@@ -1,0 +1,437 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V03-04-04
+
+- Update Examples
+- Remove `lib` from library loading
+- Fix bug where pulses wern't being stored
+
+December 5, 2017  Kevin Meagher
+--------------------------------
+Release V03-04-03
+
+- Adding the curvature-only with free parameter fit function with ability to vary A, D, N, and T
+- Adding the Emily's curvature fit function
+- Fix `StationsVsTanks` tests to use `$I3_TESTDATA` instead of local files
+- Add various code comments 
+- Remove unused variable `loudestPulse`
+- Remove varios pieces of dead code
+- Use new printing functinality
+- Remove unused ROOT references in CMakeLists.txt
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+- Remove unused .dox 
+
+April 24, 2017
+------------------------
+Release V03-04-01
+
+- Removed CINT, and many other minor fixes
+
+  -- several people
+
+- Removed "BadStations" option; it's been replaced with "BadTanks"
+
+  -- Kath Rawlins
+
+- Phased out storage of Params in old "I3TopLateralFitParams".  Now they're 
+  stored in new "I3LaputopParams" structure from recclasses, which includes 
+  storage of parameter errors.  
+
+  -- Kath Rawlins
+
+- corrected of potential bug of '!' operator not acting on inquation 
+  but only leftside argument; please review
+
+  -- Marcel Zoll
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-03-02
+
+- Use trailing semicolons with I3_POINTER_TYPEDEFS consistently
+
+  -- Jakob van Santen
+
+- Replace I3ParticleVectPtr by I3VectorI3ParticlePtr
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Small code changes to fix warnings
+
+  -- Don la Dieu
+
+
+September 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-03-01
+
+- Adding additional snow depth diagnostics, so you can identify what
+  snowtable was used after the fact
+
+  -- Kath Rawlins
+
+
+July 14, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-03-00
+
+- Phasing out SnowFactor in favor of Snow Correction Services: upgrade
+  warnings to log_fatal and upgrade docs
+- Remove modules that have not been used in a while: I3TopRecoCurved
+  and I3TopLateralFit
+- Make BadStations a user parameter of the tray segments instead of
+  hard-coding it
+- Clean up example scripts and tray segments (among others, remove
+  run_toprec_i3.py which tested I3TopLateralFit which is no longer used
+  and add run_laputop.py)
+- Rename 'gulliverize' directory to 'laputop'
+
+  -- Kath Rawlins
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-02-00
+
+- Add BORS snow correction function
+- Warn users that the SnowCorrectionFactor will become obsolete
+- Modify test so that it uses the SimpleSnowCorrectionService
+- Update example scripts to include the SimpleSnowCorrectionService
+- Add diagnostics
+
+  -- Kath Rawlins
+
+- Apply patch suggested by Jim Braun to solve ROOT issues on OSX 10.9
+
+  -- Meike de With
+
+
+January 15, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-01-00
+
+- Document curv function a bit better so it agrees with IceTop NIM
+
+  -- Tom Feusels
+
+- Adding BORS snow correction function service (still turned off by 
+  preprocessor flag)
+- Update test so that the expected fit results are equal to the real 
+  results (which changed slightly when I3RecoPulse.time was changed
+  from float to double)
+
+  -- Kath Rawlins
+
+- Make it compile with C++11 aware compilers
+
+  -- Timo Karg
+
+- Change script to make it work with new version of WaveCalibrator
+  (which no longer has DOMsimulatorWorkArounds)
+
+  -- Meike de With
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-00-06
+
+- Fix syntax errors
+
+  -- Nathan Whitehorn
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+June 29, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-05
+
+- Transferring snowcorrection functions into a Service.
+
+  -- Katherine Rawlins
+
+- Fix compiler warning
+
+  -- David Boersma
+
+
+April 30, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-04
+
+- ShowerCOG did not pulses above 3000 VEM, due to an OLD feature
+  in SortOutBadCharges from TTopRecoShower.
+
+  However this is not desired behaviour and made NaN COGs
+  for HUGE, very interesting events. For COG we want to use all pulses!
+  In the Laputop methods there is a special treatment for saturation
+  already. This might however break old toprec behaviour a little bit,
+  because those also relied on SortOutBadCharges to "remove" the
+  saturated pulses, which will now NOT be done anymore.
+
+  This is no problem as we should deprecate the old toprec lateralfit
+  as it has proven the behaviour can be reproduced (and is improved) with laputop.
+
+  -- Tom Feusels
+
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-03
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+- Cleaned up warnings generated by clang
+
+  -- Kevin Meagher
+
+- Remove reconfigure method
+
+  -- Alex Olivas
+
+
+October 22, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-02
+
+Feature:
+
+- Update for IC2012 L2
+
+  -- Timo Karg
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-01
+
+Feature:
+
+- Add new snow functions
+
+  -- Katherine Rawlins
+
+Bugfix:
+
+- Use GetName() instead of getting a configuration from the context
+
+  -- Nathan Whitehorn
+
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V03-00-00
+
+Feature:
+
+- toprec now contains Laputop, which adapts the I3TopLateralFit
+  into the Gulliver framework. It is not a new reconstruction 
+  algorithm, just a new implementation. See docs for further
+  information.
+
+  -- Katherine Rawlins, Tom Feusels
+
+- The code contains many changes and therefore has undergone a
+  new code review.
+  
+  
+
+January 13, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-01
+
+Feature:
+
+- Added new parameter 
+
+  -- Katherine Rawlins, Tom Feusels
+
+- Cleaned up dependencies
+
+  -- Nathan Whitehorn
+
+Bugfix:
+
+- Use new TankKey API
+
+
+June 20, 2011, Fabian Kislat  (fabian.kislat@desy.de)
+--------------------------------------------------------------------
+Q-Frame Preview 1
+
+Feature:
+
+- Removed capability to correct charges (rather than expectation values)
+
+  -- Kathrine Rawlins
+
+Bugfix:
+
+- Fixed seed for T0 (sign error and missing speed of light). Does not
+  have a big impact on reconstruction results.
+
+  -- Kathrine Rawlins
+
+
+March 12, 2011, Fabian Kislat  (fabian.kislat@desy.de)
+--------------------------------------------------------------------
+Release V01-08-02
+
+Improvement:
+
+- Make it work when rootcint dictionary generation is disabled
+
+  -- Fabian Kislat
+
+
+October 29, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-08-01
+
+Bugfix:
+
+- In some circumstances the loop in TTopRecoShower::GetMeans could
+  run over the end of the array of tank signals.
+
+  -- Tom Feusels
+
+
+September 29, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-08-00
+
+Features:
+
+- Simple snow correction, disabled by default
+- Fit the parameter of the snow correction
+
+  -- Kathrine Rawlins
+
+- Added a parameter to the CoG module to only take the N tanks
+  with the largest charge
+
+  -- Tom Feusels
+
+Fix:
+
+- Time difference between events in I3TopRecoPlaneFitParams now
+  stored I3Units rather than seconds. Increased class version
+  for compatibility.
+
+  -- Fabian Kislat
+
+
+June 21, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-07-01
+
+Features:
+
+- Add parameter to keep core fixed to seed position
+- Can now deal with any input I3Particle as direction seed
+
+  -- Tom Feusels, Fabian Kislat
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-07-00
+
+Feature:
+
+- Add tableio converter
+
+  -- Fabian Kislat
+
+
+November 13, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-06-00
+
+Improvement:
+
+- Implement Tilo's idea for seeding S125
+- Seeding S125 is now default, the EHE specific parameters
+  "EHE", "ehe_rmax", "ehe_rmin" have been removed.
+
+  UPDATE YOUR SCRIPTS if you have been using them!
+
+  -- Fabian Kislat
+
+
+October 01, 2009, Martin Merck
+--------------------------------------------------------------------
+Release V01-05-01
+
+Bugfix:
+
+- Make it compile on MacOS X 10.5
+
+  -- Martin Merck
+
+
+August 19, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-05-00
+
+Feature:
+
+- Correct treatment of stations that have been removed by
+  TopEventBuilder
+
+  -- Fabian Kislat
+
+
+April 14, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-04-02
+
+Feature:
+
+- Change energy calculation to reflect results of new simulations
+
+  -- Fabian Kislat
+
+
+March 06, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-04-01
+
+Feature:
+
+- Allow a minimum of 3 or more stations (previously min 5 stations)
+
+  -- Fabian Kislat
+
+
+August 19, 2008, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-04-00
+
+Features:
+
+- Dynamically calculate start value of S125
+
+  -- Xinhua Bai
+
+- Python bindings
+- I3TopRecoCurved no longer has the plotting capabilities in order
+  to no longer rely on some root libraries
+
+  -- Fabian Kislat

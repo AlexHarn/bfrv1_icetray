@@ -1,0 +1,265 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+
+Release Notes
+=============
+
+trunk
+-----
+
+December 3, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V02-10-01
+
+- Fix incorrect syntax
+- Remove unneeded template keyword
+- Docs cleanup
+
+March 13, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V02-10-00
+
+- Add support for serialization project
+- Add python example for ipdf
+- Python3 support
+- Avoid storing pointers to potentially stack-allocated objects in static
+  variables
+
+May 2, 2016 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+- Added `ConvolutedHyperg` support for hypergeometric function
+- Convert docs to rst format
+- Add `std::` for `isnan()`, `abs()`, `isinf()` and `isfinite()`
+- Add `boost::` for `shared_ptr()` and `dynamic_pointer_cast()`
+- Drop excessive logging down a few levels
+- move `sprintf()` to `log_debug()` in tests
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-09-01
+
+- Add documentation
+
+  -- David Boersma, Lisa Unger
+
+- Use trailing semicolons with I3_POINTER_TYPEDEFS consistently
+
+  -- Jakob van Santen
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------------
+Release V02-09-00
+
+- Remove dead code, CINT, ROOT and files related to standalone build 
+  (which is no longer maintained) 
+- Use GSL-based medium service instead
+- Rewrite layered ice model using new ice file interpolator
+- New pybindings for ice parameters in Pandel reconstruction
+- Different implementation of 'user defined ice' (for Pandel)
+- Move AllOMsLikelihoodWithconstNoise from lilliput to ipdf, where it 
+  belongs
+- Move ipdf_data_cache helper class into a 'detail' namespace
+
+  -- David Boersma
+
+
+September 30, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------------
+Release V02-08-00
+
+- Remove obsolete cmake_policy lines
+- Remove unused/dead code
+- Add pointer typedefs
+- Change GetPhotonicsType to inline function
+- Add pybindings for PDFs and likelihoods for muons and cascades, with
+  Pandel and photospline (not definitive, may still change)
+- Add steamshovel artist to visualize (DOM) likelihood (only muon pandel
+  for now) for both pulsemaps and masks
+- Add code to show old compilers (gcc 4.4 and older) how the templates
+  are supposed to work
+- Remove a superfluous constructor
+
+  -- David Boersma
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------------
+Release V02-07-02
+
+- Cleaning up code
+
+  -- Chris Weaver
+
+- Add python directory with dummy bindings
+- Remove bz2 from USE_TOOLS
+- Apply patch suggested by Jim Braun to solve ROOT issues on certain platforms
+
+  -- David Boersma
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------------
+Release V02-07-01
+
+- Replace boost::shared_ptr::value_type by boost::shared_ptr::element_type
+
+  -- Jakob van Santen
+
+
+V02-07-00 (February 21, 2013)
+-----------------------------
+- moved I3MediumService to ipdf
+- cleaned up warnings from clang
+- removed Reconfigure() method
+- removed dependency on log4cplus
+
+V02-06-05 (June 25, 2012)
+-------------------------
+- PhotonicsSource requires angles in degrees instead of radians
+- PhotonicsSource defines a *relative* "geometrical time"
+  (as opposed to an absolute direct arrival time normally used in ipdf)
+- getLogPdf had an embarrassing typo that would have led to a crash
+  (infinite recursion) if that part of the code would ever get called.
+- remove compiler warnings
+- in SelectSource the getAmp parameter is set to true
+- use the updated I3OMGeo/I3Orientation
+
+
+V02-06-04 (March 8, 2012)
+-------------------------
+- Now compiles with clang
+- Fixed bug in getLogLikelihood
+- Add MPEAll
+
+V02-06-03 (January 11, 2012)
+----------------------------
+- Add ipdf PEP class that uses photonics-service so that all the usual SPE1st/all
+  and MPE can be done with photospline instead of Pandel
+- Changed PhotonicsService function calls to use more efficient improvements
+- only use healthy pulses with positive charge
+- fixed linker problems
+- cleaned up dependencies
+
+V02-06-02 (August 09, 2011)
+---------------------------
+- Adapted to various changes in offline-software
+
+V02-06-00 (October 29, 2010)
+----------------------------
+- Remove integral lookup option for MPE since it is obsolete.
+
+V02-05-00 (March 11, 2010)
+--------------------------
+- The build of the ipdf GUI kept causing trouble and has been disabled. If
+  you want to build ipdf GUI add::
+
+    -DIPDF_WITH_GUI=ON
+
+  to the cmake command line.
+
+V02-04-07 (August 11, 2009)
+---------------------------
+- MPE box-convoluted with time calibration uncertainty
+  The time calibration uncertainty of a DOM is a systematic uncertainty while
+  PMT jitter is statistical fluctuation from event to event. For SPE this
+  distinction is not releveant, but for MPE it is. The easiest way to take it
+  into account is to assume not a Gaussian smearing but a "box"-like smearing,
+  that is a flat distribution between fixed limits, which is actually quite
+  reasonable for this kind of uncertainty. And as a bonus the box-like smearing
+  is really easy to compute, thanks to the very definition of MPE.
+  
+  In the implementation I had to choose either to make copies of I3PEHit
+  objects or to make the LE time of the hit non-const and settable. I chose
+  for the latter. If this has a performance impact somehow (maybe the compiler
+  does not optimize as effectively?), in particular on the SPE likelihoods,
+  then I should reconsider this. I did not notice such a performance degradation
+  yet, but I did not do large scale tests.
+- IPdfMath.h got a new utility function (faster version of pow(x,y) for
+  the special case where y is an unsigned integer).
+- for the Fast Approximation of the integral at distance<=0. a small bug
+  was fixed.
+
+V02-04-06
+---------
+Updates since V02-04-05:
+
+- add "FastApproximation" version of the integral computation for
+  convoluted Pandel (taken from Dima/George/Mathieu, they did not choose
+  this name though).
+- updated ipdf MPE unit tests, probe to lower tres and distance when
+  using the better approximated integral
+- different handling of hits with very large distance and/or time residual
+  do not use boundary values plus smoothing functions (with a too short
+  time decay constant), but just compute using the appropriate region and only
+  if we get a too low number or NAN then we override with FLT_MIN
+- fixed layered Pandel unit test
+- added some more buttons to ipdf-rootgui (jitter, noisefloor)
+- I3HitOm: previously there was (still!) a weird requirement on LE times,
+  that they should not be zero. That's maybe historic or so. now we only
+  check that it's finite, LE times are allowed to be zero.
+  If LE times are NAN or INF then an error is printed.
+- I3DetectorResponse: Do NOT include "empty" OMs
+
+
+V02-0[234]-*
+------------
+missing release notes...
+
+V02-02-00 (planned)
+-------------------
+- prototype code for tabulated PDFs
+- improved "PointCascade" hypothesis
+
+V02-01-00
+---------
+- First release for DC2
+  (all future releases planned for DC2 only)
+- updated documentation
+- first version of "PointCascade" hypothesis
+- elaborated I3IPdfLikelihoodModule to provide better initial seed
+  (this seems to work now, but needs much more testing)
+- Known limitations:
+
+  - only uses I3RecoHit (plan to use I3RecoPulse soon too)
+  - PSI/Photonics tests missing
+
+V02-00-03
+---------
+- Last release planned for DC1
+- bug fix release
+
+V02-00-01
+---------
+- bug fix release
+- updated documentation
+
+V02-00-00
+---------
+- Complete re-write of interface - attempted simplification:
+
+  - added AllOMsLikelihood class providing main interface
+  - Likelihood classes only responsible for a single OM
+  - removed ConvolutionModel template & PandelPEP
+
+- Added PEPBase class (providing automated getIntPdf())
+- IceModel is now in principle depth dependent (see LayeredIce)
+- Pandel PDFs (UnConvolutedPEP, UPatchPEP & GConvolutePEP)
+  can be used with (new) depth dependent ice model (LayeredIce), 
+  providing PDF dependent on receiver ice properties.
+  (implemented using I3MediumService)
+- Fixed bug in GConvolute (at large time residuals)
+- Known limitations:
+
+  - only uses I3AnalogReadout to date
+  - example I3IPdfLikelihoodModule doesn't work well
+  - PSI/Photonics tests missing
+  - documentation not in sync with code
+
+V01-00-00
+---------
+Damian?
+(For icerec release V01-02-01)
+- Use Photonics, photo-rec, tables (via PSInterface)
+- Known limitations: bug in GConvolute (at large time residuals)

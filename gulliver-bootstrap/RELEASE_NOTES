@@ -1,0 +1,23 @@
+Release Notes
+=============
+
+trunk
+-----
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-01-01
+
+- Use `OutputName` parameter in gulliver modules
+- Script Cleanup: remove `Finish()` and `TrashCan`
+
+March 23, 2017 EB (blaufuss@umd.edu)
+------------------------------------
+Release: V00-01-00
+
+- Added documentation.
+- BootstrappingLikelihoodService and Params classes made public
+- create pybindings for Bootstrapping classes
+- Python 3 happiness
+
+

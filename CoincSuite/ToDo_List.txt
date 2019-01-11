@@ -1,0 +1,50 @@
+#
+# $Id: RELEASENOTES 122365 2014-08-11 13:21:53Z mzoll $
+#
+
+ToDo-List
+====================
+project: CoincidentSuite / CoincSuite
+
+author: mzoll <marcel.zoll@fysik.su.se>
+
+maintainer: mzoll <marcel.zoll@fysik.su.se>
+
+This is a list of things which could be possibly done in the future; if you have an idea worthwhile looking into, put it here.
+
+
+Accessibility
+***************
+move functions in I3FakeCalculator into I3Calculator.cxx
+
+
+Afterpulse testers
+******************
+Write robust unit-test for this module. current one might not be selective enough.
+
+Make AfterpulseTester and AfterpulseDiscard work on individual DOMs and their consideration of being Afterpulses, rather than making averaged timed and charges
+
+Is the qtot fraction really a good quantity/qualifier?
+
+
+Services
+**************
+
+Move away from the implementation of a inheritable TesterModule communicating over frame-object and use rather a ServiceBase, here testers work than as plug-ins to the DecisionMaker.
+Thereby the number of called modules in CoincSuite would decrease by a lot, and no time would be lost in the buffering and debuffering of frames in the FrameRegister.
+This could also be contracted with the HypoFrame creator and destructor, as well as the ReducedCount-maker modules etc.
+
+meta-python code of this implementation would look like this:
+  tray.AddService("PulseContainmentTester", "PCTservice")
+  
+  tray.AddService("COGCausalConnectTester", "COGCCTservice")
+  
+  tray.AddModule("DecisionMaker", "DM",
+    LikeList = ["PCTservice"],
+    VetoList = ["COGCCTservice"])
+
+
+tweaks for accessibility
+************************
+"CS_RecombSuccess" is right now a I3MapStringBool, think about changing that to I3MapStringInt and store the Result (UNDECIDED:-1, NO:0, YES:1)
+this needs some tweaks in TesterModule and DecisionMaker, but it should be worth it, because then one can possibly get rid of the "Split+RecombAttempt"-object.

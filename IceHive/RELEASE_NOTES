@@ -1,0 +1,155 @@
+.. $Id$
+.. ProjectName: IceHive
+.. Maintainer: Marcel Zoll (marcel.zoll@fysik.su.se)
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-03-03
+
+- Verify file input operations
+- Remove `lib` from `load_project()`
+
+November 30, 2017 Kevin Meagher
+-------------------------------------------------------
+Release V00-03-02
+
+- Always write out `splitCount`
+- Add a priority ordering for `IceHiveZ::Connection`
+- Doc cleanup
+- Script cleanup: remove `Finish()` and `TrashCan`
+
+March 14th, 2017 Marcel Zoll (marcel.zoll@fysiks.su.se)
+-------------------------------------------------------
+Release V00-03-01
+
+- Add parameter 'SubEventStreamName' as adaption to change in phys-services
+  -- Marcel Zoll
+- change 'improvedLineFit' to simply 'linefit' for all imports
+  -- Daid Schultz
+- python 3 cleanup
+  -- KJ Maeger
+- explicitly assume certain input file format and terminate if error; fixes #1791
+  -- Marcel Zoll
+
+May 2, 2016 Alex Olivas
+-----------------------
+Release V00-03-00
+
+- introduced Asymmetric DOM-DOM maps, which are smaller (half the size in memory)
+- some more descriptive variable names
+  -- Marcel Zoll
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+Release V00-02-00
+
+- Decrease the loglevel for HiveCleaning warning on cleaning everything away
+- Added/modified advanced HitSorting library; pybindings added and updated
+- cleaned up documentation warnings
+- removed unneccessary definition of the anti-comparision operator in 
+  HitSorting library (let c++ define the standard one for us)
+
+  -- Marcel Zoll
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+December 11, 2014 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------
+Release V00-01-00
+
+First release of the project!
+
+Dec 11th, 2014 mzoll    (marcel.zoll@fysik.su.se)
+-------------------------------------------------
+* Correct bug: Parameter "Multiplicity" was not retrieved from the user configuration, until now default-parameter[=4] has been used always. (bug found Matthias Vraeghe)
+
+Nov 13th, 2014 mzoll    (marcel.zoll@fysik.su.se)
+-------------------------------------------------
+* irradicate bug involving a read-over-memory; undefined behaviour on some archs; this never seriously impacted (I hope)
+* change interface, so that pairs of numbers are configured from now on; use the python interface to do so (see resources/example.py)
+
+Oct 31rd, 2014 mzoll    (marcel.zoll@fysik.su.se)
+-------------------------------------------------
+(Scarry changes: at least for some of you, its Halloween, also known as Sanheim in the germanic culture)
+
+* Rewrite of the Hit-class which is the processing object of HiveSplitter/HiveCleaning. 
+* This change effects just the outside/exposed I3Module classes
+* Make the class <Hit> a even more lightweight object, transproting only essential information and just keeping a reference to what it represents.
+* In this clean up the HitSorting library and reduce it to essential functions;
+* Make use of the newly introduced I3RecoPulseSeriesMapHitFaciltity, which centrally implements the conversion forth and back from I3RecoPulse to Hits-objects.
+* Added low-level documentation about the HiveSplitter algorithm (requested by Paolo)
+* Add documentation on the possibility to drive HiveSplitter as a trigger
+* I3TriggerHierarchies do now per standard accompany SplitFrames, but are only augmented with a IceHive trigger-key if configured so 
+* NOTE: the I3TriggerHierarchy is now always written to the SubFrames as [TrigHierName]+"_clipped", where [.] is the (user) specified option
+
+
+->Summarizes: Physics have not changed
+(This changes still might require the regeneration of the testfile)
+
+
+Sept 23rd, 2014 mzoll    (marcel.zoll@fysik.su.se)
+--------------------------------------------------
+last changes before release:
+
+* moved DistanceMap and VicinityMap definitions to IceHiveHelpers
+* moved content of `TriggerSplitterHelpers::` to `IceHiveHelpers::`
+* More test functionality to IceHiveHelpers, ClipTriggerHierarchy rectified
+
+
+August 4th, 2014 mzoll   (marcel.zoll@fysik.su.se)
+--------------------------------------------------
+
+* Added another cleaning module 'I3HiveCluster' which writes out the clustered Pulses from HiveSplitter as an unsplit PulseSeries to any frame. (Code is a crossbread from I3IceHive and I3HiveCleaning, nothing new there)
+* Added the beginnings of .rst documentation to the project.
+* changed default values: IceHive::UpdateTriggerHierarchy->false
+* A Critical Bug was found which rendered the settings of *Vicinity* useless and configured them as the regular *RingLimits*; you might see some changes when this is corrected now
+* IceHive in its core is now more independent from the IC86 Topology, which is now just specified by configuration files in /resources
+* More public headers for the people and less private ones
+* considerate compressed memory by use of bitmaps and dynamic map objects for the future
+* ease the computation load by linear algorithm and no more forth and back conversions on Maps/Masks
+* NOTE: observation of slightly decreased IceHive pulse-selection performance with std-parameters after correction of that critical bug
+* More pybindings to the people
+
+July 4, 2014 mzoll  (marcel.zoll@fysik.su.se)
+---------------------------------------------
+
+* Got complaints about my English spelling; as a consequence i now spell 'Tripple' correctly as 'Triple' and thereby change change the API and the GUI. Happy updating your scripts folks! 
+* Changed default settings for HiveCleaning to (70, 70, 70, 70) throughout.
+* Brought tests into a compilable version; TODO add a HiveCleaning-test
+
+June 24, 2014 mzoll  (marcel.zoll@fysik.su.se)
+----------------------------------------------
+
+* Project *fully* templated now; waiting for full implementation of general MapOMKeyMapMask to unfold full potential.
+* Added Option Multiplicity to HiveCleaning: To make harder requirements if neccessary; settings of 1 and 2 should be still save to use; sensible default =1 for backwards-compatibility 
+* TODO think about to make here a charge-sensitive mode also
+
+May 01, 2014 <FUTURE> mzoll  (marcel.zoll@fysik.su.se)
+------------------------------------------------------
+
+* removed compatibility modes and ModeOption; replacement for runnning with TroiggerSplitter by parameter "UseTriggerSplitter"
+* TODO change the interface for the residuals to real windows (c++-side std::pair and python dataclasses.make_pair)
+
+Mar 10, 2014 <Noisy-dog> mzoll  (marcel.zoll@fysik.su.se)
+---------------------------------------------------------
+
+* Some more demonstration scripts
+* Removed the 'NoSplit'-option to the benefit of objects now always written to the Q-frame; unwanted P-frames can always be ignored/removed post processing
+* some more documentation
+* Code-streamlined
+* more Masks in the frame: The Split-frames will now also contain the noise around the subevent acoording to the configured padding
+* changes to the API, whithout altering the functions
+* Added some Helper-functions which are actually of much general use
+* Updating the TriggerHierarchy will now add a HiveSplitter triggerKey
+
+Dec 20, 2013  mzoll  (marcel.zoll@fysik.su.se)
+----------------------------------------------
+
+* Finial branch-out with new name
+* Added Cleaning Module I3HiveCleaning
+* Project should be working; report bugs to marcel.zoll@fysik.su.se

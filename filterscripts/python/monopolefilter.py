@@ -1,0 +1,497 @@
+# written by Anna Pollmann <anna.pollmann@uni-wuppertal.de>
+#
+# This filter is supposed to select tracks with velocities
+# 0.1c to 0.75c independent of their brightness
+
+from icecube import icetray, dataclasses
+
+#############################################################################################
+
+@icetray.traysegment
+def monopoleCV(tray, name,RecoPulses,ParticleName,
+               tag="",pretag="",
+               remove=[],
+               If=lambda f: True
+               ):
+
+    from icecube.common_variables import hit_multiplicity
+    from icecube.common_variables import track_characteristics
+    from icecube.common_variables import time_characteristics
+
+    hmv="HitMultiplicityValues"
+    tcv="TrackCharacteristicsValues"
+    tv="TimeCharacteristics"
+
+
+    ##Common Variables
+    tray.AddSegment(hit_multiplicity.I3HitMultiplicityCalculatorSegment, pretag +hmv+tag,
+                    PulseSeriesMapName = RecoPulses,
+                    OutputI3HitMultiplicityValuesName = pretag+hmv+tag,
+                    BookIt = False,
+                    If = If,
+                    )
+
+    tray.AddSegment(track_characteristics.I3TrackCharacteristicsCalculatorSegment, pretag+tcv+tag,
+                    PulseSeriesMapName = RecoPulses,
+                    OutputI3TrackCharacteristicsValuesName = pretag+tcv+tag,
+                    ParticleName = ParticleName,
+                    TrackCylinderRadius = 100/icetray.I3Units.m,
+                    If = If,
+                    )
+
+    tray.AddModule(time_characteristics.I3TimeCharacteristicsCalculator, pretag+tv+tag,
+                   PulseSeriesMapName = RecoPulses,
+                   OutputI3TimeCharacteristicsValuesName = pretag+tv+tag,
+                   If = If,
+                   )
+
+    remove.extend([pretag+hmv+tag, pretag+tcv+tag, pretag+tv+tag])
+
+
+#############################################################################################
+
+class ChargeCleaning(icetray.I3Module):
+
+    def __init__(self, context):
+        icetray.I3Module.__init__(self, context)
+
+        self.AddOutBox("OutBox")
+
+        self.AddParameter("InputRecoPulses",
+                          "",
+                          "PulseSeriesReco")
+
+        self.AddParameter("OutputRecoPulses",
+                          "",
+                          "HighChargePulseSeriesReco")
+
+        self.AddParameter("ChargeFraction",
+                          "",
+                          "0.5")
+
+        self.AddParameter("If", "", lambda f: True)
+
+    def Configure(self):
+        self.input = self.GetParameter("InputRecoPulses")
+        self.out   = self.GetParameter("OutputRecoPulses")
+        self.frac  = self.GetParameter("ChargeFraction")
+        self.If    = self.GetParameter("If")
+
+        if self.frac <= 0 or self.frac > 1:
+           raise RuntimeError("Charge fraction must be between 0 and 1. Current value %f" %self.frac)
+
+    # ------------------------------------------------------------------------------------
+
+    def ceil(self, number):
+        integer=int(number)     # 1.9 -> 1   1.4 -> 1
+        diff = number-integer   # 0.9        0.4
+        if diff==0:
+            return integer
+        else:
+            if number>0 and diff >= 0.5 :
+                return integer+1
+            elif number<0 and diff <= -0.5:
+                return integer-1
+            else:
+                return integer
+
+    def Physics(self, frame):
+
+        if not self.If(frame):
+            self.PushFrame(frame)
+            return True
+
+        ### Get the input data
+        if frame.Has(self.input):
+            pulsemap = frame.Get(self.input)
+            if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
+                pulsemap = pulsemap.apply(frame)
+        else:
+            self.PushFrame(frame)
+            return True
+
+        # Order Doms by charge (charge is the amount of photons reaching one dom
+        # Select the highest charged doms
+
+        ### Get total charge for each DOM
+        domCharges = []
+        for entry in pulsemap:
+            charge = 0
+            for pulse in entry.data():
+                charge += pulse.charge
+            if charge != 0: # obi: avoid charge=0 -> Feature extractore couldn't reconstruct the puls from waveform
+                domCharges.append([entry.key(),charge])
+
+        ### Sort list of DOMs by charge
+        domCharges.sort(key=lambda item: item[1],reverse=True)#print domCharges
+
+        ### Get DOMs with hightest integrated charge
+        keylist = []
+        nSelect = max( int(self.ceil(self.frac*len(domCharges))), min(2,len(domCharges)) )
+        for i in range(nSelect):
+           keylist.append(domCharges[i][0])
+
+        ### Make a new RecoPulseSeriesMap
+        NewPulseMap = dataclasses.I3RecoPulseSeriesMap()
+        nhits=0
+        for entry in keylist:
+
+            ### this is needed to process the full RecoPulseSeriesMap
+            if len(pulsemap[entry]) == 0:
+                continue
+
+            # use only the first pulse!
+            NewPulseVector = dataclasses.I3RecoPulseSeries()
+            NewPulseVector.append(pulsemap[entry][0])
+            NewPulseMap[entry] = NewPulseVector
+            nhits+=1
+
+        frame.Put("MM_DC_nHits", dataclasses.I3Double(nhits))
+        frame.Put(self.out, NewPulseMap)
+        self.PushFrame(frame)
+        return True
+
+#############################################################################################
+
+def checkIfPulsesInFrame(frame, name):
+    if frame.Has(name):
+        pulsemap=frame.Get(name)
+        if pulsemap.__class__==dataclasses.I3RecoPulseSeriesMapMask:
+            pulsemap = pulsemap.apply(frame)
+        for entry in pulsemap:
+            charge = 0
+            for pulse in entry.data():
+                if pulse.charge !=0:
+                    return True
+    return False
+
+def checkIfInFrame(frame, name):
+    if frame.Has(name):
+        return True
+    return False
+
+def checkThreshold(frame, name, threshold=None):
+    if frame.Get(name) > threshold:
+        return True
+
+#############################################################################################
+
+def mpfilter(frame, verbose=False, softcuts=True):
+    if verbose: print("Filter")
+
+    from icecube.filterscripts import filter_globals
+
+    DCPulses="MM_DC_Pulses"
+    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
+    pretagIC="MM_IC_"
+    pretagDC="MM_DC"
+    hmv="HitMultiplicityValues"
+    tcv="TrackCharacteristicsValues"
+    tv="TimeCharacteristics"
+
+    # soft cuts = larger passing rate
+    if softcuts:
+        #print("Using soft selection")
+        ICndomvalue=6
+        ICspeedvalue=0.8
+        IClength=250
+        ICgap=200
+        ICtime=4000
+        #
+        DCndomvalue=6
+        DCspeedvalue=0.7
+        DCgap=float('inf')
+        DCTime=2750
+        DCfwhm=2500
+    # hard cuts = smaller passing rate
+    else:
+        #print("Using hard selection")
+        ICndomvalue=6
+        ICspeedvalue=0.8
+        IClength=400
+        ICgap=200
+        ICtime=5000
+        #
+        DCndomvalue=6
+        DCspeedvalue=0.6
+        DCgap=100
+        DCTime=3000
+        DCfwhm=2500
+
+    # IC Filter
+    if verbose: print("IC Frames found:", frame.Has(pretagIC+hmv), \
+                                          frame.Has(pretagIC+"LineFitI"), \
+                                          frame.Has(pretagIC+tcv), \
+                                          frame.Has(pretagIC+tv))
+    ICKeep=False
+    if frame.Has(pretagIC+hmv) and frame.Has(pretagIC+"LineFitI") and \
+            frame.Has(pretagIC+tcv) and frame.Has(pretagIC+tv):
+
+        if verbose: print("Check IC")
+
+        n_doms=frame.Get(pretagIC+hmv).n_hit_doms
+
+        lf=frame.Get(pretagIC+"LineFitI")
+        status=lf.fit_status
+        speed=lf.speed / dataclasses.I3Constants.c
+
+        tc=frame.Get(pretagIC+tcv)
+        lengths=tc.track_hits_separation_length
+        gap=tc.empty_hits_track_length
+
+        time=frame.Get(pretagIC+tv).timelength_last_first
+
+        if verbose:
+            decisionPairs=[
+                [ "ndom", n_doms, ">",ICndomvalue],
+                [ "status", status, "==",0],
+                [ "speed", speed, ">",0.0],
+                [ "speed", speed, "<",ICspeedvalue],
+                [ "lengths", lengths, ">",IClength],
+                [ "gap", gap, "<",ICgap],
+                [ "time", time, ">",ICtime],
+                ]
+            for name, var, sign, thre in decisionPairs:
+                keep=False
+                if (sign==">" and var > thre) or \
+                        (sign=="<" and var < thre) or \
+                        ((sign=="==" or sign=="=") and var == thre) or \
+                        (sign=="!=" and var != thre):
+                    keep=True
+
+                if verbose: print("Dec: %6s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
+
+        if (n_doms > ICndomvalue) and \
+                (status == 0) and \
+                (speed > 0.0 ) and \
+                (speed < ICspeedvalue ) and \
+                (lengths < -IClength or lengths > IClength ) and \
+                (gap < ICgap ) and \
+                (time > ICtime ):
+            ICKeep=True
+    frame[filter_globals.MonopoleFilter+"_IC"] = icetray.I3Bool(ICKeep)
+    if verbose: print("ICFilter", ICKeep)
+
+    # DC Filter
+    if verbose: print("DC Frames found:", frame.Has(pretagDC+hmv+SelectedDCPulses), frame.Has(pretagDC+"LineFitI_"+SelectedDCPulses), frame.Has(pretagDC+tv+SelectedDCPulses), frame.Has(pretagDC+tcv+SelectedDCPulses))
+    DCKeep=False
+    if frame.Has(pretagDC+hmv+SelectedDCPulses) and frame.Has(pretagDC+"LineFitI_"+SelectedDCPulses) and \
+            frame.Has(pretagDC+tv+SelectedDCPulses) and frame.Has(pretagDC+tcv+SelectedDCPulses):
+
+        if verbose: print("Check DC")
+
+        n_doms=frame.Get(pretagDC+hmv+SelectedDCPulses).n_hit_doms
+
+        lf=frame.Get(pretagDC+"LineFitI_"+SelectedDCPulses)
+        status=lf.fit_status
+        speed=lf.speed / dataclasses.I3Constants.c
+
+        t=frame.Get(pretagDC+tv+SelectedDCPulses)
+        time=t.timelength_last_first
+        fwhm=t.timelength_fwhm
+
+        gap=frame.Get(pretagDC+tcv+SelectedDCPulses).empty_hits_track_length
+
+
+        if verbose:
+            decisionPairs=[
+                [ "ndom", n_doms, ">",DCndomvalue],
+                [ "status", status, "==",0],
+                [ "speed", speed, ">",0.0],
+                [ "speed", speed, "<",DCspeedvalue],
+                [ "gap", gap, "<",DCgap],
+                [ "time", time, ">",DCTime],
+                [ "fwhm", fwhm, ">",DCfwhm],
+                ]
+            for name, var, sign, thre in decisionPairs:
+                keep=False
+                if (sign==">" and var > thre) or \
+                        (sign=="<" and var < thre) or \
+                        ((sign=="==" or sign=="=") and var == thre) or \
+                        (sign=="!=" and var != thre):
+                    keep=True
+
+                if verbose: print("Dec: %s %10s %10.2f %10.2f " % (str(keep), name, var, thre))
+
+
+        if (n_doms > DCndomvalue) and \
+                (status == 0) and \
+                (speed > 0.0 ) and \
+                (speed < DCspeedvalue ) and \
+                (time > DCTime ) and \
+                (gap < DCgap ) and \
+                (fwhm > DCfwhm):
+            DCKeep=True
+
+    frame[filter_globals.MonopoleFilter+"_DC"] = icetray.I3Bool(DCKeep)
+    if verbose: print("DCFilter", DCKeep)
+
+    # decision
+    if ICKeep or DCKeep:
+        MMFilter=icetray.I3Bool(True)
+    else:
+        MMFilter=icetray.I3Bool(False)
+    if verbose: print("MMFilter", MMFilter)
+
+    frame[filter_globals.MonopoleFilter+"_key"] = MMFilter
+    return True
+
+#############################################################################################
+
+@icetray.traysegment
+def MonopoleFilter(tray,name,
+                   # this is split by topo.splitter ("InIceSplit") but not cleaned, only non-split ("NullSplit") filter is the slop filter
+                   pulses = "SplitUncleanedInIcePulses",
+                   seededRTConfig = "",
+                   keepFrames=False,
+                   verbose=False,
+                   If=lambda f: True):
+
+    from icecube.filterscripts import filter_globals
+    icetray.load("filterscripts",False)
+    from icecube import dataclasses
+    from icecube.DeepCore_Filter import DOMS
+    from icecube import linefit
+
+    from icecube.common_variables import hit_multiplicity
+    from icecube.common_variables import track_characteristics
+    from icecube.common_variables import time_characteristics
+
+
+    hmv="HitMultiplicityValues"
+    tcv="TrackCharacteristicsValues"
+    tv="TimeCharacteristicsValues"
+
+    domlist = DOMS.DOMS("IC86") # only one layer of IC DOMs around DC
+    # DC strings: 26, 27, 35, 36, 37, 45, 46, 79, 80, 81, 82, 83, 84, 85, 86
+    # IC strings: all but 79, 80, 81, 82, 83, 84, 85, 86
+    ICDOMlist=[]
+    #print(domlist.exclusiveIceCubeStrings)
+    for string in domlist.exclusiveIceCubeStrings:
+        for DOMNumber in range(1,61):
+            DOMkey=icetray.OMKey(string, DOMNumber)
+            ICDOMlist.append(DOMkey)
+
+    CleanedPulses='MM_Cleaned_'+pulses
+    ICPulses='MM_IC_Pulses'
+    DCPulses="MM_DC_Pulses"
+    SelectedDCPulses=DCPulses+"_First"+"_Charge_0_5"
+    pretagIC="MM_IC_"
+    pretagDC="MM_DC"
+
+    remove=[]
+    # ------------------------------------------------------------------------------------
+
+    # split into DC and IC sample
+
+    # taken from DC filter: keeps much more hits of luminescence tracks!
+    # Perform SeededRT using HLC instead of HLCCore.
+    tray.AddModule('I3SeededRTCleaning_RecoPulseMask_Module', name + 'SeededRT',
+                   InputHitSeriesMapName  = pulses,
+                   OutputHitSeriesMapName = CleanedPulses,
+                   STConfigService        = seededRTConfig,
+                   SeedProcedure          = 'AllHLCHits',
+                   MaxNIterations         = -1,
+                   Streams                = [icetray.I3Frame.Physics],
+                   If = If,
+    )
+
+    remove.append(CleanedPulses)
+
+    # no time window cleaning to get more than 6000 ns
+
+    # ------------------------------------------------------------------------------------
+    # this is for IC
+
+    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectICDOMS',
+                   OmittedKeys = ICDOMlist,
+                   OutputOMSelection = pretagIC+'Selection',
+                   InputResponse = CleanedPulses,
+                   OutputResponse = ICPulses,
+                   SelectInverse = True,
+                   If = If,
+                   )
+
+    tray.AddSegment(linefit.simple, name + "_imprv_LF",
+                    inputResponse= ICPulses,
+                    fitName = pretagIC+"LineFitI",
+                    If = If,
+                    )
+
+    monopoleCV(tray,"CV_IC",
+               RecoPulses=ICPulses, # same as in filter
+               ParticleName= pretagIC+"LineFitI",
+               tag="",
+               pretag=pretagIC,
+               remove=remove,
+               If =  lambda f: If(f) and checkIfPulsesInFrame(f, ICPulses),
+               )
+    #tray.AddModule("Dump", "dump")
+
+    remove.extend([pretagIC+"Selection", ICPulses,
+                   pretagIC+"LineFitI", ICPulses+"CleanedKeys"
+                   ])
+    # ------------------------------------------------------------------------------------
+    # DeepCore
+
+    tray.AddModule("I3OMSelection<I3RecoPulseSeries>",name+'selectDCDOMs',
+                   OmittedKeys= domlist.DeepCoreFiducialDOMs,
+                   SelectInverse = True,
+                   InputResponse = CleanedPulses,
+                   OutputResponse = DCPulses,
+                   OutputOMSelection = pretagDC+'Selection',
+                   If = If,
+                   )
+
+    tray.AddModule(ChargeCleaning, name+"ChargeCleaning_First_05",
+                   InputRecoPulses  = DCPulses,
+                   OutputRecoPulses = SelectedDCPulses,
+                   ChargeFraction   = 0.5,
+                   If = lambda f: If(f) and checkIfInFrame(f, DCPulses)
+                  )
+
+    tray.AddSegment(linefit.simple, name + "_imprv_LFDC"+SelectedDCPulses,
+                    inputResponse= SelectedDCPulses,
+                    fitName = pretagDC+"LineFitI_"+SelectedDCPulses,
+                    If = lambda f: If(f) and checkIfInFrame(f, DCPulses)
+                    )
+
+    monopoleCV(tray,"CV_DC",
+               RecoPulses=SelectedDCPulses, # same as in filter
+               ParticleName= pretagDC+"LineFitI_"+SelectedDCPulses,
+               tag=SelectedDCPulses,
+               pretag=pretagDC,
+               If = lambda f: If(f) and \
+                   checkIfInFrame(f, "MM_DC_nHits") and \
+                   checkThreshold(f, "MM_DC_nHits" , threshold=0) and \
+                   checkIfInFrame(f, pretagDC+"LineFitI_"+SelectedDCPulses)
+               )
+    remove.extend([DCPulses, pretagDC+"Selection", DCPulses+"_First", SelectedDCPulses,
+                   pretagDC+"LineFitI_"+SelectedDCPulses, DCPulses+"CleanedKeys", "MM_DC_nHits"])
+
+    # ------------------------------------------------------------------------------------
+    # Filter and end
+
+    tray.AddModule(mpfilter, name+"_filter",
+                   If = If,
+                   )
+
+    tray.AddModule("I3FilterModule<I3BoolFilter>",name + "_MonopoleFilter",
+                   Boolkey = filter_globals.MonopoleFilter+"_key",
+                   DecisionName = filter_globals.MonopoleFilter,
+                   DiscardEvents = False,
+                   If = If,
+                   )
+
+    remove.extend([filter_globals.MonopoleFilter+"_DC",
+                   filter_globals.MonopoleFilter+"_IC",
+                   filter_globals.MonopoleFilter+"_key"
+                   ])
+
+    if not keepFrames:
+        if verbose: print("Remove")
+        tray.AddModule("Delete",'MM_leftOvers',
+                       Keys=remove,
+                       If = If,
+                       )
+

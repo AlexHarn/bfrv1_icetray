@@ -1,0 +1,222 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+trunk
+-----
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V01-09-01
+
+- Use `OutputName` parameter in gulliver modules
+- Script Cleanup: remove `Finish()` and `TrashCan`
+- Documentation cleanup
+
+March 13, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+Release V01-09-00
+
+* Add `SubEventStreamName` parameter to I3ResponseMapSplitter
+* Add serialization library
+* Tests clean up after themselves
+
+May 2, 2016 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+* Convert docs to rst
+* Add namespaces to `isnan()`, `dynamic_pointer_cast()`	and `shared_ptr()`
+* Add include guards to TestFrame.h
+* cleanup of `resources/scripts`
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+**Release V01-07-03**
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Fix compiler warnings in tests
+
+  -- Don la Dieu
+
+
+December 11, 2014 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------------------
+**Release V01-07-02**
+
+- Force compile of template specializations (to avoid linking problems
+  in unit tests)
+- Include file that was moved from lilliput to ipdf
+
+  -- David Boersma
+
+
+September 29, 2014 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------------------
+**Release V01-07-01**
+
+- Add directory for RST documentation
+- Use the 'fortytwo' module from gulliver-modules to check the results
+  of the test scripts
+- In test scripts, pulse charges are no longer used
+- Temporarily deactivate tests until it is understood why they fail on
+  some platforms
+
+  -- David Boersma
+
+
+April 23, 2014 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------------------
+**Release V01-07-00**
+
+This release and (probably) all releases before this can give different 
+results on some systems (specifically the SL5 and FreeBSD buildbots, 
+though on some other SL5 systems the results are the same as on 'normal' 
+systems), use with care (you can check whether the results are indeed
+different on your system by running the tests, if they fail the results
+are different, if they pass, not).
+
+- Replace uses of finite with the more standard std::isfinite
+
+  -- Chris Weaver
+
+- Add dummy Python bindings
+- Remove wildcards from CMakeLists.txt
+- Add alternatives to the unweighted pulse time method (either weight
+  with charge or use only the first pulse in each DOM, and also add
+  the option to split on the median instead of the mean time) to the 
+  time-based pulsemap splitting
+- Update doublefit_*par.py test scripts: update grammar to the modern
+  times, no longer write i3/root output but instead test that the fits
+  give the expected results
+- Try to define split time between hit times
+
+  -- David Boersma
+
+- Fix tests with Python 3 (cPickle renamed to pickle and string vs
+  buffer issues)
+
+  -- Nathan Whitehorn
+
+
+January 15, 2014 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------------------
+**Release V01-06-09**
+
+- Clean up deprecation warning in test
+
+  -- Meike de With
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------------------
+**Release V01-06-08**
+
+- Change container.size()==0 to container.empty() 
+
+  -- David Boersma
+
+- Load things the Pythonic way to make the tests pass
+
+  -- Claudio Kopper
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+
+release V01-06-07: February 21, 2013
+------------------------------------------------------------------
+* removed dependency on log4cplus, DOMcalibrator, FeatureExtractor
+* removed Reconfigure() method
+* cleaned up warnings by clang
+
+release V01-06-06: September 11, 2012
+-------------------------------------------------------------------
+* Use GetName() instead of getting a configuration from the context
+* Adapt to new I3Splitter API
+
+release V01-06-05: June 25, 2012
+-------------------------------------------------------------------
+* Fix tests
+* Remove photonics dependency
+* Remove reference to I3ConverterFactory
+* work with the updated I3OMGeo/I3Orientation
+
+release V01-06-04: March 8, 2012
+-------------------------------------------------------------------
+* Push frame when there is no pulse object in the frame
+
+release V01-06-03: January 11, 2012
+-------------------------------------------------------------------
+* Fixed unit tests
+* Cleaned up dependencies
+* Use new SetGeometry method
+
+release V01-06-02: August 27, 2011
+-------------------------------------------------------------------
+* I3ResponseMapSplitter is now an I3Splitter. The old behavior is kept by default.
+
+release V01-06-01: August 24, 2011
+-------------------------------------------------------------------
+* I3ResponseMapSplitter is writing pulse masks now 
+
+release V01-06-00: August 8, 2011
+-------------------------------------------------------------------
+* adapted to various changes in offline-software
+* fixed tests
+
+release V01-05-00: November 11, 2010
+-------------------------------------------------------------------
+* bump to synchronize version numbers of gulliver related projects,
+  otherwise identical to V01-04-01
+
+release V01-04-01 August 11, 2009
+-------------------------------------------------------------------
+* added Kmeans algorithm in responsemap splitter (ask Lisa)
+* scripts updated
+
+release V01-04-00 March 8, 2009
+-------------------------------------------------------------------
+* implemented most of the code review comments (thanks Alex!)
+
+  - made cleaner simpler scripts with more comments
+  - updated the doxydocs
+  - some code cleanup
+  - reorganized I3ResponseMapSplitter: put the splitter algorithms
+    in static member functions so that they can easily be unit-tested
+    and be used by other modules/services.
+  - added unit tests for all (currently 4) splitter algorithms
+
+release V01-03-00 Oct 27, 2008
+-------------------------------------------------------------------
+* double muon llh:
+
+  - added unit test (need more of those)
+  - fixed major bug in how MPE was used
+* response splitter module: made conditional
+* double muon seed service: will now use *all* available tracks
+  so if input service 1 offers 3 seeds, service 2 offers 4 seeds,
+  then there will be 3x4=12 double-muon seeds
+* added doxygen main page
+* release made for std-processing
+
+release V01-02-00 June 24, 2008
+-------------------------------------------------------------------
+* follow ipdf updates: new implementation of Gauss convoluted Pandel
+* new pulse map splitting algorithms (by Lisa G.) based on:
+
+  - proximity to string with most hit DOMs
+  - time residuals
+
+* 10-par fit: force bounds on vertex of both tracks
+* optional: run with MPE instead of SPE

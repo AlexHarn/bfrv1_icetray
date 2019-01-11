@@ -1,0 +1,64 @@
+.. $Id: RELEASE_NOTES 121473 2014-07-11 12:37:08Z olivas $
+.. $Author: olivas $
+.. $Date: 2014-07-11 06:37:08 -0600 (Fri, 11 Jul 2014) $
+
+Release Notes
+=============
+
+trunk
+-----
+
+Sep. 17, 2018 Kotoyo Hoshina (hoshina@icecube.wisc.edu)
+---------------------------------------------------------------------
+* Updated tutrial.rst for neutrino-generator weighting
+
+June 22, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+---------------------------------------------------------------------
+Release V00-02-01
+* Adds FixedFractionFlux and GaisserH4a_IT flux
+
+Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+---------------------------------------------------------------------
+Release V00-02-00
+
+* @158966 Stop module from blowing up when there is no prerelease version in the patch field.
+* @158683 Parse prerelease version out of metaproject patch field if it's there.
+* @158332 Make GenerationProbability? handle zero areas by returning zero fluence and handle datasets zenith angle coverage
+* @157653 Simprod database change update. Make configurable.
+* @157248 Added nfiles to the "generator vs OneWeight?" example + a short explanation
+* @156859 Account for zenith angle range in cylinder acceptance
+* @156840 Add support for weighting VOLUMEDET-generated CORSIKA with FiveComponent?. 
+* @156365 Fix typo (properly arrange input values).
+* @155708 Always deep-copy normlizations when performing out-of-place arithmetic. 
+
+March 24th, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+---------------------------------------------------------------------
+
+Release V00-01-01
+
+* Python3 cleanup
+* Add a local cache for normalization info to avoid melting the 
+  iceprod database, and make NuGen normalizations picklable again
+* Add a NuGenWeightCalculator for weighting NuGen simulation, and
+  rename WeightCalculator to CORSIKAWeightCalculator
+* WeightCalculator modules now take an optional NFiles parameter
+* Add "new" CR flux parameterizations Honda2004 and TIG1996
+* from_simprod() no longer attempts to guess the number of files in a dataset.
+  This means that you now have to calculate the number of files by hand, but
+  file counting had become so unreliable that you were likely to have been
+  doing so anyway.
+
+November 24th, 2014 Alex Olivas  (olivas@icecube.umd.edu)
+---------------------------------------------------------
+
+Release V00-00-01
+
+* fluxes.py and weighting.py are both properly found in the weighting project
+* Deal with newer sets that use real CORSIKA.
+* Detect when dataset.jobs_completed is a lie, and fall back to counting jobs.
+* Uses PDG codes by default.
+
+July 14, 2014 Alex Olivas  (olivas@icecube.umd.edu)
+---------------------------------------------------
+
+Added release notes for this project.

@@ -1,0 +1,3 @@
+This is a version of the TMinuit class pulled directly from ROOT with all the ROOT specific parts
+converted to STL/boost using mostly simple search&replace. It can be used in case ROOT is not
+available.

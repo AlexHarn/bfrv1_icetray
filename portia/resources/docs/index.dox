@@ -1,0 +1,112 @@
+/**
+   @mainpage Documentation for portia module
+
+   @author Aya Ishihara <aya @ icecube.wisc.edu>
+
+   @section Overview
+
+	I3Portia filles classes of I3PortiaPulse and I3PortiaEvent
+
+   @par[What Portia does]
+
+   Portia loops over all the DOM launches and integrate ATWD and FADC
+   waveform divided by a single charge. Output pulse information is stored
+   in I3PortiaPulse class. I3PortiaPulse has a member of I3RecoPulse
+   and basic information is filled in the class. Output NPEs from ATWD
+   and FADC are compared dom-by-dom basis and whichever gives a larger
+   value is summed up for the event-sum NPE value.
+   These event-wise information is stored in I3PortiaEvent class. Main
+   members are NPE from ATWD and FADC whichever gives larger value,
+   ATWD based NPE sum, and FADC based NPE sum.
+      
+   @par[Making the best pulse]	
+
+   There is an option to make best pulse. 
+   The best pulse means that in addition to the ATWD based NPE, FADC
+   based NPE obtaind after the ATWD time-window size is added. This is
+   effective because ATWD time window is narrow but saturation point
+   is high, while FADC time window is wide but saturation point is low.
+
+   If this option is chosen, the event-wise best NPE value is also
+   calculated based on the sum of ATWD plus after-window FADC based NPEs. 
+
+   @par[Baseline estimation]	
+     @image html  "PortiaBaseline3.png" 
+	    
+     There are the same set of baseline option for ATWD and FADC.
+     
+     @param eheoptimized(default)
+     Described in the figure above.
+     @param first 
+     The average of first 2 bins for ATWD and 3 bins for FADC.
+     @param last
+     The average of last 3 bins for ATWD and FADC.
+     @param lower
+     The average of the lowest 8 entries for ATWD and the lowest 16
+     entries for FADC.
+     @param first_or_last
+     Either first or last whichever gives lower value.
+     @param iteration
+     At first, take average of waveform. Select bin entries which are only below
+     the average (called Waveform_reduced). 
+     Then calculate the average and RMS of the reduced entries
+     which are below the average (called RMS_reduced, average_reduced).
+     Scan the Waveform_reduced and remove bins of which values
+     are larger than average_reduced + 1.5*RMS_reduced or are smaller
+     than average_reduced - 1.5*RMS_reduced.  
+     Again calculate RMS and average with only updated reduced bins
+     and repeat this processs for 10 times or until the number of
+     entry become less than 30.
+     Finally take the average of remained entry as the baseline.  
+     Fixed numbers, 1.5, 10 and 30 are from hardware single charge
+     response study.
+     @param zerobaseline
+     Take 0mV as the baseline.
+
+   @par[All Parameter list]	
+   All the parameters are in the standard IceTray units with I3Units.
+
+   @param DataReadoutName: Input raw data I3DOMLaunch name (default CleanInIceRawData)\n
+   @param OutPortiaEventName: Out (default "PortiaEvent")\n
+   @param PMTGain: default PMT gain value (default 1.e7). this number
+   is used only when PMT Gain from I3DB is not reasonbale (i.e, N/A, 0
+   or 1)\n
+   @param ATWDPulseSeriesName: Output name for reco pulse from ATWD (default "ATWDPulseSeries")\n
+   @param ATWDPortiaPulseName: Output name for portia pulse from ATWD (default "ATWDPortiaPulse")\n
+   @param ATWDWaveformName: Input calibrated ATWD waveform name (default "CalibratedATWD")\n
+   @param ATWDBaseLineOption: Baseline option, currently
+   first,last,lower,first_or_last,iteration or eheoptimized are
+   available (default "eheoptimized"). For details of each option,
+   please see above.\n
+   @param ATWDThresholdCharge: Threshold charge above which an waveform is
+   considered to be a pulse(default 0.1pC)\n
+   @param ATWDLEThresholdAmplitude: the time the waveform crosses this
+   value is considered to be LE time (default 0.5mV)\n
+   @param UseFADC: if both ATWD and FADC are used  (default True)\n
+   @param FADCPulseSeriesName: Output name for reco pulse from FADC  (default "FADCPulseSereis")\n
+   @param FADCPortiaPulseName: Output name for portia pulse from FADC  (default "FADCPortiaPulse")\n
+   @param FADCWaveformName: Input calibrated FADC waveform name  (default FADC)\n
+   @param FADCBaseLineOption: Baseline option, currently
+   first,last,lower,first_or_last,iteration or eheoptimized are
+   available (default "eheoptimized"). For details of each option,
+   please see above. \n
+   @param FADCThresholdCharge: Threshold charge above which an waveform
+   is considered to be a pulse(default 0.1pC)\n
+   @param FADCLEThresholdAmplitude:   the time the waveform crosses this
+   value is considered to be LE time (default 0.5mV)\n
+   @param MakeBestPulseSeries: Select to do if best pulse is from both
+   ATWD and FADC (default False)\n
+   @param BestPortiaPulseName: output best portia pulse in case
+   MakeBestPulseSeries is true (default "BestPortiaPulse")\n
+   @param MakeIceTopPulse: Select to make IceTop pulses(default False)\n
+   @param TopDataReadoutName:IceTop DomLaunch name (default "CleanIceTopRawData")\n
+   @param inTopATWDWaveformName:Input IceTop waveform name (default "CalibratedIceTopATWD")\n
+
+   @section Class structure
+             
+     @image html  "PortiaDiagram.png" portia event class diagram
+	
+
+*/
+
+

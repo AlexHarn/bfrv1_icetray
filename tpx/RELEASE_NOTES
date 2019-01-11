@@ -1,0 +1,178 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Releases V00-03-03
+
+* Add correct handeling for BadDOM List
+
+
+December 19, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V00-03-02
+
+- Add BadDomList parameter to HLC and SLC pulse extractors. DOMs on the bad DOM list will be ignored.
+- When trying to extract pulses from DOMs with missing front-end impedance, the modules will log_fatal, instead of trying to guess the value from the DOMCal version.
+- Add printing support for `I3TopPulseInfo`
+- Fix the way cmake downloads `slc_calib_parameters.pcl`
+- Script Cleanup: remove Finish and TrashCan
+
+
+January 5, 2017
+--------------------------------------------------------------------
+
+Release V00-03-01
+
+- SLC calibrator: If no launches, use average values of chips and channels
+
+  -- Sam De Ridder
+
+
+May 2, 2016
+--------------------------------------------------------------------
+
+Release V00-03-00
+
+ - Added scintillators to I3IceTopHLCPulseExtractor
+ - Added I3IceTopSLCCalibrator, a module to calibrate SLC VEM pulses
+ - Added the segment CalibrateSLCs that extracts waveforms and calls
+   I3IceTopSLCCalibrator
+ - Remove deprecated module I3IceTopSanityChecks
+
+   -- Timo Karg
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-07
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-06
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+February 21, 2013, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-05
+
+- Remove now-unnecessary hard dependence on log4cplus. 
+
+  -- Nathan Whitehorn
+
+- Silence logging
+
+  -- Erik Blaufuss
+
+
+October 22, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-04
+
+- Remove BadStationList from IceTop processing
+
+  -- Timo Karg
+
+
+July 24, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-03
+
+Bugfix:
+
+- Change Intercept
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-02
+
+Bugfix:
+
+- Add missing units
+
+  -- Jakob van Santen
+
+
+May 7, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-01
+
+- Catch a quite rare edge case where nearly-equal bins 0 and 1 cause
+  the leading edge to be extrapolated milliseconds into the past.
+  Failed extrapolations can be snaped to a configurable minimum.
+
+  -- Jakob van Santen
+
+
+January 13, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-00
+
+- Reduce verbosity
+
+  -- Timo Karg
+
+- Add I3IceTopBaselineModule and it's output class I3IceTopBaseline,
+  including python bindings and tableio converter.
+
+  This module calculates IceTop baselines "topwaveprocessor-style". While
+  this is no longer needed for pulse extraction thanks to droop correction
+  in WaveCalibrator, it still allows us to monitor the baseline subtraction
+  and droop correction processes.
+- Add a simple module to convert PE pulses to VEM pulses
+- Add Chip/Channel ID to I3TopPulseInfo and make I3TopHLCPulseExtractor fill in
+  these fields
+- Updated documentation, added examples, bugfixes
+
+  -- Fabian Kislat
+
+- compiles with clang, bugfixes
+
+  -- Claudio Kopper
+
+
+January 13, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-01-01
+
+- Clean up dependencies
+
+  -- Nathan Whitehorn
+
+
+August 23, 2011, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-01-00
+
+- Initial Release
+

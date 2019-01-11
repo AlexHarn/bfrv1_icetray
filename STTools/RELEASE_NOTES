@@ -1,0 +1,78 @@
+.. $Id$
+.. STTools
+.. Maintainer: Martin Wolf
+
+Release Notes
+=============
+
+November 20, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V00-04-03
+
+- use new printing interface
+- fix doxygen @file statement
+- script cleanup: remove `Finish()` and `TrashCan`
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V00-04-02
+
+- Explicitly ignore geometry entries with PMT numbers != 0. Somewhat
+  counterintuitively, this makes STTools work with multi-PMT geometries instead
+  of collapsing into a puddle of tears and assertions.
+
+  -- Jakob van Santen
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-01
+
+- Small code changes to fix warnings
+
+  -- Don la Dieu
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Version 00-03-00
+
+- Implemented COG seed procedure from the SeededRTCleaning project,
+  which is used by the EHE group
+- Put the specialized version of isOutputFrameObjectEmpty for 
+  I3RecoPulseSeriesMapMask also in the header file, so it can be used
+- Add parameter StoreEmptyResults with default value set to 'True' in
+  order to have the same behaviour as SeededRTCleaning for empty results
+
+  -- Martin Wolf
+
+
+September 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Version 00-02-00
+
+- Implemented DOM-link configuration scheme to simplify configuration
+  for sub-detectors like PINGU. One can now configure the SeededRT
+  algorithm with individual DOM-DOM-link ST configurations (e.g. 
+  different ones for IC-IC, DC-DC and IC-DC DOM links)
+- Change %lu to %zu where the argument is of size_t, in order to 
+  prevent compile warnings on the build bots
+- Remove unused variable in OMKeySet::Contains
+- Create shared_ptr types by hand instead of using I3_POINTER_TYPEDEFS
+
+  -- Martin Wolf
+
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+V00-01-01
+
+- Fix for newer boost
+
+  -- Don la Dieu
+
+
+March 28, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------------
+V00-01-00
+
+First release as a project!

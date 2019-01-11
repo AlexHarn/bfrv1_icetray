@@ -1,0 +1,238 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V02-00-12
+
+- Documentation cleanups
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+------------------------------------------------------------------
+Release V02-00-11
+
+- Use internal serialization library
+  -- Chris Weaver
+- Python 3 cleanup
+  -- Kevin Meagher
+
+
+May 2, 2016 Alex Olivas 
+------------------------------------------------------------------
+Release V02-00-10
+
+- More tests and documentation
+  -- Michael Larson
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V02-00-09
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-00-08
+
+- Get rid of compiler warning
+
+  -- Emanuel Jacobi
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-07
+
+Features:
+
+- Added the option to push the PE of the Veto hits as well as
+  the total number of hits.
+- Removed YourMom from the tray segment
+
+  -- Jason Koskinen
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+October 18, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-06
+
+Bugfixes:
+
+- Added an extra check that examines whether the pulse series on
+  the DOM is empty.
+- Extra logging statements
+
+  -- Jason Koskinen
+
+- Configure missing parameter `optVetoHitsName_`
+
+  -- Marcel Zoll
+
+- Fixed tests
+
+  -- Emanuel Jacobi
+
+
+July 24, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-05
+
+Bugfix:
+
+- Change the DOM range to match the DAQ config
+
+  -- Jason Koskinen
+
+- Fix typo
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-04
+
+- Make the number of hits required to veto into a configurable
+  parameter, "MinHitsToVeto"
+
+  -- Laura Gladstone
+
+- Rename Process(frame) to ProcessFrame(frame) in order to avoid
+  warnings about shadowning of I3Module::Process()
+
+  --Claudio Kopper
+
+- Fix copy and Paste error for ChargeWeightCoG
+
+  -- Mike Bell
+
+- Changed the logging so that missing pulses in an omkey recopulse
+  map produce a warning instead of error. An omkey with a missing
+  pulse is skipped.
+- Started a traysegment
+
+  -- Jason Koskinen
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-03
+
+- Removed root dependency
+- Switch to new API
+
+  -- Nathan Whitehorn
+
+- Removed the requirement that the input comes from the stream on which the module is acting
+
+  -- Erik Blaufuss
+
+- Applying correction to CoG calculation
+
+  -- Jacob Daughhetee
+ 
+October 17, 2011, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+-------------------------------------------------------------------
+Release V02-00-02
+
+ - I3DeepCoreVeto will now run on the stream where it finds both its input pulseseries
+
+   -- Olaf Schulz
+
+ - change the name "DeepCoreHitSeries" to "FiducialHitSeries"
+ - change the name "IceCubeHitSeries" to "VetoHitSeries"
+
+   --Laura Gladstone
+
+ - fixed Logging Issues
+
+   -- Jacob Daughhetee
+
+August 27, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-01
+
+- Make DeepCore_Filter visible to the new icetray-inspect
+
+  -- Matt Dunkman
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-00-00
+
+- Complete rewrite of the code.
+- improved documentation
+
+  -- Michael Larson
+
+
+March 24, 2011, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-00-00
+
+Renamed to DeepCore_Filter
+
+Feature:
+
+- DeepCore DOM set definitions in python
+
+  -- Erik Blaufuss
+
+
+October 19, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-02-00
+
+Feature:
+
+- Added DeepCoreTimeVeto
+
+  -- Matt Dunkman
+
+
+April 12, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-01-01
+
+* Fixed: Test script now works in pure icerec environment
+  
+  -- Jason Koskinen
+
+
+April 09, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V00-01-00
+
+Initial release for icerec and filtering
+
+Improvements according to code review implemented
+
+
+March 12, 2010, Chang Hyon Ha
+--------------------------------------------------------------------
+Release V00-00-00
+
+Initial tag
+
+This was the basis for the code review by Eike Middell

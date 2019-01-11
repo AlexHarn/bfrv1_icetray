@@ -1,0 +1,6 @@
+The files in here can be used to produce plots from the production histograms. 
+
+First you could combine histos pickle files using the combine_pickle_files.py script in production_histograms/resources/scripts.
+
+The main script to be used here is plot_L3_hists_withLivetime.py. It needs two histogram files, (one reference, one other) and two livetime files. You could also add the legend. This script is not perfect, but does the job. It uses the file listWithPlots_L3.txt to find out which plots it should make. The files plotting_function.py and mplext.py are used for the plotting.
+

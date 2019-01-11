@@ -1,0 +1,55 @@
+Release Notes
+=============
+
+Jul. 5, 2018 Kotoyo Hoshina
+---------------------------
+trunk
+- restored a line in level3_WriteOutput.py to fill directhit cut values for window E
+
+
+June 28, 2018 Kotoyo Hoshina
+---------------------------
+trunk
+
+- I found the modification for adding gsiftp option in the last release may not work
+  when iceprod is used. The main function in level3_Master.py was reverted, and now 
+  the gsiftp option works only when the script runs without iceprod.
+- warnings about OutputName option for many fitter has been solved.
+
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release 2018_0
+
+- Make simulations generated for 2013 or later run the level3-filter-muon.
+  There was a bug in filterscripts/resources/scripts/SimulationFiltering.py
+  SplitUncleanedInIcePulsesTimeRange was not stored after L1 processing and
+  then it was not copied to SplitInIcePulsesTimeRange in L2 processing.
+  This bug is fixed in latest trunk of filterscripts, however, to process 
+  existing simulation data, restore_tw_for_MC option is added to level3_Master.py.
+  If -r option is added, it will make a dummy trigger split frame and copy
+  SplitInIcePulsesTimeRange to main target frame, only when the main target
+  frame does not contain SplitInIcePulsesTimeRange. See MuonL3TraySegment.py.
+- Modified level3_WriteOutput module to run simulations that already contains
+  I3LinearizedMCTree at level2.
+- Add option to use gsiftp
+- fix typo in command line options
+- use `direct_hits.get_default_definitions()` instad of global variable
+- make this iceprod compatable
+- Script Cleanup: remove `Finish()` and `TrashCan`
+
+
+
+March 23, 2107 EKB (blaufuss@umd.edu)
+-------------------------------------
+Release 2017_1
+
+- Python 3 cleanups
+- improvedLinefit now just linefit
+- Add QFilterMask to table output.
+
+
+January 21, 2016, Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+Let's start making release notes for this project.
+

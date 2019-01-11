@@ -1,0 +1,65 @@
+
+Release Notes
+=============
+
+June 13, 2018, Alex Olivas  (olivas@icecube.umd.edu)
+-----------------------------------------------------
+Release V18-06-00
+
+* very minor cleanups
+
+November 15, 2017, Alex Olivas  (olivas@icecube.umd.edu)
+-----------------------------------------------------
+Release V17-11-00
+
+* very minor cleanups
+
+March 23, 2017, Alex Olivas  (olivas@icecube.umd.edu)
+-----------------------------------------------------
+Release V17-03-00
+
+* r151387 - Remove an odd special case which prevented I3DST13Reco_InIceSplit* being sent back to the appropriate P frame. 
+
+March 18, 2016, don la dieu  (nega@icecube.umd.edu)
+---------------------------------------------------
+Release V16-03-00
+
+* minor updates, including to documentation
+
+December 14, 2015, don la dieu  (nega@icecube.umd.edu)
+------------------------------------------------------
+Release V15-12-00
+
+* no updates 
+
+September 16, 2015 E Blaufuss (blaufuss@icecube.umd.edu)
+--------------------------------------------------------
+
+* Improved test coverage for useful modules
+* Improved docs
+* Removed ``Compare::`` utils from ``ParticleCheck``.  It compared I3Particles, but wasn't used
+  any longer in the code.  It was already using the ``I3Particle`` ``==`` function.
+
+April 17, 2015, don la dieu  (nega@icecube.umd.edu)
+---------------------------------------------------
+
+V15-08-00 
+
+* Fixed include guards
+* Use ROOT_FOUND instead of USE_ROOT
+
+April 17, 2015, don la dieu  (nega@icecube.umd.edu)
+---------------------------------------------------
+
+V15-04-00 
+
+* minor isnan() fixes
+
+March 15, 2015, Alex Olivas  (olivas@icecube.umd.edu)
+-----------------------------------------------------
+
+V15-03-00 
+
+* taking frame objects instead of getting/putting these to prevent 
+  deserialization... now the 'lib' of a given frame object is not 
+  needed anymore

@@ -1,0 +1,90 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-01-08
+
+- Documentation cleanups
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+March 24, 2017 Mike Richman
+--------------------------------------------------------------------
+Release V00-01-07
+
+- Fix tableio types
+  -- Alex Olivas
+- Use internal serialization library
+  -- Chris Weaver
+
+May 16, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-01-06
+
+- Initialize VetoParams members to non-magic values.
+  -- Jan Oertlin
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-01-05
+
+- Remove files with I3FrameObject. Now they live in reccclasses. make
+  compiles well in combo-metaproject. Note that there is no test directory
+  for C++ test coverage.
+  -- Giuliano Maggi
+
+- Added default values for VetoParams to prevent arbitrary values
+  -- Jan Oertlin
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-04
+
+- Make project compatible with Python 3. Note that CascadeVariables
+  did not work with python < 2.6 in the first place, so updates 
+  assume python 2.6+
+
+  -- Nathan Whitehorn
+
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-03
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+- Removed reconfigure method
+
+  -- Alex Olivas
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-02
+
+- Use GetName() instead of getting a configuration from the context
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+- Remove dependency on HDF5
+
+  -- Nathan Whitehorn
+
+February 13, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Initial Release
+

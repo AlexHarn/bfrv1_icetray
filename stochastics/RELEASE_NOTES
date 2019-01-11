@@ -1,0 +1,20 @@
+.. $Author: Sam De Ridder $                                                                                                                                                                               
+.. $Date: 1-4-2017 $                                                                                                                                                    
+
+Release Notes
+=============
+
+
+December 1, 2017 Kevin Meagher
+------------------------------
+Release V00-00-01
+
+* Switch to using the version of Minuit2 in lilliput instead of linking against ROOT
+* Documentation Cleanup
+* Scripts cleanup: remove `Finish()` and `TrashCan`
+   
+Apr 19, 2017
+------------
+Release V00-00-00 
+
+* First version of release notes. Some small changes have been implemented to get this project in IceRec. 

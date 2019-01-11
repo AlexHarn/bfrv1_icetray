@@ -1,0 +1,70 @@
+/**
+
+\mainpage Coincident Suite
+
+\author mzoll <marcel.zoll@fysik.su.se>
+
+\section intro Introduction
+Coincident Suite is a project that is conceived to deal with coincident events in IceCube and their ramifications, which is a multiple P-frame (subevent) structure.<BR>
+The code and its outline are highly motivated by a splitting module (e.g. TopologicalSplitter) that tries to separate a coincident event in the detector into subevents, which are contained in their own P-frames and subseries of pulses.
+
+\section Def_and_Abbr Some Definitions and Abbreviations
+There must be some definitions and abbreviations introduced:<BR>
+- SimMultiplicity (SimMult) = Number of simulated primaries with NHit >= 1 in an event
+- TrueMultiplicity (TrueMult) = Number of primaries with NCh >=4 in an event
+- MC (MonteCarlo) = simulated truth, can be used in association with pulses to indicate the 100% physics that can be uncovered for every primary
+- Matched/Physics = Pulses/DOMs matched to the MCtruth of an incident primary
+- Noise = Pulses/DOMs caused by noise in that sub-series (==_MC - _Matched)
+- SplitCount = Number of subevents/splits found by EventSplitter, this includes splits of PhysicsClusters (correct splits), NoiseClusters, and fractured tracks; i.e. identical to the number of subevent frames generated
+- ReducedCount = Number of successful recombinations, removed NoiseClusters and Afterpulses, or other measures which reduced the number of original subevents/splits
+- EffectiveCount (EffCount) = Number of effective splits after recombinations (== SplitCount – ReducedCount)
+- Subevent = part of a bigger Hit/Pulse-Series, which was split off by e.g. a splitter representing a individual event seperated to others e.g in time or space. Multiple subevents can i.g. be associated to Q frame
+- Fracture = Deficit of splitters can cause that e.g. single track events are fractured into two or more subevents, which is than a wrong split
+- Recombination = The unification of two or more subevents into one single subevent.
+- Split = synonym to a subevent found and written out by a SplitterModule
+- NoiseCluster = a subevent that contains only noise hits and no Physics. Their creation is a consequence from the fact that noise can also cluster mimicking low multiplicity events.
+- RecoFit = A fit performed on individual subevents
+- HypoFit = A fit performed on he recombination of two subevents
+- SplitFrame = A frame of a split-off subevent
+- HypoFrame = A frame containing the recombination of two subevents and associated objects; is used for hypothesis testing
+- COG (Center of gravity) = the averaged position and time considering a series of Hits/Pulses
+- FramePackage = A series of frames which all belong to one mother-(Q)frame. Mostly associated with a leading Q-frames and a series of P-(subevent)frames.
+
+\section contained_modules Hierarchical Structure and Contained Modules
+CoincidentSuite or short CoincSuite is a collection of libraries and classes. Some of these (e.g. Testers) inherit from a common base class as they have to perform operations in a similar way.
+
+The base-structure is outlined by the library "FrameCombiner", which contains the class "FrameCombiner" as an I3Module and the supporting class "FrameRegister".
+
+\subsection FrameRegister FrameRegister
+The class "FrameRegister" is the center point of the project: It is designed to buffer up a whole series of frames as an ordered package and provide random access to these by different unique identifiers, like subevent-stream and subevent-ID. The FrameRegister deals with three special classes of frames to provide the fastest access: "Qframes", "SplitFrames" and "HypoFrames".<BR>
+"Qframes" are the header frames of any single event that can be composed from a number of subevents. "Splitframes" are those frames that are output of a splitter module and are representing the discovered subevents. "Hypoframes" are an unsplit hypophesis, thus combinations, of some of the "Splitframes", they should contain a "CS_CreatedBy"-object telling about their originators.
+
+\subsection FrameCombiner FrameCombiner
+The class FrameCombiner does provide the interaction routines for a general I3Module to interact with the FrameRegister: It provides templates to build such a FrameRegister from a FramePackage, to push frames back into the Outbox from a filled FrameRegister and  to randomly access frames. It also implements all necessary variables for all its derived classes to interact with the FrameRegister. <BR>
+Many Modules inherit from this class to operate on frames buffered up in the FrameRegister. The usual modes of operation are:
+*<b>Locate</b> single frames: This must be done by either knowing the position in the frame in the FramePackage or its unique identifiers.
+*<b>Find and read</b> variables of a frame: While most variables can directly accessed in any frame directly, some variables are special and it is saver to use the Modules interaction routines to those.
+*<b>Manipulate</b> the contents of a frame: For this some template functionality is provided in this base-class
+*<b>Create</b> a new frame: Fast create a series of new frames, e.g. HypoFrames.
+*<b>Kill</b> a single frame: Remove a frame completely as it should be discarded.
+
+\subsection TesterModule TesterModule
+The class "TesterModule" is a direct descendant from FrameCombiner and is the base-class for any TesterModule. It implements a bit more functionality and user interaction, but also channels the way how TesterModules perform their criteria testing and how they communicate to Icetray and other internals.<BR> 
+The most important propagated functionality is however the routines for standardized marking of recombination attempts.<BR>
+There are two classes or modes how these Tester modules can be run: In 'Hypo' or 'Mutual' mode. The Hypo-mode signals that for decisions reconstructions aor other information from the Hypo frame is taken as arguments, while for the Mutual-mode information from the respective other frame is taken as arguments. Is to say, that the Mutual-mode is more selective and gives lesser false positives, while Hypo-mode gives lesser false negatives for the recombination decisions.<BR>
+
+@section Frame_Objects Frame-Objects
+There is a number of I3Objects by which the communication of this software suite is realized. These are either written by the Modules themselves, or must be provided by the user for successful operation:
+- <b>SplitFrames</b> (I3Frame) in FramePackage after QFrame: P-frames written out by the Splitter Module, which hold the subevent split pulse-series; must have an "I3EventHeader" with subevent-stream by the name of the SplitterModule (if you are using phys-services.GetNextSubEvent() this is automatic)<br>
+- <b>HypoFrames</b> (I3Frame) in FramePackage after QFrame and (usally after P-Frames) : P-frames created by the HypoFrameCreator Module, which hold the preliminary recombined pulse-series from two SplitFrames and act as the unsplit hypothesis of these frames; must have an "I3EventHeader" with subevent-stream by the name of the 'HypoFrame' (automatic) and have an 'CreatedFrom' object telling about the parents of this HypoFrame. 
+- <b>SplitCount</b> (I3Int) in QFrame : Holds the number of SplitFrames written out by the Splitter. Must go by the name "[SplitterModuleName]SplitCount". (Most Splitters allow the option 'WriteSplitCount' to be set or use the module CoincSuite.SplitCountMaker)
+- <b>ReducedCount</b> (I3Int) in QFrame: Holds the number of removed SplitFrames from the FramePackage. This variable must be created before CoincSuite starts computation. Must go by the name "[SplitterModuleName]ReducedCount". (Use the module CoincSuite.ReducedCountPlacer to create it)
+- <b>CS_RecombSuccess</b> (I3MapStringBool) in HypoFrame : A map that will be created and/or augmented by and Tester module that is run. Entries are made if that specific Tester voted in favor or against a recombination of the SplitFrames the HypoFrame was created from. 
+- <b>CS_RecombAttempts</b> (I3VectorString) in QFrame : A list that will be created and/or augmented by and Tester module that is run. Entries are made for each Tester that has been run.
+- <b>CS_CreatedFrom</b> (I3MapStringVectorDouble) in HypoFrame : Holds the parent's subevent-ID of this HypoFrame; is created by HypoFrameCreator or HypoFrameFaker
+- <b>CS_ComboFrom</b> (I3MapStringVectorDouble) in recombined ComboFrame : In SplitsFrames which are the result of a successful recombination, tracking the parent's subevent-ID.
+- <b>CS_Reducing</b> (I3MapStringVectorDouble) in HypoFrame : upon successful recombination put into the HypoFrame to signal the frames which are the fractures leading to this recombined event
+- <b>CS_ReducedWith</b> (I3MapStringVectorDouble) in recombined SplitFrame : upon successful recombination put into the Splitframe pointing to the partner SplitFrame which are fractures of the recobined events
+- <b>CS_ReducedBy</b> (I3MapStringVectorDouble) in SplitFrame : upon successful recombination put into the SplitFrame pointing to the Hypoframe which is the host event of this fraction
+- <b>Discard</b> (I3Bool) in SplitFrame: A marker that this frame can be discarded, because it has either been identified as nuisance or as a fracture of a recombined event, which has already been dealt with
+*/

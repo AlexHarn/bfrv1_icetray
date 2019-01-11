@@ -1,0 +1,158 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+November 29, 2017 Kevin Meagher(kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V03-02-05
+
+* write out the unfolded losses again. 
+* Add documentation of the objects the module produces. 
+* Fix up the example script to use $I3_TESTDATA
+* allow for reconstruction of unknown OM types for Gen2
+* store arrays on the heap to avoid overflows
+* fix compat mode so to work with multiple instances
+* docs cleanup 
+
+March 24, 2017 Kevin Meagher(kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V03-02-04
+
+* fix for when total charge rounds to 0
+* only initialize memory when it is going to be used to avoid memory leaks
+* Move logging to IceTray Logging
+* Remove uses of `OMKey::IsInIce()`
+* Add serialzation dependency
+* Remove ancient example script
+
+
+May 15, 2015 don la dieu (nega@icecube.umd.edu)
+--------------------------------------------------------------------
+Release V03-02-02
+
+- Add compatability mode to match prior L2 processing
+
+  -- dima
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-02-01
+
+- Add python symlinks, so 'from icecube import mue' now works
+
+  -- Marcel Zoll
+
+- Remove support for very old 'List' format which is no longer used
+
+  -- Meike de With
+
+- Fixes for new I3MCTree (replacing iterator by const_iterator)
+
+  -- David Schultz
+
+- Check if total charge can actually be cast to unsigned integer, if
+  not, log_fatal
+- Move '#include <limits.h>' to global scope
+- Replace int by long int
+
+  -- Leif Raedel
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Fix warnings
+
+  -- Don la Dieu
+
+- Use correct variable name in AddParameter
+
+  -- Dima Chirkin
+
+
+September 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-02-00
+
+- Remove charge discretization (this version is slightly more precise)
+- Significantly raise NCh threshold for omitting SLC from first
+  approximation (for reconstructions)
+
+  -- Dima Chirkin
+
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-01-00
+
+- Add new ice model 'Spicecube' (ice/sp3)
+- Interpret and use tilt information (as available in ice/sp3)
+- Allow reading of new ice table format
+- Add badoms parameter, use this to specify a vector of OMs with 
+  clipped waveforms
+
+  -- Dmitry Chirkin
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V03-00-00
+
+- Explicitly convert to bool
+
+  -- Chris Weaver
+
+- Merge wreco branch with trunk
+
+  -- Dmitry Chirkin
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-03-05
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-03-04
+
+- Recover on detector configuration changes
+
+  -- Dmitry Chirkin
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+December 19, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-03-03
+
+- Remove unused Reconfigure method 
+
+  -- Alex Olivas
+
+- Add track even when the input has NANs (as agreed in the tuesday call)
+
+  -- Dmitry Chirkin
+
+
+June 25, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-03-02
+
+- Compiles cleanly with clang
+
+  -- Claudio Kopper
+
+- Better late than never: Add release notes :)
+
+  -- Emanuel Jacobi
+

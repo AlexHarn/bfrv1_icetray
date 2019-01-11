@@ -1,0 +1,14 @@
+This is truncated_energy, adapted from the photorec-based loglikelihood reconstruction algorithm, extracted from the lilliput
+project and improved with bug-fixes and new features. The relevant example scripts have been moved over as well. 
+The two likelihood functions included in the project are I3WaveformLogLikelihood and I3PhotorecLogLikelihood. 
+The former uses waveforms while the latter use reco pulses. Also included are the relevant factories for loading the likelihood functions
+for use with gulliver. 
+
+Projects needed to use truncated_energy:
+
+- Was moved from lilliput, but one still needs gulliver, gulliver-modules and lilliput to use truncated_energy. 
+- Needs the latest release of photonics-service, since this is a photonics-based reconstruction project.
+- One needs access to photorec tables, which are reconstruction specific.
+
+The details of the algorithm along with configuration options can be found in the documentation under index.dox.
+Example scripts show examples of how to configure the various modules of truncated_energy. 

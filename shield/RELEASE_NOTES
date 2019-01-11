@@ -1,0 +1,118 @@
+.. $Id$
+.. Project maintainer:  Chris Weaver (chris.weaver@icecube.wisc.edu)
+
+Release Notes
+=============
+
+November 30, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V00-02-04
+
+- Fix busted test infrastructure.
+- Docs cleanup: remove .dox file
+- Script cleanup: remove `Finish()` and `TrashCan`
+
+March 14, 2017 Chris Weaver (chris.weaver@icecube.wisc.edu)
+--------------------------------------------------------------------
+Release V00-02-03
+
+- Shower front curvature is now supported, with user-defined polynomial parameterizations. 
+
+  -- Delia Tosi
+
+- Pulse charges can be optionally reported along with coincidence times
+
+  -- Delia Tosi
+
+- BadDOMList handling is more sensible; listed DOMs are never reported, and unhit DOMs in the same tank no longer affect each others' being reported. 
+
+  -- Delia Tosi
+
+- Use internal serialization library
+
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-02-02
+
+- Include standard python module
+- Move I3ShieldHitRecord to recclasses
+
+  -- Hans Dembinski
+
+- Add tests for reporting unhit DOMs
+
+  -- Chris Weaver
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Changed the distance output to actually calculate the distance from
+  the DOMs (before it was using the tank position)
+
+  -- Delia Tosi
+
+
+September 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-00
+
+- This version provides a DOMkey with the hit, and if reportUnHit is
+  true reports distances of DOMs unhit and relative DOM keys
+
+  -- Delia Tosi
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-04
+
+- Fix unit tests to compile in c++11
+
+  -- Chris Weaver
+
+
+August 29, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-03
+
+- Remove dependency on log4cplus
+
+  -- Emanuel Jacobi
+
+- Switch to using dataclasses implementation of vector math
+
+  -- Chris Weaver
+
+
+June 7, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-02
+
+- Add support for computing the distance from the input track to every
+  unhit IceTop tank.
+- Remove dependence on I3Calculator.
+
+  -- Chris Weaver
+
+
+October 22, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+Bugfix:
+
+- Fix test infrastructure to work with new icetray internals
+
+  -- Chris Weaver
+
+
+August 30,  2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Initial release
+
+  copied from http://code.icecube.wisc.edu/svn/sandbox/cweaver/shield/
+

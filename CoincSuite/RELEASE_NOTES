@@ -1,0 +1,205 @@
+.. $Id$
+
+Release Notes
+=============
+
+March 14th, 2017  Marcel Zoll (marcel.zoll@fysik.su.se)
+------------------------------------------------------------------
+Release V00-03-03
+
+- bug with possibly no impact: frame indexes have been switched for cluster
+  assignments in decisionMaker; tests execute smoothly - probably that part
+  of code never has been triggered or is symmetrical
+- Massive python3 fixup, should get most tests to pass with python3 
+  -- KJ Meagher
+- break out FrameRegister from Helper code
+  --Marcel Zoll
+- use 'linefit' which implements the 'improvedLineFit' now
+  -- David Schultz
+- use internal serialization library
+- Rearrange Code to fully enclose an if/else-statement; ticket #1790
+  (August 9, 2016)
+  -- Marcel Zoll
+
+May 2, 2016 Alex Olivas
+------------------------------------------------------------------
+Release V00-03-02
+
+- cleanups towards c++11 compatibility
+  -- David Schultz
+- fix an I3Position comparison (fixed #1539)
+  -- Marcel Zoll
+
+
+April 18, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-03-01
+
+- Use log_fatal if module cannot continue running (in this case, if
+  nFrac == 0 in PartialCOG, to avoid divide-by-zero later on)
+
+  -- Marcel Zoll
+
+
+April 8, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-03-00
+
+- Get rid of the internal implementation of the which_split-function 
+  now that it is implemented in phys-services 
+- Fixed bug (int devision always yielding zero) in AfterPulse Discard 
+  and Tester, which effectively rendered this module useless
+- Added a py-module 'DiscardEmptySplits' removing EmptySplits (splits
+  which have no pulses present in the desired RecoPulseSeriesMap)
+- Quick fix of malicious behaviour in the reclustering routine, it is
+  working now but might need some more checks
+- Add parameter "RecombineRecoMaps" to DecisionMaker: keys of 
+  I3RecoPulseSeriesMap/Masks in the frames found at these keys will also 
+  be recombined, which is useful if already some cleanings etc. have 
+  been performed on the SplitPulses! 
+- Fix (documentation and other) compile warnings, general code cleanup
+- Add option "Offset" to "CreateTimeWindow" so that a additional time 
+  can be added to the nominal time-window defined by the first and last 
+  pulse in the passed RecoPulseSeriesMap/Mask
+- Make the createTimeWindow routine more robust, now it will also give
+  a meaningful result (-offset, offset) when there are no pulses
+- Correct limit comparison in AfterpulseDiscard
+- Add more documentation
+
+  -- Marcel Zoll
+
+- Replace make_shared by boost::make_shared to fix name collisions
+
+  -- Christopher Weaver
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Corrected the check for zero pulse length in the createTimeWindow 
+  routine
+
+  -- Jan Kunnen
+
+
+December 11, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-02-00
+
+- Remove obsolete cxx-test
+- Fix python tests
+- Fix bug where Hypoframe got a null object written if the masks to be
+  united were derived more than once (if you were affected, subsequent
+  modules would have failed, so you would have noticed)
+- Making the code faster and more efficient
+- Add Refit-option (default=False) to ReducingLikelihoodTester. Refit =
+  True reproduces the old behaviour (the fit is redone), Refit = False
+  means that just the LLH values for the fit done before are calculated
+
+  -- Marcel Zoll
+
+- Replaced make_shared by boost::make_shared
+
+  -- Don la Dieu
+
+
+October 9, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-01-00
+
+First release! This release was made specifically for the 2012 muon L3 
+processing metaproject. The tests do not pass yet because the testdata
+is not available, but it was checked locally that they pass if the test
+file is used. As soon as this is solved, the project will be added to 
+icerec.
+
+
+
+trunk 2014/06/25 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------------
+* added script to just split data, for example to create a testcase: /resources/scripts/split_data.py
+* Deprecate the FrameSentinel because the functionality can be easier achieved by a python module: tray.Add(lambda f: return f.Has(FlagName))
+* Rename EmptyFrameDiscard to LowNChDiscard in order to reflect better the intended use of the Module; which is to discard NoiseClusters
+* Removed al
+* Change in UI for TrackLikelihoodTester: changed Parameter names:
+* Afterpulse and NoiseClusterDiscard have now a options 'Discard' for direct discard of frames
+* Adpated to new lilliput.services interface (I prepend from my previous sins)
+* removed paranoid checks for object existence in places that they have to exist
+* startet implementation work on helper functions to stich together I3TriggerHierarchies with DecisionMaker
+* All Discard and DecisionMaker, which in general identify discardable frames, now have the option 'Discard' to do this on the fly; Also written objects of these to the frame have the name of teh Module now (e.g. <I3Bool>(GetName()))
+* Broke out namespace CoincSuite from FrameCombiner into /lib/CoincSuiteHelpers.h/cxx
+* Cleaned up the code in some places.
+* Started with Unit Tests //TODO finish these
+* Two Bugs found in I3FakeCalculator: functions TrackClosestPoint (lines where always intersecting) and TrackSurfaceIntersection (norm was calulated wrong); affected are all Testers which used functions which might have had deminished selection power in the past //TODO investigate
+* Added ReducingLikelihoodTester, which is what TrackLikelihoodTester actually should have done; It's selectiveness should be much stronger.
+* Depricate TrackLikelihoodTester to the benefit of using ReducingLikelihoodTester
+* Depricate CausausalConnectedTester to the benefit of cogCausalConnectedTester
+* Depricate CylinderPulsesTester to the benefit of TrackSystemTester
+* Changed the interface to specify TimeResiduals to pair<double, double> aka dataclasses.make_pair(double, double)
+
+2013/10/03 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+* In AfterpUlseTester and Discard include the specified threshold values in the concideration (< -> <=)
+* Added new Tester: TrackSystemTester : TODO Documentation
+* API change for AfterpulsesDiscard: The <I3Int> tag in the afterpulse event is now named after the module name instead of stataid "Afterpulses"!
+* TODO move functions in I3FakeCalculator into I3Calculator.cxx
+* TODO Unit-tests: write the following:
+
+  * Test for every Tester: if it executes and writes a positive result for a special constructed case
+  * The TesterModule and FrameRegister base-functions have to be tested
+
+
+2013/10/03 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+* found a newly inroduced bug (after code-rewrite) in PartialCOG which prohibited the correct summup (a while loop did break immediatly); the accuricy cogCausalConnected was impacted
+* modified eventHeaders are now a integral part of the code
+
+
+2013/09/19 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+Massive Code Refurbishment with new functionallity
+
+* removed redundant code
+* provided a nicer interface (API) through TesterModule and function pointers; should also run much faster;
+* /python and /resources are tydied up; lost links an loose ties
+* OMKeyHash and HitSorting are now the new and nicer libraries from HiveSplitter
+* checked for some functions if we can use copies instead of references and vise versa; where it makes sense
+* TODO check if FrameRegister can work with maps instead of vectors to make access faster; NOTE It could however it would not be neccessarily nicer
+* new Test emerged from AfterpulseDiscard: AfterpulseTest, it does basically the same thing:
+* Frameregister has been fitted with some more convenience functions that should soon allow to make the subordinated Frame-vectors private;
+* an experimental parameter to HypoFrameCreater that now will limit the time difference between frames so that Hypoframes are not created from everything, but only objects that make sense
+* Nosie and AfterpulseDiscard have been fitted with an option to directly discard according frames instead of going through a seperate module; DANGER ReducedCount might have to be readjusted
+
+2013/07/27 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+Serious code rework
+
+* Corrected inherited bug in AfterpulsesDiscard, in the computation of the charged averaged time, which was rather a time/tot_charge
+* Corrected bug in MutualCylinderPulsesTester, which was just testing the criteria one-sided way instead of two-sided.
+
+2013/06/20 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+* more documentation
+* more parameter correctness
+
+
+2013/02/20 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+* many more modules;
+* DiscardSplits is now doing the right recombinations; reduced count was right all along
+* AfterPulsesDIscard added after input from Chris Weaver, very appreciated, thanks
+
+
+
+2013/02/20 mzoll <marcel.zoll@fysik.su.se>
+------------------------------------------
+almost there for a final release:
+
+* even more modular now
+* removed old code fragments
+* TODO Documentation
+* TODO finalize recombinations of frames: -> DiscardSplits.
+* TODO complete resources
+* TODO find sensible default parameters
+* TODO make histogramming and weighting a little bit more flexible and not so hardcoded: -> histogramming.py
+* TODO ...

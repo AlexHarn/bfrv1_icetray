@@ -1,0 +1,94 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-02-10
+
+* Documentation cleanups
+* Script Cleanup (remove `Finish()` and `TrashCan`
+
+March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V00-02-09
+
+- Add serialization dependency
+- Remove I3Trigger from python enums
+
+June 29, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-07
+
+- coinc-twc can be more easily imported in python, using
+  from icecube import coinc_twc now.
+  -- Tom Feusels
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-06
+
+- Removed dependency on log4cplus
+  -- Nathan Whitehorn
+
+
+September 24, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-05
+
+- Make compatible with the new I3TriggerStatus
+  -- Alex Olivas
+
+NOTE: This change exposes a bug in gcc 4.2. We will update the project
+as soon as we have a workaround. For now the only workaround is to compile
+in RELEASE mode and not in DEBUG mode.
+
+
+July 24, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-04
+
+- Bugfix: account for causalWindow t_max
+  -- Tom Feusels
+
+July 16, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-03
+
+- New search strategy for causally connected triggers
+- Do not log_fatal on SLOP events
+  -- Tom Feusels
+
+March 6, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-02
+
+- fixed bug in declaration of the stream type 
+  -- Erik Strahler
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Cleaned InIcePulseMasks end up in the same (P-) frame as IceTopPulse(Mask), if IceTopPulseName defined
+  -- Tom Feusels
+
+- Removed automagic type switching
+- Switch to new frame API
+  -- Nathan Whitehorn
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-00
+
+- Adapt to Q frame offline software release (v4).
+  -- Tom Feusels (tom.feusels@ugent.be)
+
+
+March 13, 2011, Fabian Kislat  (fabian.kislat@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00. Initial release.

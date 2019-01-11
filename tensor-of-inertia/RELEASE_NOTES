@@ -1,0 +1,168 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+November 29, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V01-06-02
+
+* add regression test for the output of ToI for a corsika file
+* script cleanup: remove `Finish()`
+* doc cleanup: fix @file statement
+
+March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V01-06-01
+
+* add serialization dependency
+* Cleanup after tests
+
+May 2, 2016
+--------------------------------------------------------------------
+Release V01-06-00
+
+* depricate option `AmplitudeOption`
+* (r137368) Added an example script and a test to ensure it runs. Reorganized code.
+* Migrate Docs to sphinx
+* add recclasses dependency
+* add `std::` namespace for `isnan()`
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-05-06
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-05-05
+
+- Use GSL instead of ROOT to compute the eigenvalues (so I3TensorOfInertia
+  no longer depends on ROOT)
+
+  -- Claudio Kopper
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-05-04
+
+- Make sure the fitparams can still be used on ROOT-free systems
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Import dataio
+
+  -- Jakob van Santen
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-05-03
+
+- Remove dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+- Remove reconfigure method
+
+  -- Alex Olivas
+
+- Change loglevel
+
+  -- Erik Blaufuss  
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-05-02
+
+- Remove reference to I3ConverterFactory
+
+  -- Jakob van Santen
+
+- Make the particle time be the charge-weighted average time of the hits. This
+  tends to be later than the true time, but is at the least not zero.
+
+  -- Nathan Whitehorn
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-05-01
+
+- Removed root dependency
+
+  -- Nathan Whitehorn
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-05-00
+
+Bugfix:
+
+- Updated tests
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+
+October 11, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-04-01
+
+Bugfix:
+
+- Make converter DEFAULT.
+
+  -- Fabian Kislat
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-04-00
+
+Features:
+
+- Output eigenvectors as I3Particles
+
+  -- Alex Olivas
+
+- Add converter for tableio
+
+  -- Eike Middell, Fabian Kislat
+  
+
+October 07, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-03-01
+
+Features:
+
+- Now a conditional module
+
+  -- Martin Merck
+
+
+August 19, 2008, Fabian Kislat
+--------------------------------------------------------------------
+Release V01-03-00
+
+Feature:
+
+- Added python bindings
+
+  -- Troy Straszheim

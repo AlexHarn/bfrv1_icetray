@@ -1,0 +1,350 @@
+.. $Id$
+
+Release Notes
+=============
+
+December 1, 2017 Kevin Meagher
+-------------------------------------
+Release V01-11-01
+
+- add `Print()` function to `I3LogLikelihoodFitParams`
+- docs cleanup
+
+March 23, 2017 EKB (blaufuss@umd.edu)
+-------------------------------------
+Release V01-11-00
+
+- updates to use icetray::serialization over boost::serialization
+- docs cleanup
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-09-00
+
+- More python bindings for gulliver, so we can have gulliver modules entirely
+  in python.
+- Clean out some old ROOT fossils (linkdef, rootcint).
+
+  -- David Boersma
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-08-03
+
+- Adding a lot of documentation.
+
+  -- David Boersma
+
+September 29, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------
+
+Release V01-08-02
+
+- Update documentation url.
+
+  -- Don la Dieu
+
+- Start RST documentation.
+- Enable both context names and objects as input for LLH services.
+
+  -- David Boersma
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-08-01
+
+- Bring pybindings up from subdirectories.
+
+  -- Jakob van Santen
+
+- FastLogSum bugfix (use ieee754 without casting).
+
+  -- David Boersma
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-08-00
+
+- Add pybindings for GetDiagnostics.
+- Add const-correctness to I3LogLikelihoodfit.
+- No longer check for one million radians, as AnglesInRange takes moduli.
+
+  -- Jakob van Santen
+
+- Make implicit conversions to bool explicit.
+
+  -- Chris Weaver
+
+- Add a test to deal correctly with directionless particles.
+- Reduce logging level.
+
+  -- David Boersma
+
+January 21, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-07-00
+
+- No longer require the icepick project.
+- Make it possible to implement I3MinimizerBase in Python.
+
+  -- Jakob van Santen
+
+June 29, 2013
+-------------
+
+Release V01-06-05
+
+- Add pybindings for I3EventLogLikelihood.
+- Pybindings give clearer information about unimplemented methods.
+
+February 21, 2013
+-----------------
+
+Release V01-06-04
+
+- Removed dependency on log4cplus.
+- FastLogSum and ieee754 have been moved from phy-services to gulliver.
+- Use list_indexing_suite instead of std_vector_indexing_suite.
+- Added tracing functionality: store all parameter values (and corresponding
+  function values) that were tried by the minimizer during a fit. This trace
+  (if enabled) is stored for every fit as an I3VectorDouble object.
+
+September 11, 2012
+------------------
+
+Release V01-06-03
+
+- Use GetName() instead of getting a configuration from the context.
+- Allow gradients to pass through I3EventLogLikelihoodCombiner cleanly.
+- Update the API in I3TestDummyEventLogLikelihood to reflect changes to
+  gradient handling in Gulliver.
+
+June 25, 2012
+-------------
+
+Release V01-06-02
+
+- Add keyword args to I3EventLogLikelihood::GetLogLikelihood pybindings.
+- make gradients optional.
+- Remove reference to I3ConverterFactory.
+- Allow SeedServices to be implemented in Python.
+- Added pybindings for I3Vector<I3LogLikelihoodFitParams> and setting the
+  geometry.
+- Make parametrizations implementable in Python.
+
+January 11, 2012
+----------------
+
+Release V01-06-01
+
+- Expanded pybindings allow Python modules to use Gulliver services.
+- Provide SetGeometry method.
+- Root dependency is now optional.
+
+August 09, 2011
+---------------
+
+Release V01-06-00
+
+- Get diagnostics from all 3 services.
+- Add new virtual method: SetEvent(frame) and GetDiagnostics(eh).
+- Add a new function double I3EventLogLikelihoodBase::GetLogLikelihood( const
+  I3EventHypothesis &ehypo, I3EventHypothesis \*gradient, bool
+  maximize_extra_dimensions) that can be overridden by fancy likelihoods. The
+  default implementation calls through to the old GetLogLikelihood() or
+  GetLogLikelihoodWithGradient(). Likelihoods that receive this call with
+  maximize_extra_dimensions=false should _not_ modify the hypothesis, even
+  though nothing prevents them from doing so. I3Gulliver calls this with
+  maximize_extra_dimensions=true as appropriate for a fitter.
+  I3LogLikelihoodCalculator retains the expected behavior.
+- Make tableio converters DEFAULT (October 29, 2010).
+- Reduce verbosity.
+- Add tableio converter (June 4, 2010).
+- Add PLogL filter.
+- Some documentation updates (October 6, 2009).
+- Moved dummy service implementations (for unit tests) from
+  public/gulliver/test to the private/test directory.
+- Added support for gradients (October 6, 2009):
+
+  - The minimizer decides whether to use gradients or not. If you write a
+    minimizer that uses gradients, it should call the gulliver functor with two
+    vectors of doubles (one for the parameters, one for the gradient) instead
+    of two. You also need to overload the 'bool UsesGradient() const' method,
+    it should return true.
+  - The I3GulliverBase and I3Gulliver classes got one extra method, the
+    operator() method with two vector refs (one const, one non-const for the
+    gradient) instead of two. It checks that the likelihood & parametrization
+    services indeed support gradients (if not: log_fatal) and connects the
+    tubes and wires between them. Of course it multiples the gradient with -1,
+    because it also does that with the llh function value.
+  - The I3EventLogLikelihoodBase class has now two new methods: double
+    GetLogLikelihoodWithGradient(const I3EventHypothesis &h, I3EventHypothesis
+    &g ) which gets called in case gradients are wanted. The g argument serves
+    both to specify which derivatives need to be computed (all datamembers are
+    initialized to zero except those for which derivatives need to be computed)
+    and to store the values of those derivatives. bool HasGradient() should be
+    implemented to return true if the service can indeed compute gradients.
+  - The parametrization class must perform a chain rule: it initializes the
+    gradient vector (with 1s and 0s, to order the gradient in terms of physics
+    variables) and from its values (computed by the likelihood service) it
+    transforms that to the space of minimizer parameters. Two new methods in
+    I3ParametrizationBase: bool InitChainRule(bool) informs the parametrization
+    service whether gradients are going to be wanted (bool arg) and if that is
+    the case, then the parametrization service should do the necessary
+    initialization (e.g. initialize the gradient object), and return true
+    (default implementation returns false to signify that gradients are not
+    supported).
+  - TODO: a test factory, a utility that computes derivatives both numerically
+    (using GetLogLikelihood()) and analytically (using
+    GetLogLikelihoodWithGradient()) and checks that they are the same; directly
+    from the likelihood service and indirectly through the parametrization
+    service.
+  - NOTE: there are not real life implementations yet of this, e.g. in
+    lilliput; I3SimpleParametrization still needs chain rule implementation,
+    someone should make a wrapper for some gradient-capable minimizer (both GSL
+    and ROOT/Minuit can do that, I think). Nathan (who triggered this whole
+    gradient effort) is working on splinified photorec, so photorec should soon
+    have derivatives.
+
+August 11, 2009
+---------------
+
+Release V01-04-00
+
+- Python bindings
+
+October 27, 2008
+----------------
+
+Release V01-03-00
+
+- Added LogL filter.
+- Added LogL ratio filter.
+- Release made for std-processing.
+
+August 19, 2008
+---------------
+
+Release V01-02-01:
+
+- Minor updates, (CMakeLists.txt tweak, python stuff).
+- Release made for icerec purposes.
+
+June 24, 2008
+-------------
+
+Release V01-02-00
+
+- Got python bindings of I3LoglikelihoodFitParams, for loot.
+- AnglesInRange now uses fmod instead of a while loop should waste less time on
+  confusing near-vertical events with crazy azimuth result.
+- Added name/label in I3Gulliver, used in log messages.
+- Moved 'minimum ball' utility to phys-services.
+
+January 3, 2008
+---------------
+
+Release V01-01-00
+
+- Added a 'minimum ball' utility, a dynamic geoselector which selects only the
+  DOMs within a 'minimum ball' around the DOMs that have hits/pulses. Useful
+  for phpnh-like likelihood functions, such as WFllh and photorecllh.
+- AnglesInRange(p) check: only if particle *has* a direction; and if it has,
+  but it's impossible to force it in the normal range, then declare the fit
+  failed.
+- Release for the benefit of online filters.
+- Note: the "minimum ball" and direction-related utilities are temporary in
+  this project. They are also available in the current trunk of phys-services.
+  As soon as a new phys-services release is used within icerec, these utilities
+  should be removed from gulliver/trunk and a new gulliver point-release should
+  be made without them.
+
+October 31, 2007
+----------------
+
+Release V01-00-04
+
+- Changed behavior in case the minimizer ends with pathological angles (zenith
+  or azimuth larger than 1e6). then just decide to proclaim the fit 'not
+  converged'. this is good for pole filtering stability, among others. WIMP
+  people need to be aware of this, because the pathological angles are more
+  likely for near-vertical events.
+- Add utility functions with I3Direction objects.
+- const-ified GetName() method of I3ParametrizationBase.
+
+September 18, 2007
+------------------
+
+Release V01-00-03
+
+- Fix a minor but annoying bug: sometimes (rarely) the minimizer makes the
+  zenith/azimuth angles so large that 2pi is less than the floating point
+  accuracy of this number. Happens about 2-3 times a week during online
+  filtering, and then stuff hangs (infinite loop). Fixed now.
+
+September 13, 2007
+------------------
+
+Release V01-00-00
+
+- Event loglikelihood combiner: default relative weight is 1.0 (was: 1/N, for N
+  combined likelihoods).
+- Much more documentation.
+- Underscore suffixes for datamembers (code review).
+- Remove obsolete/unused SimpleStatistics class.
+- Add "ordinal" utility function, for log_messages (was a static function in
+  several modules and services).
+- Add "unit test constructor" to I3ServiceBase (sets name directly, makes a
+  dummy I3Context and deletes that context at destruction time).
+
+August 10, 2007
+---------------
+
+Release V00-05-02
+
+- Some convenience methods here & there.
+- Implementation of part of the code review suggestions.
+
+April 23, 2007
+--------------
+
+Release V00-05-01
+
+- Added likelihood combiner service (for Bayesian reconstruction).
+- Introduced templated factory classes for simple services. These eliminates
+  the need for bulky factory classes which duplicate half of the code of a
+  simple service. There are two versions: one for service which need a unique
+  instance for every context, and one for services for which a single service
+  object can be used without problems in many contexts.
+- Added utility directory. Some of that stuff might be useful for other
+  projects as well, but then it it should move to a more central project.
+- The seed service interface now contains more virtual methods, through which a
+  "user" (typically somebody coding an I3Module) can prepare a new seed from
+  some modified first guess. Here we assume the following terminology:
+
+  - First guess: e.g. a linefit, JAMS, cfirst result or just a
+    I3Particle/I3EventHypothesis object constructed by the module from some
+    other result or just the data.
+  - Seed: the starting I3EventHypothesis object which has meaningful values in
+    all datamember (most first guesses e.g. lack an energy estimate). For event
+    types other than muons & cascades you probably need to define an
+    appropriate I3FrameObj.
+
+- The I3LogLikelihoodFit now contains a I3EventHypothesis and a
+  I3LogLikelihoodParams (was: a I3ParticlePtr, a I3FrameObjPtr and a
+  I3I3LogLikelihoodParamsPtr).
+
+Agust 29, 2006
+--------------
+
+Release V00-02-00
+
+- Renamed I4Particle to I3EventHypothesis.
+- More ground work on I3LogLikelihoodFit and I3Gulliver (inspired by
+  requirements for iterative fit and paraboloid).

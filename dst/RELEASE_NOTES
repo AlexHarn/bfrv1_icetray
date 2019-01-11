@@ -1,0 +1,129 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+trunk
+-----
+* Options to break runs into smaller chunks.
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-10-03
+
+* python3 compatability for tests
+* Added cut to remove mis-reconstructed events at zenith=0
+* renamed root tree for backwards compatibility
+* Fixed bug in test generator
+* code cleanups
+
+Nov 29, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+-------------------------------------------------------------------
+Release V00-10-02
+
+* Add more variables to simpledst
+* Added cuts to dst
+* include antisidreal calculation in serialization with version bump
+* Added sidereal and antisidereal calculations.
+* Script cleanup
+* Header Cleanup
+
+March 24, 2017 Juan Carlos Diaz Velez (juancarlos@icecube.wisc.edu)
+-------------------------------------------------------------------
+Release V00-10-01
+
+* Added overrided of ShouldDoProcess for DAQ so DSTHeader gets written
+  even if conditional is not true (for P-frames).
+* Removed obsolete scripts.
+* Improvements to documentation and tests.
+* Fixed bug that wrote I3EventHeader without setting the sub_event_id.
+* Other minor code fixes.
+
+
+August 26, 2016 Juan Carlos Diaz Velez (juancarlos@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Removed functionality of directly generating ROOT and HDF5 files. 
+  Instead, added converters for TableIO and setup tray segments to use these.
+* Merged coordinate transformations from simple-dst (cutDST) to avoide double
+  processing efforts.
+* To to: Implement missing time conversions in Astro to fill parameters.
+
+
+July 28, 2016 Juan Carlos Diaz Velez (juancarlos@icecube.wisc.edu)
+------------------------------------------------------------------
+* Cleaned up docs.
+
+
+May 3, 2016 Juan Carlos Diaz Velez (juancarlos@icecube.wisc.edu)
+----------------------------------------------------------------
+* Added DST16 which now records the time per reconstruction rather than per
+  trigger. This fixes the large \Delta t problem for fixedrate triggers and
+  slowMP triggers. 
+* Also removed DST incarnations older than DST13 and cleaned up
+  some of the code.
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------
+Release V00-09-05
+
+- Delete project-config.mk, which is deprecated
+- Small code changes to fix warnings
+- Update tests to use I3_TESTDATA
+- Support healpix as a tool, not a project
+
+  -- Don la Dieu
+
+- Only build project if healpix tool is available
+
+  -- Jakob van Santen
+
+- Use double precision for the ang2pix method
+
+  -- Kai Krings
+
+
+September 11, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------
+Release V00-09-04
+
+- Remove cmake_policy lines which are no longer necessary
+
+  -- David Boersma
+
+
+April 30, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------
+Release V00-09-03
+
+- Fixes for HDF5 file format for DST
+
+  -- Juan Carlos Díaz Vélez
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------
+Release V00-09-02
+
+- Fix header guards
+
+  -- Claudio Kopper
+
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------------------
+Release V00-09-01
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+April 12, 2013 Juan Carlos Díaz Vélez (juancarlos.diazvelez@icecube.wisc.edu)
+-----------------------------------------------------------------------------
+Release V00-09-00
+
+Initial release for IC86:2013 online filter.
+Added new class I3DST13 and modules.  Uses common variables instead of I3Cuts

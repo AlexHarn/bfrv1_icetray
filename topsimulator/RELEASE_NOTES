@@ -1,0 +1,60 @@
+.. $Id: RELEASE_NOTES  79391 2011-10-10 olivas $
+.. $Author: olivas $
+.. $Date: 2011-10-10 $
+
+Release Notes
+=============
+
+trunk
+-----
+
+V01-03-02﻿
+---------
+* link cleanup and documentation updates
+
+V01-03-01
+---------
+* (r158928)  Added support for printing most types
+* (r156953)  Adapted to latest dataio changes.
+* (r158807)  Updated test scripts
+
+V01-03-00
+---------
+
+* Added tank geometry to interface injector service base class.
+* Added CorrectObservationLevel parameter to I3CorsikaThinnedInjector that
+  causes and automatic check of the observation level in corsika showers.
+* Added GetObsLevel to I3CorsikaReader.
+* Added GetSnowHeight method to I3TankResponse interface.
+* New particle injector for thinned CORSIKA files: I3CorsikaThinnedInjector.
+  It should be used with care as it has not been validated.
+* Removed an older segment called SimulateOld.
+
+V01-01-02
+---------
+
+* Added an ExtendedI3Particle class that includes a data member for the air
+  shower component it belongs to.
+* Particle injectors now set the particle's air shower component. This is
+  propagated all the way until DOM simulation, creating lists of I3MCPEs, where
+  it becomes impossible to proceed due to droop. The definition of components
+  is up to the injectors.
+* Added I3TopAddComponentWaveforms, a module to add "waveforms" corresponding
+  to the classification of air shower particles in components. These waveforms
+  are made from the I3MCPEs within the time window of each launch.
+* renamed sim-icetop.py -> sim_icetop.py and sim-single-particles.py -> sim_single_particles.py
+* Add the option to adjust the observation level in I3CorsikaInjector.
+  This is to avoid injecting particles under the top of the snow.
+
+V01-01-00
+---------
+
+* Added importance sampling algorithm to be used for low-energy showers.
+  To use the algorithm, set the ImportanceSampling parameter in I3CorsikaInjector.
+* Added sim-icetop.py and sim-single-particles.py to resources/scripts.
+  These can be used for general simulations.
+
+October 10, 2011 Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+
+Going to get serious about release notes for individual projects.

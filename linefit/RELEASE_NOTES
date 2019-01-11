@@ -1,0 +1,164 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+November 29, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V02-04-10
+
+- script cleanup: remove Trash and finish()
+- move information from old dox files to rst files
+
+March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V02-04-09
+
+- Add modules from improved linefit but do not use them in main module
+- add serialization
+- Documentaiton cleanup
+
+May 2, 2016 Kevin Meagher (kmeagher@ulb.ac.be)
+--------------------------------------------------------------------
+Release V02-04-08
+
+- Documentation cleanup
+- Add recclasses dependency
+- Add std:: namespace for isnan()
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-04-07
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-04-06
+
+- Bring pybindings up from subdirectories
+
+  -- Jakob van Santen
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-04-05
+
+- Import dataio
+
+  -- Jakob van Santen
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-04
+
+- Remove reference to phys-services/Utility.h, associated templates
+  and debug statements
+
+  -- Kevin Meagher
+
+- Remove dependency on log4cplus
+- Remove pointless test
+
+  -- Nathan Whitehorn
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-03
+
+- Use GetName() instead of getting a configuration from
+  the context
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-02
+
+- Remove reference to I3ConverterFactory
+
+  -- Jakob van Santen
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-01
+
+Bugfix:
+
+- Remove root dependency
+
+  -- Nathan Whitehorn 
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-00
+
+Bugfix:
+
+- Updated tests
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+October 11, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-03-01
+
+Bugfix:
+
+- Make converter DEFAULT.
+
+  -- Fabian Kislat
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-03-00
+
+Feature:
+
+- Add tableio converter
+
+  -- Eike Middell, Fabian Kislat
+
+
+April 06, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-02-01
+
+Improvement:
+
+- Make it compile against current offline-software trunk
+
+  -- Fabian Kislat
+
+
+September 23, 2008, Martin Merck
+--------------------------------------------------------------------
+Release V02-02-00
+
+Features:
+
+- Make linefit a conditional module
+
+  -- Martin Merck
+
+
+August 19, 2008, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-01-00

@@ -1,0 +1,25 @@
+.. $Id: RELEASE_NOTES  $
+
+Release Notes
+=============
+
+December 3, 2017 Kevin Meagher
+------------------------------
+Release V17-12-00
+
+- Use new print
+- Move documentation from dox to rst
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+
+
+March 23, 2017 EKB (blaufuss@umd.edu)
+-------------------------------------
+Release V17-03-00
+
+- Create RELEASE_NOTES!
+- Restructure CMakeLists to better hide ROOT, MySQL deps
+- use new serialization project
+- remove VEMCalAnalyzer from general builds (#1975)
+
+
+

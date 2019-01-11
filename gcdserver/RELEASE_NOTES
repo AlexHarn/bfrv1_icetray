@@ -1,0 +1,27 @@
+
+Release Notes
+=============
+
+trunk
+-----
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V18-06-00
+
+r162795: Add support to check in multiple configs
+r160053: Add support for arbitrary DOM orientations
+
+December 30, 2017 Kevin Meagher
+---------------------------------------------------
+Release V17-12-00
+
+r157530: Add an DBConsistencyChecker to check if WIPAC/SPS DBs are the same
+r157461: Throw an exception if requested configuration is not in the database
+r157239: Support MongoDB auth and replica sets
+r156030: Added --ignore-start-end-times option to the GCDDiff.py script
+
+May 11, 2017, Alex Olivas  (olivas@icecube.umd.edu)
+---------------------------------------------------
+Release V01-00-01
+(r155585-r155587) Enable flasher data support

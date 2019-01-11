@@ -1,0 +1,162 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+Release V02-05-01
+
+- Add serialization dependency
+- fix type in module name
+
+May 2, 2016
+------------------------------------------------------------------
+Release V02-05-00
+
+- Add Recclasses dependency
+- Migrate docs to sphinx
+- add example `dipolefit_rawdata.py`
+- add unit tests
+- add `std::` namespace for `isnan()`
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V02-04-06
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V02-04-05
+
+- Import dataio
+
+  -- Jakob van Santen
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-04
+
+- Remove dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+- Remove reference to phys-services/Utility.h, associated templates
+  and debug statements
+
+  -- Kevin Meagher
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-03
+
+- Use GetName() instead of getting a configuration from the context
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-02
+
+- Remove reference to I3ConverterFactory
+
+  -- Jakob van Santen
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-01
+
+Bugfix:
+
+- does not crash if there is no RecoPulse
+
+  -- Chang Hyon Ha
+
+- removed root dependency
+
+  -- Nathan Whitehorn
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V02-04-00
+
+Bugfix:
+
+- Updated tests
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+
+May 04, 2011, Fabian Kislat  (fabian.kislat@desy.de)
+--------------------------------------------------------------------
+Release V02-03-02
+
+Bugfix:
+
+- Fixed amplitude weighting and calculation of dipole moment
+
+  -- Henrike Wissing
+
+
+October 11, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-03-01
+
+Bugfix:
+
+- Make converter DEFAULT.
+
+  -- Fabian Kislat
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-03-00
+
+Feature:
+
+- Add converter for tableio
+
+  -- Eike Middell, Fabian Kislat
+  
+
+April 06, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-02-01
+
+Improvements:
+
+- Add a call to load_project to pybindings
+
+  -- Eike Middell
+
+- Make it compile against current offline-software trunk
+
+  -- Fabian Kislat
+
+
+August 19, 2008, Fabian Kislat
+--------------------------------------------------------------------
+Release V02-02-00
+
+Feature:
+
+- Added python bindings
+
+  -- Troy Straszheim

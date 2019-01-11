@@ -1,0 +1,207 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-03-02
+
+- Documentation cleanups
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+-----------------------------------------------------------------
+Release V00-03-01
+
+- Use internal serialization library.
+
+  -- Chris Weaver
+
+
+March 9, 2016 
+-----------------------------------------------------------------
+Release V00-03-00
+
+- Remove files with I3FrameObject, now they live in recclasses
+  
+  --Giuliano Maggi
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-02-09
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+- Handle GSL errors instead of taking down the whole process
+
+  -- Jakob van Santen
+
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-08
+
+- Use GSL instead of ROOT to invert/LU decompose matrices (so cramer-rao 
+  is no longer dependent on ROOT)
+
+  -- Claudio Kopper
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-07
+
+- Import dataio
+
+  -- Jakob van Santen
+
+- Make project compatible with Python 3
+- Remove string exceptions
+
+  -- Nathan Whitehorn
+
+
+March 22, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-06
+
+- Remove dependency on NFE
+
+  -- Emanuel Jacobi
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-05
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+- Removed reference to phys-services/Utility.h and associated templates
+
+  -- Kevin Meagher
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-04
+
+- Remove reference to I3ConverterFactory
+
+  -- Jakob van Santen
+  
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-03
+
+- Require root dependency
+
+  -- Nathan Whitehorn
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-02
+
+Bugfix:
+
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+
+April 14, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-02-01
+
+Bugfix:
+
+- Avoid segfault if I3_SRC is not set
+
+  -- Erik Blaufuss
+
+
+October 28, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-02-00
+
+Feature:
+
+- Added tableio converter for CramerRaoParams
+
+  -- Nathan Whitehorn
+
+
+August 24, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-05
+
+Features:
+
+- Make path to digamma tables configurable
+- Write out all covariances
+- Remove some obsolete output parameters
+
+  -- Jan Luenemann
+
+
+June 04, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-04
+
+Fix test -- Fabian Kislat
+
+
+April 06, 2010, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-03
+
+Improvement:
+
+- Make test compile against current offline trunk
+
+  -- Fabian Kislat
+
+
+October 16, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-02
+
+Bugfix:
+
+- Activate unit test in CMakeLists.txt
+
+  -- Fabian Kislat
+
+
+October 16, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-01
+
+Bugfix:
+
+- Move non-working test script to resources/examples
+
+  -- Fabian Kislat
+
+
+October 14, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Released V00-01-00
+
+Initial release for IceRec
+
+
+October 02, 2009, Fabian Kislat
+--------------------------------------------------------------------
+Imported to projects from sandbox
+
+Added to IceRec trunk

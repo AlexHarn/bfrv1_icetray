@@ -1,0 +1,219 @@
+.. $Id: RELEASE_NOTES  79391 2011-10-10 olivas $ .. $Author: olivas $
+.. $Date: 2011-10-10 $
+
+Release Notes
+=============
+
+MAY 22, 2018 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* another bug fix in ZenithSampler, added unit test for ZenithSampler
+* deleted StaticParams and StaticParamsSetter, part of parameters in 
+  these classes are moved to Steering class.
+* InteractionGR class is modified to make two hadron cascades instead
+  of one cascade, when W->hh decay happens
+* SolidAngle calculation has been changed to return 1.0 instead of 0,
+  when min_zenith and max_zenith or min_azimuth and max_azimuth are same value.
+  (If SolidAngle is 0, OneWeight will be 0 either)
+  It is consistent what we do with I3NuGPointSource.
+* default AngleSamplingMode has been restored from ANGEMU to COS.
+
+FEB 6, 2018 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Bug fix of ZenithSampler, this bug affects ANGEMU mode when zenith 
+  range is not 0-180 degrees. 
+
+DEC 27, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* added std:: to all pow functions
+* added ZenithSampler.h and .cxx, which provides weighted sampling methods.
+  Calculator::CalcSimpleSlopeWeight moved to ZenithSampler::SimpleSlopeSampler
+* added ANGEMU mode to AngleSamplingMode. If the ANGEMU mode is selected, 
+  NuGen samples zenith angle of primary particle with polynominal functions 
+  that is close to flat in zenith angle, not cos(zenith). 
+  This option is made to solve the issue that we have poor statistics per 
+  zenith angle (not cos(zenith)) when we generate flat in cos(zenith), 
+  while angular resolution of our reconstruction is calculated per zenith but 
+  not cos(zenith). See document.
+* DEFAULT AngleSamplingMode HAS BEEN CHANGED from COS to ANGEMU.
+
+DEC 19, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Added InteractionTypeWeight to InteractionInfo for final interaction.
+  When we set InteractionXsecScaleFactor to enhance CC or NC interaction,
+  this weight used to be merged into propagation weight. Now InteractionInfo
+  has the field to store the parameter and final interaction type weight
+  is separated from propagation weight. 
+  Interface of I3NuGInteractionInfo::MakeInteraction was changed for the
+  modification. 
+
+DEC 11, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu) 
+--------------------------------------------------------------------
+* Added range check for x-secion tables
+
+DEC 5, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Added SimMode to I3MCWeightDict, for preparation of weighting with
+  LeptonWeighter.
+* Removed injectionArea parameter from InteractionGeo.h, because this
+  parameter should be same for all particles and filled only once by
+  SourceUtil.cxx.
+* Added default constructors of super classes for I3NeutrinoPropagator.
+* Modified DiffuseUtil::GetXsecCGS to match up the latest differential
+  cross section files
+  
+
+NOV 28, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Modified error handring of I3NuGWeightedEvent::MakeFinalInteraction 
+  If the arrived inice neutrino's energy is out of range of cross section,
+  it used to return false immediately. It is OK as long as NuGen simulation
+  is used with detector simulation, because no InIce-visible particle is generated.
+  However, this case gives weird OneWeight when we run NuGen only.
+  To avoid any confusion, interaction weight and column depth is set to 0 if
+  it happens, which result in OneWeight = 0.
+* Note about handring of Bjorken X,Y that is out of range:
+  When an interaction happens, allowed range of Bjorken X and Y parameter 
+  depends on energy and type of generated lepton. However, for now, we have
+  only one final-interaction table (or dsigma-dxdy table in differential cross sections) 
+  for all particle type.  (this may be changed later for differential cross sections)
+  Currently NuGen retry to sample X and Y if any of them is out of range, however,
+  according to Carlos, it should generate an event with this unphysical X and Y and
+  later the Weighter module should set the weight 0 for such event.
+  For now, I counted number of retry, and most of the number of retry is just 1,
+  so I think effect of retry is negligible. This will show up as warning message,
+  so keep your eyes on it if you really care about low energy events.
+
+
+NOV 2, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Added control for energy range of neutrinos.
+  If a neutrino's energy get below the MinEnergy set in I3NuGInteractionInfo,
+  NuGen doesn't make secondaries. By default the minimum energy is set to
+  10GeV and maximum energy is 1e12GeV, which is the energy range of csms 
+  cross section table.
+* Modified calculation of scattering angles of secondary particles after an interaction.
+  Old NuGen (set Steering::UseSimpleScatterForm = True) : 
+    - Direction of secondary-hadron is same as primary neutrino
+    - Calculation of scattering angle for secondary lepton ignores
+      the mass of lepton
+    - Speed of secondary particles (lepton, hadron) are set to light speed.
+  New NuGen with default setting (Steering::UseSimpleScatterForm = False):
+    - Direction of secondary-hadron is calculated to keep momentum conservation
+    - Calculation of scattering angle for secondary lepton takes
+      into account of mass of lepton
+    - Speed of secondary lepton is calculated with beta factor, while
+      the speed of hadron is set to NAN.
+
+SEP 7, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* I3NuGDiffuseSource and I3NuGPointSource now takes array of particle 
+  types for primary particle types.
+  Set PrimaryTypeRatio to modify ratio of generated particle types.
+  NuFlavor parameter is deprecated.
+* inice_tree_name_ parameter in I3NeutrinoGeneratorBase class is removed. 
+  Set MCTree name to Steering service instead.
+* Simmode "FINALONLY" is renamed to "DETECTOR".
+* New interaction class I3NuGInteractionInfoDifferential is ready to use.
+  This uses differential cross section and total cross section 
+  provided by I3CrossSection class, which is also used by LeptonInjector. 
+  To use the interaction class, see NuGen.py and set option -d 1 
+  (number could be anything except for 0). 
+
+SEP 5, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Due to the change of interface of I3PropagatorService::Propagate 
+  applied two years ago, I3NeutrinoPropagator service has been broken
+  for the last two years. The bug is fixed.
+* I3NuGSourceSelector has been modified to take into account of 
+  neutrinos that don't pass through the detection volume. These neutrinos
+  are never selected(be set selection weight as zero) but counted
+  in NInIceNus parameter in I3MCWeightDict.
+
+MAY 22, 2017 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* Jakob found a bug and fixed it in Pickup class. Kotoyo added the
+  bug-fix script(resources/util/fix_inice_selection_weight.py) to fix
+  weights of existing simulation.
+  Run this script before making hdf5 file or extracting information 
+  from I3MCWeightDict.
+
+SEP 1, 2016 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+* code cleaning
+* Changed interface of InteractionBase::SelectXY() to adopt using LeptonInjector::CrossSection.
+* Changed return value of InteractionBase.cxx L246. Influence of this change is negligible for analysis
+* because the if case happens very rare.
+* This version will be the last version before adding I3NuGInteractionInfoDifferential class.
+
+JUN 24, 2015 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* more tests added to avoid future error of PropagationWeight (see MAY 8 2015 note)
+* Some parameters in I3MCWeightDict are renamed. To restore old parameter names, see resources/examples/NuGen.py. 
+  See https://wiki.icecube.wisc.edu/index.php/Neutrino_Generator/I3MCWeightDict for new parameters.
+
+JUN 14, 2015 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* code cleaning, test implementation of MuonRange extention for NuEBar at Grashow Resonance.
+  When W decays into mu or tau (in total ~21 %), we need to extend detection volume, which wasn't done in old code.
+  However, as long as we apply contained cascade cut at analysis level, this effect may be negligible. 
+  old commit on 5/25(r133059) had a bug.
+
+MAY 8, 2015 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* VERY IMPORTANT BUGFIX for NuEBar CHANNEL (PropagationWeight was wrong) 
+  all NuEBar simulations generated with the revision after 121996 (submitted on 7/25/2014) will be affected
+
+December 10, 2014 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* ListToTree function is modified to not fill duplicated particle(ID) in a MCTree
+* Removed duplicated codes in I3NeutrinoGeneratorBase.cxx
+* Added parentID (data member) to Particle class
+* Particle::GetDaughters() function is changed to const, added AddDaughter() function
+* Update I3NuGGenie to support genie 2.8.6 (does NOT compatible with old genie)
+
+November 24, 2014 Alex Olivas (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+
+* Fixed a bug where 2 muons were created from one interacion
+* Recognizes I3_TESTDATA
+
+July 31, 2014 Kotoyo Hoshina (hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* InjectionRadius, ActiveLengthBefore(After), CylinderRadius, CylinderHeight are removed. 
+  Use CylinderParams parameter instead.
+* Bug fix in EnumTypeDef. Unused tests are removed.
+* InjectionMode::Cylindere is renamed to InjectionMode::Surface, because
+  NuGen don't know what the shape of sampling surface would be!
+* Make "AUTODETECT" default for PropagationWeight 
+ 
+July 22, 2014 Kotoyo Hoshina (hoshina@icecube.wisc.edu)
+--------------------------------------------------------------------
+
+* Output format has been changed to I3Map<I3ParticleID, double> for SimMode = "InEarth" option 
+* modified resources/util/DrawInEarthPropWeight.py to support both old format and new format
+* fWorldRadius parameter is added to Steering class, which used to be in earthmodel-service.
+  Users need to adjust the value if they want to inject neutrinos in large radius (>2km). 
+ 
+July 10, 2014 Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+
+Release V01-03-00
+
+* Muon range extension is settable.
+* Only consider neutrinos for selection that actually pass through the sampling surface.
+* Refactored NeutrinoGenerator into a worker base class, an I3Module, and an I3PropagatorService.
+* Replaced explicit Cylinder with general SamplingSurface.
+* Supports Corsika-NuGen generation.
+* Injection particle direction bug is fixed.
+* Download cross section files automatically.
+  
+October 10, 2011 Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+
+Going to get serious about release notes for individual projects.
+

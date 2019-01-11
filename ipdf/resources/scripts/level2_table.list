@@ -1,0 +1,12 @@
+# This is automatically generated driver file by 'run_amasim'
+# <file base> <zLow> <zHigh> <aLow> <aHigh>
+tables/mu_z0_a0_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 0 20
+tables/mu_z0_a20_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 20 40
+tables/mu_z0_a40_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 40 60
+tables/mu_z0_a60_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 60 80
+tables/mu_z0_a80_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 80 100
+tables/mu_z0_a100_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 100 120
+tables/mu_z0_a120_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 120 140
+tables/mu_z0_a140_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 140 160
+tables/mu_z0_a160_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 160 180
+tables/mu_z0_a180_L800:80_R250:20q_A10_T6000:50Q_s3_03 -400 400 180 200

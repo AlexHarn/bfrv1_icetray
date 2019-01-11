@@ -1,0 +1,59 @@
+.. $Id$
+.. $Author$
+.. $Date$
+..
+.. project maintainer: Emanuel Jacobi  (emanuel.jacobi@desy.de)
+
+Release Notes
+=============
+
+November 30, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V00-02-03
+
+- Add parameter `ConstrainToTriggerTime` to only evaluate pulses withhin the trigger window
+- Script cleanup: remove `Finish` and `TrashCan`
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V00-02-02
+
+- Python 3 fixup
+
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Use from_frame method to read PulseMaps, Mask and Unions on the fly
+- Add test script
+
+  -- Emanuel Jacobi
+
+April 4, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-00
+
+- Add two more PulseMasks, which require multiple launches in the
+  neighbouring DOMs
+
+  -- Emanuel Jacobi
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+November 26, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Initial release, copied from sandbox/jacobi/SLOPtools
+
+  -- Emanuel Jacobi
+

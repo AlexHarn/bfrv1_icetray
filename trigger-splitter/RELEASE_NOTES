@@ -1,0 +1,128 @@
+..
+..  $Id$
+
+Release Notes
+=============
+
+June 20, 2018 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V01-02-08
+
+* Incremental release without accidental nested copy of "trunk".
+
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V01-02-07
+
+* Now able to set the subevent stream name by hand.
+* Use internal serialization library.
+
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V01-02-06
+
+* Docs updated and example script runs on test data that's available
+  to everyone.
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-05
+
+- Project can now be properly imported as trigger_splitter
+
+  -- Alex Olivas
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-04
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-03
+
+- Removed dependency on log4cplus
+- Allow import trigger_splitter to work in addition to
+  `load('trigger-splitter')`.
+
+  -- Nathan Whitehorn
+
+
+October 22, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-02
+
+- Write time range with the output pulse series
+- Check for finiteness in time offsets
+
+  -- Nathan Whitehorn
+
+
+September 26, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-01
+
+- Adapt to new I3Splitter API.
+
+  -- Nathan Whitehorn
+
+- Split launch times are now recorded in I3TimeWindow
+- I3TimeWindow is emitted instead of two doubles
+
+  -- Naoko Kurahashi
+
+
+March 30, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-02-00
+
+- Refactor to take advantage of functional mask constructors.
+
+  * FrameTimes is now SubTrigger, a class that both holds the start and end times
+    and knows how to trim a frame down to those start and end times (masking pulses,
+    rewriting headers and trigger records)
+  * CreateMask() is gone, replaced by the much simpler SubTrigger::MaskPulses()
+  * SubTrigger and Trigs moved inside of I3TriggerSplitter to avoid namespace pollution
+    and share typedefs.
+  * Launch-pulse time offsets are now calculated and cached as soon as status and
+    calibration information are available.
+
+  -- Jakob van Santen
+
+
+March 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-01-00
+
+- Allow multiple input Recopulse series and output Recopulse series masks
+
+  -- Fabian Kislat
+
+- Include the 25ns offset between waveform and initial pulse bin used in wavedeform
+
+  -- Naoko Kurahashi
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V01-00-00
+
+Initial release
+
+- copied from sandbox/naoko/trigger-splitter
+

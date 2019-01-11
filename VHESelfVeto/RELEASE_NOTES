@@ -1,0 +1,98 @@
+.. $Id$
+.. $Author$
+.. $Date$
+..
+.. project maintainer: Claudio Kopper
+
+Release Notes
+=============
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V00-03-03
+
+- Minor fixes to modules in order to gracefully fail if GCD is missing/empty.
+- Use internal serialization library
+
+
+May 2, 2017 Alex Olivas
+--------------------------------------------------------------------
+Release V00-03-02
+
+- Move I3ParticleInteractions to recclasses
+- Cleanups towards c++11 compatibility
+
+
+April 18, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-01
+
+- More error checking (make sure there is a geometry object in the
+  G-frame when retrieveing it in VHESelfVeto, and make sure there are
+  good DOMs and string top DOMs left)
+
+  -- Claudio Kopper
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-00
+
+- Use the const iterators which are provided with the new I3MCTree
+- Remove unused function (DumpReducedGeo)
+- Add Jakob's LayerVeto for reference and possible online use
+
+  -- Claudio Kopper
+
+- Small code fixes to suppress warnings
+
+  -- Don la Dieu
+
+- Added a flag to turn off ignoring DeepCore strings. Default behavior
+  is unchanged (i.e. DeepCore strings will be ignored).
+
+  -- Volker Baum
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Documentation fix
+
+  -- Don la Dieu
+
+
+September 23, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-00
+
+- Include standard integers
+
+  -- Don la Dieu
+
+- Add code to mark and/or remove bad strings, which is necessary now
+  that pretty much all runs are marked as good, even if they have only
+  one string working
+
+  -- Claudio Kopper
+
+
+July 18, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+- Making project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Replacing deprecated CalcDistance function
+
+  -- Jakob van Santen
+
+
+February 05, 2013   Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Initial Release copied from sandbox/nwhitehorn

@@ -1,0 +1,19 @@
+August 25, 2017 Yiqian Xu (yxu@icecube.wisc.edu)
+--------------------------------------------------------------------
+Replace SeededRT with STTools. Use settings that will reproduce SeededRT result. 
+
+
+
+February 27, 2017 Yiqian Xu (yxu@icecube.wisc.edu)
+--------------------------------------------------------------------
+Release:  2017_1
+
+Remove Credo from Cascade Level3. Using amplitude fit as the seed for Monopod.
+Using TimeRange comes with SpiltInIcePulses from level2 instead of reculculating it.
+
+
+
+March 30, 2016, Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+Let's start making release notes for this project.
+

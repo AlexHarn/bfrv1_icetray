@@ -1,0 +1,78 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-02-06
+
+- Transfer Documentation from dox to rst
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V00-02-05
+
+* Use internal serialization library.
+
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-02-04
+
+* This is now importable via python.  No need to call load directly.
+* Removed I3CascadeFitCoreRemovalTester from public.  It's in private/test
+  where it belongs.  In an ideal world this shouldn't break anything.
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-03
+
+* Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-02
+
+* Removed root dependency
+
+  -- Nathan Whitehorn
+
+August 24, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-01
+
+* Emit pulse masks rather than copying input pulses.
+
+  -- Jakob van Santen
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+Release V00-02-00
+
+Bugfix:
+
+* Adapted to various changes in offline-software
+
+  -- several authors
+
+December 04, 2009, Fabian Kislat
+--------------------------------------------------------------------
+
+Release V00-01-00
+
+Initial release
+
+Code reviewed by Eike Middell

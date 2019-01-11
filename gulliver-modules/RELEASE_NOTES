@@ -1,0 +1,357 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+trunk
+-----
+
+September 15, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+-----------------------------------------------------
+Release V01-10-01
+
+- Fix output name so that Params are also given the correct name in the
+  case OutputName is not supplied
+
+March 23, 2017 EKB (blaufuss@umd.edu)
+-------------------------------------
+Release V01-10-00
+
+- Added OutputName parameter to I3SimpleFitter and I3IterativeFitter so we can
+  stop using the module instance name as the name of the fit.
+- I3IterativeFitter can now handle Python objects as services except for
+  I3RandomService because of the default used GSL pseudo-random generators.
+- Docs cleanup
+- use icecube::serialization over boost::serialization
+- Python 3 happiness
+
+
+May 3, 2016 Alex Olivas (olivas@icecube.umd.edu)
+------------------------------------------------
+
+Release V01-09-03
+
+- Example scripts were rewritten in modern python syntax.
+
+  -- Jakob van Santen
+
+- Example scripts don't need a X server anymore if executed with default
+  options.
+
+  -- Kai Krings
+
+- Test scripts moved to new test directory and got a code cleaning; the
+  `iceopt` module and the `fortytwo` test suite moved to
+  `gulliver-modules/python`.
+
+  -- Kai Krings
+
+- A Sphinx documentation was added.
+
+  -- Kai Krings
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-09-01
+
+- Recognize I3_TESTDATA.
+- Replace I3ParticleVectPtr by I3VectorI3ParticlePtr.
+
+  -- Alex Olivas
+
+- Filter hypothesis through a parametrization if one is provided. This makes
+  it possible to use I3LogLikelihoodCalculator with non- trivial millipede
+  hypotheses.
+
+  -- Jakob van Santen
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-09-00
+
+- Reduce log noise level some more.
+- Added a layered Pandel example and test.
+- Use I3_TESTDATA when available.
+- Remove I3Writer module from the simplefit.py test.
+
+  -- David Boersma
+
+September 30, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------
+
+Release V01-08-02
+
+- Get RST documentation started.
+- Reduce log noise level a little.
+- Correct 'fortytwo' test script (was referring to f which had not been
+  defined, should be frame, and frame was not being pushed).
+- Turn off tests which check that result is always the same for now.
+- Remove unused modules from import statement in example script.
+
+  -- David Boersma
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-08-01
+
+- Adding fortytwo module, which checks if processing results are reproducible
+  (will raise runtime error if fits deviate too much from reference results).
+  Currently gives errors on some SL5 and OS X machines.
+- Python 3 compliance updates.
+- Remove TrashCan modules and output modules from scripts.
+- Remove references to iceopt.py in test scripts.
+
+  -- David Boersma
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-08-00
+
+- Make I3IterativeFitter store diagnostics from various gulliver services.
+
+  -- Jakob van Santen
+
+- Allow tarballs.
+
+  -- David Boersma
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-07-00
+
+- Remove two very old configuration parameters for the iterative fitter module
+  that were meant to be temporary, for debugging/diagnostics:
+  ReEnableIterationBug and TweakBugFix.
+- Add new option to iterative fitter to allow to let the tweaks on the
+  iterative seeds be performed by a different seed service than the one that
+  provides the input seed (random seeds need vertex time tweaking, input seed
+  may already have a good vertex time).
+
+  -- David Boersma
+
+- Replace I3TensorOfInertia by clast in the script.
+
+  -- Jakob van Santen
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+-----------------------------------------------------
+
+Release V01-06-04
+
+- Make project compatible with Python 3.
+
+  -- Nathan Whitehorn
+
+- Clean up code, update code and comments in the scripts.
+
+  -- David Boersma
+
+February 21, 2013
+-----------------
+
+Release V01-06-03
+
+- Removed Reconfigure method.
+- Removed dependency on DOMcalibrator and FeatureExtractor.
+- Removed dependency on log4cplus.
+- Added tracing functionality: store all parameter values (and corresponding
+  function values) that were tried by the minimizer during a fit. This trace
+  (if enabled) is stored for every event as an I3VectorDouble object in the
+  frame. For now this feature is only available in I3SimpleFitter. It can be
+  added in I3IterativeFitter as well. (Note that this feature is kind of
+  complementary to the tracing functionality in lilliput's
+  I3SimpleParametrization, which stores a vector of I3Particles of all tracks
+  that were tried by the minimizer.)
+
+September 11, 2012
+------------------
+
+Release V01-06-02
+
+- Use GetName() instead of getting a configuration from the context.
+- Allow I3SimpleFitter to accept services directly.
+- Cleanup dependencies.
+
+January 11, 2012
+----------------
+
+Release V01-06-01
+
+- Added GulliView, a module for visualzing likelihood spaces.
+- Removed likelihoods and fits which use obsolte Pandel features.
+- Added defgcd option.
+- Added filename parameter for non-gui users.
+- Use new SetGeometry method.
+
+August 9, 2011
+--------------
+
+Release V01-06-00
+
+- Changing the default behavior of the iterative fitter. The vertex tweak
+  should be performed *both* before and after rotating the seed track for an
+  iteration. The tweak *before* is to ensure that the track stays close to the
+  COG of the pulses and is not pulled away unnecessarily far. (The tweak
+  *after* is both for positional reasons and to give the seed mostly positive
+  time residuals.) The tweak before the rotation has always been omitted. With
+  the "enabletweakbugfix" option True this is fixed. The default of this option
+  was False in order to not change the default behavior. But now we set it to
+  true. So if you really want the default behavior back, identical fits like
+  before, then you should set this to FALSE. Initial tests by Benjamin
+  Hoffmann (master student in Aachen) indicate that the bugfix has no major
+  impact. 50-70% are reconstructed identicallly (which is normal, as often the
+  initial fit already finds the best track and the iterations do not improve),
+  and the rest of the events only result in very small changes.
+  See: http://web.physik.rwth-aachen.de/~icecubemgr/?n=PersonalLogs.TweakVergleich
+- If the services have extra diagnostics, save them into the frame.
+- Adapted to various changes in offline-software.
+- Updated tests.
+
+January 6, 2011
+---------------
+
+Release V01-05-01
+
+- Update/fix test.
+
+October 29, 2010
+----------------
+
+Release V01-05-00
+
+- Remove integral lookup.
+- General cleanup.
+
+June 4, 2010
+------------
+
+Release V01-04-01
+
+- New way of handling options in test scripts.
+
+August 11, 2009
+---------------
+
+Release V01-04-00
+
+- Fixed bug in iterative fitter
+- Added option to iterative fitter to re-enable the bug if you really want to
+  (this is useful for testing, and for reproducing old fits).
+- Added checks on input particle for I3LogLikelihoodCalculator module.
+- Maintenance to scripts and docs.
+
+October 27, 2008
+----------------
+
+Release V01-03-00
+
+- Only minor updates (use new Pandel in test scripts).
+- Release made for std-processing.
+
+August 19, 2008
+---------------
+
+Release V01-02-01
+
+- Minor update to CMakeLists.txt.
+- Release made for icerec.
+
+June 24, 2008
+-------------
+
+Release V01-02-00
+
+- Added example script for cascades.
+- The gulliver modules became I3ConditionalModules; the UseIcePick option gets
+  obsolete, use IcePickServiceKey instead.
+
+January 3, 2008
+---------------
+
+Release V01-01-00
+
+- Added a simple new module I3LogLikelihoodCalculator: calculates (negative)
+  logl\_ and rlogl\_ for a given input track, without doing a new fit. Simple
+  for now, only for I3Particle, not generic. Later maybe using a seed service.
+- Conditional execution: do a fit only if an icepick keeps the event (note:
+  reverse Pretzian logic for I3Bool) This is was necessary for the online
+  filtering. In V2 conditional execution comes with the framework, so then it's
+  no longer necessary to have this feature defined within this module.
+- Major cleanup in scripts.
+- Option in I3SimpleFitter to store all solutions as single particles, instead
+  of as a vector.
+
+November 2, 2007
+----------------
+
+Release V01-00-03
+
+- Option in both fitters to do conditional execution (attempt reconstruction
+  only if the event is "kept" by an icepick I3Bool).
+- Option in I3SimpleFitter to store all solutions (instead of just the best
+  one).
+
+September 16, 2007
+------------------
+
+Release V01-00-01
+
+- Add gsl to the USES_TOOLS in project-config.mk (for old style offline-mk).
+- In the iterative fitter, do the fit using the input seed only if the
+  direction of that seed is within the allowed zenith range, otherwise proceed
+  directly to the random/pseudorandom iterations.
+
+September 13, 2007
+------------------
+
+Release V01-00-00
+
+- Iterative fitter: if the direction of the seed is not within the the allowed
+  zenith range, then skip the fit based on the original seed and start
+  immediately with the first iteration.
+- Lots of code review things: code conventions and documentation.
+
+August 10, 2007
+---------------
+
+Release V00-05-02
+
+- Mostly cosmetics & doxy.
+
+June 13, 2007
+-------------
+
+Release V00-05-01
+
+- Simplefitter: uses multiple seeds, if available from seed service (before it
+  took only the first available seed)
+- Iterative: serious bugfix; tested, looks OK now (version in V00-05-00 does
+  not work at all!).
+- Scripts: remove MCTruthName from flat-ntuple options, to avoid crash
+  suspected backward incompatibility issue with test-data (icesim V01-09-02).
+
+April 13, 2007
+--------------
+
+Release V00-05-00
+
+- Simple & iterative: I3LogLikelihoodFit interface change.
+- Iterative: cos zenith range option.
+- Scripts: some cleanup/updates.
+- Scripts: get rid of analysis-tree, go for flat-ntuple.
+
+August 29, 2006
+---------------
+
+Release V00-02-00
+
+- Added iterative fitter.
+- Tests use input files from icesim-V01-09-02 in toolset.
+- Separated scripts/macros between resources/scripts and resources/examples.

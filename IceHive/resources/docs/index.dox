@@ -1,0 +1,256 @@
+/**
+\mainpage IceHive
+\author Marcel Zoll
+
+\section overview Overview
+The origin of the project is a re-implementation of the TopologicalTrigger (ttrigger) algorithm by D. Chirkin into TopologicalSplitter rewritten and coded by C. Weaver. In a number of consecutive steps the code has been refined and expended with better understanding on the base-lining physics and implementation mechanics. The result is a general clustering algorithm, that can be used as both, cleaning and splitter.
+
+The main objective of the algorithm is to construct (all) subsets from the input pulses such that each pulse in the subset is causally connected to at least N other, earlier pulses in the set, within a time window T, and then to form subevents by merging all causal subsets which overlap.
+
+The novelty with this module is that the detector is described by hexagonal cylinders (honey combs) which build up the detector. In the final detector geometry thereby around each string surrounding rings of strings can be defined, so called rings.<BR>
+By this segmentation of the detector for each DOM the surrounding rings can be identified and on each of them a certain region of included DOMs defined, the so called eligible volume.<BR>
+In this way the individual active volume can be steered much more exactly and the global active Volume kept to a minimum so that splitting power and physics against noise separation power is increased.
+
+Additionally the module has learned the trigger-splitting algorithm, so that from a full pulse/hit-series only those time-windows can be selected, which are centered around a given fired trigger. The trigger-splitting algorithm and is function is better looked up in the project TriggerSplitter.
+
+Another new module is HiveCleaning, which removes isolated hits from an hit-series and thereby delivers a more precise description of the detector.
+
+
+\section templating Templating
+\subsection icehivetemplate templated IceHive modules
+The project is more or less completely templated for the use with any Pulse(/Hit) I3Object which is shipped in a PulseSeriesMap(Mask).
+Current Requirements are that the Pulse-object has a ''.GetTime()'' and ''.GetCharge()'' operative and the PulseSeriesMap or the castable object has the signature I3Map<OMKey, vector<Pulse> >.
+
+The end output off all modules is per definition a bit-mask with the characteristics as it is implemented in "icetray/I3OMKeyMapMask".
+
+If other Pulse I3Object types are desired, which do not fulfil these requirements the according functions can always be specialized to the specific case.
+
+NOTE FUTURE However the currently only the specialization of "I3OMKeyMapMask" to "I3RecoPulseSeriesMapMask" is implemented and the modules of IceHive have been restricted to this use only. If this implementation should be reopened and implemented for general Pulse I3Objects, then the additional functionality can be reintegrated into the IeHive-modules by adapting the type-definitions under the ''definitions''-sections of the Module-declaration.
+
+\subsection libtemplate templated Libraries
+All libraries in IceHive have been written in the hindsight of portability to other foreign code or projects, which also includes the massive use of templates. 
+
+\section Clustering Clustering algorithm
+The clustering of HiveSplitter works by multiplicity arguments imposed on overlapping causal connected hits.
+The causal connection of any two hits is checked evaluating the earlier hit (E) against the later one (L).
+The evaluation is done by the requirement that L is in the eligible volume of E and fulfils a causal argument. Hence both checks enforce time-ordering.
+
+\subsection eligibleVolume Eligible Volume
+The eligible Volume is shaped exclusively by the RingLimits passed on by the user. It does include different numbers of DOMs up and down on the strings organized in rings around the earlier hit (E).<BR>
+Each DOM in this eligible volume can be a potential neighbour hit, which can contribute to fulfilling the multiplicity requirement and thereby forming a cluster.<BR>
+The eligible volume is not mutually inclusive (hit1 including hit2 in eligible volume, does not automatically imply hit2 includes hit1), if
+RingLimits parameters are not configured symmetrically. This is actually one of the main features of this approach. By different shapes of this eligible volume (more/less rings, asymmetries in plus/minus, more/less included DOMs per ring) the acceptance of different track directions can be exactly steered.<BR>
+However it is wise to stick to a rather isotropic neutral 4 pi acceptance configuration, if not entirely sure what one is doing.
+
+\subsection causalArgument Causal Argument
+If two hits are compared and found to be included in the eligible volume they are checked if the earlier hit does have a causal argument to cause the later hit. This argument takes parameters of distance and timing and returns a binary expression. The causal argument in IceHive is an estimator which incorporates three different physical plausibilities how two hits are connected:<BR>
+*Spacial Offset: Hits are on the same light front (Cherenkov-cone) but topological distant from each other
+*Light Propagation: Hits are causally connected through the outwards propagation of light.
+*Particle Propagation: Hits are causally connected through the moving particle, which is the source of further light. Hits are at the same topological place.<BR>
+
+\subsection multiplicity Multiplicity
+The parameter Multiplicity is the requirement on the number of overlapping causal connected hits to any one other hit found, in order for it accepted into a cluster. The multiplicity must be fulfilled within a time limit set by parameter TimeWindow.<BR>
+So to say for a Multiplicity of 4(=default) and a TimeWindow of 2ms: A cluster does form, if 4 hits are found within a 2ms, where each of them is causally connected (within the time ordering). Once a cluster is formed more hits are added to, if the new (later) hit does causally connect to at least 4 (former) hits from that cluster, within the time-window.
+
+\section lookup-tables Lookup-tables
+This project relies greatly on the use of LookUp-tables to circumvent repetitive computation in the comparison of any two OMKeys. An example for such a lookup-table is the distance map between OMKeys, where the program the request to this property is very frequent (at least once per hit). Their initialization is a fast process (5sec) at programm-start and they are hold in memory during runtime.<BR>
+Currently they are implemented as plain two dimensional arrays, which are as big as the number of OMKeys squared. Explicitly the indexing through the OMKeyHash::SimpleIndex is used. This allows direct access to the requested property, which is a much faster process than iterators or other stl::map-operations.<BR>
+
+While in principle such square maps are reducible, because they are symmetrical, this is not necessarily desired: such maps can additionally store and transport more information than just the requested property; for example, by setting entries to NAN or any other deliberate value, certain arising cases in the computation can be directly treated and handled inside the map. For example if the connection between OMKey0 at index[0] and OMKey1 at index[1] should be probed by their distance, but OMKey1 should never connect to OMKey0 regardless, this can be solved in the map by<BR>
+map[0][0]= 0.<BR>
+map[1][1]= 0.<BR>
+map[0][1]= 5.<BR>
+map[1][0]= NAN<BR>
+
+\section scaleability Scaleability of algorithm
+In fact IceHive or rather HiveSplitter works-off pulses in a linear fashion comparable to a stack. Therefore the algorithm scales always *linear* with the number of injected Pulses. This is very important property if applications to very long events or even a long expose sample or even stream of Pulses is considered.<BR>
+If the algorithm should be found to be performing well enough for application to the direct detector output (DOMLaunches) this enables the direct rewrite into a trigger. 
+
+\section HiveLib HiveLib
+HiveLib is the Driving core of this module: It is a library that provides fast look-up of the IceCube Detector Configuration expressed in terms of Rings of strings surrounding a chosen central string. Right now a maximum number of 2 rings are indexed for IceCube, 4 for DeepCore and 8 for PINGU-spaced strings.<BR>
+All necessary functionality is provided through interfaces, so there is no need for direct class interactions.<BR>
+
+Normally, you should choose the representation of rings that suffice your needs, so do not describe inter-IceCube spacings by a DeepCore-spaced configuration, as it will be slow and have gap rings (every second one). However, if you really want to, there is the possibility to abstract a given configuration to the next lower level.
+
+\section newGeometry Different Geometries
+There might come a time where the current implementation for IC86 will no longer suffice the needs and the module needs to be adapted.<BR>
+IceHive has not been adapted to such a general use-case with an arbitrary Geometry yet, because some of the generalizations are hard to do, require a lot of smart functions and are sometimes impossible to anticipate.<BR>
+The necessary adoptions to a new geometry is no easy task and needs caution in every step. Here should be some guidelines what needs to be done in such case:<BR>
+* OMKeyHash: Check if the viable ranges of OMKeys still fulfils the needs of the new detector. If possible find a new hash-function that still maps all OMKeys (completeness), uses consecutive hashes (compact) and is fast to compute.
+* Hive-lib: New OMKeys and their special geometries need to be defined. This involves the description of all new OMKeys in the "Topology" and the description of all deployed strings in the Hives of the according sub-geometry. Feel free to use the functions provided in Hive-lib to newly construct or expand from current detector geometry.
+* HiveSplitter: Adapt the Hive-Selections in the BuildDistanceMap-function to the new OMKeys
+* HiveCleaning: Adapt the Hive-Selections in the BuildDistanceMap-function to the new OMKeys
+
+
+\section trigger Running the algorithm as a trigger
+The algorithm of HiveSplitter can also be used just to identify clusters of hits in the detector (see also the HiveCluster-module). This fact can be used to run the HiveSplitter algorithm to identify occurrences of clustering hits in the detector, a dead give-away for physics being present.<BR>
+The algorithm is currently not explicitly supporting asynchronous operation on a stream of hits, but can easily adapted to do so. This is due to the fact that the internals of HiveSplitter are <i>independent</i> of the exact shape of the outside object that a <i>Hit</i>, the internal representation, actually represents. Also the algorithm is <i>linear</i>, thus the algorithm is working off hits in a stack-like fashion.<BR>
+
+Here is what you have to do if you choose to undergo this endeavour:
+* You going to need to take apart the <b>HiveSplitter::Split()</b> routine. Expose its internal functions and objects:
+** A stack of Hits (deque|Hits|), which is the front buffer. It must be possible to insert hits at the back, while hits are worked off from the front.
+** The driving routine <b>HiveSplitter::AddHit()</b> needs to take the 'oldest' hit from the front of the stack and work the algorithm.
+** call to the <b>HiveSplitter::FinializeClusters()</b> only when all processing is finished, aka all hits have been worked off.
+** The <b>subEvents</b> of concluded clusters needs either to be exposed so that all finished events can be read of at any time.
+** Take another look at the internal registers and buffers, that expired objects are removed from them (memory clean-up).
+
+\section algorithm Algorithm
+This section aims to summarize the process-flow of the HiveSplitter/I3IceHive algorithm. It is a low-level description of the algorithm driving the HiveSplitter, which is used to find clusters of pulses in the IceCube detector, which then later can be identified to individual subevents. Please note: this text does not try to relate used techniques and idioms to the physics in the detector; this can be found in the formal documentation of the project. Concepts which are important in this context, but will not be discusses in this section: Hexagonal Geometry of the detector, Hashing concepts, The causal connection Computation of Time-residuals, .
+
+This section will only describe the use of the IceHive-module when ONLY the HiveSplitter is configured.
+
+
+\subsection implementation Implementation
+The project presents to the icetray-user a high-level I3Module 'I3IceHive', while the driving (splitter) algorithm is implemented underneath in a module 'HiveSplitter', which aims to rely as little as possible on specific implementations and imports from icetray.
+
+The high-level I3Module interacts with the icetray environment, handles the parsing of parameters, handles objects in the I3Frame and prepares them for processing with the splitter-algorithm. The splitter algorithm on the other hand configures its routines and lookup-tables only once, and is then providing a simple function <b>Split()<b>, where Pulses/Hits are passed to and the output is the split series of Pulses into subevents.
+
+\subsection processingflow General processing flow
+The Execution of the Module is handled in four steps:
+* <b>Initialization</b>: where the module gets set up and preconfigured; note that not all fields are initialized because some information, for example geometry information, is still missing.
+* <b>Configuration of the splitter</b>: where with information from the GCD-frames the splitter can be fully configured, which involves explicitly the set-up of look-up tables
+* <b>Execution</b>: where a block of to process information is handed to the module in the form of a I3Frame. The necessary objects are read, the splitter algorithm is run, and the output is written back to the frame as I3Objects.
+* <b>Termination</b>: where the run-time of the Module ends. Internal occupied memory is freed and a summary about runtime-statistics written to the screen.
+
+Observe that the names of these steps are not isentical with the function names used in IceTray.
+
+This document focuses on the <b>Configuration</b> and <b>Execution</b> part, as it is driving routine of the Module
+
+
+\subsubsection inittime Initialization time
+The Module is added to the <i>tray</i> by the usual <i>tray.AddModule</i>-routine:<BR>
+
+  from icecube import IceHive
+  tray.AddModule("I3IceHive<I3RecoPulse>", name,
+                  Param1 = value,
+                  Param2 = value
+                  ...)
+
+It is worth to mention that the high-level Module <i>I3IceHive</i> is templated, so that <i>I3RecoPulse</i> can be substituted by any other I3Pulse/Hit object found in the frame as an <i>OMKeyMapMask</i>.<BR>
+The parameters and their function are described in the projects documentation.<BR>
+
+Adding the module to the tray, calls the Constructor <i>I3IceHive()</i> of the high-level I3Module. All user-definable options are at this time initialized with default-values. Also a pointer to the HiveSplitter is initialized; however, the pointer remains unset, as there is not enough information to set it up, yet.<BR>
+
+Once the tray has successfully set up all added modules and services, it will call the <i>I3IceHive.Configure()</i> methode. Here the user-defined parameter values are passed to the high-level I3Module. The ones relevant to the splitter algorithm are wrapped in an object <i>HiveSplitter_Parameters</i>. With this set of parameters the splitter is initialized and the previously mentioned pointer is set.<BR>
+
+At this initialization all parameter values of the Splitter will be set, however, look-up tables will still remain initialized, because the remaining ingredient, geometry information, is still missing.
+
+
+\subsubsection configtime Configuration time
+The first frames that pass by the I3Module are expected to contain GCD-information. Pointers to this necessary information objects are buffered up. With this last missing piece of information the splitter routine can be finally fully configured: the Geometry is passed to the Splitter module, and its routine <i>HiveSplitter::BuildLookUpTables()</i>.<BR>
+
+At this point a major component of the algorithm is executed, which builds look-up tables from the configured parameters and position of the DOMs. These tables will be used later in the evaluation of the <i>CausallyConnected</i> criterium.<BR>
+
+Two matrix will be initialized and filled:<BR>
+* DOM-vicinity map, which is a <i>SimpleIndexMatrice_Bool</i>
+* DOM-distance map, which is a <i>SimpleIndexMatrice_Double</i>
+
+Both of them are plain 2-dimensional matrices, which consternate if in the comparison of any two DOMs, these should be considered 'close'. Individual DOMs (OMKeys) are mapped to consecutive hash-values for this process.
+Both matrices have square-form, but are not necessarily symmetric; meaning their values can be accessed as <i>matrix(DOM_1)(DOM_2)</i> as well as <i>matrix(DOM_2)(DOM_1)</i>; however, only in the case of symmetry the elements will be equal.<BR>
+Both type of maps use a mechanism to store one or two layers of information:<BR>
+* The SimpleIndexMatrice_Bool matrix, whichs underlying container is a bitmap, can only store binary states, where <b>true</b> denotes a positive and <b>false</b> a negative evaluation.
+* The SimpleIndexMatrice_Double matrix, whichs underlying container is a vector of doubles, stores a finite <b>double</b>-value for positive evaluations, and <i>NAN</i> for a negative evaluation. The double-value in itself can additionally store further information, which we will use here to store the spacial distance between pairs of DOMs.
+
+If a pair of DOMs is 'close' to each other is determinated by the <i>RingDistanceLimits</i> for the DOM-distance map and by the <i>VicinityDistanceLimits</i> for the DOM-vicinity map respectively. Here for each DOM the realtive position of the comparative DOM is evaluated. For example DOM_A compared to DOM_B is on the <i>n</i>-th ring and in vertical distance <i>z</i>. If DOM_B is in the specified region around DOM_A given through the DistanceLimits, the field for this DOM-pair is set to their spacial distance or, in the case of the Vicinity map, just true. In the case that DOM_B is outside the region around DOM_A the field is set to NAN or false respectively.
+The information on which ring DOMs rest relative to each other is provided through the library <i>Hive-lib</i>.<BR>
+
+Thereby all DOM-pairs are evaluated and all fields in the look-up are initialized. The map/matrices will in the end look like this:<BR>
+
+
+  *horizontal index_x, vertical index_y; x,y the hashed DOM index, where #(x)=#(y)=#(OMKey);
+  *index row annotates IceTop-strings (T) (=OM 61,62,63,64 per string),
+  *entries: 0 denotes double(0), d denotes a real double-value, N denotes NAN
+        | x               ... T T T T                 ... T T T T ..... T T T T (too distant ring)  T T T T ..
+      --------------------------------------------------------------------------------------------------------
+      y | 0 d d d N N N N ... N N N N d d d d d N N N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d 0 d d d N N N ... N N N N N d d d d d N N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d d 0 d d d N N ... N N N N N N d d d d d N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d d d 0 d d d N ... N N N N N N N d d d d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N d d d 0 d d d ... N N N N N N N N d d d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N d d d 0 d d ... N N N N N N N N N d d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N N d d d 0 d ... N N N N N N N N N N d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N N N d d d 0 ... N N N N N N N N N N d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        |     ...             N N N N     ...             N N N N  ...  N N N N     ...             N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | d N N N N N N N ... N N N N 0 d d d N N N N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d d N N N N N N ... N N N N d 0 d d d N N N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d d d N N N N N ... N N N N d d 0 d d d N N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | d d d d N N N N ... N N N N d d d 0 d d d N ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N d d d d N N N ... N N N N N d d d 0 d d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N d d d d N N ... N N N N N N d d d 0 d d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N N d d d d N ... N N N N N N N d d d 0 d ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        | N N N N d d d d ... N N N N N N N N d d d 0 ... N N N N ..... N N N N N N N N N N N N ... N N N N
+        |       ...           N N N N     ...             N N N N  ...  N N N N     ...             N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        |      .....          N N N N    .....            N N N N ..... N N N N     .....           N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+      T | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N 0 d d d N N N N ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N d 0 d d d N N N ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N d d 0 d d d N N ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N d d d 0 d d d N ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N N d d d 0 d d d ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N N N d d d 0 d d ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N N N N d d d 0 d ... N N N N
+        | N N N N N N N N ... N N N N N N N N N N N N ... N N N N ..... N N N N N N N N d d d 0 ... N N N N
+        |     ...             N N N N     ...             N N N N  ...  N N N N     ...             N N N N
+        | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N
+        | ...                 N N N N ...                 N N N N ..... N N N N     .....           N N N N
+
+Observe the block-wise structure and repetitiveness.
+
+\subsubsection runtim Run time
+After the HiveSplitter and its look-up tables are build, the algorithm is now fully initialized. The controlling I3IceHive-Module triggers on DAQ-frames, and tries to split the PulseSeries, which is found at the specified key. This process is done in three steps<BR>
+* Preparation
+* Splitting Pulses/Hits
+* Writing of Output
+
+\subsubsection prep Input and preparation
+When the algorithm is confronted with a frame containing the required PulseSeriesMap the processing commences.
+First the PulseSeriesMap object is de-serialized from the frame (necessary in the case of masks) and every (Reco)Pulse is converted into a simplified <i>Hit</i>-object, holding only essential information of the pulse:
+* OMKey that the Pulse occurred on (Hash-value)
+* Time the Pulse occurred
+* and a pointer to the original pulse, for the back conversion
+
+Thereby every Pulse in the PulseSeriesMap is represented by a single Hit in an (linear) <i>HitSeries</i>. The series of hits is then time-sorted, so the end-product is a vector of Hits as they occurre in time.<BR> 
+
+This time-ordered HitSeries is passed on to the HiveSplitter algorithm which works them off front to back in a first-in-first-out (fifo) fashion.<BR>
+
+\subsubsection workoff Working off pulses
+The general processing is as follows:<BR>
+
+Every analysed hit is checked if it is causally connected to the hits in any pre-existing cluster. If it is connect to hits in that cluster within a specified time-window the hit is added to it. If the hit can not be added to any other cluster, it will form a new 'starting' cluster by its own. By this process starting clusters will iteratively grow as new hits are added to them. If by this process any cluster exceeds a multiplicity requirement on the number of connected DOMs with hits within the time-window, the cluster is made marked as 'permanent'. Hits will be only added to such permanent clusters if they too connect to a sufficient amount of DOMs in the given time-window.<BR>
+
+As the hits are processed in time-order the currently processed hit is always guarantied to be the latest seen hit. This fact is heavily used in the algorithm! Cluster always track how many and which hits are mutually connected within the progressive time-window. From this register of possible connection partners the hits are removed, which are later than the time-window compared to the currently processed hit.<BR>
+
+This means that if the number of DOMs found in this register of a permanent cluster falls below the multiplicity requirement, no more hits can be added to that cluster at any time. The cluster is destined to 'conclude' as with time the rest of the hits will also be shifted out of the register.<BR>
+
+As a whole this implements a mechanism where single hits first build 'starting' clusters, which expand with added hits until they eventually fulfil the multiplicity requirement and become 'permanent'; as no more hits can be added to an cluster, it 'concludes' and takes not part in the further processing. Also some starting Clusters will never reach the multiplicity requirement and be removed without ever becoming permanent.<BR>
+
+The algorithm also implements the merging of clusters, which will happen if any two clusters share one common hit, as it was added to both in a previous operation step. This is a bit disputed process because it is theoretically not very selective, however, proves in application strong enough to ensure ordered operation.<BR>
+
+At any time that a permanent cluster concludes, it is removed from the register of <i>active</i> active clusters and is hits are moved to the output as a <i>subEvent</i>.<BR>
+
+Through this prescription all hits are worked off, to the point where no hits remain. At that point all clusters are forced to conclude: permanent clusters are move to the output and starting clusters are discarded.
+Effectively only hits which could be collected to any permanent cluster will be found in the output, and there only once assigned to that very cluster. All other hits were effectively disregarded in the process, as they where atributed as non-clustering hits (probable noise).<BR>
+The algorithm will then assemble all subEvents into a time-ordered vector of subEvents, where the time is determined by the first hit.
+This is then returned to the outside, controlling IceHive-module.<BR>
+
+\subsubsection writeout Writing of Output
+With the list of SubEvents and the hits that belong to them, the I3IceHive-module creates for every SubEvent a new (sub) P-frame.
+By construction every such subevent-frame is required to have an I3EventHeader present with an incremental subevent-ID. This and the RecoPulseSeriesMap(Mask) of the SubEvent are written to the frame.<BR>
+
+In principle this does conclude the job of an icetray-EventSplitter. Still more convenience objects are written to the frame, which are helpful for further analysis and processing purposes. For example all hits which are attributed to noise are mixed into the subEvent to provide a PulseSeries which has all noise-pulses present <b>minus</b> any pulses from any other subEvent happening at the same time.
+Also a modified I3TriggerHierarchy is written to the frame, adapted to the time-extension of that SubEvent. Optional it is augmented with a new trigger-key reflecting the IceHive algorithm.<BR>
+*/

@@ -1,0 +1,93 @@
+.. $Id$
+.. TopologicalSplitter
+.. Maintainer: Chris Weaver
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-01-07
+
+- Documentation cleanups
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+
+March 13, 2017 Chris Weaver (chris.weaver@icecube.wisc.edu)
+--------------------------------------------------------------------
+Release V00-01-06
+
+- Output SubEventStream can now be set by the user instead of being always the module name. 
+
+  -- Alex Olivas
+
+- Type information from I3OMGeo is now check rather than relying on magic numbers in OMKeys. 
+
+  -- Kevin Meagher
+
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V00-01-05
+
+- Added more docs and examples
+- Allow spherical rather than cylindrical distance limit
+
+  -- Mike Richman (based on svn logs)
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-04
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-03
+
+- Get rid of a compiler warning
+
+  -- Emanuel Jacobi
+
+- Import dataio
+
+  -- Jakob van Santen
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-02
+
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+December 5, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+- Bugfix: Push Q frame if no RecoPulses found
+- Improved documentation
+
+  -- Chris Weaver
+  
+
+September 17, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Adapt to new I3Splitter API
+
+  -- Emanuel Jacobi
+
+
+September 17, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-00-00
+
+- Initial release, copied from sandbox/cweaver/TopologicalSplitter
+

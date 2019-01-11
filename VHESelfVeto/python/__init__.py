@@ -1,0 +1,4 @@
+# be nice and pull in our dependencies
+from icecube import icetray, dataclasses, recclasses
+from icecube.load_pybindings import load_pybindings
+load_pybindings(__name__,__path__)

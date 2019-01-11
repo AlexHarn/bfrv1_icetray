@@ -1,0 +1,132 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+November 29, 2017 Kevin Meagher
+-------------------------------
+Release V00-02-03
+
+- script cleanup: remove Trash and finish()
+- fix ouput of logging messages
+
+March 24, 2017
+--------------
+Release V00-02-02
+
+- I3HLCTankPulseMerge: Exclude pulses and mark tanks as bad for HG DOMs
+  with bad leading edge times or zero-charge. The latter are extracted
+  from waveforms completely below the baseline.
+
+  -- Timo Karg
+
+
+May 2, 2016
+--------------------------------------------------------------------
+Release V00-02-01
+
+- Added SeededPulseSelector, a very simple module to select pulses
+  in agreement with a given I3Particle's position and direction.
+- Remove deprecated module I3TopSLCClusterCleaning
+
+  -- Timo Karg
+
+
+April 17, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-02-00
+
+- Assorted changes to be able to run on different types of frames
+
+  -- Javier Gonzalez
+
+
+February 4, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-07
+
+- Suppress log_warn() for DOMs that are already on the BadDomList
+
+  -- Timo Karg
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-06
+
+- Remove log4cplus dependence
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+October 22, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-05
+
+- Remove BadStationList from IceTop processing
+
+  -- Timo Karg
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-04
+
+- Adapt to new I3Splitter API.
+- Use the I3 name property
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-03
+
+Feature:
+
+- Add a helper module to make sure a SubEventStream exists by
+  performing a NullSplit with given stream name.
+- Remove useless functions
+
+  -- Fabian Kislat
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-02
+
+Feature:
+
+- Support merging of IceTop and InIce frames
+
+  -- Fabian Kislat
+
+Bugfix:
+
+- Make sure to push the DAQ frame even if the input is absent
+
+  -- Nathan Whitehorn
+
+August 27, 2011, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-01
+
+Bugfix:
+
+- Fix serious fault in the test logic, which excluded all tanks where HG and LG were switched.
+
+  -- Fabian Kislat
+
+August 23, 2011, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+- Initial Release
+

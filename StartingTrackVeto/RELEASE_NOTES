@@ -1,0 +1,24 @@
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-00-02
+
+* Add options to calculate the light normalization with only hit DOMs
+
+November 30, 2017 Kevin Meagher
+-------------------------------
+Release V00-00-01
+
+* Add nugen test script
+* Docs cleanup
+* Scripts cleanup: remove `Finish()` and `TrashCan`
+
+
+Apr 19, 2017 Alex Olivas
+------------------------------
+Release V00-00-00
+
+* Initial Release

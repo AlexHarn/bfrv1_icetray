@@ -1,0 +1,43 @@
+.. $Id: RELEASE_NOTES  79391 2011-10-10 olivas $
+.. $Author: olivas $
+.. $Date: 2011-10-10 $
+
+Release Notes
+=============
+
+trunk
+-----
+
+* Bug fix for parameter conversion.  The module wasn't properly
+  catching list objects that weren't of type Histogram or HistogramModule.
+  Now it warns correctly and also sanely handles containers, so the
+  user can pass a list of containers of histograms as well.
+
+June 22, 2017 - Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-----------------------------------------------------
+Release V00-00-04
+* Histograms are now serialized as dictionaries, allowing downstream
+  tools to remain independent of icetray.
+* Added a configuration tool that determines which histograms to
+  load, based on the frame types.
+* MongoDB support is added. 
+
+Nov 11, 2017 - Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-----------------------------------------------------
+Release V00-00-03
+* Set histogram file to binary mode (needed in Python3)
+
+Nov 8, 2017 - Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-----------------------------------------------------
+Release V00-00-02
+* Incremental release
+
+March 24, 2017 - Alex Olivas (olivas@icecube.umd.edu)
+-----------------------------------------------------
+Release V00-00-01 
+* r147565 - Imports recclasses and simclasses if they exist.
+
+April 8, 2016 - Alex Olivas (olivas@icecube.umd.edu)
+-----------------------------------------------------
+Release V00-00-00
+* This is the first official release of this project.

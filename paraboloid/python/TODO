@@ -1,0 +1,33 @@
+current state: do not use pyraboloid yet for any serious purpose!
+
+* draft of a prototype...
+* lazy implementation, i use chi2 minimization to fit a paraboloid, instead of moments.
+  this was easier to implement, less lines of code, and somehow more readable.
+* almost no docs, only a rudimentary test script
+* development halted due to pain in left hand+arm of developer
+
+
+roadmap to make this version useful
+
+1. complete the pbfparams export (almost DONE)
+2. verify that results (err1, err2, ang, curv11, curv22, curv21, pbfstatus) are compatible with the C++ version
+   note: python version finds paraboloid parameters by chi^2 minimization, C++ by some algebra with moments
+   (ongoing, results are close but by no means identical)
+3. paranoid bug hunting, identify exceptional/pathological cases and deal with them robustly.
+   (E.g.: try to figure out why old paraboloid sometimes fails with negative
+   errors, while new paraboloid finds a normal-looking result.)
+
+wishes:
+
+1. separate the grid making *method* into a *class*, that will be imported to paraboloid as a service
+   this allows:
+   * making grids for other hypotheses than tracks
+   * experimenting with different grid topologies, e.g. use the minimizer trace from a previous reconstruction
+     to collect points
+2. improve first guess for paraboloid parameters (not sure how urgent this is: depends on failure rate with current dumb guess)
+   using the moments (like C++ solution)
+3. add higher orders (3rd, 4th) of taylor series: when grid is much coarser than actual event resolution then
+   those higher orders do affect the shape of the llh landscape and neglecting that may distort the paraboloid result.
+   this may require more points in the grid
+4. in a similar vain: if the event seems to be reconstructed with a resolution very different from the grid granularity,
+   then redo the fit with a rescaled grid.

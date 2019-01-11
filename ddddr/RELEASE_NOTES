@@ -1,0 +1,27 @@
+# $Id$
+# $Author$
+# $Date$
+#
+# ddddr
+# Project maintainer: Hape Bretz (hans-peter.bretz@desy.de)
+
+
+
+November 30, 2017 Kevin Meagher
+--------------------------------------------------------------------
+Release V01-00-01
+
+- Now works with standalone Minuit2
+- Cleant up CMakeLists.txt for correct ROOT detection
+- Remove `#ifdef ROOT` because you need ROOT for this project
+- add `std::` namespaces to `inf()`
+- add error messages if the scripts' input file isn't found
+- docs cleanup
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-01-00
+
+First release!

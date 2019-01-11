@@ -1,0 +1,231 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+
+Release Notes
+=============
+
+December 3, 2017 Kevin Meagher
+---------------------------------------------------------------------------
+Release V01-09-01
+
+- Add print function for `I3ParaboloidFitParams`
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+- Docs cleanup 
+
+March 13, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+---------------------------------------------------------------------------
+Release V01-09-00
+
+- Added `OutputName` parameter to `I3ParaboloidFitter` so we can stop using the
+  module instance name as the name of the fit.
+- Added serialization project
+- Documentation clarifications
+- Update pull correction figure
+- Switch example scripts to imporved linefit
+- Python3 support
+- Cleanup after tests
+
+May 2, 2016 Alex Olivas  (olivas@icecube.umd.edu)
+---------------------------------------------------------------------------
+Release V01-08-00
+
+- Add decent sphinx documentation
+- de-ROOT-ification
+
+  * remove #ifndef CINT statements from I3ParaboloidFitParams
+  * replace TVector3 by I3Direction
+  * replace TRotation by I3Quaternion
+  * replace TVectorD by boost::numeric::ublas::vector<double>
+  * replace TMatrixD by boost::numeric::ublas::matrix<double>
+  * replace "Kramer" (solve linear equation) by example code from boost docs
+  * A 100 files from a Level3 numu dataset (11191) has been processed with both
+    the old root-based and the new root-free version of the paraboloid implementation.
+    Comparing the I3ParaboloidFitParams information yields these statistics:
+
+    - The PBF fit status was identical in all 1e4 processed events.
+    - err1 difference [deg]: mean=-1.23809e-05 median=3.77691e-15 min=-0.130205 max=4.06929e-05 std=0.00126928
+    - err2 difference [deg]: mean=-1.32443e-06 median=1.09083e-14 min=-0.0148373 max=0.000650885 std=0.000144787
+    - sin(rotang differenc) squared: mean=7.72024e-09 median=5.13299e-23 min=0 max=8.12016e-05 std=7.9158e-07
+
+  * TODO: write unit tests for ParaboloidImpl stuff !!!!!
+
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Release V01-07-00
+
+- Draft of a prototype for a python version of paraboloid (pyraboloid),
+  not to be used yet except for development
+- Clean out really old ROOT fossil (LinkDef.h)
+
+  -- David Boersma
+
+- Fixes for new I3MCTree
+
+  -- David Schultz
+
+- Recognize I3_TESTDATA
+
+  -- Alex Olivas
+
+
+September 30, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Version 01-06-09
+
+- Add python and docs directories to CMakeLists
+- Make sure that paraboloid pybindings still exist for ROOT-less builds
+- Clean up code in the scripts
+- Remove obsolete cmake_policy lines
+
+  -- David Boersma
+
+
+July 14, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Version 01-06-08
+
+- Remove flat-ntuple output from test script
+
+  -- Meike de With
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Version 01-06-07
+
+- Change incorrect format specifiers
+
+  -- Nathan Whitehorn
+
+- Setting error status manually, to avoid having a PBF error status while 
+  the paraboloid I3Particle object still has fit status OK
+
+  -- David Boersma
+
+
+January 15, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Version 01-06-06
+
+- In case of bogus input or crazy configuration, make sure that paraboloid 
+  does not crash but floods the user with errors
+
+  -- David Boersma
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------------------------------
+Version 01-06-05
+
+- Import dataio
+
+  -- Jakob van Santen
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+
+Version V01-06-04: February 21, 2013
+---------------------------------------------------------------------------
+* Removed dependency on log4cplus, DOMcalibrator, FeatureExtractor
+* Removed Reconfigure() method
+
+Version V01-06-03: September 11, 2012
+---------------------------------------------------------------------------
+* Use GetName() instead of getting a configuration from the context
+
+Version V01-06-02: June 25, 2012
+---------------------------------------------------------------------------
+* Use SetGeometry method from gulliver
+* Remove reference to I3ConverterFactory
+
+Version V01-06-01: January 11, 2012
+---------------------------------------------------------------------------
+* set non zero noise rate
+* clean up dependencies
+
+Version V01-06-00: August 09, 2011
+---------------------------------------------------------------------------
+* adapted to various changes in offline-software
+
+Version V01-05-01: March 12, 2011
+---------------------------------------------------------------------------
+* fixed a typo in tableio converter
+
+Version V01-05-00: November 11, 2010
+---------------------------------------------------------------------------
+* added tableio converter
+
+Version V01-04-00: August 11, 2009
+---------------------------------------------------------------------------
+* updated interface for parametrization object
+* updated scripts
+
+Version V01-03-01: October 27, 2008
+---------------------------------------------------------------------------
+* minor update (release for std-processsing)
+* this should have been V01-03-00, is V01-03-01 due to misnumbering of
+  previous release
+* minor update to CMakeLists.txt
+
+Version V01-03-00: August 19 2008
+---------------------------------------------------------------------------
+* this releases (for icerec) was mis-numbered, should have been V01-02-01
+* added python bindings
+* cmake tweaks
+* removed "typedef" specifier from enum for paraboloid status
+
+Version V01-02-00: 24 June 2008
+---------------------------------------------------------------------------
+* got pybindings for loot, for the I3ParaboloidFitParams class
+* add possibility to skip vertex refitting
+  (keep minimizer option empty, and/or set the vertexstepsize to zero)
+
+Version V01-01-00: 3 January 2008
+---------------------------------------------------------------------------
+
+Version V00-05-02: 10 August 2007
+---------------------------------------------------------------------------
+* rotation angle fix
+* cmakification
+
+Version V00-05-01: 13 June 2007
+---------------------------------------------------------------------------
+Keep release number synchronous with the rest of the swift suite.
+
+* no significant updates
+
+Version V00-05-00: 13 April 2007
+---------------------------------------------------------------------------
+* adding vertex correction to grid points before actual vertex fit
+  (using new Tweak method)
+* add option to allow fit failures on a limited number of grid points
+* do not trust ``I3MCTreeUtils::GetMostEnergeticInIce(*mctree)``, get it manually
+* in the I3Particle result, use the parabola minimum for angle; refit the vertex.
+* bugfix in paraboloid fitparams constructor
+
+Version V00-04-01: 9 February 2007
+---------------------------------------------------------------------------
+* added another status check: make sure estimated angular error > 1e-5 rad
+  (<1% of reconstructions have anomalously small errors ~ 1e-20 rad)
+
+Version V00-04-00: 11 December 2006
+---------------------------------------------------------------------------
+* added status indicators which identify various failure modes
+* result object was not completely filled, is fixed now.
+
+Version V00-03-00: 
+---------------------------------------------------------------------------
+skipped, due to questions about quality
+
+(cause of apparent quality change: changed seed vertex correction defaults in
+the I3BasicSeedService)
+
+Version V00-02-00, 29 August 2006:
+---------------------------------------------------------------------------
+* first implementation. compiles & runs, no guarantees.
+* releasing, just before I will add I3MCTree functionality

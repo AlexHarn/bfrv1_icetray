@@ -1,0 +1,568 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+trunk
+-----
+
+- Expose I3BasicSeedService to Python
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V01-14-02
+
+- Add example of how to use a custom gulliver likelihood service in python using ipdf as an example
+- PEP8 complient tests and examples
+
+December 1, 2017 Kevin Meagher
+------------------------------
+Release V01-14-01
+
+- Add support for gradient based minimization algorithms in I3GulliverNLopt
+- Check for Geometry in `I3BasicSeedService` #2056
+- Use consistent seed in multinest instead of system clock
+- move `TMinuit.h` into public directory so stocastics can use it  
+- Fix integer comparison 
+- Add new example scripts
+- Clean up existing examples
+- python3 compatibility
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+
+Marach 23, 2017 EKB (blaufuss@umd.edu)
+--------------------------------------
+Release V01-14-00
+
+- Fixed bug in TMinuit that caused scripts to crash when
+  :cpp:class:`I3GulliverMinuit` was executed in verbose mode.
+- Added fitname parameter to segments so we can stop using the module instance
+  name as the name of the fit.
+- Added pybindings for :cpp:class:`I3GulliverMinuit` and
+  :cpp::class:`I3GulliverMinuit2`.
+- Segments now accept parametrization and minimizer services as parameters. (#1898)
+- docs, python3 cleanups
+- Serialization from icecube not boost
+
+May 2, 2016 Alex Olivas (olivas@icecube.umd.edu)
+------------------------------------------------
+
+Release V01-13-00
+
+- Always use local, less noisy TMinuit copy even if ROOT is available.
+- Copy-paste from rdmc into private/test to remove dependancy on rdmc.
+- Deleted I3GulliverRdmcPandel.cxx.
+- Moved tray segments and minimizers to sub-modules. Those are not
+  automatically imported with lilliput.
+- New minimizer based on iminuit; implemented in python.
+- Added I3GulliverNLopt, a wrapper for the NLopt minimization library.
+- Bug-fix: corrected scaling of tolerance value for Migrad in
+  I3GulliverMinuit2.
+- Dropped support of ROOT versions less than 5.30 for I3GulliverMinuit2.
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-12-00
+
+- Remove option to seed from the MCTree.
+- Apply chain rule correctly for log10 (instead of ln) in
+  I3SimpleParametrization.
+- Define LBFGSB symbols to prevent scipy from mistaking this for
+  its internal implementation.
+
+  -- Jakob van Santen
+
+- Fixes for new I3MCTree.
+
+  -- Meike de With
+
+- .fits files were moved to I3_TESTDATA, so look for them there.
+
+  -- Don la Dieu
+
+- Recognize I3_TESTDATA.
+- Replace I3ParticleVectPtr by I3VectorI3ParticlePtr.
+
+  -- Alex Olivas
+
+- Python bindings for simple parametrization.
+- Small code changes to fix compiler warnings.
+- Replace most instances of log_{debug,info,notice} by log_trace.
+- Remove old ROOTCINT things.
+
+  -- David Boersma
+
+- Added documentation.
+
+  -- Lisa Unger
+
+- Add I3GulliverMN, which uses an external version of MultiNest
+  (currently searched for only in system paths, works with homebrew
+  multinest, but will likely not find multinest on linux system with
+  local installation yet). This works with Pegleg to fit the HybridReco
+  hypothesis, but should be used carefully when applied to new problems.
+
+  -- Martin Leuermann, Claudio Kopper
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-11-00
+
+- Reduce logging noise in case of empty-missing data.
+- Fix weird bug where the `detectorresponseptr_` would keep its old
+  value if the configured pulsemap does not exist in current frame. So a
+  frame without a pulsemap might still get a fit, namely exactly the
+  same as in the previous frame. However, this only happens if the seed
+  makes the same mistake, which shouldn't happen.
+- Write hdf output only if we are not on a buildbot (some of them do not
+  have hdfwriter available).
+
+  -- David Boersma
+
+- Deal with PhotoSplineService API change.
+
+  -- Jakob van Santen
+
+October 9, 2014 Meike de With (meike.de.with@desy.de)
+-----------------------------------------------------
+
+Release V01-10-01
+
+- Avoid mixing standalone Minuit2 with ROOT (if USE_ROOT=On and the ROOT
+  install provides Minuit2, use that).
+
+  -- David Boersma
+
+September 30, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------
+
+Release V01-10-00
+
+- Change ImportError to RuntimeError for dlopen() failures.
+- Change RuntimeError to ImportError if paraboloid tray segment is not
+  found.
+
+  -- Jakob van Santen
+
+- Replace expandvars by os.path.expandvars.
+
+  -- Meike de With
+
+- Get RST documentation started.
+- Add python directory.
+- Add test script for Gulliver Python interface.
+- Make try_segments.py test script work also if paraboloid is not there.
+- Remove obsolete cmake_policy lines.
+- Make sure I3ParaboloidPandelFitter is only attempted if paraboloid
+  exists in the metaproject and it was built with ROOT.
+- Make tests work with both I3_TESTDATA and I3_PORTS.
+- Explicitly list test scripts in CMakeLists.txt.
+- Temporarily disable tests.
+- No longer use pulse charge in try_segments.py.
+
+  -- David Boersma
+
+- Fix location of testdata.
+
+  -- Don la Dieu
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-09-00
+
+- Silence compiler warning about unused variable.
+- Adding paraboloid segment.
+- Make noise rate configurable in all segments.
+- Add disclaimer about functions starting and ending with __.
+- Change name of some convenience functions that are used by other
+  people so that they no longer have the __, old names are now
+  deprecated and will be removed in a few months.
+- Suppress some spurious logging noise.
+- Verify that fits are reproducible.
+- Print warning at the end if any first guesses were ignored.
+
+  -- David Boersma
+
+- Expand the search for Minuit/Minuit2 to ROOT_LIB_DIR.
+
+  -- Don la Dieu
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+
+Release V01-08-00
+
+- Cleaning up code.
+- Fix documentation to reflect code changes.
+
+  -- Chris Weaver
+
+- Add speed as a possible fit parameter.
+
+  -- David Boersma
+
+January 21, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+
+Release V01-07-00
+
+- Make parameterization deal correctly with large values of azimuth and
+  zenith.
+
+  -- Melanie Day
+
+- Add an implementation of the LBFGSB algorithm, for speedy and reliable
+  minimization of numerically-stable likelihoods with gradients.
+- Remove remaining Fortran I/O leftovers.
+- Modify the stopping conditions to deal with cases where we know the
+  rough order of magnitude of the function but the dimensions do not all
+  have the same scale.
+- Wrap scipy minimizers as I3MinimizerBase.
+- Only check flatness if a variable has returned to its initial value
+- Remove indexing tricks scale parameter to setulb_().
+
+  -- Jakob van Santen
+
+- Make calls to std::pow unambiguous.
+- Make project compatible with Python 3.
+
+  -- Nathan Whitehorn
+
+- Ship a private copy of TMinuit in case ROOT is not available, in order
+  to make ROOT-less processing using the older TMinuit SIMPLEX minimizer
+  possible.
+
+  -- Claudio Kopper
+
+- More informative warning messages.
+- Remove superfluous static global dictionary with lilliput service
+  names and use tray info instead (solves problems in iceprod with
+  multiple trays).
+- Add options to override the vertex time tweaking (vertex time of
+  improved Linefit is actually good and tweaking on average makes it
+  worse), but default behaviour remains like it was (TFirst).
+- For iterative fits, if the segment is called with tstype overriding
+  for the input seed(s), make sure pseudorandom iterations are still
+  tweaked with TFirst.
+
+  -- David Boersma
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+-----------------------------------------------------
+
+Release V01-06-08
+
+- Clean up deprecation warnings related to new dataclasses release.
+
+  -- David Boersma / Meike de With
+
+Release V01-06-07: June 29, 2013
+--------------------------------
+
+- Adding new helper class: parameter with inclusive bounds.
+- Apparently it can happen with MIGRAD that minimizer->IsValid() returns
+  true even though from its verbose output it is obvious that internally
+  it knows that the result is bogus. Check MinimizerError->IsValid() as
+  well to avoid this.
+
+Release V01-06-06: April 5, 2013
+--------------------------------
+
+- Correct a situation where a likelihood could be queried with an
+  invalid angle, but where the result would be transformed back into the
+  valid range before being written to the frame.
+
+Release V01-06-05: February 21, 2013
+------------------------------------
+
+- Use I3ServiceBase for I3GSLSimplex and I3SimpleParametrization (to
+  simplify the Factory, avoid code duplication).
+- Logarithmic E and L will now also use 10-base logs internally (was:
+  natural logs, while 10-based logs were only used in the configuration
+  phase).
+- Fixed the flatness check: allow for the possibility that during the
+  flatness check a better minimum is found (Claudio).
+- I3GSLSimplex now uses the I3MinimizerUtils::CheckMinimum to check
+  against flatness.
+- The code of I3SimpleParametrization(Factory) has now been structured
+  such that it should be easy to add methods for changing individual
+  fitparspecs after construction.
+- I3SimpleParametrization now has tracing functionality: if you set the
+  "ParticleTrace" option to True then the service will store an
+  I3ParticleVect in the frame with the seed track and all particles that
+  the minimizer tried, for your debugging convenience.
+
+Release V01-06-04: September 11, 2012
+-------------------------------------
+
+- Use GetName() instead of getting a configuration from the context.
+- Zero gradients before use, and allow I3HalfSphereParametrization to be
+  used with a fixed direction.
+
+Release V01-06-03: June 25, 2012
+--------------------------------
+
+- Allow the proper tests to build if rdmc is not found.
+- Flatness check should respect parameter bounds (if any).
+- Make lilliput work with the updated I3OMGeo/I3Orientation.
+
+Release V01-06-02: March 8, 2012
+--------------------------------
+
+- Enable MPAll.
+- Add an option to ignore MIGRADs distance-to-minimum estimate when
+  determining convergence and emit fitted parameters even when the fit
+  fails.
+
+Release V01-06-01: January 11, 2012
+-----------------------------------
+
+- Preliminary ipdf PEP class that uses photonics-service, so that the
+  usual SPE1st/all and MPE can be done with photospline instead of
+  Pandel.
+- Support segments.
+- Use new SetGeometry method.
+- Dependency cleanups.
+- Updated tests.
+- Bugfixes/code optimizations.
+
+Release V01-06-00: August 09, 2011
+----------------------------------
+
+* Calculate the Jacobian for the half sphere's parametrization's angles
+  correctly.
+* Introduce variables to store config variables of GSLMultiMin.
+* Chain rule for I3HalfSphereParametrization.
+
+Release V01-05-01: March 21, 2010
+---------------------------------
+
+- Various tweaks and fixes for Minuit2:
+
+    - Added tests for Minuit2 and made TMinuit tests conditional on
+      USE_ROOT.
+    - Factored flatness check from GulliverMinuit out into a separate
+      function to be used from both kinds of Minuit.
+    - Stopped trusting FunctionMinimum::IsValid() as a measure of
+      convergence. MIGRAD doesn't seem to lie, but SIMPLEX has a nasty
+      habit of not admitting success. This still needs to be refined.
+
+Release V01-05-00: October 29, 2010
+-----------------------------------
+
+- Removed the obsolete intlookup feature (integral lookups from a table,
+  for use in MPE/PSA with GConvolute).
+- ipdf dependency (and hence Pandel availability) is now optional.
+- Adding simulated annealing minimizer (thanks to Claudio Kopper from
+  KM3NET).
+- Adding gradient-using GSL minimizers (thanks to Claudio Kopper from
+  KM3NET). We might consider upgrading GSL, as the newest greatest
+  latest algorithm ("vector_bfgs2") is actually not available in GSL
+  1.8, what we have in the ports. It seems that the latest stable GSL
+  version is 1.14!
+
+Release V01-04-01: June 04, 2010
+--------------------------------
+
+- Fix test. - Fabian Kislat
+
+Release V01-04-00: August 11, 2009
+----------------------------------
+
+- Pandel: enable box-convoluted MPE Pandel.
+
+  The time calibration uncertainty of a DOM is a systematic uncertainty
+  while PMT jitter is statistical fluctuation from event to event. For
+  SPE this distinction is not releveant, but for MPE it is. The easiest
+  way to take it into account is to assume not a Gaussian smearing but a
+  "box"-like smearing, that is a flat distribution between fixed limits,
+  which is actually quite reasonable for this kind of uncertainty. And
+  as a bonus the box-like smearing is really easy to compute, thanks to
+  the very definition of MPE.
+
+  .. note:
+
+    This update also required an update in the ipdf project (where all
+    the core Pandel stuff is actually implemented), so be sure to update
+    that project as well.
+
+- Parametrization:
+
+    - Implementation work: replace long arg lists with steps and bounds
+      by vectors.
+    - Add "relative" bounds: bounds relative to the initial seed value.
+    - Added extensive unit tests.
+
+- Seed service: add VertexMode option, relevant only for ContainedTracks
+  allows to select whether xyz refer to start or stop point (especially
+  important when keeping xyz *fixed*: keep start point fixed, or stop
+  point?).
+
+Release V01-03-00: October 27, 2008
+-----------------------------------
+
+- Seed service: polynomial energy guess is NOT converted to energy loss
+  (so if "energy" is actually interpreted by the likelihood function as
+  energy loss (that's the case for fitting w/ lightsaber tables) then
+  the polynomial you specify should be a fit to the log10(NCh) vs
+  log10(Eloss) distribution, not log10(NCh) vs log10(E).
+- Seed service: it's allowed now to configure no seeds at all (that's
+  useful in case of fg tracks generated by the module itself and then
+  use the seed service for vertex correction etcetera, e.g. paraboloid).
+- Seed service and pandel service: will not log_fatal anymore in case of
+  completely missing input data (fg tracks, hits/pulses); instead it
+  will count how often it is missing, and report failure statistics at
+  the end (in case of no failures, nothing at all will be reported).
+- Added "GaussConvolutedFastApproximation" Pandel variety. This requires
+  ipdf release V02-04-06 or trunk (newer than September 2008). It's
+  "fast" in comparison with the numerically integrating Pandel version,
+  not compared to the (default) "semi-convoluted" version.
+- Release made for std-processing.
+
+Release V01-02-01: 19 Aug 2008
+------------------------------
+
+- Minor updates, CMakeLists.txt tweak to deal with new cmake version
+  2.4.6.
+- Release made for icerec purposes.
+
+Release V01-02-00: June 24, 2008
+--------------------------------
+
+- Use the "fast log summer" in Pandel likelihood calcs. FastLogSum uses
+  a numerical trick to compute sums of logs as the log of a product,
+  *without* risk of running into floating point range limits. This is a
+  bit faster.
+- Moved all photorec-related stuff to a separte project.
+- Use the new implementation of Gauss-convoluted Pandel (George, Dipo,
+  Nick).
+- Added support for cascade (pointlike and directional).
+- #include the "transverse directions" and "minimum ball" from
+  phys-services rather than from gullliver/utilities (that was a
+  temporary place for it to be implemented).
+
+Release V01-01-00: 3 January, 2008
+----------------------------------
+
+- Add new functionality in seed service: generate alternative
+  directions:
+
+    - Reverse: 1 new track, opposite direction from input track.
+    - Tetrahedron: 3 new tracks, together with input track they are
+      aligned like the faces of a tetrahedron.
+    - Cube: 5 new tracks, together with input track they are aligned
+      like the faces of a cube.
+
+  Seed from input track and alternative tracks can have different vertex
+  time corrections. You can choose to use *only* the alternative tracks,
+  e.g. if you use a log-likelihood fit as input track.
+
+- New parametrization service: I3HalfSphereParametrizationService. For
+  now it does exactly what the name says: it parametrizes half of the
+  full direction sphere, with the starting track as the central axis of
+  the hemisphere. In other words: you won't get further than 90 degrees
+  away from your starting track. In future versions the 90 degrees will
+  be configurable, so that you can stay e.g. within 45 degrees of your
+  starting track. The algebra for that is a bit less simple, will be a
+  bit slower.
+
+Release V01-00-02: 2 November 2007
+----------------------------------
+
+- GetName() in parametrization became a const method.
+- Basic seeder can make "alternatives": for each good first guess, add
+  e.g. the reverse track (opposite direciton), or 3 other tracks such
+  that together with the original track they are aligned like a
+  tetrahedron, or 5 (cubic).
+- Add I3PhotorecLogLikelihood: like WFLogLikelihood, but then with
+  recopulses.
+- Change default parametrization: all stepsizes default to 0.
+
+Release V01-00-00: mid September 2007
+-------------------------------------
+
+- Cleaned up dead code.
+- Reduce code volume by using I3ServiceBase (get rid of separately
+  defined trivial factories).
+- Added two options to minuit minimizer instead of using magic numbers
+  in TMinuit verbosity and strategy configuration (code review request).
+- Further development on I3PhotorecLogLikelihood.
+- Lots of doxygen and code convention fixes.
+- TFirst vertex time correction in I3BasicSeedService: don't do that
+  unconditionally, put a limit on the mean all time residuals, in order
+  to protect against weird early hits (happens often enough to be
+  annoying, completely screws up the reconstruction).
+- Moved I3DummyFirstGuess module to a different project (reco-toolbox).
+- Moved parameter file for I3PDFParametrizedPhotonics from
+  resources/data/ to $I3_PORTS/test-data/reconstruction-constants
+- Implemented many coding convention fixes (as per code review).
+- Get rid of static global stuff in I3GSLSimplex implementation (the
+  trick to do that is not applicable in I3GulliverMinuit,
+  unfortunately).
+
+Release V00-05-02: August 10, 2007
+----------------------------------
+
+- Add new likelihood class: I3PhotorecLogLikelihood (LLH formula very
+  similar as in I3WFLogLikelihood, but then using recopulses).
+- Fix unit tests.
+- Start implementing code review suggestions (not finished yet!).
+- WF new option: choose best WF per DOM per event, instead of always
+  ATWD or always FADC.
+- Basic seed service: energy estimator based on Nch, instead of constant
+  energy (for fg which do not provide energy)
+
+Release V00-05-01: June 13, 2007
+--------------------------------
+
+- WF llh: add WF unit tests
+- WF llh: split WF saturation option into two: one for PDF and one for
+  the actual WF.
+- WF llh: various bugfixes in WF llh.
+- Basic seed service: correct any "Null" shape from FG input.
+
+Release V00-05-00: April 13, 2007
+---------------------------------
+
+- WF llh: make default noise prob dependent on WF type.
+- WF llh: SetEvent more efficient.
+- WF llh: deal with saturation in PDF.
+- WF llh: add minimum distance option.
+- WF llh: reorganize GetLogLikelihood code, split into smaller methods.
+- WF llh: use per-DOM gains, as from DOMCalibration and DOMStatus
+  (instead of a single fixed gain for all DOMs).
+- GSL simplex: small fixes.
+- All: add keywords.
+- Seed service: big bugfix.
+- Seed service: code reorganization (following Gulliver interface
+  upgrade), make methods Tweak, FillInTheBlanks and GetCopy.
+- Photorec pdf: set default finite length.
+- Parametrized photonics pdf: bugfix.
+- Parametrized photonics pdf: get rid of minimum energy, more clever
+  Eloss fit.
+- GSL simplex: allow use
+
+Release V00-04-00: Mon Dec 4 2006
+---------------------------------
+
+- Next version of parametrized photonics PDF (infinite cascade) ...
+- Adapt to new I3Calculator::CherenkovCalc interface.
+- Add wrapper for GSL implementation of the simplex minimizer (still
+  experimental).
+
+Release V00-03-01: Thu Oct 26 2006
+----------------------------------
+
+Release V00-03-00: Thu Oct 26 2006
+----------------------------------
+
+- The I4Particle class has been replaced by I3EventHypothesis.
+- Various improvements in I3WFLogLikelihood.
+- First version of parametrized photonics PDF (infinite cascade).
+
+Release V00-02-00: Tue Aug 29 2006
+----------------------------------

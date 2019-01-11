@@ -1,0 +1,315 @@
+===============
+Release Notes
+===============
+
+trunk
+-----
+
+
+November 30, 2017 Kevin Meagher
+---------------------------------------------------
+Release V03-00-05
+
+- Made tests self-contained instead of using I3Live
+- python3 compatibility
+- use temp directories for tests
+- clean up documentation
+- Scripts cleanup: remove `Finish()` and `TrashCan`
+
+April 10, 2017 Alex Olivas (olivas@icecube.umd.edu)
+---------------------------------------------------
+Release V03-00-04
+
+- Added function is_ice_top() since it was removed from OMKey -- Jan Oertlin
+
+August 19, 2016 Alex Olivas (olivas@icecube.umd.edu)
+----------------------------------------------------
+Release V03-00-02
+
+- Temporarily bad doms are finaly gathered from live -- Jan Oertlin
+
+May 16, 2016 Alex Olivas (olivas@icecube.umd.edu)
+-------------------------------------------------
+Release V03-00-01
+
+- Getting dark noise DOMs from i3live
+- Checks if the drop time of a dom is before the good stop time -- Jan Oertlin
+
+May 16, 2016 Alex Olivas (olivas@icecube.umd.edu)
+-------------------------------------------------
+Release V03-00-00
+
+- Since I3IceTopSanityChecks has been retired, the bad dom list
+  for IceTop has been included into this project. -- Timo Karg
+
+- Made project independent from I3Db
+- Source is I3Live via web interface/JSON
+- Got rid of all C++, only python :) -- Jan Oertlin
+
+April 4, 2015 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+Release V02-02-07
+
+- Additions to bad_data_producing_doms_list.txt -- Dipo Fadiran, Matt Kauer
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+Release V02-02-06
+
+- Small addition to bad_data_producing_doms_list.txt -- Dipo Fadiran
+
+November 24, 2014 Alex Olivas (olivas@icecube.umd.edu)
+------------------------------------------------------
+Release V02-02-05
+
+- Works with I3_TESTDATA now -- Alex Olivas
+- Added 19-60 Coxae bad baseline runs -- Matt Kauer
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+---------------------------------------------------
+Release V02-02-04
+
+- Added bad string 72 for run 124613 -- Matt Kauer
+
+April 17, 2014 Meike de With (meike.de.with@desy.de)
+----------------------------------------------------
+Release V02-02-03
+
+- Explicit conversion to bool -- Chris Weaver
+
+- Add bad DOMs -- Dipo Fadiran, Matt Kauer
+
+- Use DAQ start and end time instead of goodRunStart/EndTime -- Joanna Kiryluk
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------
+Release V02-02-02
+
+- Include IceTop DOMs missed in DOMCal transition -- Dipo Fadiran
+
+- Explicitly qualify boost::shared_ptr for libc++ -- Claudio Kopper
+
+- Use the libxml2 tool instead of the system libxml2 -- Don La Dieu
+
+September 3, 2013 Meike de With (meike.de.with@desy.de)
+-------------------------------------------------------
+Release V02-02-01
+
+- Make tests work with recent versions of icetray/dataio -- Claudio Kopper
+
+- Added bad DOMs on string 2 for run 122351 -- Joanna Kiryluk
+
+- Make project compatible with Python 3 -- Nathan Whitehorn
+
+- Remove 'from I3Tray import \*' because it is not necessary and these
+  kind of imports should almost never be used -- Alex Olivas
+
+May 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+-----------------------------------------------------
+Release V02-02-00
+
+Features:
+
+- Updated to the latest DOM list
+- Support of the new good run list start/stop times
+  dropped doms occuring outside the good time period in a run are not flagged -- Joanna Kiryluk
+
+General:
+
+- Removed dependecy on log4cplus -- Claudio Kopper/Nathan Whitehorn
+- Let cmake know about the dependecy on MySQL -- Nathan Whitehorn
+
+Bugfix:
+
+- Fixed tests -- Emanuel Jacobi
+
+September 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+-----------------------------------------------------------
+Release V02-01-01
+
+- Added BadDOMList tray segment -- Mariola Lesiak-Bzdak
+
+July 10, 2012 Joanna Kiryluk (Joanna.Kiryluk@stonybrook.edu)
+------------------------------------------------------------
+Release V02-01-00
+
+Feature:
+
+- New module parameters -- Joanna Kiryluk
+- New features for IC86: static lists no longer used, instead use
+  disabled DOMS from the GCD file and run-dependent list of bad data
+  producing doms). Example of "how to use" the module, see:
+  test_BadDomList_IC86.py. -- Joanna Kiryluk
+
+March 6, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+------------------------------------------------------
+Release V02-00-05
+
+Feature:
+
+- Add a pure-Python reimplementation of BadDomListModule -- Jakob van Santen
+
+Bugfix:
+
+- Removed duplicates from merged static and database bad doms list -- Mariola Lesiak-Bzdak
+
+August 28, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------
+Release V02-00-04
+
+Features:
+
+- Added bad DOM 7-34 Grover -- Thorsten Gluesenkamp
+
+Bugfix:
+
+- Closing DB connections -- Joanna
+- Clean up dependencies -- Nathan Whitehorn
+- Fix build on FreeBSD -- Don La Dieu
+
+August 28, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------
+Release V02-00-02
+
+Bugfix:
+
+- Now allowing multiple instances to use different configurations. -- Jakob van Santen
+
+August 27, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------
+Release V02-00-01
+
+Bugfix:
+
+- Make the service name configurable. Fixes issue reported by A. Gross
+  http://lists.icecube.wisc.edu/pipermail/dataclass/2011-August/010750.html -- Fabian Kislat
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+-------------------------------------------------------
+Release V02-00-00
+
+Features:
+
+- Q-ified. -- Jakob van Santen
+- Put BadDomList into D frame instead of every single Q frame -- Fabian Kislat
+
+Bugfix:
+
+- Adapted to various changes in offline-software
+
+December 07, 2010, Fabian Kislat
+--------------------------------
+Release V01-02-01
+
+Feature:
+
+- Added AnalysisSource "Mark_Krasberg" -- Joanna Kiryluk
+
+November 23, 2010, Fabian Kislat
+--------------------------------
+Release V01-02-00
+
+Feature:
+
+- Added IC79 static bad dom list -- Various contributors
+
+June 04, 2010, Fabian Kislat
+----------------------------
+Release V01-01-09
+
+- Fix test -- Fabian Kislat
+
+April 20, 2010, Fabian Kislat
+-----------------------------
+Release V01-01-08
+
+Bugfix:
+
+- Fixed uninitialized variable in test that made it fail on some
+  machines -- A Olivas
+
+April 16, 2010, Alex Olivas
+---------------------------
+Release V01-01-07
+
+Feature:
+
+- 9 extra bad doms 36-28, 36-29, 54-51, 54-52, 59-45, 59-46, 62-51, 62-52, 8-42
+- 2 DOMs were added ONLY to the HLC list because they're in SLC mode. This
+  are DOMs 36-28 and 36-29 -- A Olivas
+
+December 13, 2009, Alex Olivas
+------------------------------
+Release V01-01-06
+
+Feature:
+
+- 6 extra bad doms 54-51,54-52, 59-45, 59-46, 62-51, 62-52 -- J Kiryluk
+
+December 10, 2009, Alex Olivas
+------------------------------
+Release V01-01-05
+
+Feature:
+
+- Added doms: 54-51, 54-52, 59-45, 59-46, 62-51, 62-52 -- J Kiryluk
+
+December 08, 2009, Alex Olivas
+------------------------------
+Release V01-01-04
+
+Feature:
+
+- made a python dir so the static bad dom list is easier to include -- A Olivas
+
+December 05, 2009, Fabian Kislat
+--------------------------------
+Release V01-01-03
+
+Bugfix:
+
+- Move example script out of test script directory. -- J Kiryluk
+
+December 04, 2009, Fabian Kislat
+--------------------------------
+Release V01-01-02
+
+Features:
+
+- Add static bad DOM list handling -- J Kiryluk
+
+October 29, 2008, Martin Merck
+------------------------------
+Release V01-01-01
+
+Features:
+
+- Include results from BadDomsDropped table
+- Now a conditional module -- O Fadiran
+- Allow for existing database connections -- M Merck
+
+August 19, 2008, Fabian Kislat
+------------------------------
+Release V01-01-00
+
+Improvements:
+
+- Don't build BadDomList if libXML2 is not found -- F Kislat
+
+Features:
+
+- Added Auto_Launch to the list of Sources/Analysis -- O Fadiran
+
+Bugfixes:
+
+- Four datamembers (Theshold/prob etc) were int but should be double.
+  Dipo thinks that the wrong types did not affect the correct working
+  of the module.  -- D Boersma
+  
+- Fixed wrong RunNo screen output -- O Fadiran
+
+April 07, 2008, Stefan Schlensted
+---------------------------------
+Release V01-00-00
+
+- Initial release

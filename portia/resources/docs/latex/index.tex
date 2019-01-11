@@ -1,0 +1,45 @@
+\begin{Desc}
+\item[Author:]Aya Ishihara $<$aya @ icecube.wisc.edu$>$\end{Desc}
+\section{Overview}\label{index_Overview}
+\doxyref{I3Portia}{p.}{classI3Portia} filles classes of \doxyref{I3Portia\-Pulse}{p.}{classI3PortiaPulse} and \doxyref{I3Portia\-Event}{p.}{classI3PortiaEvent}
+
+\begin{Desc}
+\item[\mbox{[}What Portia does\mbox{]}]\end{Desc}
+Portia loops over all the DOM launches and integrate ATWD and FADC waveform divided by a single charge. Output pulse information is stored in \doxyref{I3Portia\-Pulse}{p.}{classI3PortiaPulse} class. \doxyref{I3Portia\-Pulse}{p.}{classI3PortiaPulse} has a member of I3Reco\-Pulse and basic information is filled in the class. Output NPEs from ATWD and FADC are compared dom-by-dom basis and whichever gives a larger value is summed up for the event-sum NPE value. These event-wise information is stored in \doxyref{I3Portia\-Event}{p.}{classI3PortiaEvent} class. Main members are NPE from ATWD and FADC whichever gives larger value, ATWD based NPE sum, and FADC based NPE sum.
+
+\begin{Desc}
+\item[\mbox{[}Making the best pulse\mbox{]} ]\end{Desc}
+There is an option to make best pulse. The best pulse means that in addition to the ATWD based NPE, FADC based NPE obtaind after the ATWD time-window size is added. This is effective because ATWD time window is narrow but saturation point is high, while FADC time window is wide but saturation point is low.
+
+If this option is chosen, the event-wise best NPE value is also calculated based on the sum of ATWD plus after-window FADC based NPEs.
+
+\begin{Desc}
+\item[\mbox{[}Baseline estimation\mbox{]} ]\end{Desc}
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em }]All the parameters are in the standard Ice\-Tray units with I3Units.\end{description}
+\end{Desc}
+Data\-Readout\-Name: Input raw data I3DOMLaunch name (default Clean\-In\-Ice\-Raw\-Data)\par
+  Out\-Portia\-Event\-Name: Out (default \char`\"{}Portia\-Event\char`\"{})\par
+  PMTGain: default PMT gain value (default 1.e7)\par
+  ATWDPulse\-Series\-Name: Output name for reco pulse from ATWD (default \char`\"{}ATWDPulse\-Series\char`\"{})\par
+  ATWDPortia\-Pulse\-Name: Output name for portia pulse from ATWD (default \char`\"{}ATWDPortia\-Pulse\char`\"{})\par
+  ATWDWaveform\-Name: Input calibrated ATWD waveform name (default \char`\"{}Calibrated\-ATWD\char`\"{})\par
+  ATWDBase\-Line\-Option: Baseline option, currently first,last,lower,first\_\-or\_\-last,iteration or eheoptimized are available (default \char`\"{}eheoptimized\char`\"{})\par
+  ATWDThreshold\-Charge: Threshold charge above which an waveform is considered to be a pulse(default 0.1p\-C)\par
+  ATWDLEThreshold\-Amplitude: the time the waveform crosses this value is considered to be LE time (default 0.5m\-V)\par
+  Use\-FADC: if both ATWD and FADC are used (default True)\par
+  FADCPulse\-Series\-Name: Output name for reco pulse from FADC (default \char`\"{}FADCPulse\-Sereis\char`\"{})\par
+  FADCPortia\-Pulse\-Name: Output name for portia pulse from FADC (default \char`\"{}FADCPortia\-Pulse\char`\"{})\par
+  FADCWaveform\-Name: Input calibrated FADC waveform name (default FADC)\par
+  FADCBase\-Line\-Option: Baseline option, currently first,last,lower,first\_\-or\_\-last,iteration or eheoptimized are available (default \char`\"{}eheoptimized\char`\"{})\par
+  FADCThreshold\-Charge: Threshold charge above which an waveform is considered to be a pulse(default 0.1p\-C)\par
+  FADCLEThreshold\-Amplitude: the time the waveform crosses this value is considered to be LE time (default 0.5m\-V)\par
+  Make\-Best\-Pulse\-Series: Select to do if best pulse is from both ATWD and FADC (default False)\par
+  Best\-Portia\-Pulse\-Name: output best portia pulse in case Make\-Best\-Pulse\-Series is true (default \char`\"{}Best\-Portia\-Pulse\char`\"{})\par
+  Make\-Ice\-Top\-Pulse: Select to make Ice\-Top pulses(default False)\par
+  Top\-Data\-Readout\-Name:Ice\-Top Dom\-Launch name (default \char`\"{}Clean\-Ice\-Top\-Raw\-Data\char`\"{})\par
+  in\-Top\-ATWDWaveform\-Name:Input Ice\-Top waveform name (default \char`\"{}Calibrated\-Ice\-Top\-ATWD\char`\"{})\par
+\section{structure}\label{index_Class}
+ 

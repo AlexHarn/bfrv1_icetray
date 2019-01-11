@@ -1,0 +1,239 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+November 29, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+Release V00-04-02
+
+* remove I3XMLSummaryServiceFactory from example
+* doc cleanup
+* script cleanup: remove `Finish()` and TrashCan
+
+March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+Release V00-04-01
+
+* Remove explicit scipy dependency
+* Add serialization dependency
+* Move examples to use gullivers shiny new OutputName parameter
+
+May 2, 2016 Kevin Meagher (kmeagher@ulb.ac.be)
+------------------------------------------------------------------
+Release V00-04-00
+
+* Added a replacement module for I3ParticleForgeModule.  We'll need this for Cascade L3 at the very least. (r137596)
+* Add scipy dependency
+* Switch to Sphinx docs
+* add examples and unit tests
+* add `std::` to `isnan()`
+* remove `TweakAMANDAPulses`
+* remove `IC40Correction`
+* remove cruft and TODOs
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+------------------------------------------------------------------
+Release V00-03-05
+
+- Recognize I3_TESTDATA
+- Removed AMANDA-specific hacks
+
+  -- Alex Olivas
+
+
+July 11, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-04
+
+- Bring pybindings up from subdirectories
+- Delay pylab import until it is actually needed
+
+  -- Jakob van Santen
+
+
+January 29, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-03
+
+- Replace CFirst+ToI+ParticleForge with CLast in testdata.py script
+
+  -- Jakob van Santen
+
+- Replace uses of finite with the more standard std::isfinite
+
+  -- Chris Weaver
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V00-03-02
+
+- Add #ifndef NDEBUG and #endif around some log_trace messages to 
+  avoid compiling problems in Release build
+- Replace obsolete code (FillPhotonicsSource and CalcDistance) with
+  newer code
+
+  -- David Boersma
+
+- Remove log4cplus dependency
+- Make project compatible with Python 3
+- Updates to be compatible with dataclasses trunk (no functional or
+  non-backwards-compatible changes)
+
+  -- Nathan Whitehorn
+
+- Import dataio
+
+  -- Jakob van Santen
+
+
+April 4, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-03-01
+
+Bugfix:
+
+- Saturation limit option is now usable
+
+  -- Chang Hyon
+
+
+January 18, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-03-00
+
+Feature:
+
+- Added the parameter LightScale to let the user apply a constant
+  correction factor to the photonics charge prediction.
+  The default value is 1, so the user has to adjust it
+
+  -- Eike Middell
+
+- Make IC40 specific scaling of photonics amplitudes optional
+
+  -- Hans Niederhausen
+
+Bugfix:
+
+- Clean up CLang warnings
+
+  -- Kevin Meagher
+
+- Remove dependency on FeatureExtractor in the test script
+
+  -- Emanuel Jacobi
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-04
+
+- Use GetName() instead of getting a configuration from the context
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-03
+
+Feature:
+
+- Allow PhotonicsServices to be passed directly as wrapped pointers for
+  compatibility with Millipede
+
+  -- Jakob van Santen
+
+Bugfix:
+
+- Remove dependencies
+- Update example scripts
+
+  -- Nathan Whitehorn
+
+
+January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-02
+
+- Fixed namespace
+
+  -- Emanuel Jacobi
+
+- Use new SetGeometry method
+
+  -- Robert Franke
+
+- Retire python wrapped I3PhotonicsService
+- Removed root dependency
+
+  -- Nathan Whitehorn
+
+
+August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V00-02-01
+
+Bugfix:
+
+- Adapted to various changes in offline-software
+
+  -- several authors
+
+
+October 18, 2010, Eike Midddell
+-------------------------------------------------------------------------------
+Release V00-02-00
+
+- support for relative DOM efficiencies added by A. Stoessl
+- bugfix+unit test regarding the calculation of the photonics correction factor 
+  to avoid nans
+- catch the case of missing gcd objects
+- smaller bugfixes (log messages, counters, numpy dependence)
+
+
+June 04, 2010, Fabian Kislat
+-------------------------------------------------------------------------------
+Release V00-01-03
+
+Fix test -- Fabian Kislat
+
+
+April 06, 2010, Fabian Kislat
+-------------------------------------------------------------------------------
+Release V00-01-02
+
+Improvements:
+
+- Make it compile with current offline-software trunk
+- Fixed logging messages
+
+  -- Fabian Kislat
+
+
+March 11, 2010, Fabian Kislat
+-------------------------------------------------------------------------------
+Release V00-01-01
+
+Bugfix:
+
+- Missed a .c_str() when passing a string to log_* 
+
+  -- E. Middell
+
+
+December 04, 2009, Eike Middell
+-------------------------------------------------------------------------------
+Release V00-01-00
+
+Initial release, code reviewed by Tom Feusels
+
+Most changes since the last non-release trunk version are internally and don't
+change the behaviour. The unused parameter "EventHypothesis" was removed.
+Several unit tests and example scripts were added.
+
+

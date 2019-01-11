@@ -1,0 +1,44 @@
+.. $Id: RELEASE_NOTES  79391 2011-10-10 olivas $
+.. $Author: olivas $
+.. $Date: 2011-10-10 $
+
+Release Notes
+=============
+
+trunk
+-----
+
+June 22, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-------------------------------------------------------------------
+V01-04-01 - Incremental release
+* Minor code cleanup
+
+Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-------------------------------------------------------------------
+
+V01-04-00 - Incremental release
+* Updated dox and scripts
+
+March 24, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
+-------------------------------------------------------------------
+
+V01-03-00 - Incremental release
+
+
+* Added method GetSnowHeight to tank response service
+* g4-tankresponse now compiles and runs with Geant4.10.
+  This is still not the standard setting though.
+* G4 simulation now propagates air shower components from particles
+  to photoelectrons (also known as PE-compression).
+
+July 23, 2014 Alex Olivas  (olivas@icecube.umd.edu)
+---------------------------------------------------
+V01-01-01
+---------
+
+* Added neutrinos to G4Interface (they can be kept in CORSIKA files now)
+
+October 10, 2011 Alex Olivas  (olivas@icecube.umd.edu)
+--------------------------------------------------------------------
+
+Going to get serious about release notes for individual projects.

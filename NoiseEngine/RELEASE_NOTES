@@ -1,0 +1,98 @@
+.. $Id$
+.. Project maintainer:  Michael Larson (mjlarson@nbi.ku.dk)
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V01-02-08
+
+- Add python3 compatibility
+- Link against cfitsio
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V01-02-07
+
+- Use internal serialization library
+- Fix gcc_s and healpix-cxx linkage
+
+
+February 19, 2016 Michael Larson (mjlarson@nbi.ku.dk)
+--------------------------------------------------------------------
+Release V01-02-06
+Revision 142115
+- Removed the templating that's existed forever. No one should be using I3DOMLaunches with this anyway.
+- Added actual RST documentation
+- Added some python test scripts to test the module and tray segment
+
+April 3, 2015 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-02-05
+
+- Support healpix-cxx as a tool, not as a project
+- Clean up CMakeLists.txt
+
+  -- Don la Dieu
+
+- Skip NoiseEngine if the healpix-cxx tool is not found
+
+  -- Jakob van Santen
+
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-02-04
+
+- Making tray segment accessible again
+
+  -- Michael Larson
+
+
+April 8, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-02-03
+
+- Add and implement pybindings
+- Move HitPair.h to public
+- Change HitPairVect back to boost::shared_ptr<HitPair> 
+
+  -- Melanie Day
+
+
+January 13, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-02-02
+
+- Added options to the trunk for debugging
+
+  -- Michael Larson
+
+
+August 21, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-02-01
+
+- Clean up deprecation warnings related to new dataclasses release
+
+  -- Meike de With
+
+
+July 23, 2013, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-02-00
+
+- Changes from code review were in the trunk instead of the releases
+  directory, so fixing that before cutting a release from it.
+- Add backwards compatibility for log4cplus.
+
+  -- Michael Larson
+
+
+May 30, 2013, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+
+- copied from http://code.icecube.wisc.edu/svn/sandbox/larson/NoiseEngine/releases/V01-01-00/
+

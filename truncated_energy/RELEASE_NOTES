@@ -1,0 +1,154 @@
+.. $Id$
+.. $Author$
+.. $Date$
+
+Release Notes
+=============
+
+June 12, 2018 Kevin Meagher
+---------------------------
+Release V00-01-11
+
+- Documentation cleanups
+- Script Cleanup (remove `Finish()` and `TrashCan`
+
+
+March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
+--------------------------------------------------------------------
+Release V01-01-10
+
+- Use internal serialization library
+- Enable python import
+- Python 3 fixup
+- Remove references to OMKey::IsInIce() and OMKey::IsIceTop()
+  -- Mike Richman (from svn log)
+
+May 5, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V01-01-09
+* Only consider InIce DOMs
+
+May 5, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V01-01-08
+* Bugfix release.
+
+May 2, 2016 Alex Olivas
+--------------------------------------------------------------------
+Release V01-01-07
+* Don't look for scintillator RDEs.  Just return 1.
+
+December 9, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-01-06
+
+- Get rid of photorec-llh by copying the GetRDE function from
+  photorec-llh to truncated_energy itself
+- Remove the gsl dependancy
+
+  -- Martin Wolf
+
+
+January 15, 2014 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-01-05
+
+- Cleaning up deprecation warnings
+
+  -- Meike de With
+
+
+August 20, 2013 Meike de With (meike.de.with@desy.de)
+--------------------------------------------------------------------
+Release V01-01-04
+
+- Make project compatible with Python 3
+
+  -- Nathan Whitehorn
+
+- Change an else if that is always true once you get to this stage
+  to an else to prevent a compiler warning
+
+  -- Claudio Kopper
+
+
+February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-01-03
+
+- Update CMakeLists.txt
+- Removed dependency on log4cplus
+
+  -- Nathan Whitehorn
+
+
+September 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-01-02
+
+- Silence compiler warnings
+
+  -- David Boersma
+
+- Remove unnecessary dependencies. 
+
+  -- Nathan Whitehorn
+
+
+June 25, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-01-01
+
+- Put the truncated dEdX values into the frame
+
+  -- Martin Wolf
+
+
+March 6, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-01-00
+
+- Added "UseAllDOMs" mode to the code. In this mode, additional particles
+  are written to the frame for which all DOMs instead of only hit ones
+  are used in the likelihood reconstruction. Calibration formulas were
+  provided by Sandy.
+- Added configuration parameter for BadDomList support, only important for
+  new "UseAllDOMs" mode (in case the input pulse map was cleaned properly).
+- Updated the calibration formula for ORIG_Neutrino with Sandy's new values.
+
+  -- Marius Wallraff
+
+- Added PushFrame() to Geometry and Calibration stops
+- changed BINS equation number for < 20 DOMs, middle energies
+- exclude bad DOMs, sort DOMs ratio list from lower to higher values
+
+  -- Martin Wolf
+
+- Updated primary equations for Truncated method
+
+  -- Sandy Miarecki
+
+
+February 7, 2012, Emanuel Jacobi  (emanuel.jacobi@desy.de)
+--------------------------------------------------------------------
+Release V01-00-00
+
+- Initial Release
+
+  - copied from sandbox/smiarecki/truncated_energy
+
+
+October 25, 2011, Sandy Miarecki
+--------------------------------------------------------------------
+Pre-Release V00-00-01
+
+The sandbox version has undergone first stage code review and is awaiting 
+release.  Major revisions since the beginning of the code include removing 
+all analysis programming and zeroing in on the final cuts and equations
+for energy calculations.  The code still needs to be updated with current
+IceCube coding (such as exchanging maps and vectors for the matrices currently
+used to add up the photoelectrons), which will occur in future releases.
+The major focus of this pre-release was to enter code review quickly in order
+to use the module in Level 3 processing of IC79 dataset.
+
+
