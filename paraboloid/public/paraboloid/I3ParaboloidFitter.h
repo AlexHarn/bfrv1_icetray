@@ -121,12 +121,9 @@ private:
 
     /// event likelihood service (should be same as the one used for the input fit)
     I3EventLogLikelihoodBasePtr eventLLH_;
+    I3MinimizerBasePtr minimizer_;
 
     // configurables
-    std::string seedServiceName_;     /// name of seed service for input track
-    std::string gridSeedServiceName_; /// name of seed service for tweaking the grid point seed
-    std::string llhName_;             /// name of likelihood service (should be same as the one used for the input fit)
-    std::string miniName_;            /// name of minimizer service
     std::string mcName_;              /// name of minimizer service
     int nMaxMissingGridPoints_;       /// max number of grid points for which vertex refit may fail, before we give up
     double vertexStepSize_;           /// initial stepsize for vertex refit (not too big)

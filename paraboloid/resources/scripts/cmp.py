@@ -51,6 +51,7 @@ tablekeys+=["linefit","linefitParams"]
 # standard Pandel SPE fit
 mininame,paraname,llhname,seedname,fitname = \
         tray.AddSegment(lilliput.segments.I3SinglePandelFitter,"SPEpandelfit",
+                fitname="SPEpandelfit",
                 pulses=pulses,
                 seeds=["linefit"])
 tablekeys+=[fitname,fitname+"FitParams"]
@@ -58,6 +59,7 @@ tablekeys+=[fitname,fitname+"FitParams"]
 # standard paraboloid for Pandel SPE fit
 pbf_mininame,pbf_llhname,pbf_input_seedname,pbf_grid_seedname,pbf_name = \
 tray.AddSegment(lilliput.segments.I3ParaboloidPandelFitter, "pbf",
+    fitname="pbf",
     pulses=pulses,
     inputtrack=fitname,
     input_tstype='TNone',

@@ -50,19 +50,19 @@ I3ParaboloidFitter::I3ParaboloidFitter(const I3Context& ctx) : I3ConditionalModu
 
     // options
 
-    AddParameter( "Minimizer", "Name of minimizer service to use.\n"
+    AddParameter( "Minimizer", "Name of or pointer to minimizer service to use.\n"
                   "If this option is left empty (or if the VertexStepSize\n"
                   "option is set to zero), then NO vertex refitting will be\n"
                   "done at the paraboloid grid points. This makes the\n"
                   "paraboloid fit much faster, but also probably less\n"
                   "accurate.",
-                  miniName_ );
+                  minimizer_ );
 
-    AddParameter( "LogLikelihood", "LogLikelihood service to use",
-                  llhName_ );
+    AddParameter( "LogLikelihood", "Name of or pointer to LogLikelihood service to use",
+                  eventLLH_ );
 
-    AddParameter( "SeedService", "Name of seed service",
-                  seedServiceName_ );
+    AddParameter( "SeedService", "Name of or pointer to seed service",
+                  seedService_ );
 
     AddParameter( "OutputName",
                   "Name of the output I3Particle, and prefix for any fit "
@@ -70,12 +70,12 @@ I3ParaboloidFitter::I3ParaboloidFitter(const I3Context& ctx) : I3ConditionalModu
                   "" );
 
     AddParameter( "GridPointVertexCorrection",
-                  "Name of seed service to use for vertex corrections done "
+                  "Name of or pointer to  seed service to use for vertex corrections done "
                   "on grid points before trying to refit the vertex. "
                   "This aims to increase the convergence rate for all fits "
                   "in the grid. Default behavior (empty string): "
                   "no vertex correction for grid points.",
-                  gridSeedServiceName_ );
+                  gridSeedService_ );
 
     nMaxMissingGridPoints_ = 0;
     AddParameter( "MaxMissingGridPoints",
@@ -151,11 +151,11 @@ I3ParaboloidFitter::~I3ParaboloidFitter(){
 //----------------------------------------------------------------------------
 void I3ParaboloidFitter::Configure(){
 
-    GetParameter( "Minimizer", miniName_ );
-    GetParameter( "LogLikelihood", llhName_ );
-    GetParameter( "SeedService", seedServiceName_ );
+    GetParameter( "Minimizer", minimizer_ );
+    GetParameter( "LogLikelihood", eventLLH_ );
+    GetParameter( "SeedService", seedService_ );
     GetParameter( "OutputName", fitName_ );
-    GetParameter( "GridPointVertexCorrection", gridSeedServiceName_ );
+    GetParameter( "GridPointVertexCorrection", gridSeedService_ );
     GetParameter( "MaxMissingGridPoints", nMaxMissingGridPoints_ );
     GetParameter( "VertexStepSize", vertexStepSize_ );
     GetParameter( "ZenithReach", zenithReach_ );
@@ -174,73 +174,20 @@ void I3ParaboloidFitter::Configure(){
 
     bool fatal = false;
     
-    if (miniName_.empty()){
-      if (vertexStepSize_ <= 0.){
-	log_notice( "Module \"%s\" configured with parameters "
-		    "minimizer=\"%s\" and vertexstepsize=%.1fm."
-		    "This means I will NOT do vertex refitting at the"
-		    "paraboloid grid points, I will just evaluate the"
-		    "likelihoods with the grid directions.",
-		    GetName().c_str(), miniName_.c_str(), vertexStepSize_ );
-	vertexStepSize_ = 0.;
-	miniName_ = "";
-      }else{
-	log_error( "Module \"%s\" configured with parameters "
-		   "minimizer=\"%s\" and vertexstepsize=%.1fm. "
+    if (vertexStepSize_ > 0. && !minimizer_){
+	log_fatal( "Module \"%s\" configured no minimizer "
+		   "and vertexstepsize=%.1fm. "
 		   "You must set the vertexstepsize to <=0.0 "
 		   "to run with out vertex refitting.",
-		   GetName().c_str(), miniName_.c_str(), vertexStepSize_ );
+		   GetName().c_str(), vertexStepSize_ );
 	fatal=true;
-      }
-    }else{
-      if (context_.Has< I3MinimizerBase >( miniName_ )) {
-	log_info( "Module \"%s\": Found minimizer service \"%s\"",
-		   GetName().c_str(),miniName_.c_str());
-      }else{
-	log_error("Module \"%s\" was configured with parameter "
-		  "Minimizer = \"%s\", but no minimizer service by that name could be found",
-		  GetName().c_str(),miniName_.c_str());
-	fatal = true;
-      }
-    }
-    
-    if (context_.Has< I3EventLogLikelihoodBase >( llhName_ )){
-      log_info( "Module \"%s\": Found likelihood service \"%s\"",
-		 GetName().c_str(),llhName_.c_str());
-    }else{
-      log_error("Module \"%s\" was configured with parameter "
-		"LogLikelihood = \"%s\", but no likelihood service by that name could be found",
-		GetName().c_str(),llhName_.c_str());
-      fatal = true;
     }
 
-    if (context_.Has< I3SeedServiceBase >( seedServiceName_ )){
-      log_info( "Module \"%s\": Found seed service \"%s\"",
-		 GetName().c_str(),seedServiceName_.c_str());
-    }else{
-      log_error("Module \"%s\" was configured with parameter "
-		"SeedService = \"%s\", but no seed service by that name could be found",
-		GetName().c_str(),seedServiceName_.c_str());
-      fatal=true;
-    }
-
-    if ( gridSeedServiceName_.empty() ){
+    if ( !gridSeedService_ ){
       log_notice( "Module \"%s\": configured with parameter GridPointVertexCorrection=\"\","
 		  "grid seeds will NOT get vertex corrections before the "
 		  "vertex fit. ", GetName().c_str() );
-    } else {
-      if (context_.Has< I3SeedServiceBase >( gridSeedServiceName_ )){
-	log_info( "Module \"%s\": Found GridPointVertexCorrection service \"%s\"",
-		   GetName().c_str(),seedServiceName_.c_str());
-      }else{
-	log_error("Module \"%s\" was configured with parameter "
-		  "GridPointVertexCorrection = \"%s\", "
-		  "but no seed service by that name could be found",
-		  GetName().c_str(),seedServiceName_.c_str());
-	fatal=true;
-      }	
     }
-
     
     log_info( "Module \"%s\": configured with vertex stepsize %f meters",
 	      GetName().c_str(), vertexStepSize_/I3Units::m);
@@ -275,6 +222,24 @@ void I3ParaboloidFitter::Configure(){
 		 GetName().c_str(), nSteps_);
       fatal=true;
     }
+    if (!eventLLH_) {
+        log_info("No likelihood service configured");
+        fatal=true;
+    }
+    if (!seedService_) {
+        log_info("No seed service configured");
+        fatal=true;
+    }
+    // Optional parameters are a special case. Figure out of the user meant to
+    // leave it unconfigured, or just screwed up.
+    if (!gridSeedService_){
+        std::string gridSeedServiceName;
+        GetParameter("GridPointVertexCorrection", gridSeedServiceName);
+        if (!gridSeedServiceName.empty()) {
+            log_info_stream("No grid seed service named "<<gridSeedServiceName<<" found");
+            fatal=true;
+        }
+    }
     
     if ( fatal ){
       log_fatal( "Module \"%s\" encounterd one or more errors while configuring the "
@@ -282,9 +247,6 @@ void I3ParaboloidFitter::Configure(){
 		 GetName().c_str() );
       return;
     }
-
-    seedService_ = context_.Get< I3SeedServiceBasePtr >( seedServiceName_ );
-    eventLLH_ = context_.Get< I3EventLogLikelihoodBasePtr >( llhName_ );
 
     if ( vertexStepSize_ > 0. ){
         const std::vector<double> nobounds(2,0.0);
@@ -304,16 +266,10 @@ void I3ParaboloidFitter::Configure(){
             new I3Gulliver( 
                 vertexParametrization_,
                 eventLLH_,
-                context_.Get< I3MinimizerBasePtr >( miniName_ ),
+                minimizer_,
                 GetName()
             )
         );
-    }
-
-    assert( seedService_ );
-    if ( ! gridSeedServiceName_.empty() ){
-        gridSeedService_ =
-            context_.Get< I3SeedServiceBasePtr >( gridSeedServiceName_ );
     }
 
     if ( mcName_.empty() ){
@@ -525,8 +481,8 @@ bool I3ParaboloidFitter::NDFOK(const I3Frame &f, I3EventHypothesis &hypothesis){
             log_error( "(%s) Event has bad multiplicity: NDF=%d.",
                        GetName().c_str(), ndf_ );
             log_error( "(%s) This is really bad: your 'seed' fit should already have failed on this event, "
-                       "but the seed service (%s) apparently found that it had OK fit status.",
-                       GetName().c_str(), seedServiceName_.c_str() );
+                       "but the seed service apparently found that it had OK fit status.",
+                       GetName().c_str() );
             log_error( "(%s) One way to land in this miserable situation is if you configured paraboloid with "
                        "different pulsemap or a different likelihood configuration than the input llh fit.",
                        GetName().c_str() );
