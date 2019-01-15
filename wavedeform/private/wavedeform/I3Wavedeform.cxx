@@ -45,11 +45,11 @@ class I3Wavedeform : public I3ConditionalModule
 	private:
 
 		I3RecoPulseSeriesPtr GetPulses(
-        const I3WaveformSeries::const_iterator firstWF,
-        const I3WaveformSeries::const_iterator lastWF,
-        const WaveformTemplate& wfTemplate,
-        const I3DOMCalibration& calibration,
-        const double spe_charge);
+			const I3WaveformSeries::const_iterator firstWF,
+			const I3WaveformSeries::const_iterator lastWF,
+			const WaveformTemplate& wfTemplate,
+			const I3DOMCalibration& calibration,
+			const double spe_charge);
 
 		std::string waveforms_name_;
 		std::string waveform_range_name_;
