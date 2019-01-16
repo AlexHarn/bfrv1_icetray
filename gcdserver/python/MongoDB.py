@@ -199,7 +199,10 @@ def fillBlobDB(db, run=sys.maxint, configuration=None):
 def getDocumentCounts(db):
     ret = {}
     for coll in COLLECTION_NAMES:
-        ret[coll] = db[coll].count()
+        try:
+            ret[coll] = db[coll].count_documents()
+        except:
+            ret[coll] = db[coll].count()
     return ret
 
 
