@@ -79,3 +79,5 @@ class GCDGenerator(icetray.I3Module):
         fr['I3FlasherSubrunMap'] = fdata
         self.PushFrame(fr)
 
+        self.RequestSuspension()
+
