@@ -4,7 +4,7 @@
 from functools import partial
 
 from I3Tray import *
-from icecube import (icetray, dataclasses, dataio, tableio, rootwriter,
+from icecube import (icetray, dataclasses, dataio, 
                      phys_services, gulliver, cscd_llh)
 
 from icecube.filterscripts.offlineL2.Globals import ehe_wg, ehe_wg_Qstream
@@ -44,6 +44,7 @@ def SLOPWriter(tray, name, Filename):
 @icetray.traysegment
 def RootWriter(tray, name, Filename):
     """Root Output"""
+    from icecube import tableio, rootwriter
     root = rootwriter.I3ROOTTableService(Filename, 'MasterTree')
     converter = phys_services.converters.I3EventInfoConverterFromRecoPulses()
     tray.AddModule(tableio.I3TableWriter, 'TableWriter',

@@ -16,14 +16,11 @@ def run(gcdfile, infiles, outfile, num=-1):
         outfile (str): filename to write out to
         num (int): number of frames to process (default: all)
     """
-    from icecube import icetray, dataclasses, dataio, WaveCalibrator, wavedeform, payload_parsing
+    from icecube import icetray, dataclasses, dataio
     from I3Tray import I3Tray
-    from icecube.icetray import OMKey
 
-    from icecube.filterscripts.baseproc_daqtrimmer import DAQTrimmer
-    from icecube.filterscripts.baseproc_superdst import SuperDST, MaskMaker
-    from icecube.filterscripts.baseproc_onlinecalibration import OnlineCalibration, DOMCleaning
     from icecube.filterscripts import filter_globals
+    from icecube.filterscripts.pass3.l1_pre_sdst import raw_to_sdst
 
     tray = I3Tray()
 
@@ -42,37 +39,7 @@ def run(gcdfile, infiles, outfile, num=-1):
 
     tray.AddModule('QConverter', WritePFrame=False)
 
-    tray.AddSegment(
-        payload_parsing.I3DOMLaunchExtractor, "decode",
-        MinBiasID = 'MinBias',
-        FlasherDataID = 'Flasher',
-        CPUDataID = "BeaconHits",
-        SpecialDataID = "SpecialHits",
-        SpecialDataOMs = [OMKey(0,1),
-                          OMKey(12,65),
-                          OMKey(12,66),
-                          OMKey(62,65),
-                          OMKey(62,66)]
-    )
-
-    tray.AddSegment(DOMCleaning, "_DOMCleaning")
-
-    tray.AddSegment(OnlineCalibration, 'Calibration', 
-                    simulation=False, WavedeformSPECorrections=True,
-                    Harvesting=filter_globals.do_harvesting)
-    tray.AddSegment(SuperDST, 'SuperDST',
-        InIcePulses=filter_globals.UncleanedInIcePulses, 
-        IceTopPulses='IceTopPulses',
-        Output = filter_globals.DSTPulses
-    )
-
-    # Set up masks for normal access
-    tray.AddModule(MaskMaker, '_superdst_aliases',
-                   Output=filter_globals.DSTPulses,
-                   Streams=[icetray.I3Frame.DAQ]
-    )
-
-    tray.AddSegment(DAQTrimmer, 'DAQTrimmer')
+    tray.AddSegment(raw_to_sdst)
 
     tray.AddModule('Rename', Keys=['UncleanedInIcePulsesTimeRange', 'I3SuperDSTTimeRange'])
 
