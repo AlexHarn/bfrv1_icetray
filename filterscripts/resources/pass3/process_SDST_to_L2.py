@@ -40,8 +40,9 @@ def run(gcdfile, infiles, outfile, gapsfile=None, num=-1, ic79_geometry=False):
     # so that modules in L1 processing don't use it...
     def rename_bad_DOM_lists(frame):
         for k in ('BadDomsList', 'BadDomsListSLC', 'IceTopBadDOMs', 'IceTopBadTanks'):
-            frame[k+'_old'] = frame[k]
-            del frame[k]
+            if k in frame:
+                frame[k+'_old'] = frame[k]
+                del frame[k]
     tray.AddModule(rename_bad_DOM_lists, "rename_bad_DOM_lists",
         Streams=[icetray.I3Frame.DetectorStatus])
 
@@ -51,8 +52,9 @@ def run(gcdfile, infiles, outfile, gapsfile=None, num=-1, ic79_geometry=False):
     # restore GCD bad DOM object names to original
     def restore_bad_DOM_lists(frame):
         for k in ('BadDomsList', 'BadDomsListSLC', 'IceTopBadDOMs', 'IceTopBadTanks'):
-            frame[k] = frame[k+'_old']
-            del frame[k+'_old']
+            if k+'_old' in frame:
+                frame[k] = frame[k+'_old']
+                del frame[k+'_old']
     tray.AddModule(restore_bad_DOM_lists, "restore_bad_DOM_lists",
         Streams=[icetray.I3Frame.DetectorStatus])
 
