@@ -94,7 +94,7 @@ def getDB(dbhost, dbuser, dbpass):
     db = pymongo.MongoClient(dbhost)[DATABASE_NAME]
     # First, try without authentication
     try:
-        db.collection_names()
+        db[GEO_COLLECTION_NAME].index_information()
         # We have all privileges on db
     except:
         # We need to authenticate
