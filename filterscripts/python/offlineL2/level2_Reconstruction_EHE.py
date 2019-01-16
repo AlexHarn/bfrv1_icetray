@@ -48,9 +48,20 @@ def ReconstructionEHE(tray, name, Pulses = 'EHETWCInIcePulsesSRT',
 
     tray.AddSegment( linefit.simple, LineFit + suffix, inputResponse = Pulses, fitName = LineFit + suffix, If = If )
     
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, SPEFitSingle + suffix, pulses = Pulses, seeds = [LineFit + suffix], If = If )
+    tray.AddSegment(lilliput.segments.I3SinglePandelFitter, SPEFitSingle + suffix,
+                    fitname = SPEFitSingle + suffix,
+                    pulses = Pulses,
+                    seeds = [LineFit + suffix],
+                    If = If
+                    )
     
-    tray.AddSegment( lilliput.segments.I3IterativePandelFitter, SPEFit + suffix, pulses = Pulses, n_iterations = N_iter, seeds = [ SPEFitSingle + suffix ], If = If )
+    tray.AddSegment(lilliput.segments.I3IterativePandelFitter, SPEFit + suffix,
+                    fitname = SPEFit + suffix,
+                    pulses = Pulses,
+                    n_iterations = N_iter,
+                    seeds = [ SPEFitSingle + suffix ],
+                    If = If
+                    )
     
     
 

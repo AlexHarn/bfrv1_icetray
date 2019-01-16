@@ -16,10 +16,21 @@ def SPE(tray, name, Pulses = '', If = lambda f: True, suffix = '',
 
     tray.AddSegment( linefit.simple, LineFit+suffix, inputResponse = Pulses, fitName = LineFit+suffix, If = If )
 
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, SPEFitSingle+suffix, pulses = Pulses, seeds = [LineFit+suffix], If = If )
+    tray.AddSegment(lilliput.segments.I3SinglePandelFitter, SPEFitSingle+suffix,
+                    fitname = SPEFitSingle+suffix,
+                    pulses = Pulses,
+                    seeds = [LineFit+suffix],
+                    If = If
+                    )
     
     if N_iter > 1:
-        tray.AddSegment( lilliput.segments.I3IterativePandelFitter, SPEFit+suffix, pulses = Pulses, n_iterations = N_iter, seeds = [ SPEFitSingle+suffix ], If = If )
+        tray.AddSegment(lilliput.segments.I3IterativePandelFitter, SPEFit+suffix,
+                        fitname = SPEFit+suffix,
+                        pulses = Pulses,
+                        n_iterations = N_iter,
+                        seeds = [ SPEFitSingle+suffix ],
+                        If = If
+                        )
 
     #use only first hits.  Makes sense for an SPE likelihood
     tray.AddModule('CramerRao', name + '_' + SPEFitCramerRao + suffix,
@@ -38,7 +49,13 @@ def MPE(tray, name, Pulses = '', Seed = '', If = lambda f: True, suffix = '',
         MPEFitCramerRao = 'MPEFitCramerRao',
         ):
 
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, MPEFit+suffix, pulses = Pulses, seeds = [ Seed+suffix ], domllh = 'MPE', If = If)
+    tray.AddSegment(lilliput.segments.I3SinglePandelFitter, MPEFit+suffix,
+                    fitname = MPEFit+suffix,
+                    pulses = Pulses,
+                    seeds = [ Seed+suffix ],
+                    domllh = 'MPE',
+                    If = If
+                    )
 
     tray.AddModule('CramerRao', name + '_' + MPEFitCramerRao + suffix,
                    InputResponse = Pulses,

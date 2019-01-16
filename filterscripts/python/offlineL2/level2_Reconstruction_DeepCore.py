@@ -54,9 +54,20 @@ def OfflineDeepCoreReco(tray, name, If = lambda f: True, suffix = '',
 
     tray.AddSegment( linefit.simple,'LineFit'+suffix, inputResponse = Pulses, fitName = 'LineFit'+suffix, If = If)
 
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, 'SPEFitSingle'+suffix, pulses = Pulses, seeds = ['LineFit'+suffix], If = If)
+    tray.AddSegment(lilliput.segments.I3SinglePandelFitter, 'SPEFitSingle'+suffix,
+                    fitname = 'SPEFitSingle'+suffix,
+                    pulses = Pulses,
+                    seeds = ['LineFit'+suffix],
+                    If = If
+                    )
     
-    tray.AddSegment( lilliput.segments.I3IterativePandelFitter, 'SPEFit2'+suffix, pulses = Pulses, n_iterations = 2, seeds = [ 'SPEFitSingle'+suffix ], If = If)
+    tray.AddSegment(lilliput.segments.I3IterativePandelFitter, 'SPEFit2'+suffix,
+                    fitname = 'SPEFit2'+suffix,
+                    pulses = Pulses,
+                    n_iterations = 2,
+                    seeds = [ 'SPEFitSingle'+suffix ],
+                    If = If
+                    )
 
     #use only first hits.  Makes sense for an SPE likelihood
     tray.AddModule('CramerRao', 'SPE2'+suffix + '_SPEFitCramerRao' + suffix,

@@ -64,12 +64,14 @@ def BasicFits(tray, name,
   
     #single iteration fit
     tray.AddSegment( lilliput.segments.I3SinglePandelFitter, 'SPEFitSingle'+suffix,
+      fitname = 'SPEFitSingle'+suffix,
       pulses = Pulses,
       seeds = ['LineFit'+suffix],
       If = If)
     
     #a 2 iteration fit
     tray.AddSegment( lilliput.segments.I3IterativePandelFitter, 'SPEFit2'+suffix,
+      fitname = 'SPEFit2'+suffix,
       pulses = Pulses,
       n_iterations = 2,
       seeds = ['SPEFitSingle'+suffix],
