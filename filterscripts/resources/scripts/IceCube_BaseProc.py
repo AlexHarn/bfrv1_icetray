@@ -168,14 +168,42 @@ tray.AddModule("OrPframeFilterMasks", "make_q_filtermask",
 #Q+P frame specific keep module needs to go first,  you can add additional items you 
 ##  want to keep for your filter testing.
 
-simulation_keeps = ["I3MCTree",
-                    "I3MCTree_preMuonProp",
-                    "I3MCPulseSeriesMap",
-                    "I3MCPulseSeriesMapParticleIDMap",
-                    "MMCTrackList",
-                    #"I3MCPESeriesMap",
-                    #"I3MCPESeriesMapWithoutNoise"
-                    ]
+simulation_keeps = [
+            'BackgroundI3MCTree',
+            'BackgroundI3MCTreePEcounts',
+            'BackgroundI3MCPESeriesMap',
+            'BackgroundI3MCTree_preMuonProp',
+            'BackgroundMMCTrackList',
+            'BeaconLaunches',
+            'CorsikaInteractionHeight',
+            'CorsikaWeightMap',
+            'EventProperties',
+            'GenerationSpec',
+            'I3LinearizedMCTree',
+            'I3MCTree',
+            'I3MCTreePEcounts',
+            'I3MCTree_preMuonProp',
+            'I3MCPESeriesMap',
+            'I3MCPulseSeriesMap',
+            'I3MCPulseSeriesMapParticleIDMap',
+            'I3MCWeightDict',
+            'LeptonInjectorProperties',
+            'MCHitSeriesMap',
+            'MCPrimary',
+            'MCPrimaryInfo',
+            'MMCTrackList',
+            'PolyplopiaInfo',
+            'PolyplopiaPrimary',
+            'RNGState',
+            'SignalI3MCPEs',
+            'SimTrimmer', # for SimTrimmer flag
+            'TimeShift', # the time shift amount
+            'WIMP_params', # Wimp-sim
+            'noise_weight', # weights for noise-only vuvuzela simulations
+            'I3GENIEResultDict' # weight informaition for GENIE simulations
+           ]
+
+
 
 
 prekeeps = filter_globals.q_frame_keeps + \
@@ -206,12 +234,11 @@ if prettyprint:
     exit(0)
 
 
-#tray.Execute()
-tray.Execute(30000)
+tray.Execute()
+#tray.Execute(30000)
 
 tray.PrintUsage(fraction=1.0) 
 for entry in tray.Usage():
-    stats[entry.key()] = entry.data().usertime
     print entry.key(),':',entry.data().usertime
 
 
