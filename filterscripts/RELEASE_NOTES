@@ -4,6 +4,10 @@ Release Notes
 On the trunk
 ------------
 
+V18-12-01
+"""""""""
+* Fixed undefined stats variable
+* Updated simulation_keeps
 * Fixed undefined variable in alerteventfollowup.py
 * Added track length in detector to GFU messages (needed for high-energy muon alerts)
 * Fix IceACT trigger filter (properly decode the trigger information for this trigger)
