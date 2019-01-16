@@ -200,7 +200,7 @@ def getDocumentCounts(db):
     ret = {}
     for coll in COLLECTION_NAMES:
         try:
-            ret[coll] = db[coll].count_documents()
+            ret[coll] = db[coll].estimated_document_count()
         except:
             ret[coll] = db[coll].count()
     return ret
