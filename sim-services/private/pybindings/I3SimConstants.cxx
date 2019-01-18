@@ -66,3 +66,19 @@ void register_I3SimConstants()
     .def( freeze() )
     ;
 }
+
+void register_ShowerParameters()
+{
+    class_<I3SimConstants::ShowerParameters, boost::shared_ptr<I3SimConstants::ShowerParameters> >(
+        "ShowerParameters",
+        init<I3Particle::ParticleType, double, double>(
+            (args("type"),
+            args("energy"),
+            args("density")=0.9216*(I3Units::g/I3Units::cm3))
+        ))
+        .def_readonly("a", &I3SimConstants::ShowerParameters::a)
+        .def_readonly("b", &I3SimConstants::ShowerParameters::b)
+        .def_readonly("emScale", &I3SimConstants::ShowerParameters::emScale)
+        .def_readonly("emScaleSigma", &I3SimConstants::ShowerParameters::emScaleSigma)
+    ;
+}
