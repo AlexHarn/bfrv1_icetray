@@ -96,7 +96,7 @@ def PropagatePhotons(tray, name,
     UseGeant4=False, 
     CrossoverEnergyEM=None, 
     CrossoverEnergyHadron=None, 
-    UnshadowedFraction = 0.99, #changed 2014-10-16 to IC86 nominal preset, IC79 used 0.9
+    UnshadowedFraction = 1.0, #changed 2014-10-16 to IC86 nominal preset, IC79 used 0.9
     DOMOversizeFactor=5.0,
     HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
     InputMCTree="I3MCTree",

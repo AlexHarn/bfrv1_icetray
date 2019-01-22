@@ -148,7 +148,7 @@ class PPC(ipmodule.ParsingModule):
         self.AddParameter("UseGPUs", "Use Graphics Processing Unit",False)
         self.AddParameter('RunMPHitFilter',"Run polyplopia's mphitfilter",True)
         self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
-        self.AddParameter("efficiency","overall DOM efficiency correction",0.99)
+        self.AddParameter("efficiency","overall DOM efficiency correction",1.00)
         self.AddParameter("gpulib","set gpu library to load (defaults to cuda)","opencl")
         self.AddParameter("volumecyl","set volume to regular cylinder (set to False for 300m spacing from the DOMs)",True)
         self.AddParameter("PhotonSeriesName","Photon Series Name","I3MCPESeriesMap") 
