@@ -196,13 +196,21 @@ def fillBlobDB(db, run=sys.maxint, configuration=None):
     return BlobDB(geoObs, calObs, statusObs)
 
 
+def countObj(obj):
+    # Count a pymongo collection or cursor in a way
+    # that is compatible with pymongo >= 3.7
+    try:
+        # First try the 3.7 way
+        return obj.estimated_document_count()
+    except:
+        # OK, do it the < 3.7 way
+        return obj.count()
+
+
 def getDocumentCounts(db):
     ret = {}
     for coll in COLLECTION_NAMES:
-        try:
-            ret[coll] = db[coll].estimated_document_count()
-        except:
-            ret[coll] = db[coll].count()
+        ret[coll] = countObj(db[coll])
     return ret
 
 
@@ -228,7 +236,7 @@ class DBTransaction(object):
     def __nextTransaction(self):
         matches = self.__collection.find().sort(
                                   [(TRANSACTION_KEY, -1)]).limit(1)
-        if matches.count() > 0:
+        if countObj(matches) > 0:
             return matches[0][TRANSACTION_KEY] + 1
         return 0
 
@@ -280,7 +288,7 @@ class DBTransaction(object):
 
     def getTransactionDocument(self):
         matches = self.__collection.find(self.__match)
-        if matches.count() == 0:
+        if countObj(matches) == 0:
             raise DBTransactionError(
                 "Unable to find transaction %d" % self.getTransactionNumber())
         return matches[0]
@@ -343,7 +351,7 @@ class DBInserter(object):
         Just get the number of documents committed in the given transaction
         """
         match = {TRANSACTION_KEY: transaction.getTransactionNumber()}
-        return self._collection.find(match).count()
+        return countObj(self._collection.find(match))
 
     def doCommit(self):
         """

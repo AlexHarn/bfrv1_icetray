@@ -177,7 +177,7 @@ def test_status_duplicates():
                         objectType=D.ObjectType.DOM_CONFIG_LIST)]
         assert len(doms) == 1
         assert doms[0].name == "domConf1"
-        assert statusDB.count() == 3
+        assert MongoDB.countObj(statusDB) == 3
         # Inserting the same configuration shouldn't raise an exception
         with config_file_context("config1", "trig1", "domConf1") as configFile:
             ConfigImport.doInsert(db, [configFile], None)
@@ -190,7 +190,7 @@ def test_status_duplicates():
                         objectType=D.ObjectType.DOM_CONFIG_LIST)]
         assert len(doms) == 1
         assert doms[0].name == "domConf1"
-        assert statusDB.count() == 3
+        assert MongoDB.countObj(statusDB) == 3
         # Re-inserting a configuration with different data
         # but the same name is an error
         with config_file_context("config1", "trig2", "domConf1") as configFile:
@@ -208,12 +208,12 @@ def test_status_duplicates():
                         objectType=D.ObjectType.DOM_CONFIG_LIST)]
         assert len(doms) == 1
         assert doms[0].name == "domConf1"
-        assert statusDB.count() == 5
+        assert MongoDB.countObj(statusDB) == 5
         # Inserting a configuration with a new name but old data should
         # only update the configuration
         with config_file_context("config3", "trig2", "domConf1") as configFile:
             ConfigImport.doInsert(db, [configFile], None)
-        assert statusDB.count() == 6
+        assert MongoDB.countObj(statusDB) == 6
 
 
 def test_transaction():
@@ -268,12 +268,12 @@ def test_inserter():
         assert inserter.docCount() == 1
         transaction = inserter.commit()
         assert inserter.hasTransaction(transaction)
-        assert db[MongoDB.GEO_COLLECTION_NAME].count() == 1
+        assert MongoDB.countObj(db[MongoDB.GEO_COLLECTION_NAME]) == 1
         docs = [doc for doc in db[MongoDB.GEO_COLLECTION_NAME].find()]
         assert docs[0]["doc"] == 1
         assert docs[0][MongoDB.TRANSACTION_KEY] == 0
         assert inserter.getDocumentCount(transaction) == 1
-        assert db[MongoDB.TRANSACTION_COLLECTION_NAME].count() == 1
+        assert MongoDB.countObj(db[MongoDB.TRANSACTION_COLLECTION_NAME]) == 1
         trans = [doc for doc in db[MongoDB.TRANSACTION_COLLECTION_NAME].find()]
         transData = inserter.getTransactionData(transaction)
         assert len(transData[MongoDB.GEO_COLLECTION_NAME]) == 1
@@ -282,8 +282,8 @@ def test_inserter():
         assert transData[MongoDB.TRANSACTION_COLLECTION_NAME][0] == trans[0]
         inserter.rollback(transaction)
         assert not inserter.hasTransaction(transaction)
-        assert db[MongoDB.GEO_COLLECTION_NAME].count() == 0
-        assert db[MongoDB.TRANSACTION_COLLECTION_NAME].count() == 1
+        assert MongoDB.countObj(db[MongoDB.GEO_COLLECTION_NAME]) == 0
+        assert MongoDB.countObj(db[MongoDB.TRANSACTION_COLLECTION_NAME]) == 1
         trans = [doc for doc in db[MongoDB.TRANSACTION_COLLECTION_NAME].find()]
         assert (trans[0][MongoDB.TRANSACTION_STATUS_KEY] == 
                                      MongoDB.TRANSACTION_STATUS_ROLLBACK)
@@ -295,7 +295,7 @@ def test_quick_inserter():
     with test_db_context() as db:
         q = MongoDB.QuickInserter(db)
         q.insert(MongoDB.GEO_COLLECTION_NAME, [{"doc": 1}, {"doc": 2}])
-        assert db[MongoDB.GEO_COLLECTION_NAME].count() == 2
+        assert MongoDB.countObj(db[MongoDB.GEO_COLLECTION_NAME]) == 2
         docs = [doc for doc in db[MongoDB.GEO_COLLECTION_NAME].find()]
         assert docs[0]["doc"] in [1, 2]
         assert docs[1]["doc"] in [1, 2]

@@ -117,8 +117,9 @@ def test_i3ms():
                 geoInserter.commit()
             for i in range(5000):
                 time.sleep(0.1)
-                if (db2[MongoDB.GEO_COLLECTION_NAME].count() == 1 and
-                    db2[MongoDB.TRANSACTION_COLLECTION_NAME].count() == 1):
+                if (MongoDB.countObj(db2[MongoDB.GEO_COLLECTION_NAME]) == 1 and
+                    MongoDB.countObj(
+                        db2[MongoDB.TRANSACTION_COLLECTION_NAME]) == 1):
                     break
                 if i > 50:
                     raise Exception("Never received DB entry from I3MS")
