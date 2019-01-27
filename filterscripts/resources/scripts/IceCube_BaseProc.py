@@ -13,6 +13,8 @@ from icecube.phys_services.spe_fit_injector import I3SPEFitInjector
 
 start_time = time.asctime()
 
+spe_file = os.path.expandvars("/data/ana/SterileNeutrino/IC86/HighEnergy/SPE_Templates/SPE_harvesting/SPE_fits/Fits_923_NewWaveDeform/IC86.2016_923_NewWaveDeform.json")
+
 print 'Started:', start_time
  
 # handling of command line arguments  
@@ -54,6 +56,8 @@ parser.add_option("--alert-followup-GCD-filename", action="store", type="string"
 		  help="filename of the follow-up GCD baseline file")
 parser.add_option("--alert-followup-omit-GCD-diff", action="store_true", default=False,
 		  dest="alert_followup_omit_GCD_diff", help="disable the GCD diff functionality (no GCD information will be sent)")
+parser.add_option("--spe-file", action="store", default=spe_file,
+		  dest="spe_file", help="SPE fit file")
 
 
 # get parsed args
@@ -71,6 +75,7 @@ doalert_followup = options.ALERT_FOLLOWUP
 alert_followup_base_GCD_path = options.alert_followup_base_GCD_path
 alert_followup_base_GCD_filename = options.alert_followup_base_GCD_filename
 alert_followup_omit_GCD_diff = options.alert_followup_omit_GCD_diff
+spe_file = options.spe_file
 
 print 'Opening file %s' % inputfile
  
@@ -104,7 +109,17 @@ tray.Add(dataio.I3Reader, "reader", filenamelist=[GCD,inputfile],
 )
 #tray.AddModule("Dump","readstuff")
 
-spe_file = os.path.expandvars("$I3_BUILD/filterscripts/resources/data/final-spe-fits-pole-run2016_MAY.json.bz2")
+# SPS GCD files do not have any bad DOM information. Rename it
+# so that modules in L1 processing don't use it...
+def rename_bad_DOM_lists(frame):
+    for k in ('BadDomsList', 'BadDomsListSLC', 'IceTopBadDOMs', 'IceTopBadTanks'):
+        if k in frame:
+            frame[k+'_old'] = frame[k]
+            del frame[k]
+tray.AddModule(rename_bad_DOM_lists, "rename_bad_DOM_lists",
+               Streams=[icetray.I3Frame.DetectorStatus])
+
+
 tray.AddModule(I3SPEFitInjector, "fixspe", 
                Filename = spe_file)
 
@@ -235,7 +250,6 @@ if prettyprint:
 
 
 tray.Execute()
-#tray.Execute(30000)
 
 tray.PrintUsage(fraction=1.0) 
 for entry in tray.Usage():
