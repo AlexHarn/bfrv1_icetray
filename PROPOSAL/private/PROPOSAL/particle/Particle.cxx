@@ -7,11 +7,11 @@
  *   \author Jan-Hendrik Koehne
  */
 
+#include <cmath>
 #include "PROPOSAL/particle/Particle.h"
 #include "PROPOSAL/Output.h"
 #include "PROPOSAL/methods.h"
 
-using namespace std;
 using namespace PROPOSAL;
 
 /******************************************************************************
@@ -256,7 +256,7 @@ void Particle::SetEnergy(double energy)
         energy_ = particle_def_.mass;
 
     square_momentum_ = energy * energy - particle_def_.mass * particle_def_.mass;
-    momentum_        = sqrt(max(square_momentum_, 0.0));
+    momentum_        = std::sqrt(std::max(square_momentum_, 0.0));
 }
 
 // ------------------------------------------------------------------------- //
@@ -264,7 +264,7 @@ void Particle::SetMomentum(double momentum)
 {
     momentum_        = momentum;
     square_momentum_ = momentum_ * momentum_;
-    energy_          = sqrt(square_momentum_ + particle_def_.mass * particle_def_.mass);
+    energy_          = std::sqrt(square_momentum_ + particle_def_.mass * particle_def_.mass);
 }
 
 // ------------------------------------------------------------------------- //

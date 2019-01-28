@@ -14,7 +14,6 @@
 #include "PROPOSAL/propagation_utility/PropagationUtilityInterpolant.h"
 
 using namespace PROPOSAL;
-using namespace std;
 
 //----------------------------------------------------------------------------//
 //----------------------------------------------------------------------------//
@@ -101,10 +100,10 @@ long double ScatteringHighlandIntegral::CalculateTheta0(double dr, double ei, do
     double radiation_lenght = scatter_->GetUtility().GetMedium().GetRadiationLength();
 
     // TODO: check if one has to take the absolute value of the particle charge
-    aux = 13.6 * sqrt(max(aux, 0.0) / radiation_lenght) * particle_.GetCharge();
-    aux *= max(1 + 0.038 * log(dr / radiation_lenght), 0.0);
+    aux = 13.6 * std::sqrt(std::max(aux, 0.0) / radiation_lenght) * particle_.GetCharge();
+    aux *= std::max(1 + 0.038 * std::log(dr / radiation_lenght), 0.0);
 
-    return min(aux, cutoff);
+    return std::min(aux, cutoff);
 }
 
 //----------------------------------------------------------------------------//
@@ -116,14 +115,14 @@ Scattering::RandomAngles ScatteringHighlandIntegral::CalculateRandomAngle(double
 
     Theta0 = CalculateTheta0(dr, ei, ef);
 
-    rnd1 = SQRT2 * Theta0 * erfInv(2. * (RandomGenerator::Get().RandomDouble() - 0.5));
-    rnd2 = SQRT2 * Theta0 * erfInv(2. * (RandomGenerator::Get().RandomDouble() - 0.5));
+    rnd1 = Theta0 * inverseErrorFunction(RandomGenerator::Get().RandomDouble());
+    rnd2 = Theta0 * inverseErrorFunction(RandomGenerator::Get().RandomDouble());
 
     random_angles.sx = 0.5 * (rnd1 / SQRT3 + rnd2);
     random_angles.tx = rnd2;
 
-    rnd1 = SQRT2 * Theta0 * erfInv(2 * (RandomGenerator::Get().RandomDouble() - 0.5));
-    rnd2 = SQRT2 * Theta0 * erfInv(2 * (RandomGenerator::Get().RandomDouble() - 0.5));
+    rnd1 = Theta0 * inverseErrorFunction(RandomGenerator::Get().RandomDouble());
+    rnd2 = Theta0 * inverseErrorFunction(RandomGenerator::Get().RandomDouble());
 
     random_angles.sy = 0.5 * (rnd1 / SQRT3 + rnd2);
     random_angles.ty = rnd2;

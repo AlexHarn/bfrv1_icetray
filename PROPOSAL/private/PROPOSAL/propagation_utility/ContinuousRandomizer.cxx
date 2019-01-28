@@ -70,7 +70,7 @@ double ContinuousRandomizer::Randomize(double initial_energy, double final_energ
         return final_energy;
     }
 
-    sigma = sqrt(DE2de->Calculate(initial_energy, final_energy, 0.0));
+    sigma = std::sqrt(DE2de->Calculate(initial_energy, final_energy, 0.0));
 
     // It is not drawn from the real gaus distribution but rather from the
     // area which is possible due to the limits of the initial energy and the
@@ -85,6 +85,5 @@ double ContinuousRandomizer::Randomize(double initial_energy, double final_energ
     rndtmp = xlo + (xhi - xlo) * rnd;
 
     // Calculate and return the needed value.
-    // return SQRT2 * sigma * boost::math::erf_inv(2 * (rndtmp - 0.5)) + final_energy;
-    return SQRT2 * sigma * erfInv(2 * (rndtmp - 0.5)) + final_energy;
+    return sigma * inverseErrorFunction(rndtmp) + final_energy;
 }
