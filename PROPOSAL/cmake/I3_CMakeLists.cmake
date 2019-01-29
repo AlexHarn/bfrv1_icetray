@@ -14,7 +14,7 @@ i3_project(PROPOSAL
 )
 
 file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
-file(GLOB_RECURSE I3_PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL-icetray/*)
+# file(GLOB_RECURSE I3_PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL-icetray/*)
 
 i3_add_library(PROPOSAL
     ${PROPOSAL_SRC_FILES}
@@ -31,12 +31,15 @@ set_target_properties(PROPOSAL PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}  -Wa
 
 i3_add_pybindings(PROPOSAL
     private/PROPOSAL-icetray/pybindings.cxx
+    USE_TOOLS boost python
     USE_PROJECTS PROPOSAL
 )
 
 # Pre-generate parameterization tables for use in read-only environments
-add_custom_command(OUTPUT resources/tables/.tables.auto_generated COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh python resources/tables/generate_tables.py DEPENDS icetray-pybindings sim_services-pybindings PROPOSAL-pybindings)
-add_custom_target(PROPOSAL-tables ALL DEPENDS resources/tables/.tables.auto_generated)
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
+    COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh python ${PROJECT_SOURCE_DIR}/resources/tables/generate_tables.py
+    DEPENDS icetray-pybindings sim_services-pybindings PROPOSAL-pybindings)
+add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
 
 set(LIB_${PROJECT_NAME}_TESTS
     private/PROPOSAL-icetray/test/main.cxx
