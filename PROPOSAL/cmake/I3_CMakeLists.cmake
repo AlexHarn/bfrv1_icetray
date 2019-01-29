@@ -36,22 +36,22 @@ i3_add_pybindings(PROPOSAL
 )
 
 # Pre-generate parameterization tables for use in read-only environments
-add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
-    COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh python ${PROJECT_SOURCE_DIR}/resources/tables/generate_tables.py
-    DEPENDS icetray-pybindings sim_services-pybindings PROPOSAL-pybindings)
-add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
+# add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
+#     COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh python ${PROJECT_SOURCE_DIR}/resources/tables/generate_tables.py
+#     DEPENDS icetray-pybindings sim_services-pybindings PROPOSAL-pybindings)
+# add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
 
 set(LIB_${PROJECT_NAME}_TESTS
     private/PROPOSAL-icetray/test/main.cxx
 )
 
 # FIXME: See https://code.icecube.wisc.edu/projects/icecube/ticket/2194
-#if (SPRNG_FOUND)
-#    # this test requires SPRNG
-#    LIST(APPEND LIB_${PROJECT_NAME}_TESTS
-#        private/PROPOSAL-icetray/test/Repeatability.cxx
-#    )
-#endif (SPRNG_FOUND)
+if (SPRNG_FOUND)
+   # this test requires SPRNG
+   LIST(APPEND LIB_${PROJECT_NAME}_TESTS
+       private/PROPOSAL-icetray/test/Repeatability.cxx
+   )
+endif (SPRNG_FOUND)
 
 
 i3_test_executable(test
