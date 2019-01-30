@@ -8,6 +8,7 @@ i3_project(sim-services
 SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/sim-services/I3SumGenerator.cxx
   private/sim-services/I3GeneratorService.cxx
+  private/sim-services/I3CosmicEventGenerator.cxx
   private/sim-services/I3MCTreeHybridSimulationSplitter.cxx
   private/sim-services/I3PropagatorService.cxx
   private/sim-services/I3InIceCORSIKATrimmer.cxx
@@ -34,6 +35,7 @@ i3_add_library(sim-services
 )
 
 i3_add_pybindings(sim_services
+  private/pybindings/I3CosmicEventGenerator.cxx
   private/pybindings/I3GeneratorService.cxx
   private/pybindings/I3SumGenerator.cxx
   private/pybindings/I3PropagatorService.cxx

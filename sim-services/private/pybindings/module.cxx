@@ -15,6 +15,8 @@ using namespace boost::python;
 namespace bp = boost::python;
 
 void register_I3SumGenerator();
+void register_I3CosmicEventGenerator();
+void register_I3GeneratorService();
 void register_I3PropagatorService();
 void register_I3SimConstants();
 void register_ShowerParameters();
@@ -27,6 +29,7 @@ BOOST_PYTHON_MODULE(sim_services)
   def("MergeMCPEs", MergeMCPEs);
 
   register_I3SumGenerator();
+  register_I3CosmicEventGenerator();
   register_I3PropagatorService();
   register_I3GeneratorService();
   register_I3SimConstants();

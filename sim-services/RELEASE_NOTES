@@ -8,6 +8,8 @@ Release Notes
 trunk
 -----
 
+- Add `I3CosmicEventGenerator`, an interface for using CORSIKA as a service in mulitprocess-server clsim
+
 June 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 -------------------------------------------------------------------
 V01-08-01 - Incremental release
