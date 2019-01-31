@@ -22,52 +22,52 @@ static I3Particle make_particle()
     return p;
 }
 
-TEST(SimplePropagator)
-{
-    I3RandomServicePtr rng(new I3SPRNGRandomService(1, 10000, 2));
+// TEST(SimplePropagator)
+// {
+//     I3RandomServicePtr rng(new I3SPRNGRandomService(1, 10000, 2));
 
-    boost::shared_ptr<PROPOSAL::SimplePropagator> prop(
-        new PROPOSAL::SimplePropagator(I3Particle::MuMinus, "ice", 5e2, -1));
-    prop->SetRandomNumberGenerator(rng);
-    double distance = 1e2;
+//     boost::shared_ptr<PROPOSAL::SimplePropagator> prop(
+//         new PROPOSAL::SimplePropagator(I3Particle::MuMinus, "ice", 5e2, -1));
+//     prop->SetRandomNumberGenerator(rng);
+//     double distance = 1e2;
 
-    std::vector<std::vector<I3Particle> > daughters;
-    std::vector<I3Particle> primaries;
-    std::vector<I3FrameObjectPtr> states;
-    for (int i = 0; i < 100; i++)
-    {
-        I3Particle p = make_particle();
-        p.SetEnergy(std::pow(10, rng->Uniform(3, 6)));
-        primaries.push_back(p);
-        states.push_back(rng->GetState());
-        boost::shared_ptr<std::vector<I3Particle> > d(new std::vector<I3Particle>);
-        prop->propagate(p, distance, d);
-        daughters.push_back(*d);
-    }
+//     std::vector<std::vector<I3Particle> > daughters;
+//     std::vector<I3Particle> primaries;
+//     std::vector<I3FrameObjectPtr> states;
+//     for (int i = 0; i < 100; i++)
+//     {
+//         I3Particle p = make_particle();
+//         p.SetEnergy(std::pow(10, rng->Uniform(3, 6)));
+//         primaries.push_back(p);
+//         states.push_back(rng->GetState());
+//         boost::shared_ptr<std::vector<I3Particle> > d(new std::vector<I3Particle>);
+//         prop->propagate(p, distance, d);
+//         daughters.push_back(*d);
+//     }
 
-    // Now, replay the simulation and ensure we get the same thing
+//     // Now, replay the simulation and ensure we get the same thing
 
-    for (size_t i = 0; i < daughters.size(); i++)
-    {
-        // Throw out a random subset of events. The remainder should
-        // be reproducible given the same sequence of random numbers,
-        // unless of course the propagator keeps secret state.
-        if (rng->Uniform() < 0.5)
-            continue;
-        rng->RestoreState(states[i]);
-        boost::shared_ptr<std::vector<I3Particle> > d(new std::vector<I3Particle>);
-        prop->propagate(primaries[i], distance, d);
-        ENSURE_EQUAL(daughters[i].size(), d->size(), "Same number of particles must be produced");
-        for (size_t j = 0; j < daughters[i].size(); j++)
-        {
-            I3Particle& p1 = daughters[i][j];
-            I3Particle& p2 = (*d)[j];
-            ENSURE_EQUAL(p1.GetType(), p2.GetType(), "Secondaries must have the same type");
-            ENSURE_EQUAL(p1.GetTime(), p2.GetTime(), "Times must be completely identical");
-            ENSURE_EQUAL(p1.GetEnergy(), p2.GetEnergy(), "Energies must completely identical");
-        }
-    }
-}
+//     for (size_t i = 0; i < daughters.size(); i++)
+//     {
+//         // Throw out a random subset of events. The remainder should
+//         // be reproducible given the same sequence of random numbers,
+//         // unless of course the propagator keeps secret state.
+//         if (rng->Uniform() < 0.5)
+//             continue;
+//         rng->RestoreState(states[i]);
+//         boost::shared_ptr<std::vector<I3Particle> > d(new std::vector<I3Particle>);
+//         prop->propagate(primaries[i], distance, d);
+//         ENSURE_EQUAL(daughters[i].size(), d->size(), "Same number of particles must be produced");
+//         for (size_t j = 0; j < daughters[i].size(); j++)
+//         {
+//             I3Particle& p1 = daughters[i][j];
+//             I3Particle& p2 = (*d)[j];
+//             ENSURE_EQUAL(p1.GetType(), p2.GetType(), "Secondaries must have the same type");
+//             ENSURE_EQUAL(p1.GetTime(), p2.GetTime(), "Times must be completely identical");
+//             ENSURE_EQUAL(p1.GetEnergy(), p2.GetEnergy(), "Energies must completely identical");
+//         }
+//     }
+// }
 
 TEST(PropagatorService)
 {

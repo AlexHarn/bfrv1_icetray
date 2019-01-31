@@ -41,12 +41,18 @@ add_executable(PROPOSAL_table_creation
 )
 set_target_properties(PROPOSAL_table_creation PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}  -Wall -Werror -std=c++11")
 target_link_libraries(PROPOSAL_table_creation PROPOSAL)
+
 add_custom_command(
     OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
     COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${CMAKE_BINARY_DIR}/bin/PROPOSAL_table_creation
-    DEPENDS icetray PROPOSAL
+    DEPENDS icetray PROPOSAL PROPOSAL_table_creation
 )
-add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
+add_custom_target(
+    PROPOSAL_tables ALL 
+    DEPENDS ${CMAKE_BINARY_DIR}/bin/PROPOSAL_table_creation
+    ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
+)
+add_dependencies(PROPOSAL_tables PROPOSAL_table_creation)
 
 set(LIB_${PROJECT_NAME}_TESTS
     private/PROPOSAL-icetray/test/main.cxx
