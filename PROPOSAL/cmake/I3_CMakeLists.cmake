@@ -36,10 +36,17 @@ i3_add_pybindings(PROPOSAL
 )
 
 # Pre-generate parameterization tables for use in read-only environments
-# add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
-#     COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh python ${PROJECT_SOURCE_DIR}/resources/tables/generate_tables.py
-#     DEPENDS icetray-pybindings sim_services-pybindings PROPOSAL-pybindings)
-# add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
+add_executable(PROPOSAL_table_creation
+    ${PROJECT_SOURCE_DIR}/private/PROPOSAL-icetray/table_creation.cxx
+)
+set_target_properties(PROPOSAL_table_creation PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}  -Wall -Werror -std=c++11")
+target_link_libraries(PROPOSAL_table_creation PROPOSAL)
+add_custom_command(
+    OUTPUT ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated
+    COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${CMAKE_BINARY_DIR}/bin/PROPOSAL_table_creation
+    DEPENDS icetray PROPOSAL
+)
+add_custom_target(PROPOSAL-tables ALL DEPENDS ${PROJECT_SOURCE_DIR}/resources/tables/.tables.auto_generated)
 
 set(LIB_${PROJECT_NAME}_TESTS
     private/PROPOSAL-icetray/test/main.cxx
