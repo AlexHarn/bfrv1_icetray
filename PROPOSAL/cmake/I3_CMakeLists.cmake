@@ -13,12 +13,75 @@ i3_project(PROPOSAL
     DOCS_DIR doc
 )
 
-file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
-# file(GLOB_RECURSE I3_PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL-icetray/*)
-
-execute_process(
-  COMMAND touch ${PROPOSAL_SRC_FILES}
+# file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
+set (${PROPOSAL_SRC_FILES}
+    private/PROPOSAL/Constants.cxx
+    private/PROPOSAL/EnergyCutSettings.cxx
+    private/PROPOSAL/Output.cxx
+    private/PROPOSAL/Propagator.cxx
+    private/PROPOSAL/PropagatorService.cxx
+    private/PROPOSAL/crossection/BremsIntegral.cxx
+    private/PROPOSAL/crossection/BremsInterpolant.cxx
+    private/PROPOSAL/crossection/CrossSection.cxx
+    private/PROPOSAL/crossection/CrossSectionIntegral.cxx
+    private/PROPOSAL/crossection/CrossSectionInterpolant.cxx
+    private/PROPOSAL/crossection/EpairIntegral.cxx
+    private/PROPOSAL/crossection/EpairInterpolant.cxx
+    private/PROPOSAL/crossection/IonizIntegral.cxx
+    private/PROPOSAL/crossection/IonizInterpolant.cxx
+    private/PROPOSAL/crossection/PhotoIntegral.cxx
+    private/PROPOSAL/crossection/PhotoInterpolant.cxx
+    private/PROPOSAL/crossection/factories/BremsstrahlungFactory.cxx
+    private/PROPOSAL/crossection/factories/EpairProductionFactory.cxx
+    private/PROPOSAL/crossection/factories/IonizationFactory.cxx
+    private/PROPOSAL/crossection/factories/PhotonuclearFactory.cxx
+    private/PROPOSAL/crossection/parametrization/Bremsstrahlung.cxx
+    private/PROPOSAL/crossection/parametrization/EpairProduction.cxx
+    private/PROPOSAL/crossection/parametrization/Ionization.cxx
+    private/PROPOSAL/crossection/parametrization/Parametrization.cxx
+    private/PROPOSAL/crossection/parametrization/PhotoQ2Integration.cxx
+    private/PROPOSAL/crossection/parametrization/PhotoRealPhotonAssumption.cxx
+    private/PROPOSAL/crossection/parametrization/Photonuclear.cxx
+    private/PROPOSAL/decay/DecayChannel.cxx
+    private/PROPOSAL/decay/DecayTable.cxx
+    private/PROPOSAL/decay/LeptonicDecayChannel.cxx
+    private/PROPOSAL/decay/ManyBodyPhaseSpace.cxx
+    private/PROPOSAL/decay/StableChannel.cxx
+    private/PROPOSAL/decay/TwoBodyPhaseSpace.cxx
+    private/PROPOSAL/geometry/Box.cxx
+    private/PROPOSAL/geometry/Cylinder.cxx
+    private/PROPOSAL/geometry/Geometry.cxx
+    private/PROPOSAL/geometry/GeometryFactory.cxx
+    private/PROPOSAL/geometry/Sphere.cxx
+    private/PROPOSAL/math/Integral.cxx
+    private/PROPOSAL/math/Interpolant.cxx
+    private/PROPOSAL/math/InterpolantBuilder.cxx
+    private/PROPOSAL/math/RandomGenerator.cxx
+    private/PROPOSAL/math/Vector3D.cxx
+    private/PROPOSAL/medium/Components.cxx
+    private/PROPOSAL/medium/Medium.cxx
+    private/PROPOSAL/medium/MediumFactory.cxx
+    private/PROPOSAL/methods.cxx
+    private/PROPOSAL/particle/Particle.cxx
+    private/PROPOSAL/particle/ParticleDef.cxx
+    private/PROPOSAL/propagation_utility/ContinuousRandomizer.cxx
+    private/PROPOSAL/propagation_utility/PropagationUtility.cxx
+    private/PROPOSAL/propagation_utility/PropagationUtilityFactory.cxx
+    private/PROPOSAL/propagation_utility/PropagationUtilityIntegral.cxx
+    private/PROPOSAL/propagation_utility/PropagationUtilityInterpolant.cxx
+    private/PROPOSAL/scattering/Coefficients.cxx
+    private/PROPOSAL/scattering/Scattering.cxx
+    private/PROPOSAL/scattering/ScatteringFactory.cxx
+    private/PROPOSAL/scattering/ScatteringHighland.cxx
+    private/PROPOSAL/scattering/ScatteringHighlandIntegral.cxx
+    private/PROPOSAL/scattering/ScatteringMoliere.cxx
+    private/PROPOSAL/scattering/ScatteringNoScattering.cxx
+    private/PROPOSAL/sector/Sector.cxx
 )
+
+# execute_process(
+#   COMMAND touch ${PROPOSAL_SRC_FILES}
+# )
 i3_add_library(PROPOSAL
     ${PROPOSAL_SRC_FILES}
     private/PROPOSAL-icetray/I3PropagatorServicePROPOSAL.cxx
