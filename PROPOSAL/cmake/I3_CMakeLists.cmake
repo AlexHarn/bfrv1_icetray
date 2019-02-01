@@ -14,7 +14,7 @@ i3_project(PROPOSAL
 )
 
 # file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
-set (${PROPOSAL_SRC_FILES}
+set (PROPOSAL_SRC_FILES
     private/PROPOSAL/Constants.cxx
     private/PROPOSAL/EnergyCutSettings.cxx
     private/PROPOSAL/Output.cxx
