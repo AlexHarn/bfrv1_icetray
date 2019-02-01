@@ -16,6 +16,9 @@ i3_project(PROPOSAL
 file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
 # file(GLOB_RECURSE I3_PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL-icetray/*)
 
+execute_process(
+  COMMAND touch ${PROPOSAL_SRC_FILES}
+)
 i3_add_library(PROPOSAL
     ${PROPOSAL_SRC_FILES}
     private/PROPOSAL-icetray/I3PropagatorServicePROPOSAL.cxx
