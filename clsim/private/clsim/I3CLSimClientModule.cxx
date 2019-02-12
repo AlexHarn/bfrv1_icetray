@@ -66,11 +66,11 @@ I3CLSimClientModule::I3CLSimClientModule(const I3Context& context)
     
     AddParameter("StepGenerator",
                  "Instance of I3CLSimLightSourceToStepConverterAsync",
-                 NULL);
+                 stepGenerator_);
     
     AddParameter("CosmicEventGenerator",
                  "Instance of I3CosmicEventGenerator to ",
-                 NULL);
+                 cosmicGenerator_);
     
     MCTreeName_="I3MCTree";
     AddParameter("MCTreeName",

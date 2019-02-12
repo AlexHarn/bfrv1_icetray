@@ -30,6 +30,7 @@ import string
 import numpy
 
 from os.path import expandvars, exists, isdir, isfile
+import tempfile
 
 from icecube import icetray, dataclasses, dataio
 from icecube.icetray import logging
@@ -40,26 +41,7 @@ from icecube.clsim import GetHybridParameterizationList
 
 from icecube.clsim import AutoSetGeant4Environment
 
-from icecube.clsim.traysegments.common import configureOpenCLDevices, parseIceModel
-
-def get_compensation_factor(gcd_file):
-    fr = gcd_file.pop_frame()
-    while "I3Calibration" not in fr :
-        fr = gcd_file.pop_frame()
-    domcal = fr.Get("I3Calibration").dom_cal
-    max_compensation_factor = 0
-    for om, i3domcal in domcal.items():
-        if not hasattr(i3domcal,"combined_spe_charge_distribution"):
-            logging.log_error("I3Calibration has no element 'combined_spe_charge_distribution'!!!")
-            logging.log_warn("Setting max_compensation_factor to 1.0")
-            max_compensation_factor = 1.0
-            break
-        max_compensation_factor = max(max_compensation_factor,
-            i3domcal.combined_spe_charge_distribution.compensation_factor) 
-    print ("compensation factor", max_compensation_factor) 
-    return max_compensation_factor 
-
-
+from .common import setupPropagators, setupDetector, configureOpenCLDevices
 
 # use this instead of a simple "@icetray.traysegment" to support
 # ancient versions of IceTray that do not have tray segments.
@@ -76,8 +58,7 @@ def I3CLSimMakePhotons(tray, name,
                        FlasherPulseSeriesName=None,
                        MMCTrackListName="MMCTrackList",
                        PhotonSeriesName="PhotonSeriesMap",
-                       ParallelEvents=1000,
-                       TotalEnergyToProcess=0.,
+                       MCPESeriesName="MCEPSeriesMap",
                        RandomService=None,
                        IceModelLocation=expandvars("$I3_BUILD/ice-models/resources/models/spice_mie"),
                        DisableTilt=False,
@@ -97,7 +78,7 @@ def I3CLSimMakePhotons(tray, name,
                        DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
                        OverrideApproximateNumberOfWorkItems=None,
                        IgnoreSubdetectors=['IceTop'],
-                       ExtraArgumentsToI3CLSimModule=dict(),
+                       ExtraArgumentsToI3CLSimClientModule=dict(),
                        GCDFile=None,
                        If=lambda f: True
                        ):
@@ -156,22 +137,6 @@ def I3CLSimMakePhotons(tray, name,
     :param PhotonSeriesName:
         Configure this to enable writing an I3PhotonSeriesMap containing
         all photons that reached the DOM surface.
-    :param ParallelEvents:
-        clsim will work on a couple of events in parallel in order
-        not to starve the GPU. Setting this too high will result
-        in excessive memory usage (all your frames have to be cached
-        in RAM). Setting it too low may impact simulation performance.
-        The optimal value depends on your energy distribution/particle type.
-    :param TotalEnergyToProcess:
-       clsim will work on a couple of events in parallel in order
-       not to starve the GPU. With this setting clsim will figure out
-       how many frames to accumulate as to not starve the GPU based on 
-       the energy of the light sources that are producing the photons 
-       in the detector. Setting this too high will result
-       in excessive memory usage (all your frames have to be cached
-       in RAM). Setting it too low may impact simulation performance. 
-       This cannot be used in flasher mode, since we cannot measure
-       the energy of the light sources.
     :param RandomService:
         Set this to an instance of a I3RandomService. Alternatively,
         you can specify the name of a configured I3RandomServiceFactory
@@ -273,20 +238,6 @@ def I3CLSimMakePhotons(tray, name,
 
     from icecube import icetray, dataclasses, phys_services, clsim
 
-    # make sure the geometry is updated to the new granular format (in case it is supported)
-    if hasattr(dataclasses, "I3ModuleGeo"):
-        tray.AddModule("I3GeometryDecomposer", name + "_decomposeGeometry",
-                       If=lambda frame: If(frame) and ("I3OMGeoMap" not in frame) and ("I3ModuleGeoMap" not in frame))
-
-    if UseGeant4:
-        if not clsim.I3CLSimLightSourceToStepConverterGeant4.can_use_geant4:
-            raise RuntimeError("You have requested to use Geant 4, but clsim was compiled without Geant 4 support")
-    
-    # at the moment the Geant4 paths need to be set, even if it isn't used
-    # TODO: fix this
-    if clsim.I3CLSimLightSourceToStepConverterGeant4.can_use_geant4:
-        AutoSetGeant4Environment()
-
     # warn the user in case they might have done something they probably don't want
     if UnWeightedPhotons and (DOMOversizeFactor != 1.):
         print("********************")
@@ -298,8 +249,157 @@ def I3CLSimMakePhotons(tray, name,
     if UnshadowedFraction<=0:
         raise RuntimeError("UnshadowedFraction must be a positive number")
 
-    # a constant
-    Jitter = 2.*icetray.I3Units.ns
+    clsimParams = setupDetector(
+        GCDFile=GCDFile,
+        SimulateFlashers=bool(FlasherInfoVectName or FlasherPulseSeriesName),
+        IceModelLocation=IceModelLocation,
+        DisableTilt=DisableTilt,
+        UnWeightedPhotons=UnWeightedPhotons,
+        UnWeightedPhotonsScalingFactor=UnWeightedPhotonsScalingFactor,
+        MMCTrackListName=MMCTrackListName,
+        UseGeant4=UseGeant4,
+        CrossoverEnergyEM=CrossoverEnergyEM,
+        CrossoverEnergyHadron=CrossoverEnergyHadron,
+        UseCascadeExtension=UseCascadeExtension,
+        StopDetectedPhotons=StopDetectedPhotons,
+        DOMOversizeFactor=DOMOversizeFactor,
+        UnshadowedFraction=UnshadowedFraction,
+        HoleIceParameterization=HoleIceParameterization,
+        WavelengthAcceptance=WavelengthAcceptance,
+        DOMRadius=DOMRadius,
+        IgnoreSubdetectors=IgnoreSubdetectors,
+    )
+
+    openCLDevices = configureOpenCLDevices(
+        UseGPUs=UseGPUs,
+        UseCPUs=UseCPUs,
+        OverrideApproximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems,
+        DoNotParallelize=DoNotParallelize,
+        UseOnlyDeviceNumber=UseOnlyDeviceNumber
+	)
+
+    address = 'ipc://'+tempfile.mktemp(prefix='clsim-server-')
+    converters = setupPropagators(RandomService, clsimParams,
+        UseGPUs=UseGPUs,
+        UseCPUs=UseCPUs,
+        OverrideApproximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems,
+        DoNotParallelize=DoNotParallelize,
+        UseOnlyDeviceNumber=UseOnlyDeviceNumber
+    )
+    server = clsim.I3CLSimServer(address, clsim.I3CLSimStepToPhotonConverterSeries(converters))
+    # stash server instance in the context to keep it alive
+    tray.context['CLSimServer'] = server
+
+    if UseGPUs:
+        if not ChopMuons:
+            warnings.warn("Propagating muons and photons in the same process. This will likely starve your GPU.")
+        if UseGeant4:
+            warnings.warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
+
+    tray.Add(I3CLSimMakePhotonsWithServer, name,
+        ServerAddress=address,
+        DetectorSettings=clsimParams,
+        MCTreeName=MCTreeName,
+        OutputMCTreeName=OutputMCTreeName,
+        FlasherInfoVectName=FlasherInfoVectName,
+        FlasherPulseSeriesName=FlasherPulseSeriesName,
+        MMCTrackListName=MMCTrackListName,
+        PhotonSeriesName=PhotonSeriesName,
+        MCPESeriesName=MCPESeriesName,
+        RandomService=RandomService,
+        ExtraArgumentsToI3CLSimClientModule=ExtraArgumentsToI3CLSimClientModule,
+        GCDFile=GCDFile,
+        If=If,
+    )
+
+    class GatherStatistics(icetray.I3Module):
+        """Mimick the summary stage of I3CLSimModule::Finish()"""
+        def Finish(self):
+            if not 'I3SummaryService' in self.context:
+                return
+            summary = self.context['I3SummaryService']
+            server = self.context['CLSimServer']
+            prefix = 'I3CLSimModule_'+name+'_makePhotons_clsim_'
+            for k, v in server.GetStatistics().items():
+                summary[prefix+k] = v
+    tray.Add(GatherStatistics)
+
+@my_traysegment
+def I3CLSimMakePhotonsWithServer(tray, name,
+                       ServerAddress,
+                       DetectorSettings,
+                       MCTreeName="I3MCTree",
+                       OutputMCTreeName=None,
+                       FlasherInfoVectName=None,
+                       FlasherPulseSeriesName=None,
+                       MMCTrackListName="MMCTrackList",
+                       PhotonSeriesName="PhotonSeriesMap",
+                       MCPESeriesName="MCEPSeriesMap",
+                       RandomService=None,
+                       ExtraArgumentsToI3CLSimClientModule=dict(),
+                       GCDFile=None,
+                       If=lambda f: True
+                       ):
+    """
+    Propagate particles and photons up to PE level.
+    Reads its particles from an I3MCTree and writes either an
+    I3CompressedPhotonSeriesMap, an I3MCPESeriesMap, or both.
+
+    Photon propagation is delegated to the I3CLSimServer listening at
+    ServerAddress. This server may be shared by multiple client processes to
+    maximize GPU utilization.
+
+    If MMCTrackListName is set, this segment will assume that MMC has been
+    applied to the I3MCTree and that MMC was *NOT* run using the "-recc"
+    option.
+
+    :param ServerAddress:
+        The 0MQ address of an I3CLSimServer 
+    :param DetectorSettings:
+        The output of clsim.traysegments.common.setupDetector. These should be
+        the same as those used to configure the server.
+    :param MCTreeName:
+        The name of the I3MCTree containing the particles to propagate.
+    :param OutputMCTreeName:
+        A copy of the (possibly sliced) MCTree will be stored as this name.
+    :param FlasherInfoVectName:
+        Set this to the name of I3FlasherInfoVect objects in the frame to
+        enable flasher simulation. The module will read I3FlasherInfoVect objects
+        and generate photons according to assumed parameterizations.
+    :param FlasherPulseSeriesName:
+        Set this to the name of an I3CLSimFlasherPulseSeries object in the frame to
+        enable flasher/Standard Candle simulation.
+        This cannot be used at the same time as FlasherInfoVectName.
+        (I3CLSimFlasherPulseSeries objects are clsim's internal flasher
+        representation, if "FlasherInfoVectName" is used, the I3FlasherInfoVect
+        objects are converted to I3CLSimFlasherPulseSeries objects.)
+    :param MMCTrackListName:
+        Only used if *ChopMuons* is active. Set it to the name
+        of the I3MMCTrackList object that contains additional muon energy loss
+        information. If this is not set, cascades, muons, and taus will be
+        propagated as needed. Doing the propagation on the fly can reduce
+        memory overhead for large events.
+    :param PhotonSeriesName:
+        Configure this to enable writing an I3CompressedPhotonSeriesMap containing
+        all photons that reached the DOM surface. If this is set to None,
+        photons will be converted to PE immediately, drastically reducing
+        memory overhead for bright events.
+    :param MCPESeriesName:
+        Configure this to enable writing an I3MCPESeriesMap.
+    :param RandomService:
+        Set this to an instance of a I3RandomService. Alternatively,
+        you can specify the name of a configured I3RandomServiceFactory
+        added to I3Tray using tray.AddService(). If you don't configure
+        this, the default I3RandomServiceFactory will be used.
+    :param If:
+        Python function to use as conditional execution test for segment modules.        
+    """
+    from icecube import icetray, dataclasses, phys_services, clsim
+
+    # make sure the geometry is updated to the new granular format (in case it is supported)
+    if hasattr(dataclasses, "I3ModuleGeo"):
+        tray.AddModule("I3GeometryDecomposer", name + "_decomposeGeometry",
+                       If=lambda frame: If(frame) and ("I3OMGeoMap" not in frame) and ("I3ModuleGeoMap" not in frame))
 
     if MMCTrackListName is None or MMCTrackListName=="":
         # the input does not seem to have been processed by MMC
@@ -367,110 +467,59 @@ def I3CLSimMakePhotons(tray, name,
         else:
             clSimMCTreeName = clSimMCTreeName
 
-    # ice properties
-    icemodel_efficiency_factor = 1.0
-    max_compensation_factor = 1.0
-    if GCDFile is None:
-        logging.log_warn("No GCD file given. Setting compensation factor to 1.0!!!!")
-    else:
-        max_compensation_factor = get_compensation_factor(dataio.I3File(GCDFile))
+    clsimModuleArgs = {
+        'ServerAddress': ServerAddress,
+        'PhotonSeriesMapName': PhotonSeriesName,
+        'MCTreeName': clSimMCTreeName,
+        'IgnoreSubdetectors': DetectorSettings['IgnoreSubdetectors'],
+        'PhotonSeriesMapName': PhotonSeriesName or '',
+        'MCPESeriesMapName': MCPESeriesName or '',
+        'If': If,
+    }
+    clsimModuleArgs.update(**ExtraArgumentsToI3CLSimClientModule)
 
-    if isinstance(IceModelLocation, str):
-        mediumProperties = parseIceModel(IceModelLocation, disableTilt=DisableTilt)
-    else:
-        # get ice model directly if not a string
-        mediumProperties = IceModelLocation
+    stepGenerator = clsim.I3CLSimLightSourceToStepConverterAsync(1)
+    stepGenerator.SetLightSourceParameterizationSeries(DetectorSettings['ParameterizationList'])
+    stepGenerator.SetMediumProperties(DetectorSettings['MediumProperties'])
+    stepGenerator.SetRandomService(RandomService)
+    stepGenerator.SetWlenBias(DetectorSettings['WavelengthGenerationBias'])
+    propagators = []
+    if not ChopMuons:
+        from icecube.simprod.segments.PropagateMuons import make_standard_propagators
+        pmap = make_standard_propagators(EmitTrackSegments=True, SplitSubPeVCascades=False)
+        propagators.append(clsim.I3CLSimLightSourcePropagatorFromI3PropagatorService(pmap))
 
+    if DetectorSettings['UseGeant4']:
+        propagators.append(clsim.I3CLSimLightSourcePropagatorGeant4())
 
-    # IceModel-dependent efficiency
-    icemodel_efficiency_factor = mediumProperties.efficiency 
- 
-    # detector properties
-    if WavelengthAcceptance is None:
-        # the hole ice acceptance curve peaks at a value different than 1
-        peak = numpy.loadtxt(HoleIceParameterization)[0] # The value at which the hole ice acceptance curve peaks
-        domEfficiencyCorrection = UnshadowedFraction * peak * 1.35 * 1.01 * max_compensation_factor # DeepCore DOMs have a relative efficiency of 1.35 plus security margin of +1%
+    stepGenerator.SetPropagators(propagators);
+    clsimModuleArgs['StepGenerator'] = stepGenerator
 
-                                                                
-        domAcceptance = clsim.GetIceCubeDOMAcceptance(
-                            domRadius = DOMRadius*DOMOversizeFactor, 
-                            efficiency=icemodel_efficiency_factor*domEfficiencyCorrection)
-    else:
-        domAcceptance = WavelengthAcceptance
+    if clsimModuleArgs['MCPESeriesMapName']:
+        # convert photons to MCPE in the worker thread of I3CLSimClientModule
+        clsimModuleArgs['MCPEGenerator'] = clsim.I3CLSimPhotonToMCPEConverterForDOMs(
+            RandomService,
+            DetectorSettings['WavelengthAcceptance'],
+            DetectorSettings['AngularAcceptance']
+        )
 
-    # photon generation wavelength bias
-    if not UnWeightedPhotons:
-        wavelengthGenerationBias = domAcceptance
-        if UnWeightedPhotonsScalingFactor is not None:
-            raise RuntimeError("UnWeightedPhotonsScalingFactor should not be set when UnWeightedPhotons is not set")
-    else:
-        if UnWeightedPhotonsScalingFactor is not None:
-            print("***** running unweighted simulation with a photon pre-scaling of", UnWeightedPhotonsScalingFactor)
-            wavelengthGenerationBias = clsim.I3CLSimFunctionConstant(UnWeightedPhotonsScalingFactor)
-        else:
-            wavelengthGenerationBias = None
+    tray.AddModule('I3CLSimClientModule', name+"_makePhotons",
+        **clsimModuleArgs
+    )
 
-    # muon&cascade parameterizations
-    ppcConverter = clsim.I3CLSimLightSourceToStepConverterPPC(photonsPerStep=200)
-    ppcConverter.SetUseCascadeExtension(UseCascadeExtension)
-    if not UseGeant4:
-        particleParameterizations = GetDefaultParameterizationList(ppcConverter, muonOnly=False)
-    else:
-        if CrossoverEnergyEM>0 or CrossoverEnergyHadron>0:
-            particleParameterizations = GetHybridParameterizationList(ppcConverter, CrossoverEnergyEM=CrossoverEnergyEM, CrossoverEnergyHadron=CrossoverEnergyHadron)
-        elif MMCTrackListName is None or MMCTrackListName=="":
-            particleParameterizations = [] # make sure absolutely **no** parameterizations are used
-        else:
-            # use no parameterizations except for muons with lengths assigned to them
-            # (those are assumed to have been generated by MMC)
-            particleParameterizations = GetDefaultParameterizationList(ppcConverter, muonOnly=True)
+    if ChopMuons:
+        sliceRemoverAdditionalParams = dict()
+        if PhotonSeriesName is not None:
+            sliceRemoverAdditionalParams["InputPhotonSeriesMapName"] = PhotonSeriesName
+            sliceRemoverAdditionalParams["OutputPhotonSeriesMapName"] = PhotonSeriesName
 
-    # flasher parameterizations
-    if SimulateFlashers:
-        # this needs a spectrum table in order to pass spectra to OpenCL
-        spectrumTable = clsim.I3CLSimSpectrumTable()
-        particleParameterizations += GetFlasherParameterizationList(spectrumTable)
-        
-        print("number of spectra (1x Cherenkov + Nx flasher):", len(spectrumTable))
-    else:
-        # no spectrum table is necessary when only using the Cherenkov spectrum
-        spectrumTable = None
+        # re-assign the output hits from the sliced tree to the original tree
+        tray.AddModule("I3MuonSliceRemoverAndPulseRelabeler",
+            InputMCTreeName = clSimMCTreeName,
+            OldMCTreeName = MCTreeName,
+            InputMCPESeriesMapName = MCPESeriesName,
+            OutputMCPESeriesMapName = MCPESeriesName,
+            **sliceRemoverAdditionalParams
+            )
 
-    openCLDevices = configureOpenCLDevices(
-        UseGPUs=UseGPUs,
-        UseCPUs=UseCPUs,
-        OverrideApproximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems,
-        DoNotParallelize=DoNotParallelize,
-        UseOnlyDeviceNumber=UseOnlyDeviceNumber
-	)
-
-    if PhotonHistoryEntries == 0:
-        module = 'I3CLSimModule<I3CompressedPhotonSeriesMap>'
-    else:
-        module = 'I3CLSimModule<I3PhotonSeriesMap>'
-    tray.AddModule(module, name + "_clsim",
-                   MCTreeName=clSimMCTreeName,
-                   PhotonSeriesMapName=PhotonSeriesName,
-                   DOMRadius = DOMRadius,
-                   DOMOversizeFactor = DOMOversizeFactor,
-                   DOMPancakeFactor = DOMOversizeFactor, # you will probably want this to be the same as DOMOversizeFactor
-                   RandomService=RandomService,
-                   MediumProperties=mediumProperties,
-                   SpectrumTable=spectrumTable,
-                   FlasherPulseSeriesName=clSimFlasherPulseSeriesName,
-                   OMKeyMaskName=clSimOMKeyMaskName,
-                   #IgnoreNonIceCubeOMNumbers=False,
-                   GenerateCherenkovPhotonsWithoutDispersion=False,
-                   WavelengthGenerationBias=wavelengthGenerationBias,
-                   ParameterizationList=particleParameterizations,
-                   MaxNumParallelEvents=ParallelEvents,
-                   TotalEnergyToProcess=TotalEnergyToProcess,
-                   OpenCLDeviceList=openCLDevices,
-                   #UseHardcodedDeepCoreSubdetector=False, # setting this to true saves GPU constant memory but will reduce performance
-                   StopDetectedPhotons=StopDetectedPhotons,
-                   PhotonHistoryEntries=PhotonHistoryEntries,
-                   IgnoreSubdetectors=IgnoreSubdetectors,
-                   If=If,
-                   **ExtraArgumentsToI3CLSimModule
-                   )
-
+        tray.Add("Delete", keys=[clSimMCTreeName])

@@ -2,6 +2,7 @@ from __future__ import print_function
 from os.path import expandvars
 from icecube import icetray
 import math
+import warnings
 
 """
 Convenience functions for configuring CLSim components.
@@ -163,12 +164,18 @@ def setupDetector(GCDFile,
             )
         
         rde = dict()
+        max_compensation_factor = -float('inf')
         for k, domcal in pluck_calib.frame['I3Calibration'].dom_cal.iteritems():
             rde[k] = domcal.relative_dom_eff
-        
-        return geometry, rde
+            max_compensation_factor = max(max_compensation_factor,
+                domcal.combined_spe_charge_distribution.compensation_factor)
+        if math.isinf(max_compensation_factor):
+            warnings.warn("No SPE charge distribution compensation factor found in {}. Assuming 1.".format(GCDFile))
+            max_compensation_factor = 1
+
+        return geometry, rde, max_compensation_factor
     
-    geometry, rde = harvest_detector_parameters(GCDFile)
+    geometry, rde, max_compensation_factor = harvest_detector_parameters(GCDFile)
     
     # ice properties
     if isinstance(IceModelLocation, str):
@@ -177,11 +184,14 @@ def setupDetector(GCDFile,
         # get ice model directly if not a string
         mediumProperties = IceModelLocation
 
+    icemodel_efficiency_factor = mediumProperties.efficiency 
+
     # detector properties
     if WavelengthAcceptance is None:
         # the hole ice acceptance curve peaks at a value different than 1
         peak = numpy.loadtxt(HoleIceParameterization)[0] # The value at which the hole ice acceptance curve peaks
-        domEfficiencyCorrection = UnshadowedFraction*peak
+        domEfficiencyCorrection = UnshadowedFraction*peak*max_compensation_factor*icemodel_efficiency_factor
+        assert domEfficiencyCorrection > 0
         
         acceptance = {
             'IceCube': clsim.GetIceCubeDOMAcceptance(domRadius = DOMRadius*DOMOversizeFactor, efficiency=domEfficiencyCorrection),
@@ -271,7 +281,8 @@ def setupDetector(GCDFile,
                 AngularAcceptance=angularAcceptance,
                 WavelengthAcceptance=domAcceptance,
                 ParameterizationList=particleParameterizations,
-                IgnoreSubdetectors=IgnoreSubdetectors)
+                UseGeant4=UseGeant4,
+                IgnoreSubdetectors=IgnoreSubdetectors,)
 
 def setupPropagators(RandomService,
                      DetectorParams,

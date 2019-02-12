@@ -15,8 +15,6 @@ parser.add_option("-r", "--runnumber", type="int", default=1,
                   dest="RUNNUMBER", help="The run number for this simulation")
 parser.add_option("-x", "--xmlfile", default="benchmark.xml",
                   dest="XMLFILE", help="Write statistics to XMLFILE")
-parser.add_option("-p", "--max-parallel-events", type="int", default=100,
-                  dest="MAXPARALLELEVENTS", help="maximum number of events(==frames) that will be processed in parallel")
 parser.add_option("--icemodel", default=expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
 parser.add_option("--use-cpu",  action="store_true", default=False,
@@ -43,6 +41,7 @@ if options.DEVICE is not None:
     print(" ** You should be using the CUDA_VISIBLE_DEVICES and/or GPU_DEVICE_ORDINAL environment variables instead.")
 
 if options.MINIMALGCD:
+    parser.error("--minimal-gcd does not work with I3CLSimClientModule; it needs an external GCD file")
     print(" ")
     print(" ** You chose to not use a standard IceCube GCD file but instead to create a trivial geometry from scratch.")
     print(" ** This geometry only has 24 DOMs, so there are fewer collision checks.")
@@ -271,8 +270,9 @@ if options.MINIMALGCD:
         )
 else:
     # use a real GCD file for a real-world test
+    GCDFile = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
     tray.AddModule("I3InfiniteSource","streams",
-        Prefix = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"),
+        Prefix = GCDFile,
         Stream=icetray.I3Frame.DAQ)
 
 tray.AddModule("I3MCEventHeaderGenerator","gen_header",
@@ -285,7 +285,7 @@ tray.AddModule("I3MCEventHeaderGenerator","gen_header",
 tray.AddModule(generateEvent, "generateEvent",
     I3RandomService = randomService,
     NEvents = options.NUMEVENTS,
-    Energy = 40.*I3Units.TeV,
+    Energy = 1*I3Units.TeV,
     # Energy = 1000.*I3Units.TeV,
     # XCoord = xCoord,
     # YCoord = yCoord,
@@ -297,10 +297,10 @@ MMCTrackListName=None
 photonSeriesName = None
 
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
+    GCDFile = GCDFile,
     PhotonSeriesName = photonSeriesName,
     MCTreeName = MCTreeName,
     MMCTrackListName = MMCTrackListName,
-    ParallelEvents = options.MAXPARALLELEVENTS,
     RandomService = randomService,
     MCPESeriesName = "MCPESeriesMap",
     UnshadowedFraction = 0.95,
@@ -308,10 +308,6 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     UseCPUs=options.USECPU,
     UseOnlyDeviceNumber=options.DEVICE,
     IceModelLocation=options.ICEMODEL,
-    ExtraArgumentsToI3CLSimModule=dict(
-        EnableDoubleBuffering=True,
-        DoublePrecision=False,
-        ),
     )
 
 
