@@ -103,7 +103,8 @@ def Rehydration(tray, name, dstfile = None, mc = False, doNotQify = True, pass2=
             Streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics])
     else:
         if pass2: # kill off DST only P frames
-            tray.AddModule(lambda frame: frame.Has('I3SuperDST') and frame.Has('DSTTriggers'), Streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics])
+            tray.AddModule(FrameDropper, name+'_framedropper',
+                Streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics])
         tray.AddModule(MaskMaker, name+'_maskme', Streams = [icetray.I3Frame.DAQ])
 
     tray.AddModule("Delete", name+'_deleteme',
