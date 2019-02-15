@@ -156,7 +156,7 @@ rebin_bayesian_blocks(int raw_bins, const double *raw_bin_edges,
 	
 	// sum of raw_charges[:k+1]
 	double total = 0;
-	for (int k = 1; k < raw_bins-1; k++) {
+	for (int k = 0; k < raw_bins; k++) {
 		total += raw_charges[k];
 		// sum of raw_charges[:j]
 		double subtotal = 0.;
