@@ -170,8 +170,8 @@ rebin_bayesian_blocks(int raw_bins, const double *raw_bin_edges,
 			// extra block
 			double fitness = (counts > 0 ? counts*(std::log(counts)
 			    - std::log(width)) : 0) + (j > 0 ? best[j-1] : 0) -
-			    ncp_prior - min_width/width;
-			if (fitness > best[k]) {
+			    ncp_prior;
+			if (fitness > best[k] && width >= min_width) {
 				best[k] = fitness;
 				last[k] = j;
 			}
