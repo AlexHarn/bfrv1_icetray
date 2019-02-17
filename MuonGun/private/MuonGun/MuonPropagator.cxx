@@ -20,8 +20,14 @@ MuonPropagator::MuonPropagator(const std::string& medium, double ecut, double vc
 
     sec_def.cut_settings.SetEcut(ecut);
     sec_def.cut_settings.SetVcut(vcut);
+    bool cont_rand = false;
+    if (ecut < 0 && vcut > 0)
+    {
+        cont_rand = true;
+    }
+    sec_def.do_continuous_randomization = cont_rand;
 
-    sec_def.SetMedium(*PROPOSAL::MediumFactory::Get().CreateMedium(medium, 1.0));
+    sec_def.SetMedium(*PROPOSAL::MediumFactory::Get().CreateMedium(medium, rho));
 
     PROPOSAL::Sphere detector(PROPOSAL::Vector3D(0.0, 0.0, 0.0), 1e18, 0.0);
     sec_def.SetGeometry(detector);
@@ -32,7 +38,7 @@ MuonPropagator::MuonPropagator(const std::string& medium, double ecut, double vc
     PROPOSAL::InterpolationDef interpol_def;
 
     std::ostringstream prefix;
-    prefix << getenv("I3_BUILD") << "/MuonGun/resources/tables/icecube";
+    prefix << getenv("I3_BUILD") << "/MuonGun/resources/tables/";
 
     interpol_def.path_to_tables = prefix.str();
 
@@ -159,7 +165,13 @@ I3Particle MuonPropagator::propagate(const I3Particle& p,
 
     pp.SetEnergy(p.GetEnergy() / I3Units::MeV);
     pp.SetTime(p.GetTime() / I3Units::second);
-    pp.SetPropagatedDistance(p.GetLength() / I3Units::cm);
+    
+    double length = p.GetLength() / I3Units::cm;
+    if (!std::isfinite(length))
+    {
+        length = 0.;
+    }
+    pp.SetPropagatedDistance(length);
 
     propagator_->Propagate(distance / I3Units::cm);
 
