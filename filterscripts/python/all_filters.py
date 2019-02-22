@@ -98,7 +98,7 @@ def OnlineFilter(tray, name, simulation=False, decode = False, If=lambda f: True
                         pulses=filter_globals.CleanedMuonPulses,
                         decode=decode,simulation=False,
                         needs_calibration=False, needs_superdst=False,
-                        needs_maskmaker=False,
+                        needs_maskmaker=True,
                         do_slop = slop_split_enabled,
                         needs_trimmer=False, seededRTConfig=seededRTConfig
                         )
