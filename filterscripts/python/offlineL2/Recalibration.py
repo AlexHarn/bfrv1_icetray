@@ -3,6 +3,7 @@ from icecube import icetray, dataclasses, tpx, DomTools
 from icecube import payload_parsing, WaveCalibrator, wavedeform
 from icecube.icetray import I3Units
 from icecube.icetray import OMKey
+from icecube.filterscripts import filter_globals
 
 @icetray.traysegment
 def InIceCalibration(tray, name, InputLaunches='CleanInIceRawData',
@@ -34,10 +35,11 @@ def IceTopCalibration(tray, name, InputLaunches='CleanIceTopRawData',
     tray.AddModule('I3TopHLCPulseExtractor', name+'/tpx_hlc',
         Waveforms='CalibratedIceTopATWD_HLC', PEPulses=OutputPulses,
         PulseInfo='IceTopHLCPulseInfo', VEMPulses='',
-        MinimumLeadingEdgeTime = -100.0*I3Units.ns, BadDomList='IceTopBadDoms')
+        MinimumLeadingEdgeTime = -100.0*I3Units.ns,
+        BadDomList=filter_globals.IceTopBadDoms)
     tray.AddModule('I3TopSLCPulseExtractor', name+'/tpx_slc',
         Waveforms='CalibratedIceTopATWD_SLC', PEPulses=OutputPulses+'_SLC',
-        VEMPulses='', BadDomList='IceTopBadDoms')
+        VEMPulses='', BadDomList=filter_globals.IceTopBadDoms)
     tray.AddModule('Delete', name+'/deletewaveforms',
         Keys=['IceTopCalibratedWaveforms', 'CalibratedIceTopATWD_HLC',
         'CalibratedIceTopATWD_SLC', 'CalibratedIceTopFADC_HLC',

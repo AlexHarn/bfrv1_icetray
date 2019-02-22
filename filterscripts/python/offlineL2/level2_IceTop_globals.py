@@ -8,7 +8,7 @@ inicesmttriggered                          = filter_globals.inicesmttriggered
 icetopsmttriggered                         = filter_globals.icetopsmttriggered
 
 icetop_physics_stream                      = filter_globals.IceTopSplitter
-icetop_bad_doms                            = 'IceTopBadDOMs' # note: these are named IceTopBadDoms in online
+icetop_bad_doms                            = filter_globals.IceTopBadDoms
 icetop_bad_tanks                           = filter_globals.IcetopBadTanks
 icetop_tank_pulse_merger_excluded_tanks    = filter_globals.TankPulseMergerExcludedTanks
 icetop_cluster_cleaning_excluded_tanks     = filter_globals.ClusterCleaningExcludedTanks
