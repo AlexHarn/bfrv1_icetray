@@ -343,14 +343,16 @@ def AlertEventFollowup(tray,name,
 
     tray.Add(full_event_followup.I3FullEventFollowupWriter, name+'_send_full_followup',
              Keys = send_keys + gcd_send_keys,
-             WriterCallback = full_event_followup.followup_writer_callback_to_I3String(frame_object_name=filter_globals.alert_candidate_full_message),
+             WriterCallback = full_event_followup.followup_writer_callback_to_I3String(frame_object_name=filter_globals.alert_candidate_full_message,
+                                                                                       short_message_name=filter_globals.alert_candidate_short_message),
              Streams = streams,
              If = lambda f: If(f) and followup_condition(f) and send_full_followup_check(f,List=filter_globals.alert_candidate_list)
     )
 
     tray.Add(full_event_followup.I3FullEventFollowupWriter, name+'_send_frame_followup',
              Keys = send_keys,
-             WriterCallback = full_event_followup.followup_writer_callback_to_I3String(frame_object_name=filter_globals.alert_candidate_full_message),
+             WriterCallback = full_event_followup.followup_writer_callback_to_I3String(frame_object_name=filter_globals.alert_candidate_full_message,
+                                                                                       short_message_name=filter_globals.alert_candidate_short_message),
              Streams = streams,
              If = lambda f: If(f) and followup_condition(f) and (not send_full_followup_check(f,List=filter_globals.alert_candidate_list))
     )
