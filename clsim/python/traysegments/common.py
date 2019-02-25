@@ -22,29 +22,6 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
         if UseOnlyDeviceNumber is not None and i != UseOnlyDeviceNumber:
             # skip all devices except for the selected one (if there is a selection)
             continue
-
-        if  'Tesla' in device.device or 'GTX' in device.device or 'TITAN' in device.device:
-            # assume these are "fast", all others are "slow"
-            device.useNativeMath=True
-            if '1080' in device.device or 'TITAN' in device.device:
-                # These things have 8GB of memory, so use more of it (because why not)
-                device.approximateNumberOfWorkItems=1024000*2
-            elif 'Tesla' in device.device or '580' in device.device or '680' in device.device or '980' in device.device:
-                # these cards should have enough ram to support this
-                device.approximateNumberOfWorkItems=1024000
-            else:
-                device.approximateNumberOfWorkItems=102400
-        elif 'Graphics Device' in device.device:
-            # with nVidia's driver version 367.18, a GTX 1080 shows up as just "Graphics Devices"
-            # These things have 8GB of memory, so use more of it (because why not)
-            device.useNativeMath=True
-            device.approximateNumberOfWorkItems=1024000*2
-        elif 'Tahiti' in device.device:
-            device.useNativeMath=True
-            device.approximateNumberOfWorkItems=102400*2
-        else:
-            device.useNativeMath=False
-            device.approximateNumberOfWorkItems=10240
             
         if OverrideApproximateNumberOfWorkItems is not None:
             device.approximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems
