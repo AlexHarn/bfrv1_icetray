@@ -602,7 +602,7 @@ bool I3CLSimClientModule::Thread(boost::this_thread::disable_interruption &di)
             auto bounds = framesForBunches_.right.equal_range(res.identifier);
             log_debug("bunch %u had work from %zu frames", res.identifier, std::distance(bounds.first, bounds.second));
             
-            assert( bounds.first != bounds.second );
+            assert( framesForBunches_.empty() || bounds.first != bounds.second );
             framesForBunches_.right.erase(bounds.first, bounds.second);
             
             newFramesAvailable_ = true;
