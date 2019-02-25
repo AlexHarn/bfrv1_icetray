@@ -23,6 +23,7 @@
 # @date $Date: 2015-04-02 21:29:19 -0400 (Thu, 02 Apr 2015) $
 # @author Claudio Kopper
 #
+import json
 
 from icecube import icetray
 from icecube import dataclasses
@@ -38,7 +39,7 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
 
-def followup_writer_callback_to_file(filename):
+def followup_writer_callback_to_file(filename, short_message_name=None):
     """
     return a trivial writer callback writing to a file of single-line JSON
     messages.
@@ -47,12 +48,20 @@ def followup_writer_callback_to_file(filename):
     file = open(filename, mode='w')
 
     def func(packet, original_frame):
-        data_plus = {}
-        data_plus['run_id']    = original_frame["I3EventHeader"].run_id
-        data_plus['event_id']  = original_frame["I3EventHeader"].event_id
-        data_plus['eventtime'] = str(original_frame["I3EventHeader"].start_time.date_time)
-        data_plus['unique_id'] = create_event_id(original_frame["I3EventHeader"].run_id,
-                                                 original_frame["I3EventHeader"].event_id)
+        # attach some basic properties next to the full frames
+        if (short_message_name is not None) and (short_message_name in original_frame):
+            # a short alert message has been generated before:
+            # take it, convert back to a dict and send it along with the frames
+            data_plus = json.loads(original_frame[short_message_name].value)
+        else:
+            # no short alert message has been generated before:
+            # send only basic features from the I3EventHeader along with the frames
+            data_plus = {}
+            data_plus['run_id']    = original_frame["I3EventHeader"].run_id
+            data_plus['event_id']  = original_frame["I3EventHeader"].event_id
+            data_plus['eventtime'] = str(original_frame["I3EventHeader"].start_time.date_time)
+            data_plus['unique_id'] = create_event_id(original_frame["I3EventHeader"].run_id,
+                                                     original_frame["I3EventHeader"].event_id)
         msg = frame_packet_to_i3live_json(packet, pnf_framing=True, prio=1, data_plus = data_plus)
         icetray.logging.log_info(
             "size of packet is {0}".format(sizeof_fmt(len(msg))),
