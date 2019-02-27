@@ -16,11 +16,11 @@ tray = I3Tray()
 tray.Add("I3Reader", Filename = args.gcd_filename)
 
 if args.as_functor:
-    from icecube.sim_services.spe_fit_injector import SPEFitInjector
+    from icecube.phys_services.spe_fit_injector import SPEFitInjector
     spe_fit_injector = SPEFitInjector(args.fit_filename)
     tray.Add(spe_fit_injector, streams = [icetray.I3Frame.Calibration])
 else:
-    from icecube.sim_services.spe_fit_injector import I3SPEFitInjector
+    from icecube.phys_services.spe_fit_injector import I3SPEFitInjector
     tray.Add(I3SPEFitInjector, Filename = args.fit_filename)
     
 tray.Add("I3Writer", Filename = args.gcd_filename.replace('.i3','_spe.i3'))
