@@ -7,6 +7,11 @@ Release Notes
 
 On the trunk
 ------------
+
+June 22, 2018 Juan Carlos Diaz-Velez (juancarlso@icecube.wisc.edu)
+--------------------------------------------------------------------
+V01-02-01
+* Removed noise parameter injector in tray segment that was overriding GCD parameters.
 * Switched out the inice and icetop options for a new OMTypes option. 
   This takes a list of OMTypes from I3OMGeo in order to grant some more
   freedom for the future. By default, this will be IceCube, mDOM, pDOM,
