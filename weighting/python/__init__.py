@@ -14,9 +14,15 @@ def get_weighted_primary(frame, MCPrimary='MCPrimary'):
 	"""
 	from .weighting import ParticleType
 	
-	if not 'I3MCTree' in frame or (len(frame['I3MCTree'].primaries) == 0):
+	MCTreeName = None
+	for mctree in ['I3MCTree_preMuonProp','I3MCTree']:
+		if (mctree in frame) and (len(frame[mctree].primaries) != 0):
+			MCTreeName = mctree
+			break
+
+	if MCTreeName is None:
 		return
-	primaries = frame['I3MCTree'].primaries
+	primaries = frame[MCTreeName].primaries
 	if len(primaries) == 1:
 		idx = 0
 	elif 'I3MCWeightDict' in frame:
@@ -37,10 +43,10 @@ def get_weighted_primary(frame, MCPrimary='MCPrimary'):
 			idx = 0
 		elif 'PrimaryEnergy' in wmap:
 			prim_e = wmap['PrimaryEnergy']
-			idx = int(numpy.argmin([abs(p.energy-prim_e) for p in primaries]))
+			idx = int(numpy.nanargmin([abs(p.energy-prim_e) for p in primaries]))
 		elif 'PrimarySpectralIndex' in wmap:
 			prim_e = wmap['Weight']**(-1./wmap['PrimarySpectralIndex'])
-			idx = int(numpy.argmin([abs(p.energy-prim_e) for p in primaries]))
+			idx = int(numpy.nanargmin([abs(p.energy-prim_e) for p in primaries]))
 		else:
 			idx = 0
 	
@@ -121,12 +127,18 @@ class WeightCalculatorBase(icetray.I3ConditionalModule):
 			raise ValueError("You must supply a flux parametrization")
 	
 	def DAQ(self, frame):
-		if not 'MCPrimary' in frame:
+
+		if 'PolyplopiaPrimary' in frame:
+			primary = frame['MCPrimary']
+		elif 'MCPrimary' in frame:
+			primary = frame['MCPrimary']
+		else:
 			get_weighted_primary(frame)
-		if not 'MCPrimary' in frame:
-			self.PushFrame(frame)
-			return
-		primary = frame['MCPrimary']
+			if not 'MCPrimary' in frame:
+				self.PushFrame(frame)
+				return
+			primary = frame['MCPrimary']
+
 		frame[self.name] = dataclasses.I3Double(self.get_weight(frame, primary))
 		
 		self.PushFrame(frame)
