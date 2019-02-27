@@ -34,10 +34,6 @@ def AddNoise(tray, name,
 	:param EndTime: The amount of time after the last hit to simulate noise
 	"""
                 
-	tray.AddModule("Inject", "AddNoiseParams_" + name,
-		       InputNoiseFile = expandvars("$I3_SRC/vuvuzela/resources/data/parameters.dat"),
-		       )
-
 	tray.AddModule("Vuvuzela", "vuvuzela_" + name,
 		       InputHitSeriesMapName  = InputName,
 		       OutputHitSeriesMapName = OutputName,
