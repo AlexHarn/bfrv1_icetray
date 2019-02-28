@@ -250,6 +250,7 @@ if(NOT BUILD_CLSIM_DATACLASSES_ONLY)
     # private/test/
     private/test/I3CLSimMediumPropertiesTester.cxx
     private/test/I3CLSimRandomDistributionTester.cxx
+    private/test/I3CLSimRandomNumberGeneratorBenchmark.cxx
     private/test/I3CLSimTesterBase.cxx
     private/test/I3CLSimFunctionTester.cxx
     private/test/I3CLSimScalarFieldTester.cxx

@@ -28,6 +28,7 @@
 
 #include <test/I3CLSimTesterBase.h>
 #include <test/I3CLSimRandomDistributionTester.h>
+#include <test/I3CLSimRandomNumberGeneratorBenchmark.h>
 #include <test/I3CLSimFunctionTester.h>
 #include <test/I3CLSimScalarFieldTester.h>
 #include <test/I3CLSimVectorTransformTester.h>
@@ -76,6 +77,11 @@ bp::list I3CLSimVectorTransformTester_EvaluateReferenceFunction(
     return retList;
 }
 
+bp::tuple I3CLSimRandomNumberGeneratorBenchmark_GenerateRandomNumbers(I3CLSimRandomNumberGeneratorBenchmark &self, uint64_t iterations)
+{
+    auto pair = self.GenerateRandomNumbers(iterations);
+    return bp::make_tuple(pair.first, pair.second);
+}
 
 void register_I3CLSimTester()
 {
@@ -118,6 +124,33 @@ void register_I3CLSimTester()
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomDistributionTester>, boost::shared_ptr<const I3CLSimRandomDistributionTester> >();
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomDistributionTester>, boost::shared_ptr<I3CLSimTesterBase> >();
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomDistributionTester>, boost::shared_ptr<const I3CLSimTesterBase> >();
+
+    // I3CLSimRandomNumberGeneratorBenchmark
+    {
+        bp::scope I3CLSimRandomNumberGeneratorBenchmark_scope = 
+        bp::class_<I3CLSimRandomNumberGeneratorBenchmark, 
+                   boost::shared_ptr<I3CLSimRandomNumberGeneratorBenchmark>,
+                   bases<I3CLSimTesterBase>,
+                   boost::noncopyable>
+        ("I3CLSimRandomNumberGeneratorBenchmark",
+         bp::init<const I3CLSimOpenCLDevice &, uint64_t, uint64_t, uint32_t, I3RandomServicePtr, std::string>
+         (
+          (
+           bp::arg("device"),
+           bp::arg("workgroupSize"),
+           bp::arg("workItemsPerIteration"),
+           bp::arg("iterations"),
+           bp::arg("randomService"),
+           bp::arg("rngType")=""
+          )
+         )
+        )
+        .def("GenerateRandomNumbers", &I3CLSimRandomNumberGeneratorBenchmark_GenerateRandomNumbers, bp::arg("iterations"))
+        ;
+    }
+    bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomNumberGeneratorBenchmark>, boost::shared_ptr<const I3CLSimRandomNumberGeneratorBenchmark> >();
+    bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomNumberGeneratorBenchmark>, boost::shared_ptr<I3CLSimTesterBase> >();
+    bp::implicitly_convertible<boost::shared_ptr<I3CLSimRandomNumberGeneratorBenchmark>, boost::shared_ptr<const I3CLSimTesterBase> >();
 
     
     // I3CLSimFunctionTester

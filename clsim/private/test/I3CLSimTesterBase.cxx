@@ -151,7 +151,7 @@ void I3CLSimTesterBase::DoSetup(const I3CLSimOpenCLDevice &device,
     log_debug("Initializing..");
     try {
         //queue_ = boost::shared_ptr<cl::CommandQueue>(new cl::CommandQueue(*context_, device.GetDeviceHandle(), CL_QUEUE_PROFILING_ENABLE));
-        queue = boost::shared_ptr<cl::CommandQueue>(new cl::CommandQueue(*context, *deviceHandle, 0));
+        queue = boost::shared_ptr<cl::CommandQueue>(new cl::CommandQueue(*context, *deviceHandle, CL_QUEUE_PROFILING_ENABLE));
     } catch (cl::Error &err) {
         log_error("OpenCL ERROR: %s (%i)", err.what(), err.err());
         throw std::runtime_error("OpenCL error: could not set up command queue!");
