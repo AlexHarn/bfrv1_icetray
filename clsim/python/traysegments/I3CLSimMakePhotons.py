@@ -290,6 +290,11 @@ def I3CLSimMakePhotons(tray, name,
     # stash server instance in the context to keep it alive
     tray.context['CLSimServer'] = server
 
+    if MMCTrackListName is None or MMCTrackListName=="":
+        # the input does not seem to have been processed by MMC
+        ChopMuons = False
+    else:
+        ChopMuons = True
     if UseGPUs:
         if not ChopMuons:
             warnings.warn("Propagating muons and photons in the same process. This will likely starve your GPU.")
