@@ -331,7 +331,29 @@ __kernel void propagate(__private uint num,
 	  float t=sqrt(b*b-c)-b;
 	  r+=t*(float4)(n.xyz, e.ocv);
 	  if(fabs(r.z)<FLB) ofla=-2;
-	  else if(r.z<0) if(xrnd(&s)<0.5) ofla=-3;
+	  else if(r.z<0) if(xrnd(&s)<0.9) ofla=-3;
+
+	  if(p.ka>1050){
+	    float rc=0.023f;
+	    float dc=OMR+rc;
+
+	    float ph=radians(p.ka-1080);
+	    if(!isnan(ph)){
+	      float drx=r.x-dc*cos(ph);
+	      float dry=r.y-dc*sin(ph);
+	      float a=n.x*n.x+n.y*n.y;
+	      if(a>0){
+		float b=n.x*drx+n.y*dry;
+		float c=drx*drx+dry*dry-rc*rc;
+		float D=b*b-a*c;
+		if(D>=0){
+		  float h1=(-b+sqrt(D))/a;
+		  if(h1>0) ofla=-4;
+		}
+	      }
+	    }
+	  }
+
 	  r+=p.r;
 	}
       }
