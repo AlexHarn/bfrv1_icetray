@@ -84,7 +84,7 @@ def sdst_to_l1(tray, name, ic79_geometry=False):
                     alert_followup_omit_GCD_diff=True,
                     forceOnlineL2BadDOMList="BadDomsList_old", 
                     ic79_geometry = ic79_geometry,
-                    gfu_enabled=False # to run without ROOT
+                    #gfu_enabled=False # to run without ROOT
     )
 
     # now clean up the frame using the Keep module... 
