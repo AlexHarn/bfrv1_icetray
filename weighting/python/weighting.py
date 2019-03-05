@@ -851,7 +851,7 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 		elif 'NUGEN::from_energy' in steering:
 			emin, emax = steering['NUGEN::from_energy'], steering['NUGEN::to_energy']
 		else:
-			emin, emax = steering['NUGEN::emin'], steering['NUGEN::emax']
+			emin, emax = float(steering['NUGEN::emin']), float(steering['NUGEN::emax'])
 		nugen_kwargs = dict()
 		if 'NUGEN::injectionradius' in steering:
 			nugen_kwargs['InjectionRadius'] = steering['NUGEN::injectionradius']
