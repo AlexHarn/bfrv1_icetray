@@ -50,6 +50,7 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
                 openCLDevices.append(device)
             
         else:
+            device.useNativeMath=True
             openCLDevices.append(device)
     
     return openCLDevices
