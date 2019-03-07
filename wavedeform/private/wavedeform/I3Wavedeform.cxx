@@ -77,19 +77,19 @@ class I3Wavedeform : public I3ConditionalModule
 		void FillTemplate(WaveformTemplate& wfTemplate,
 		    const I3DOMCalibration& calibration);
 
-    cholmod_common c;
+		cholmod_common c;
 };
 
 I3_MODULE(I3Wavedeform);
 
 // End time (ns) of pulse template
 inline double PulseWidth(int source) {
-  return (source & I3RecoPulse::FADC) ? 170 : 50;
+	return (source & I3RecoPulse::FADC) ? 170 : 50;
 }
 
 // Beginning time (ns) of pulse template
 inline double PulseMin(int source) {
-  return -2;
+	return -2;
 }
 
 I3Wavedeform::I3Wavedeform(const I3Context &context) :
@@ -807,3 +807,4 @@ void I3Wavedeform::FillTemplate(WaveformTemplate& wfTemplate,
 
 	wfTemplate.filled = true;
 }
+
