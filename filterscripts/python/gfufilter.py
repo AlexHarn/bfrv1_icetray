@@ -414,6 +414,7 @@ def GammaFollowUp(tray, name,
             BinWidth       = 50.,
             InputPulses    = pulses,
             MaxImpact      = 150.,
+            Method         = -1, # fit not required
             Seed           = splineMPE_name,
             Prefix         = splineMPE_name+'_DDDDR_150_',
             SaveDomResults = True,
