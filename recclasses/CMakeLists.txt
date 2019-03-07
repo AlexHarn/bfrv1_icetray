@@ -47,10 +47,3 @@ set_source_files_properties(${MODULE_CXX}
   )
 
 i3_test_scripts(resources/test/*.py)
-
-
-
-
-
-
-
