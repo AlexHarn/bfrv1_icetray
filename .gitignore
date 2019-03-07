@@ -1,0 +1,2 @@
+# Ignore all compiled Python modules.
+*.py[cod]
