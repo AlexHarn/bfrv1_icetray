@@ -137,7 +137,7 @@ I3MuonEnergy::I3MuonEnergy(const I3Context & ctx)
 	AddParameter("LevelDist", "For distances smaller than LevelDist, the light yield at the DOMs "
 			                  "is assumed to scale linearly with the distance to the track.", levelDist_);
 	fitFunctionInt_ = 0;
-	AddParameter("Method", "0: expo; 1: tomF", fitFunctionInt_);
+	AddParameter("Method", "-1: no fit, 0: expo; 1: tomF", fitFunctionInt_);
 	fixB_ = FIXB;
 	AddParameter("FixB", "fix free parameter b in tomF's function", fixB_);
 	fixGamma_ = FIXGAMMA;
@@ -207,6 +207,11 @@ void I3MuonEnergy::Configure()
 	if (inIcePulseName_ == "")
 		log_fatal("You have to specify a Pulse map.");
 
+	#ifndef USE_MINUIT2
+	if (fitFunctionInt_ != -1)
+		log_fatal("You need to either rebuild with Root/Minuit2 support, or set `Method` to -1.");
+	#endif // USE_MINUIT2
+
 	// check if correct track parameters are set. Warn user if ambiguous
 	if (useMonteCarloTrack_)
 	{
@@ -255,7 +260,11 @@ void I3MuonEnergy::Configure()
 
 	
 	// Set degrees of freedom according to chosen fit function
-	if (fitFunctionInt_ == 0)
+	if (fitFunctionInt_ == -1) {
+		fitFunction_ = NOFCN;
+		nDoF_ = 0;
+	}
+	else if (fitFunctionInt_ == 0)
 	{
 		fitFunction_ = EXPOFCN;
 		nDoF_ = 2;
@@ -694,7 +703,11 @@ boost::shared_ptr<I3MuonEnergyProfile> I3MuonEnergy::getMuonEnergyProfile(I3Fram
 std::vector<FitParameterSpecs> I3MuonEnergy::getFitParameterSpecs(Minuit2FitFCN &fitFunction)
 {
 	std::vector<FitParameterSpecs> parspecs;
-	if (fitFunction == EXPOFCN)
+	if (fitFunction == NOFCN)
+	{ 
+		// no actual fit, no fit parameters
+	}
+	else if (fitFunction == EXPOFCN)
 	{
 		FitParameterSpecs norm("norm", EXPO_NORM_INIT, EXPO_NORM_STEPS , EXPO_NORM_MINV, EXPO_NORM_MAXV);
 		FitParameterSpecs exponent("exp", EXPO_EXP_INIT, EXPO_EXP_STEPS, EXPO_EXP_MINV, EXPO_EXP_MAXV);
@@ -754,73 +767,84 @@ I3MuonEnergyParamsPtr I3MuonEnergy::getMuonEnergyParams(boost::shared_ptr<I3Muon
 	results->rllh = 0;
 	results->chi2 = 0;
 
-	boost::shared_ptr<MuonEnergyFCNBase> fitfcn;
-	MuonEnergyMinuit2 minuit2("d4rfit",
-			minuitTolerance_, minuitMaxIterations_,
-			minuitPrintLevel_, minuitStrategy_, 
-			minuitAlgorithm_);
+	/*
+	If `fitFunction_` is set to NOFCN, no fit will be done.
+	This allows running the module without Minuit2.
 
-	if (fitFunction_ == EXPOFCN)
+	Configure() ensures that fitFunction_ is set to NOFCN
+	when Minuit2 is not available.
+	*/
+	if (fitFunction_ != NOFCN)
 	{
-		fitfcn.reset(new ExpoFcn(dEdXPerBin_, slantBins_));
-	}
-	else if (fitFunction_ == TOMFFCN)
-	{
-		fitfcn.reset(new TomFFcn(dEdXPerBin_, slantBins_));
-	}
+#ifdef USE_MINUIT2
+		boost::shared_ptr<MuonEnergyFCNBase> fitfcn;
+		MuonEnergyMinuit2 minuit2("d4rfit",
+				minuitTolerance_, minuitMaxIterations_,
+				minuitPrintLevel_, minuitStrategy_, 
+				minuitAlgorithm_);
 
-	const std::vector<FitParameterSpecs> parspecsConst = getFitParameterSpecs(
-			fitFunction_);
-
-	MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
-	log_debug("Creating MuonEnergyParams.");
-
-	results->N = minuitResult.par_[0];
-	results->b = minuitResult.par_[1];
-	results->N_err = minuitResult.err_[0];
-	results->b_err = minuitResult.err_[1];
-
-	if (fitFunction_ == TOMFFCN)
-	{
-		results->gamma = minuitResult.par_[2];
-		results->gamma_err = minuitResult.err_[2];
-	}
-
-	if (!minuitResult.converged_)
-		results->status = I3Particle::FailedToConverge;
-	else if (std::isnan(results->N))
-		results->status = I3Particle::GeneralFailure;
-	else
-		results->status = I3Particle::OK;
-
-	log_debug("Calculating Chi^2 and rllh for the fit.");
-	if (results->nDOMs > 1 && !std::isnan(results->N))
-	{
-		for (int i = 0; i < eprofile->GetNBins(); i++)
+		if (fitFunction_ == EXPOFCN)
 		{
-			try
+			fitfcn.reset(new ExpoFcn(dEdXPerBin_, slantBins_));
+		}
+		else if (fitFunction_ == TOMFFCN)
+		{
+			fitfcn.reset(new TomFFcn(dEdXPerBin_, slantBins_));
+		}
+
+		const std::vector<FitParameterSpecs> parspecsConst = getFitParameterSpecs(
+				fitFunction_);
+
+		MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
+		log_debug("Creating MuonEnergyParams.");
+
+		results->N = minuitResult.par_[0];
+		results->b = minuitResult.par_[1];
+		results->N_err = minuitResult.err_[0];
+		results->b_err = minuitResult.err_[1];
+
+		if (fitFunction_ == TOMFFCN)
+		{
+			results->gamma = minuitResult.par_[2];
+			results->gamma_err = minuitResult.err_[2];
+		}
+
+		if (!minuitResult.converged_)
+			results->status = I3Particle::FailedToConverge;
+		else if (std::isnan(results->N))
+			results->status = I3Particle::GeneralFailure;
+		else
+			results->status = I3Particle::OK;
+
+		log_debug("Calculating Chi^2 and rllh for the fit.");
+		if (results->nDOMs > 1 && !std::isnan(results->N))
+		{
+			for (int i = 0; i < eprofile->GetNBins(); i++)
 			{
-				double dEdX = eprofile->GetBinContent(i);
-				double edEdX = eprofile->GetBinError(i);
-				double slant = eprofile->GetBinCenter(i);
-				results->rllh 
-					+= pow(dEdX-fitfcn->f(minuitResult.par_, slant), 2)
-					/ (dEdX+1);
-				if (edEdX > 0.)
+				try
 				{
-					results->chi2 
-						+= pow((dEdX-fitfcn->f(minuitResult.par_, slant)) / edEdX, 2);
+					double dEdX = eprofile->GetBinContent(i);
+					double edEdX = eprofile->GetBinError(i);
+					double slant = eprofile->GetBinCenter(i);
+					results->rllh 
+						+= pow(dEdX-fitfcn->f(minuitResult.par_, slant), 2)
+						/ (dEdX+1);
+					if (edEdX > 0.)
+					{
+						results->chi2 
+							+= pow((dEdX-fitfcn->f(minuitResult.par_, slant)) / edEdX, 2);
+					}
+				}
+				catch (const std::out_of_range& e)
+				{
+					log_warn("Couldn't compute rllh or chi^2, exception occured: %s", 
+							e.what());
 				}
 			}
-			catch (const std::out_of_range& e)
-			{
-				log_warn("Couldn't compute rllh or chi^2, exception occured: %s", 
-						e.what());
-			}
 		}
+		results->chi2ndof = results->chi2 / ((double) eprofile->GetNBins()-nDoF_-1.);
+#endif // USE_MINUIT2
 	}
-	results->chi2ndof = results->chi2 / ((double) eprofile->GetNBins()-nDoF_-1.);
-
 
 	//Compute peak energy and error
 	results->peak_energy = eprofile->GetBinContent(eprofile->GetMaxBin());

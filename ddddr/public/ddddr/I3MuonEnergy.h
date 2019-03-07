@@ -31,11 +31,15 @@
 #include "ddddr/I3MuonEnergyCascadeParams.h"
 
 ////// Fitting related classes
+enum Minuit2FitFCN {NOFCN, EXPOFCN, TOMFFCN};
+#include "ddddr/FitParameterSpecs.h"
+
+#ifdef USE_MINUIT2
 #include "ddddr/MuonEnergyMinuit2.h"
 #include "ddddr/MuonEnergyFCNBase.h"
-#include "ddddr/FitParameterSpecs.h"
 #include "ddddr/TomFFcn.h"
 #include "ddddr/ExpoFcn.h"
+#endif // USE_MINUIT2
 //////
 
 /**

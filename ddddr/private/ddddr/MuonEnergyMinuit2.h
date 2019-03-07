@@ -7,7 +7,6 @@
 #include "Minuit2/FCNBase.h"
 
 enum Minuit2Algorithm {SIMPLEX, MIGRAD, COMBINED, FUMILI};
-enum Minuit2FitFCN {EXPOFCN, TOMFFCN};
 
 /**
  * @brief A class to perform a mimization using Minuit2, based on I3GullerMinuit2. Since 

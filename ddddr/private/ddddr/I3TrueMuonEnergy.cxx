@@ -181,6 +181,7 @@ I3MuonEnergyParamsPtr I3TrueMuonEnergy::getBundleEnergyDistribution(std::vector<
 			measure.push_back(it->energy);
 	}
 
+#ifdef USE_MINUIT2
 	MuonEnergyMinuit2 minuit2("trueEnergyFit",
 			minuitTolerance_, minuitMaxIterations_,
 			minuitPrintLevel_, minuitStrategy_, 
@@ -203,6 +204,13 @@ I3MuonEnergyParamsPtr I3TrueMuonEnergy::getBundleEnergyDistribution(std::vector<
 	results->b = minuitResult.par_[1];
 	results->N_err = minuitResult.err_[0];
 	results->b_err = minuitResult.err_[1];
+#else
+	/*
+	If Minuit2 is not available, no fit is performed.
+	The corresponding fields in the `results` are initialized to
+	NAN in the constructor of I3MuonEnergyParams and stay like that.
+	*/
+#endif // USE_MINUIT2
 
 	// calculate mean
 	double mean = 0, sum = 0, dev=0, sdev = 0;

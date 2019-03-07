@@ -24,42 +24,44 @@ SET(LIB_${PROJECT_NAME}_PROJECTS serialization icetray dataclasses phys-services
 
 if(USE_ROOT AND ROOT_FOUND)
   LIST(APPEND LIB_${PROJECT_NAME}_TOOLS root)
+  colormsg(GREEN "+-- Using Minuit2 from ROOT.")
 endif()
 
 ## during detection, we prefer ROOT's Minuit2 to the standalone version
 if(MINUIT2_FOUND)
   LIST(APPEND LIB_${PROJECT_NAME}_TOOLS minuit2)
+  colormsg(GREEN "+-- Found Minuit2, fitting enabled.")
+  ADD_DEFINITIONS(-DUSE_MINUIT2)
+
   LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
     private/ddddr/MuonEnergyMinuit2.cxx
     private/ddddr/TomFFcn.cxx
     private/ddddr/ExpoFcn.cxx
     )
-
-  i3_add_library(ddddr
-    ${LIB_${PROJECT_NAME}_SOURCEFILES}
-    USE_TOOLS ${LIB_${PROJECT_NAME}_TOOLS}
-    USE_PROJECTS ${LIB_${PROJECT_NAME}_PROJECTS}
-    )
-
-  i3_test_executable(test
-    ${LIB_${PROJECT_NAME}_TEST_SOURCEFILES}
-    USE_PROJECTS ddddr
-    )
-
-  i3_add_pybindings(ddddr
-    private/pybindings/module.cxx
-    private/pybindings/I3MuonEnergyParams.cxx
-    private/pybindings/I3MuonEnergyProfile.cxx
-    private/pybindings/I3MuonEnergyCascadeParams.cxx
-    USE_TOOLS boost python 
-    USE_PROJECTS ddddr icetray serialization dataclasses phys-services simclasses
-    )
-  
-  i3_test_scripts(resources/scripts/*.py)
-
 else()
-  colormsg(RED "+---- Either ROOT not found, disabled or Minuit2 not available. DDDDR will not be enabled.")
-  colormsg(RED "         USE_ROOT = ${USE_ROOT}")
-  colormsg(RED "         ROOT_FOUND = ${ROOT_FOUND}")
-  colormsg(RED "         MINUIT2_FOUND = ${MINUIT2_FOUND}")
+  colormsg(CYAN "+-- Either ROOT not found, disabled or Minuit2 not available.")
+  colormsg(CYAN "    DDDDR will still be built and can be run with disabled fitting.")
 endif()
+
+
+i3_add_library(ddddr
+  ${LIB_${PROJECT_NAME}_SOURCEFILES}
+  USE_TOOLS ${LIB_${PROJECT_NAME}_TOOLS}
+  USE_PROJECTS ${LIB_${PROJECT_NAME}_PROJECTS}
+  )
+
+i3_test_executable(test
+  ${LIB_${PROJECT_NAME}_TEST_SOURCEFILES}
+  USE_PROJECTS ddddr
+  )
+
+i3_add_pybindings(ddddr
+  private/pybindings/module.cxx
+  private/pybindings/I3MuonEnergyParams.cxx
+  private/pybindings/I3MuonEnergyProfile.cxx
+  private/pybindings/I3MuonEnergyCascadeParams.cxx
+  USE_TOOLS boost python 
+  USE_PROJECTS ddddr icetray serialization dataclasses phys-services simclasses
+  )
+
+i3_test_scripts(resources/scripts/*.py)
