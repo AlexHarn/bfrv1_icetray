@@ -172,7 +172,7 @@ void verifyEvaluate(const std::vector<CoordBundle> &coords, I3RandomService &rng
 		// Form random time bins
 		std::vector<double> time_edges;
 		for (int i=0; i < 100; i++)
-			time_edges.push_back(noGradient.geoTime + rng.Uniform(1e4, 1e4));
+			time_edges.push_back(noGradient.geoTime + rng.Uniform(0., 1e4));
 		std::sort(time_edges.begin(), time_edges.end());
 		noGradient.quantiles.resize(time_edges.size()-1);
 		withGradient.quantiles.resize(time_edges.size()-1);
