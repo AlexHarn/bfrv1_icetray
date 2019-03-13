@@ -2,6 +2,11 @@
 Release Notes
 =============
 
+trunk
+-----
+
+* Converted `FilterMaskMaker` to C++ for speed up on L2 processing
+
 June 13, 2018, Alex Olivas  (olivas@icecube.umd.edu)
 -----------------------------------------------------
 Release V18-06-00
