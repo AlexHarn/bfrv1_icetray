@@ -27,7 +27,6 @@ class StartingMuon(ipmodule.ParsingModule):
       self.AddParameter('nevents','Number of events',0)
       self.AddParameter('FromEnergy','Minimum energy',1.*I3Units.TeV)
       self.AddParameter('ToEnergy','Maximum energy',10.*I3Units.PeV)
-      self.AddParameter('PROPOSALParams','any other parameters for proposal',dict())
       self.AddParameter('HistogramFilename', 'Histogram filename.', None)
       
    def Execute(self,stats):
@@ -36,36 +35,9 @@ class StartingMuon(ipmodule.ParsingModule):
 
       import random
       from math import pi
-
-      # Load libraries 
-      from icecube import PROPOSAL, cmc, phys_services
       from .. import segments 
 
       random.seed(self.seed)
-      
-      # support json ParamsMap, so we can get our dict from the iceprod config file
-      try:
-         import json
-      except ImportError:
-         json = None
-         
-      if isinstance(self.proposalparams,str):
-         if not json:
-            raise Exception('ProposalParams provided as string, but python does not understand json')
-         self.proposalparams = json.loads(self.proposalparams) 	
- 
-      # Instantiate a tray 
-      tray = I3Tray()
-      
-      randomServiceForPropagators = phys_services.I3SPRNGRandomService(
-         seed = self.seed,
-         nstreams = self.nproc*2,
-         streamnum = self.nproc + self.procnum)
-
-      tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
-      
-      tray.AddModule("I3InfiniteSource",
-                     Stream=icetray.I3Frame.DAQ)
 
       def Generator(frame, FromEnergy = 1*I3Units.TeV, ToEnergy = 1*I3Units.TeV):
          p = dataclasses.I3Particle()
@@ -84,27 +56,20 @@ class StartingMuon(ipmodule.ParsingModule):
          tree.add_primary(p)
                        
          frame["I3MCTree_preMuonProp"] = tree
+
+      
+      # Instantiate a tray 
+      tray = I3Tray()
+            
+      tray.AddModule("I3InfiniteSource",
+                     Stream=icetray.I3Frame.DAQ)
          
       tray.Add(Generator,
                FromEnergy = self.fromenergy,
                ToEnergy = self.toenergy,
                Streams = [icetray.I3Frame.DAQ]
       )
-        
-      tray.Add(segments.PropagateMuons, 
-               RandomService= randomServiceForPropagators,
-               **self.proposalparams
-      ) 
-        
-      if self.histogramfilename:         
-         from icecube.production_histograms import ProductionHistogramModule
-         from icecube.production_histograms.histogram_modules.simulation.mctree_primary import I3MCTreePrimaryModule
-         from icecube.production_histograms.histogram_modules.simulation.mctree import I3MCTreeModule
-        
-         tray.AddModule(ProductionHistogramModule, 
-                        Histograms = [I3MCTreePrimaryModule, I3MCTreeModule],
-                        OutputFilename = self.histogramfilename)
-
+                
       tray.Add("I3Writer", 
                filename=self.outputfile,
                Streams=[icetray.I3Frame.TrayInfo,
