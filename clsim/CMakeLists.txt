@@ -96,6 +96,7 @@ SET(LIB_${PROJECT_NAME}_TOOLS python boost gsl)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
 
 if (ZMQ_FOUND AND OPENCL_FOUND)
+  add_definitions(-DHAS_ZMQ)
   
   LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
       private/clsim/I3CLSimServer.cxx

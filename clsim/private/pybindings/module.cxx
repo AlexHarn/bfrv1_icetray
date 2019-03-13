@@ -47,18 +47,20 @@ namespace bp = boost::python;
     (I3CLSimMediumProperties)(I3CLSimRandomValue)   \
     (I3CLSimLightSourceToStepConverter)             \
     (I3CLSimLightSourcePropagator)                  \
-    (I3CLSimStepToPhotonConverter)                  \
     (I3CLSimSimpleGeometry)                         \
     (I3CLSimLightSourceParameterization)            \
     (I3CLSimTester)(I3ModuleHelper)                 \
     (I3CLSimLightSourceToStepConverterUtils)        \
     (I3CLSimOpenCLDevice)(I3CLSimLightSource)       \
     (I3CLSimSpectrumTable)(I3CLSimScalarField)      \
-    (I3CLSimVectorTransform)(I3CLSimServer)         \
+    (I3CLSimVectorTransform)                        \
     (I3CLSimPhotonToMCPEConverter)                  \
     (I3CLSimPhotonToMCPEConverterForDOMs)
 #endif
 
+#define REGISTER_THESE_THINGS_ZMQ                   \
+    (I3CLSimStepToPhotonConverter)                  \
+    (I3CLSimServer)
 
 #define I3_REGISTRATION_FN_DECL(r, data, t) void BOOST_PP_CAT(register_,t)();
 #define I3_REGISTER(r, data, t) BOOST_PP_CAT(register_,t)();
@@ -66,6 +68,10 @@ namespace bp = boost::python;
 BOOST_PP_SEQ_FOR_EACH(I3_REGISTRATION_FN_DECL, ~, REGISTER_THESE_THINGS)
 #ifndef BUILD_CLSIM_DATACLASSES_ONLY
 BOOST_PP_SEQ_FOR_EACH(I3_REGISTRATION_FN_DECL, ~, REGISTER_THESE_THINGS_TOO)
+#endif
+
+#ifdef HAS_ZMQ
+BOOST_PP_SEQ_FOR_EACH(I3_REGISTRATION_FN_DECL, ~, REGISTER_THESE_THINGS_ZMQ)
 #endif
 
 #ifdef BUILD_CLSIM_TABULATOR
