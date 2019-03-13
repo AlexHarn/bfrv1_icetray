@@ -85,6 +85,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         self.AddParameter("y_dc", "inner cylinder y-position in m", -34.9)
         self.AddParameter("z_dc", "inner cylinder z-position in m", -300.)
         self.AddParameter("deepcore", "use inner cylinder", False)
+        self.AddParameter('propagate_muons','Run PROPOSAL.', True)
 
         self.AddParameter("outputfile", "output filename", "corsika.i3")
         self.AddParameter("summaryfile", "Summary filename", "muongun.json")
@@ -123,7 +124,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         if self.natural_rate:
            tray.AddSegment(GenerateNaturalRateMuons, "muongun",
                         NumEvents=self.nevents,
-                        mctree_name="I3MCTree_no_propagation",
+                        mctree_name="I3MCTree_preMuonProp",
                         flux_model="GaisserH4a_atmod12_SIBYLL",
                         )
 
@@ -131,7 +132,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         else:
            # Configure tray segment that actually does stuff.
            tray.AddSegment(GenerateCosmicRayMuons, "muongun",
-                        mctree_name="I3MCTree_no_propagation",
+                        mctree_name="I3MCTree_preMuonProp",
                         num_events=self.nevents,
                         flux_model=self.model,
                         gamma_index=self.gamma,
@@ -150,12 +151,13 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                         inner_cylinder_z=self.z_dc,
                         use_inner_cylinder=self.deepcore)
 
-        tray.AddSegment(PropagateMuons, "propagator",
-                        RandomService=randomService,
-                        CylinderLength=self.length,
-                        CylinderRadius=self.radius,
-                        InputMCTreeName="I3MCTree_no_propagation",
-                        OutputMCTreeName="I3MCTree")
+        if self.propagate_muons:
+            tray.AddSegment(PropagateMuons, "propagator",
+                            RandomService=randomService,
+                            CylinderLength=self.length,
+                            CylinderRadius=self.radius,
+                            InputMCTreeName="I3MCTree_preMuonProp",
+                            OutputMCTreeName="I3MCTree")
 
         tray.AddModule(BasicCounter, "count_events",
                        Streams=[icecube.icetray.I3Frame.DAQ],
