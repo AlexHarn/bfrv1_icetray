@@ -59,6 +59,7 @@ void
 MPHitFilter::DAQ(I3FramePtr frame)
 { 
     unsigned hitcount= 0;
+    bool pruneTree = pruneTree_;
     //map<I3ParticleID,unsigned> primarymap;
     I3MapPIDUInt primarymap;
     I3MCTree mctree = frame->Get<I3MCTree>(mcTreeName_);
@@ -87,13 +88,17 @@ MPHitFilter::DAQ(I3FramePtr frame)
 			    temp_primary = I3MCTreeUtils::GetPrimaryPtr(mctree_ptr, pe.ID); 
 			    if (temp_primary) 
 			       ++primarymap[temp_primary->GetID()]; 
-				else{
+			    else if (pe.npe > 1)
+			       // If NPE > 1 we can't know the parent.
+			       // Temporarily set prunning to false.
+			       pruneTree = false;
+			    else {
 					I3MCTree::optional_value src_particle=(*mctree_ptr)[pe.ID];
 					log_fatal_stream("No primary particle found for light emitting particle "
 					  << pe.ID << (!src_particle?"; this particle does not exist in the tree at all\n"
 					  "A common cause of this error is failure to run CLSim's I3MuonSliceRemoverAndPulseRelabeler "
 					  "before deleting the muon sliced I3MCTree":""));
-				}
+			    }
 		    } 
 	    } 
 	    // if we have passed the threshold, no need to keep looking 
@@ -122,7 +127,7 @@ MPHitFilter::DAQ(I3FramePtr frame)
     
     
 
-    if (pruneTree_) 
+    if (pruneTree) 
     { 
 	    I3MapStringIntPtr newPolyplopiaInfo;
 	    // replace weights with updated hitcount
