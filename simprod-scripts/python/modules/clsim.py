@@ -161,25 +161,23 @@ class ClSim(ipmodule.ParsingModule):
                         **self.proposalparams
         	) 
 
-
-        tray.AddSegment(segments.PropagatePhotons, "normalpes",
-            RandomService = randomService,
-            HybridMode = False,
+        from icecube import clsim
+        tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
             GCDFile = self.gcdfile,
-            IgnoreMuons = False,
-            IgnoreCascades = False,
-            UseCascadeExtension = False,
+            RandomService = randomService,
             UseGPUs = self.usegpus,
-            UseAllCPUCores = False,
-            IceModel         = self.icemodel,
-            IceModelLocation = self.icemodellocation,
+            UseCPUs= not self.usegpus,
+            IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
             UnshadowedFraction = efficiency,
-            DOMOversizeFactor = self.oversize,
-            InputMCTree = self.mctreename,
             UseGeant4 = self.usegeant4,
-            OutputPESeriesMapName = self.photonseriesname,
-            OutputPhotonSeriesName =  self.rawphotonseriesname,
-            HoleIceParameterization = self.holeiceparametrization)
+            DOMOversizeFactor = self.oversize,
+            MCTreeName = self.mctreename,
+            MMCTrackListName="MMCTrackList",
+            MCPESeriesName = self.photonseriesname,
+            PhotonSeriesName = self.rawphotonseriesname,
+            HoleIceParameterization = self.holeiceparametrization
+       	)
+
 
         if self.runmphitfilter:
             from icecube import polyplopia
