@@ -87,8 +87,6 @@ class ClSim(ipmodule.ParsingModule):
         self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
         self.AddParameter("holeiceparametrization", "Location of hole ice param files", 
                           expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"))
-        self.AddParameter("maxparallelevents", "Number of frames to be processed in parallel", 100)
-        self.AddParameter("totalenergytoprocess", "Accumulate frames according to amount of light deposited in the detector", 0)
         self.AddParameter("efficiency","overall DOM efficiency correction",[1.00])
         self.AddParameter("volumecyl","set volume to regular cylinder (set to False for 300m spacing from the DOMs)",True)
         self.AddParameter("IceModelLocation","Location of ice model param files", expandvars("$I3_BUILD/ice-models/resources/models")) 
@@ -130,10 +128,11 @@ class ClSim(ipmodule.ParsingModule):
            rngstate = ''
            self.logger.warning("Warning: no RNG state found. Using seed instead.")
 
-        tray.AddService("I3SPRNGRandomServiceFactory","sprngrandom",
-            seed=self.seed, streamNum=self.procnum,nstreams=self.nproc,
-            instatefile=rngstate,outstatefile="rng.state")
-
+        randomService = phys_services.I3SPRNGRandomService(
+             		seed = self.seed,
+             		nstreams = self.nproc,
+             		streamnum = self.procnum)
+        tray.context['I3RandomService'] = randomService
 
 
         if type(self.efficiency) == list or type(self.efficiency) == tuple:
@@ -164,7 +163,7 @@ class ClSim(ipmodule.ParsingModule):
 
 
         tray.AddSegment(segments.PropagatePhotons, "normalpes",
-            RandomService = "I3RandomService",
+            RandomService = randomService,
             HybridMode = False,
             GCDFile = self.gcdfile,
             IgnoreMuons = False,
@@ -180,9 +179,7 @@ class ClSim(ipmodule.ParsingModule):
             UseGeant4 = self.usegeant4,
             OutputPESeriesMapName = self.photonseriesname,
             OutputPhotonSeriesName =  self.rawphotonseriesname,
-            HoleIceParameterization = self.holeiceparametrization,
-            MaxParallelEvents = self.maxparallelevents,
-            TotalEnergyToProcess = self.totalenergytoprocess)
+            HoleIceParameterization = self.holeiceparametrization)
 
         if self.runmphitfilter:
             from icecube import polyplopia
@@ -359,9 +356,13 @@ class HybridPhotons(ipmodule.ParsingModule):
            rngstate = ''
            self.logger.warning("no RNG state found. Using seed instead.")
 
-        tray.AddService("I3SPRNGRandomServiceFactory","sprngrandom",
-            seed=self.seed, streamNum=self.procnum,nstreams=self.nproc,
-            instatefile=rngstate,outstatefile="rng.state")
+        randomService = phys_services.I3SPRNGRandomService(
+             		seed = self.seed,
+             		nstreams = self.nproc,
+             		streamnum = self.procnum)
+
+        tray.context['I3RandomService'] = randomService
+
 
         # Configure IceTray modules 
         tray.AddModule("I3Reader", "reader",filenamelist=[gcdfile]+inputfiles)
@@ -387,7 +388,7 @@ class HybridPhotons(ipmodule.ParsingModule):
         	) 
 
         tray.AddSegment(segments.PropagatePhotons, "hybridpes",
-            RandomService = "I3RandomService",
+            RandomService = randomService,
             HybridMode = True,
             UseGPUs = False,
             UseAllCPUCores = False,

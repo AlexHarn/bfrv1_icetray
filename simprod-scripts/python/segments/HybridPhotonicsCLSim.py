@@ -80,8 +80,6 @@ def LoadCascadeTables(IceModel = "SpiceMie", TablePath = "/data/sim/sim-new/spli
 def PropagatePhotons(tray, name,
     If=lambda f:True ,
     RandomService = None,
-    MaxParallelEvents = 100,
-    TotalEnergyToProcess = 0.*icetray.I3Units.PeV,
     KeepIndividualMaps = False,
     HybridMode = False,
     IgnoreMuons = False,
@@ -213,8 +211,6 @@ def PropagatePhotons(tray, name,
                 OutputMCTreeName = InputMCTree+"Tracks_sliced",
                 MCPESeriesName = OutputPESeriesMapName + "Tracks",
                 MMCTrackListName = MMCTrackListName,
-                ParallelEvents = MaxParallelEvents,
-                TotalEnergyToProcess = TotalEnergyToProcess,
                 RandomService = RandomService,
                 UnshadowedFraction=UnshadowedFraction,
                 DoNotParallelize=DoNotParallelize,
@@ -226,16 +222,6 @@ def PropagatePhotons(tray, name,
                 UseCascadeExtension=UseCascadeExtension,
                 GCDFile=GCDFile,
                 DisableTilt=True)
-
-            # re-assign the output hits from the sliced tree to the original tree
-            tray.AddModule("I3MuonSliceRemoverAndPulseRelabeler", name+"_removeSlices",
-                InputMCTreeName = InputMCTree+"Tracks_sliced",
-                OldMCTreeName = InputMCTree,
-                InputMCPESeriesMapName = OutputPESeriesMapName + "Tracks",
-                OutputMCPESeriesMapName = OutputPESeriesMapName + "Tracks")
-
-            if KeepSlicedMCTree:
-                raise RuntimeError("cannot use KeepSlicedMCTree=True in hybrid simulation mode")
 
             tray.AddModule("Delete", name+"_cleanup_clsim_sliced_MCTree",
                 Keys = [InputMCTree+"Tracks_sliced"])
@@ -292,8 +278,6 @@ def PropagatePhotons(tray, name,
             OutputMCTreeName = InputMCTree+"_sliced",
             MCPESeriesName = OutputPESeriesMapName,
             MMCTrackListName = MMCTrackListName,
-            ParallelEvents = MaxParallelEvents,
-            TotalEnergyToProcess = TotalEnergyToProcess,
             RandomService = RandomService,
             UnshadowedFraction = UnshadowedFraction,
             DoNotParallelize = DoNotParallelize,
@@ -308,26 +292,5 @@ def PropagatePhotons(tray, name,
             GCDFile=GCDFile,
             UseCascadeExtension=UseCascadeExtension)
 
-        sliceRemoverAdditionalParams = dict()
-        if OutputPhotonSeriesName is not None:
-            sliceRemoverAdditionalParams["InputPhotonSeriesMapName"] = OutputPhotonSeriesName
-            sliceRemoverAdditionalParams["OutputPhotonSeriesMapName"] = OutputPhotonSeriesName
-
-        if MMCTrackListName != "" and MMCTrackListName is not None:
-            # Dont run I3MuonSliceRemoverAndPulseRelabeler if MMCTrackList is None
-            # Use this to skip I3MuonSlicer
-
-            # re-assign the output hits from the sliced tree to the original tree
-            tray.AddModule("I3MuonSliceRemoverAndPulseRelabeler", name+"_removeSlices",
-                InputMCTreeName = InputMCTree+"_sliced",
-                OldMCTreeName = InputMCTree,
-                InputMCPESeriesMapName = OutputPESeriesMapName,
-                OutputMCPESeriesMapName = OutputPESeriesMapName,
-                **sliceRemoverAdditionalParams
-                )
-
-        if not KeepSlicedMCTree:
-            tray.AddModule("Delete", name+"_cleanup_clsim_sliced_MCTree",
-                Keys = [InputMCTree+"_sliced"])
 
 

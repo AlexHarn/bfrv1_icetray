@@ -25,7 +25,7 @@ class PolyplopiaModule(ipmodule.ParsingModule):
         self.AddParameter('gcdfile', 'Geometry Calibration Det-Status file', '')
         self.AddParameter('inputfile', 'Input filename', '')
         self.AddParameter('backgroundfile', 'Background filename', '')
-        self.AddParameter('backgroundrate', 'Background rate (kHz) (don\'t use with corsika)', float('nan'))
+        self.AddParameter('backgroundrate', 'Background rate (Hz) (don\'t use with corsika)', float('nan'))
         self.AddParameter('mctype', 'Type of primary simulation', 'corsika')
         self.AddParameter('outputfile', 'Output filename', 'output.i3.gz')
         self.AddParameter('seed', 'RNG Seed', 123)
@@ -43,7 +43,6 @@ class PolyplopiaModule(ipmodule.ParsingModule):
         self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
         self.AddParameter("holeiceparametrization", "Location of hole ice param files",
                                                   expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"))
-        self.AddParameter("maxparallelevents", "Number of frames to be processed in parallel", 100)
         self.AddParameter("totalenergytoprocess", "Accumulate frames according to amount of light deposited in the detector", 0)
         self.AddParameter("efficiency","overall DOM efficiency correction",[0.99])
         self.AddParameter("volumecyl","set volume to regular cylinder (set to False for 300m spacing from the DOMs)",True)
@@ -94,6 +93,7 @@ class PolyplopiaModule(ipmodule.ParsingModule):
                mctype=self.mctype,
                mctree_name = "I3MCTree",
                bgfile = self.backgroundfile,
+               GCDFile = self.gcdfile,
                timewindow = self.timewindow,
                GPU = self.gpu,
                UseGPUs = self.usegpus,
@@ -102,12 +102,10 @@ class PolyplopiaModule(ipmodule.ParsingModule):
                IceModelLocation = self.icemodellocation,
                DOMOversizeFactor = self.oversize,
                HoleIceParameterization = self.holeiceparametrization,
-               MaxParallelEvents = self.maxparallelevents,
-               TotalEnergyToProcess = self.totalenergytoprocess,
                Efficiency = self.efficiency,
                PhotonSeriesName = self.photonseriesname,
                PROPOSALParams=self.proposalparams,
-               rate = self.backgroundrate*I3Units.kilohertz
+               rate = self.backgroundrate*I3Units.hertz
            ) 
 
         if self.histogramfilename:         

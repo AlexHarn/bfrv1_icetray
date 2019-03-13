@@ -107,17 +107,43 @@ struct ini{
       d.hidx=0;
     }
 
-    string dir("");
+    string ppcdir("");
     {
       char * env = getenv("PPCTABLESDIR");
-      if(env!=NULL) dir=string(env)+"/";
-      cerr<<"Configuring in \""<<dir<<"\""<<endl;
+      if(env!=NULL) { 
+      	ppcdir=string(env)+"/";
+      } else {
+      	env = getenv("I3_SRC");
+      	if(env!=NULL) 
+      		ppcdir=string(env)+"/ppc/resources/ice/";
+      } 
+      cerr<<"Configuring ppcdir from \""<<ppcdir<<"\""<<endl;
     }
+
+    string icedir("");
+    {
+      char * env = getenv("ICEMODELDIR");
+      if(env!=NULL) icedir=string(env)+"/";
+      else icedir=ppcdir;
+      cerr<<"Configuring icemodel in \""<<icedir<<"\""<<endl;
+    }
+
+    string holeice("");
+    {
+      char * env = getenv("PPCHOLEICE");
+      if(env!=NULL) holeice=string(env);
+      else holeice=ppcdir+"as.dat";
+      cerr<<"Configuring holeice from \""<<holeice<<"\""<<endl;
+    }
+
+
+
+
 
     float dk1, dk2, dkz; // ice anisotropy parameters
 
     {
-      ifstream inFile((dir+"cfg.txt").c_str(), ifstream::in);
+      ifstream inFile((icedir+"cfg.txt").c_str(), ifstream::in);
       if(!inFile.fail()){
 	string in;
 	float aux;
@@ -171,7 +197,7 @@ struct ini{
       int size;
       vector<unsigned int> rx;
 
-      ifstream inFile((dir+"rnd.txt").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"rnd.txt").c_str(), ifstream::in);
       if(!inFile.fail()){
 	string in;
 	while(getline(inFile, in)){
@@ -200,7 +226,7 @@ struct ini{
     }
 
     {
-      ifstream inFile((dir+"geo-f2k").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"geo-f2k").c_str(), ifstream::in);
       if(!inFile.fail()){
 	if(!i3oms.empty()){
 	  i3oms.clear();
@@ -217,7 +243,7 @@ struct ini{
       }
     }
     {
-      ifstream inFile((dir+"eff-f2k").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"eff-f2k").c_str(), ifstream::in);
       if(!inFile.fail()){
 	if(!rdes.empty()){
 	  rdes.clear();
@@ -238,7 +264,7 @@ struct ini{
       }
     }
     {
-      ifstream inFile((dir+"hvs-f2k").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"hvs-f2k").c_str(), ifstream::in);
       if(!inFile.fail()){
 	if(!hvs.empty()){
 	  hvs.clear();
@@ -252,7 +278,7 @@ struct ini{
     }
 
     {
-      ifstream inFile((dir+"cx.dat").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"cx.dat").c_str(), ifstream::in);
       if(!inFile.fail()){
 	xppc::ikey om;
 	V<3> dir;
@@ -264,7 +290,7 @@ struct ini{
       }
     }
     {
-      ifstream inFile((dir+"dx.dat").c_str(), ifstream::in);
+      ifstream inFile((ppcdir+"dx.dat").c_str(), ifstream::in);
       if(!inFile.fail()){
 	xppc::ikey om;
         float dir;
@@ -495,7 +521,7 @@ struct ini{
       q.mas=1, q.s[0]=1;
       for(int i=1; i<ANUM; i++) q.s[i]=0;
 
-      ifstream inFile((dir+"as.dat").c_str(), ifstream::in);
+      ifstream inFile(holeice.c_str(), ifstream::in);
       if(!inFile.fail()){
 	int n=0;
 	float aux;
@@ -505,7 +531,7 @@ struct ini{
 	else{ cerr<<"File as.dat did not contain valid data"<<endl; exit(1); }
 	inFile.close();
       }
-      else{ cerr<<"Could not open file as.dat"<<endl; exit(1); }
+      else{ cerr<<"Could not open file " << holeice <<endl; exit(1); }
       if(q.mas>0) q.eff*=q.mas;
     }
 
@@ -514,7 +540,7 @@ struct ini{
       const float cv=FPI/180, thx=225;
       d.lnx=cos(cv*thx), d.lny=sin(cv*thx);
 
-      ifstream inFile((dir+"tilt.par").c_str(), ifstream::in);
+      ifstream inFile((icedir+"tilt.par").c_str(), ifstream::in);
       if(!inFile.fail()){
 	int str;
 	float aux;
@@ -527,7 +553,7 @@ struct ini{
 	for(int i=1; i<size; i++) if(lr[i]<lr[i-1]) { cerr << "Tilt map does not use increasing range order" << endl; exit(1); };
 	for(int i=0; i<size; i++) d.lr[i]=lr[i];
 
-	ifstream inFile((dir+"tilt.dat").c_str(), ifstream::in);
+	ifstream inFile((icedir+"tilt.dat").c_str(), ifstream::in);
 	if(!inFile.fail()){
 	  d.lnum=size;
 	  float depth;
@@ -588,7 +614,7 @@ struct ini{
           cerr<<"Using single wavelength="<<wfla<<" [nm]"<<endl;
 	}
 	else{
-	  ifstream inFile((dir+"wv.dat").c_str(), ifstream::in);
+	  ifstream inFile((ppcdir+"wv.dat").c_str(), ifstream::in);
 	  if(!inFile.fail()){
 	    int num=0;
 	    bool flag=true;
@@ -610,7 +636,7 @@ struct ini{
       {
 	vector<float> qx, qy;
 
-	ifstream inFile((dir+"wv.rde").c_str(), ifstream::in);
+	ifstream inFile((ppcdir+"wv.rde").c_str(), ifstream::in);
 	if(!inFile.fail()){
 	  int num=0;
 	  bool flag=true;
@@ -662,7 +688,7 @@ struct ini{
 
       {
 	bool flag=true, fail=false;
-	ifstream inFile((dir+"icemodel.par").c_str(), ifstream::in);
+	ifstream inFile((icedir+"icemodel.par").c_str(), ifstream::in);
 	if((flag=!inFile.fail())){
 	  if(flag) flag=(bool)(inFile >> a >> ae);
 	  if(flag) flag=(bool)(inFile >> k >> ke);
@@ -677,7 +703,7 @@ struct ini{
       }
 
       {
-	ifstream inFile((dir+"icemodel.dat").c_str(), ifstream::in);
+	ifstream inFile((icedir+"icemodel.dat").c_str(), ifstream::in);
 	if(!inFile.fail()){
 	  size=0;
 	  float dpa, bea, baa, tda, k1a, k2a;
@@ -727,7 +753,7 @@ struct ini{
       float bble=0, bblz, bbly;
 
       {
-	ifstream inFile((dir+"icemodel.bbl").c_str(), ifstream::in);
+	ifstream inFile((ppcdir+"icemodel.bbl").c_str(), ifstream::in);
 	if(!inFile.fail()){
 	  if(!(inFile >> bble >> bblz >> bbly)){
 	    cerr << "File icemodel.bbl found, but is corrupt" << endl;

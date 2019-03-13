@@ -28,6 +28,7 @@ public:
 				    gpu(-1),
 				    nph(0),
 				    wid(0*I3Units::ns),
+                                    efficiency_scaling_(1.),
                                     charge_(1.),
 				    infoName_("")
   {
@@ -43,6 +44,7 @@ public:
     AddParameter ("photons", "Save photons that hit DOMs", save_photons);
     AddParameter ("tau_dnde_vec", "vector of pairs of luminescence decay time and dnde, tau in ns, dNdE in gamma/eV", tau_dnde_vec_); // fhl
     AddParameter ("infoName","Name of the ppc info dictionary. Will not be created if set to empty string",infoName_); // fhl
+    AddParameter ("efficiency_scaling_factor","Multiplicative factor to modify DOM efficiency",efficiency_scaling_); // jc
     AddParameter ("charge", "Only for exotic particle with non-unitairy charge", charge_); // ward
 
     AddOutBox("OutBox");
@@ -69,6 +71,7 @@ public:
     GetParameter ("photons", save_photons);
     GetParameter ("infoName", infoName_); // fhl
     GetParameter ("tau_dnde_vec", tau_dnde_vec_); // fhl
+    GetParameter ("efficiency_scaling_factor", efficiency_scaling_); // jc
     GetParameter ("charge", charge_); // Ward
     fb=0, fe=0;
 
@@ -89,6 +92,8 @@ public:
       (*ppcinfo)["keep"] = keep_;
       if(verbose) cout<<"keep: "<< keep_ << endl;
       (*ppcinfo)["num_tau_dnde"] = tau_dnde_vec_.size();
+      if(verbose) cout<<"efficiency_scaling_factor: "<< efficiency_scaling_ << endl;
+      (*ppcinfo)["efficiencyscaling"] = efficiency_scaling_;
       if(verbose) cout<<"charge: "<< charge_ << endl;
       (*ppcinfo)["charge"] = charge_;
       for(unsigned int i=0; i<tau_dnde_vec_.size(); ++i){
@@ -161,7 +166,7 @@ public:
 		  }
 
 		  xppc::hvs[om]=hv;
-		  xppc::rdes[om]=make_pair(eff*spe_compensation_factor, 0);
+		  xppc::rdes[om]=make_pair(eff*spe_compensation_factor*efficiency_scaling_, 0);
 		}
 	      }
 
@@ -276,6 +281,7 @@ private:
   OMKey fla;
   double nph;
   double wid;
+  double efficiency_scaling_; // jc
   double charge_; // ward
 
   std::string mct;
