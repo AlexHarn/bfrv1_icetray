@@ -58,7 +58,7 @@ def I3CLSimMakePhotons(tray, name,
                        FlasherPulseSeriesName=None,
                        MMCTrackListName="MMCTrackList",
                        PhotonSeriesName="PhotonSeriesMap",
-                       MCPESeriesName="MCEPSeriesMap",
+                       MCPESeriesName="MCPESeriesMap",
                        RandomService=None,
                        IceModelLocation=expandvars("$I3_BUILD/ice-models/resources/models/spice_mie"),
                        DisableTilt=False,
@@ -297,9 +297,9 @@ def I3CLSimMakePhotons(tray, name,
         ChopMuons = True
     if UseGPUs:
         if not ChopMuons:
-            warnings.warn("Propagating muons and photons in the same process. This will likely starve your GPU.")
+            logging.log_warn("Propagating muons and photons in the same process. This will likely starve your GPU.")
         if UseGeant4:
-            warnings.warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
+            loggin.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
 
     tray.Add(I3CLSimMakePhotonsWithServer, name,
         ServerAddress=address,
@@ -339,7 +339,7 @@ def I3CLSimMakePhotonsWithServer(tray, name,
                        FlasherPulseSeriesName=None,
                        MMCTrackListName="MMCTrackList",
                        PhotonSeriesName="PhotonSeriesMap",
-                       MCPESeriesName="MCEPSeriesMap",
+                       MCPESeriesName="MCPESeriesMap",
                        RandomService=None,
                        ExtraArgumentsToI3CLSimClientModule=dict(),
                        GCDFile=None,
