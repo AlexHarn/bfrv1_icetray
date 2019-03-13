@@ -199,6 +199,9 @@ class PPC(ipmodule.ParsingModule):
                      icetray.I3Frame.Stream('M')])
 
    def Execute(self,stats):
+
+        from icecube import dataclasses
+
         if not ipmodule.ParsingModule.Execute(self,stats):
                 return 0
 
