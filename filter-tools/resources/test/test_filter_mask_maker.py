@@ -29,7 +29,7 @@ def save_filter(frame):
 tray=I3Tray()
 tray.AddModule("I3InfiniteSource",Stream=icetray.I3Frame.Physics)
 tray.Add(generate_filters)
-tray.AddModule("I3FilterMaskMaker",
+tray.AddModule("FilterMaskMaker",
                OutputMaskName = object_name,
                FilterConfigs = dataclasses.I3MapStringInt(filters))
 tray.Add(save_filter)
