@@ -225,7 +225,7 @@ class PPC(ipmodule.ParsingModule):
 
         summary = tray.context['I3SummaryService']
         save_stats(tray,summary,stats)
-        WriteI3Summary(summary, summaryfile)
+        WriteI3Summary(summary, self.summaryfile)
 
         del tray
         return 0
