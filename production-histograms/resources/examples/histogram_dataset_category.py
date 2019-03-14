@@ -18,32 +18,32 @@ from icecube import icetray, dataio
 from icecube.production_histograms import ProductionHistogramModule
 from icecube.production_histograms.configuration_tool import generate_histogram_configuration_list
 from icecube.production_histograms.configuration_tool import generate_filelist
-from icecube.production_histograms.categorize import categorize
+from icecube.production_histograms.generate_collection_name import generate_collection_name
 
 f = open('/home/olivas/.mongo')
 client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" %
                      f.readline().strip())
 
-category = categorize(options.PATH)
-collection = client.simprod_filecatalog.filelist
-document = collection.find_one({'category': category})
-if 'histogram_ids' in document:
-    icetray.logging.log_fatal('This collection has been histogrammed already...skipping.')
+collection_name = generate_collection_name(options.PATH)
     
-tray = I3Tray()
-
 filelist = generate_filelist(options.PATH)
 
 histograms = generate_histogram_configuration_list(filelist)
 
+icetray.logging.log_info("Collection Name = %s" % collection_name)
+icetray.logging.log_info("len(filelist) = %d" % len(filelist))
+icetray.logging.log_info("len(histograms) = %d" % len(histograms))
+
 if len(histograms) == 0:
     icetray.logging.log_fatal("Found nothing to histogram.")
 
+tray = I3Tray()
+    
 tray.Add("I3Reader", FilenameList = filelist[:2])
 
 tray.Add(ProductionHistogramModule, 
          Histograms = histograms,
-         Category = category,
+         CollectionName = collection_name,
          FilenameList = filelist
         )
 

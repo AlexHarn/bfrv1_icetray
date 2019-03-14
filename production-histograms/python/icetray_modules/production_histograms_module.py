@@ -72,7 +72,7 @@ class ProductionHistogramModule(I3Module) :
 
         self.AddParameter("Histograms", "List of histograms or modules to run.", list() )
         self.AddParameter("OutputFilename", "Name of output pickle file.", None )
-        self.AddParameter("Category", "Dataset category for injection into the DB.", None )
+        self.AddParameter("CollectionName", "Name of the MongoDB collection.", None )
         self.AddParameter("FilenameList", "List of I3Files passed to I3Reader", None) 
         self.AddParameter("Prescales", "Dictionary of frame type to prescale",  
                           {"Geometry" : 1,
@@ -86,7 +86,7 @@ class ProductionHistogramModule(I3Module) :
 
     def Configure(self):
         self.outfilename = self.GetParameter("OutputFilename")
-        self.category = self.GetParameter("Category")
+        self.collection_name = self.GetParameter("CollectionName")
         self.filenamelist = self.GetParameter("FilenameList")
         self.prescales = self.GetParameter("Prescales")        
         self.histograms = parameter_conversion(self.GetParameter("Histograms"))
@@ -156,7 +156,7 @@ class ProductionHistogramModule(I3Module) :
                              f.readline().strip())
         db = client.simprod_histograms
 
-        collection = db[str(self.category)]
+        collection = db[str(self.collection_name)]
 
         icetray.logging.log_info('Loading %d histograms into the DB' % len(histograms))
         for histogram in histograms:            
@@ -210,7 +210,7 @@ class ProductionHistogramModule(I3Module) :
         if self.outfilename:
             self.__write_to_file(histograms)
 
-        if self.category:            
+        if self.collection_name:            
             self.__write_to_database(histograms)
 
 
