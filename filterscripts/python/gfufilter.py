@@ -517,11 +517,11 @@ def GammaFollowUp(tray, name,
                 cos_SplineMPE_LF      = math.cos(I3Calculator.angle(frame['OnlineL2_SplineMPE'], frame['PoleMuonLinefit'])),
                 Linefit_Speed         = frame['PoleMuonLinefit'].speed,
                 logNChIC              = math.log10(clip(frame['OnlineL2_HitMultiplicityValuesIC'].n_hit_doms, 0.1)),
-                DiffCosMinSplitZenith = math.cos(replace_nan(
-                                                   np.nanmin([frame['OnlineL2_SplitGeo1_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitGeo2_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitTime1_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitTime2_SPE2itFit'].dir.zenith]), 0.)) \
+                DiffCosMinSplitZenith = math.cos(np.nanmin([frame['OnlineL2_SplitGeo1_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitGeo2_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitTime1_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitTime2_SPE2itFit'].dir.zenith,
+                                                            2.*np.pi])) \
                                          - math.cos(frame['OnlineL2_SplineMPE'].dir.zenith),
             )
         return var
@@ -548,11 +548,11 @@ def GammaFollowUp(tray, name,
                 MuEx_r                = frame['OnlineL2_SplineMPE_MuEx_r'].value,
                 cosZen                = math.cos(frame['OnlineL2_SplineMPE'].dir.zenith),
                 DiffCosMaxSplitZenith = math.cos(frame['OnlineL2_SplineMPE'].dir.zenith) - \
-                                        math.cos(replace_nan(
-                                                   np.nanmax([frame['OnlineL2_SplitGeo1_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitGeo2_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitTime1_SPE2itFit'].dir.zenith,
-                                                              frame['OnlineL2_SplitTime2_SPE2itFit'].dir.zenith]), np.pi)),
+                                        math.cos(np.nanmax([frame['OnlineL2_SplitGeo1_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitGeo2_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitTime1_SPE2itFit'].dir.zenith,
+                                                            frame['OnlineL2_SplitTime2_SPE2itFit'].dir.zenith,
+                                                            -np.pi])),
             )
         return var
 
