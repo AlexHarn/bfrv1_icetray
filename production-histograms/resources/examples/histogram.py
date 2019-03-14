@@ -22,7 +22,7 @@ from I3Tray import I3Tray
 from icecube import icetray, dataio
 from icecube.production_histograms import ProductionHistogramModule
 from icecube.production_histograms.configuration_tool import generate_histogram_configuration_list
-from icecube.production_histograms.categorize import categorize
+from icecube.production_histograms.generate_collection_name import generate_collection_name
 
 print(options)
 i3files = glob(options.INFILES)          
@@ -32,15 +32,15 @@ histograms = generate_histogram_configuration_list(i3files)
 if len(histograms) == 0:
     icetray.logging.log_fatal("Found nothing to histogram.")
 
-categories = set()
+collection_names = set()
 for fn in i3files:
-    categories.add(categorize(''.join(fn.split('/')[:-1])))
+    collection_names.add(generate_collection_name(''.join(fn.split('/')[:-1])))
 
-if len(categories) != 1:
-    for c in categories:
-        icetray.logging.log_warn(str(c))
+if len(collection_names) != 1:
+    for n in collection_names:
+        icetray.logging.log_warn(str(n))
     icetray.logging.log_fatal('There can be only one.')
-category = categories.pop()
+collection_name = collection_names.pop()
 
 tray = I3Tray()
 
@@ -50,7 +50,7 @@ filelist.extend(i3files)
 tray.Add("I3Reader", FilenameList = filelist)
 tray.Add(ProductionHistogramModule, 
          Histograms = histograms,
-         Category = category,
+         CollectionName = collection_name,
          FilenameList = filelist
         )
 tray.Execute()
