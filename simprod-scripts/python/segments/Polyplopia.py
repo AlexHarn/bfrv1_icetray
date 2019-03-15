@@ -119,8 +119,6 @@ def PolyplopiaPhotons(tray, name,
                     UseGPUs = True,
                     DOMOversizeFactor = 5,
                     HoleIceParameterization = expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
-                    MaxParallelEvents = 100,
-                    TotalEnergyToProcess = 0,
                     Efficiency = 0.99,
                     PhotonSeriesName = "I3MCPESeriesMap",
                     PROPOSALParams=dict(),
@@ -189,24 +187,23 @@ def PolyplopiaPhotons(tray, name,
 
 
         else: # use clsim
-          tray.AddSegment(segments.PropagatePhotons, "normalpes",
-            InputMCTree="BackgroundI3MCTree",
-            OutputPESeriesMapName="BackgroundI3MCPESeriesMap",
-            RandomService = RandomService,
-            HybridMode = False,
-            IgnoreMuons = False,
-            IgnoreCascades = False,
-            UseGPUs = UseGPUs,
-            GCDFile = GCDFile,
-            UseAllCPUCores = False,
-            IceModel         = IceModel,
-            IceModelLocation = IceModelLocation,
-            UnshadowedFraction = _efficiency,
-            DOMOversizeFactor = DOMOversizeFactor,
-            UseGeant4 = False,
-            HoleIceParameterization = HoleIceParameterization,
-            MaxParallelEvents = MaxParallelEvents,
-            TotalEnergyToProcess = TotalEnergyToProcess)
+
+        	from icecube import clsim
+        	tray.AddSegment(clsim.I3CLSimMakeHits, "makeBackgroundCLSimHits",
+        		GCDFile = GCDFile,
+        		RandomService = RandomService,
+        		UseGPUs = UseGPUs,
+        		UseCPUs= not UseGPUs,
+        		IceModelLocation = os.path.join(IceModelLocation,IceModel),
+        		UnshadowedFraction = _efficiency,
+        		UseGeant4 = False,
+        		DOMOversizeFactor = DOMOversizeFactor,
+        		MCTreeName = "BackgroundI3MCTree",
+        		MMCTrackListName="MMCTrackList",
+        		MCPESeriesName = "BackgroundI3MCPESeriesMap",
+        		HoleIceParameterization = HoleIceParameterization
+		)
+
 
         from icecube import polyplopia
         if mctype.lower() =='corsika':
