@@ -105,7 +105,7 @@ void register_histogram()
 	try {
 		bp::import("dashi.histogram");
 		bp::import("numpy");
-	} catch (bp::error_already_set) {
+	} catch (const bp::error_already_set&) {
 		
 		PyErr_Clear();
 	}
