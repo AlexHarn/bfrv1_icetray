@@ -1,23 +1,26 @@
-import os
-import sys
+from os import environ
+from os.path import join
+from os.path import exists
     
-def create_simprod_db_client():
-
+def create_simprod_db_client(database_url = 'mongodb-simprod.icecube.wisc.edu',
+                             dbuser = 'DBadmin',
+                             password_path = join(environ["HOME"], '.mongo')):
+    
     try:
         from pymongo import MongoClient
     except ImportError:
         icetray.logging.log_error("PyMongo not installed.")
         return
-        
-    try:
-        path = os.path.join(os.environ["HOME"], '.mongo')
-    except IOError:
-        icetray.logging.log_error("Credentials not found. Histograms won't be uploaded.")
+
+    if not exists(password_path):
+        icetray.logging.log_error("Credentials not found.")
         return
         
-    f = open(path)        
-    client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" % 
-                         f.readline().strip())
+    f = open(password_path)
+    uri = "mongodb://%s:%s@%s" % (dbuser, f.readline().strip(), database_url)
+    f.close()
+    
+    client = MongoClient(uri)
 
     return client
 
