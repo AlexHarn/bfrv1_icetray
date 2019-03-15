@@ -19,15 +19,14 @@ from icecube.production_histograms import ProductionHistogramModule
 from icecube.production_histograms.configuration_tool import generate_histogram_configuration_list
 from icecube.production_histograms.configuration_tool import generate_filelist
 from icecube.production_histograms.generate_collection_name import generate_collection_name
+from icecube.production_histograms.db import create_simprod_db_client
 
-f = open('/home/olivas/.mongo')
-client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" %
-                     f.readline().strip())
-
+# if the credentials path is not $HOME/.mongo then you need
+# to pass the path to create_simprod_db_client
+# e.g. create_simprod_db_client(password_path='/home/fizzycist/please-hacker-dont-read-me.txt')
+client = create_simprod_db_client()
 collection_name = generate_collection_name(options.PATH)
-    
 filelist = generate_filelist(options.PATH)
-
 histograms = generate_histogram_configuration_list(filelist)
 
 icetray.logging.log_info("Collection Name = %s" % collection_name)
