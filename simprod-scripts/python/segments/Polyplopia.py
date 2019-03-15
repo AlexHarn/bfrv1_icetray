@@ -211,12 +211,6 @@ def PolyplopiaPhotons(tray, name,
         else:
            WeightMap="I3MCWeightDict"
 
-        def print_tree(f):
-        	print("tree contents:",f["BackgroundI3MCTree"])
-
-        tray.Add("Dump")
-        tray.Add(print_tree, 
-             Streams=[icetray.I3Frame.DAQ])
 
         tray.AddModule("MPHitFilter","hitfilter",
               HitOMThreshold=1,
