@@ -91,36 +91,40 @@ class ProductionHistogramModule(I3Module) :
         self.filenamelist = self.GetParameter("FilenameList")
         self.prescales = self.GetParameter("Prescales")        
         self.histograms = parameter_conversion(self.GetParameter("Histograms"))
-
-        configured_filenamelist_len = len(self.filenamelist)
         
         # initialize the frame counters
         self._frame_counters = dict()
         for key in self.prescales.keys():
             self._frame_counters[key] = 0
 
-        client = create_simprod_db_client()
-        db = client.simprod_histograms
+        # If both are configured then the assumption is
+        # that a set of files are being read and written
+        # to the DB.  Need to guard against double counting.
+        if self.filenamelist and self.collection_name:
+            configured_filenamelist_len = len(self.filenamelist)
+            
+            client = create_simprod_db_client()
+            db = client.simprod_histograms
 
-        collection = db[str(self.collection_name)]
-        if collection:
-            # check to see if these I3Files have been histogrammed
-            # already and fail to avoid double counting.            
-            filelist = collection.find_one({'name': 'filelist'})
+            collection = db[str(self.collection_name)]
+            if collection:
+                # check to see if these I3Files have been histogrammed
+                # already and fail to avoid double counting.            
+                filelist = collection.find_one({'name': 'filelist'})
 
-            if filelist:
-                for fn in filelist['files']:
-                    if fn in self.filenamelist:
-                        icetray.logging.log_warn("%s has been histogrammed already")
-                        self.filenamelist.remove(fn)
+                if filelist:
+                    for fn in filelist['files']:
+                        if fn in self.filenamelist:
+                            icetray.logging.log_warn("%s has been histogrammed already")
+                            self.filenamelist.remove(fn)
 
-        if not self.filenamelist:
-            icetray.logging.log_error("FilenameList is now empty.")
-            icetray.logging.log_error("Configured length = %d" % configured_filenamelist_len)
-            if configured_filenamelist_len > 0:
-                icetray.logging.log_fatal("All of these files have likely been histogrammed already.")
-            else:
-                icetray.logging.log_fatal("Configured FilenameList is empty.")
+            if not self.filenamelist:
+                icetray.logging.log_error("FilenameList is now empty.")
+                icetray.logging.log_error("Configured length = %d" % configured_filenamelist_len)
+                if configured_filenamelist_len > 0:
+                    icetray.logging.log_fatal("All of these files have likely been histogrammed already.")
+                else:
+                    icetray.logging.log_fatal("Configured FilenameList is empty.")
                 
     def _Process(self, frame):
         '''
