@@ -96,15 +96,20 @@ SET(LIB_${PROJECT_NAME}_TOOLS python boost gsl)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
 
 if (ZMQ_FOUND AND OPENCL_FOUND)
-  add_definitions(-DHAS_ZMQ)
+  set(_minimum_cppzmq_version 4.3.0)
+  if (${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
+    colormsg(RED "--- Skipping client/server (cppzmq version ${CPPZMQ_VERSION} < ${_minimum_cppzmq_version} too old)")
+  else(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
+    add_definitions(-DHAS_ZMQ)
   
-  LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
-      private/clsim/I3CLSimServer.cxx
-      private/clsim/I3CLSimClientModule.cxx
-  )
-  LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)  
-  LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
-  colormsg(GREEN "+-- CLSim server")
+    LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
+        private/clsim/I3CLSimServer.cxx
+        private/clsim/I3CLSimClientModule.cxx
+    )
+    LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)
+    LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
+    colormsg(GREEN "+-- CLSim server")
+  endif(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
 else()
   colormsg(RED "--- Skipping client/server (cppzmq not found)")
   
