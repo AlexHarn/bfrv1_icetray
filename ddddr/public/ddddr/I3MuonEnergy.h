@@ -25,22 +25,27 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <boost/function.hpp>
 
 #include "ddddr/I3MuonEnergyProfile.h"
 #include "ddddr/I3MuonEnergyParams.h"
 #include "ddddr/I3MuonEnergyCascadeParams.h"
 
 ////// Fitting related classes
-enum Minuit2FitFCN {NOFCN, EXPOFCN, TOMFFCN};
-#include "ddddr/FitParameterSpecs.h"
+#include "gulliver/I3FitParameterInitSpecs.h"
+#include "gulliver/I3GulliverBase.h"
 
 #ifdef USE_MINUIT2
-#include "ddddr/MuonEnergyMinuit2.h"
-#include "ddddr/MuonEnergyFCNBase.h"
+#include "lilliput/minimizer/I3GulliverMinuit2.h"
+#include "lilliput/minimizer/I3GSLSimplex.h"
+#endif
+
+enum FitFunction {NOFCN,
+		  EXPOFCN,
+		  TOMFFCN, };
+
 #include "ddddr/TomFFcn.h"
 #include "ddddr/ExpoFcn.h"
-#endif // USE_MINUIT2
-//////
 
 /**
  * @class I3MuonEnergy
@@ -104,7 +109,7 @@ class I3MuonEnergy : public I3ConditionalModule
 
 		/// Either exponential function or Tom Feusels's function to
 		/// fit the energy loss.
-		Minuit2FitFCN fitFunction_;
+		FitFunction fitFunction_;
 
 		int fitFunctionInt_;
 
@@ -162,7 +167,7 @@ class I3MuonEnergy : public I3ConditionalModule
 				std::vector<DOMDATA>&);
 
 		/// Creates parameter for the chosen fit function.
-		std::vector<FitParameterSpecs> getFitParameterSpecs(Minuit2FitFCN&);
+		std::vector<I3FitParameterInitSpecs> getFitParameterSpecs(FitFunction&);
 
 		/// Saves results from fit into an object of type I3MuonEnergyParams.
 		I3MuonEnergyParamsPtr getMuonEnergyParams(boost::shared_ptr<I3MuonEnergyProfile>, 

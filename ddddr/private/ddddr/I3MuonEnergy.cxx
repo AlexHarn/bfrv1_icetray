@@ -1,4 +1,4 @@
-/**
+/**<
  *  Implementation of I3MuonEnergy (DDDDR)
  *
  *  @file I3MuonEnergy.cxx
@@ -8,8 +8,12 @@
  */
 #include "limits.h"
 
+#include "ddddr/ExpoFcn.h"
+#include "ddddr/TomFFcn.h"
 #include "ddddr/I3MuonEnergy.h"
 #include "ddddr/MuonEnergyFunctions.h"
+#include "ddddr/ExpoFunction.h"
+#include "ddddr/TomFFunction.h"
 
 #include "dataclasses/physics/I3EventHeader.h"
 #include "dataclasses/geometry/I3Geometry.h"
@@ -167,14 +171,16 @@ I3MuonEnergy::I3MuonEnergy(const I3Context & ctx)
 	minuitMaxIterations_ = 500;
 	AddParameter("MaxIterations", "Maximum number of iterations for minuit.", minuitMaxIterations_);
 	badDomListName_ = "BadDomsList";
+
+	minuitTolerance_ = 0.00001;
+	AddParameter("Tolerance", "Tolerance to pass to Minuit", minuitTolerance_);
 	AddParameter("BadDomListName", "Name of the BadDomList frame object. Default is \"BadDomList\".",
 			badDomListName_);
 	AddOutBox("OutBox");
 
 	//Minuit parameters, for now just fixed here
-	minuitTolerance_ = 0.1;
 	//minuitMaxIterations_ = 10000;
-	minuitPrintLevel_ = 3;
+	minuitPrintLevel_ = -2;
 	minuitStrategy_ = 2;
 	minuitAlgorithm_ = "MIGRAD";
 }
@@ -200,6 +206,7 @@ void I3MuonEnergy::Configure()
 	GetParameter("UseMonteCarloTrack", useMonteCarloTrack_);
 	GetParameter("SlantBinNumber", slantBinNo_);
 	GetParameter("MaxIterations", minuitMaxIterations_);
+	GetParameter("Tolerance", minuitTolerance_);
 	GetParameter("BadDomListName", badDomListName_);
 
 
@@ -207,10 +214,11 @@ void I3MuonEnergy::Configure()
 	if (inIcePulseName_ == "")
 		log_fatal("You have to specify a Pulse map.");
 
-	#ifndef USE_MINUIT2
+#ifndef USE_MINUIT2
 	if (fitFunctionInt_ != -1)
-		log_fatal("You need to either rebuild with Root/Minuit2 support, or set `Method` to -1.");
-	#endif // USE_MINUIT2
+                log_fatal("Minuit2 was not found, so fitting cannot be performed. Set "
+                          "the Method to -1 to continue without minimization");
+#endif
 
 	// check if correct track parameters are set. Warn user if ambiguous
 	if (useMonteCarloTrack_)
@@ -261,36 +269,37 @@ void I3MuonEnergy::Configure()
 	
 	// Set degrees of freedom according to chosen fit function
 	if (fitFunctionInt_ == -1) {
-		fitFunction_ = NOFCN;
+		fitFunction_ = FitFunction::NOFCN;
 		nDoF_ = 0;
 	}
 	else if (fitFunctionInt_ == 0)
 	{
-		fitFunction_ = EXPOFCN;
+		fitFunction_ = FitFunction::EXPOFCN;
 		nDoF_ = 2;
 	}
 	else if (fitFunctionInt_ == 1)
 	{
-		fitFunction_ = TOMFFCN;
+		fitFunction_ = FitFunction::EXPOFCN;
+		fitFunction_ = FitFunction::TOMFFCN;
 		nDoF_ = 3;
 		if (fixGamma_)
 			nDoF_--;
 		if (fixB_)
-			nDoF_--;
+		        nDoF_--;
 	}
 	else
 	{
 		log_fatal("Please specify the fit function!");
 	}
 
-	if (fitFunction_ == EXPOFCN && (fixGamma_ != FIXGAMMA || fixB_ != FIXB))
+	if (fitFunction_ == FitFunction::EXPOFCN && (fixGamma_ != FIXGAMMA || fixB_ != FIXB))
 	{
 		// fitFunction is expo, but parameters for tomF have been set
 		log_warn("You have changed the parameters for the tomF function but have chosen the exponential fit. "
 				 "Continuing with the exponential fit. Set parameter Method to 1 to use the tomF function.");
 	}
 
-    lambdaFile_ = readLambdaFile(iceFileName_);
+	lambdaFile_ = readLambdaFile(iceFileName_);
 
 	// count number of tracks fitted
 	tracksFitted_ = 0;
@@ -385,7 +394,7 @@ void I3MuonEnergy::Physics(I3FramePtr frame)
 
 		OMKey omkey = om_iter->first;
     
-    if (om_iter->second.omtype != I3OMGeo::IceCube)
+		if (om_iter->second.omtype != I3OMGeo::IceCube)
 			continue;
 
 		// skip bad doms
@@ -700,47 +709,70 @@ boost::shared_ptr<I3MuonEnergyProfile> I3MuonEnergy::getMuonEnergyProfile(I3Fram
  *
  * @return Vector of FitParameterSpecs
  */
-std::vector<FitParameterSpecs> I3MuonEnergy::getFitParameterSpecs(Minuit2FitFCN &fitFunction)
+std::vector<I3FitParameterInitSpecs> I3MuonEnergy::getFitParameterSpecs(FitFunction &fitFunction)
 {
-	std::vector<FitParameterSpecs> parspecs;
-	if (fitFunction == NOFCN)
+	std::vector<I3FitParameterInitSpecs> parspecs;
+	if (fitFunction == FitFunction::NOFCN)
 	{ 
 		// no actual fit, no fit parameters
 	}
-	else if (fitFunction == EXPOFCN)
+	else if (fitFunction == FitFunction::EXPOFCN)
 	{
-		FitParameterSpecs norm("norm", EXPO_NORM_INIT, EXPO_NORM_STEPS , EXPO_NORM_MINV, EXPO_NORM_MAXV);
-		FitParameterSpecs exponent("exp", EXPO_EXP_INIT, EXPO_EXP_STEPS, EXPO_EXP_MINV, EXPO_EXP_MAXV);
-		parspecs.push_back(norm);
-		parspecs.push_back(exponent);
+	    I3FitParameterInitSpecs norm("norm");
+	    norm.initval_ = EXPO_NORM_INIT;
+	    norm.stepsize_ = EXPO_NORM_STEPS;
+	    norm.minval_ = EXPO_NORM_MINV;
+	    norm.maxval_ = EXPO_NORM_MAXV;
+	    parspecs.push_back(norm);
+
+	    I3FitParameterInitSpecs exponent("exp");
+	    exponent.initval_ = EXPO_EXP_INIT;
+	    exponent.stepsize_ = EXPO_EXP_STEPS;
+	    exponent.minval_ = EXPO_EXP_MINV; 
+	    exponent.maxval_ = EXPO_EXP_MAXV;
+	    parspecs.push_back(exponent);
 	}
-	else if (fitFunction == TOMFFCN)
+	else if (fitFunction == FitFunction::TOMFFCN)
 	{
-		FitParameterSpecs norm("norm", TOMF_NORM_INIT, TOMF_NORM_STEPS, TOMF_NORM_MINV, TOMF_NORM_MAXV);
-		FitParameterSpecs b("b", TOMF_B_INIT, TOMF_B_STEPS, TOMF_B_MINV, TOMF_B_MAXV);
-		FitParameterSpecs gamma("gamma", TOMF_GAMMA_INIT, TOMF_GAMMA_STEPS, TOMF_GAMMA_MINV, TOMF_GAMMA_MAXV);
+	    I3FitParameterInitSpecs norm("norm");
+	    norm.initval_ = TOMF_NORM_INIT;
+	    norm.stepsize_ = TOMF_NORM_STEPS;
+	    norm.minval_ = TOMF_NORM_MINV;
+	    norm.maxval_ = TOMF_NORM_MAXV;
+	    
+	    I3FitParameterInitSpecs b("b");
+	    b.initval_ = TOMF_B_INIT;
+	    b.stepsize_ = TOMF_B_STEPS;
+	    b.minval_ = TOMF_B_MINV;
+	    b.maxval_ = TOMF_B_MAXV;
 
-		int numFixedParameters = 0;
+	    I3FitParameterInitSpecs gamma("gamma");
+	    gamma.initval_ = TOMF_GAMMA_INIT;
+	    gamma.stepsize_ = TOMF_GAMMA_STEPS;
+	    gamma.minval_ = TOMF_GAMMA_MINV;
+	    gamma.maxval_ = TOMF_GAMMA_MAXV;
 
-		// The minimizer interpretes minval==maxval as fixed parameter.
-		if (fixB_) 
+	    int numFixedParameters = 0;
+	    
+	    // The minimizer interpretes minval==maxval as fixed parameter.
+	    if (fixB_) 
 		{
-			b.minval_ = b.initval_;
-			b.maxval_ = b.initval_;
-			numFixedParameters++;
+		    b.minval_ = b.initval_;
+		    b.maxval_ = b.initval_;
+		    numFixedParameters++;
 		}
-		if (fixGamma_) 
-		{
-			gamma.minval_ = gamma.initval_;
-			gamma.maxval_ = gamma.initval_;
-			numFixedParameters++;
+	    if (fixGamma_) 
+	        {
+		    gamma.minval_ = gamma.initval_;
+		    gamma.maxval_ = gamma.initval_;
+		    numFixedParameters++;
 		}
 
-		parspecs.push_back(norm);
-		parspecs.push_back(b);
-		parspecs.push_back(gamma);
-
-		log_info("The no. of fixed parameters for the TomFcn is %i.", numFixedParameters);
+	    parspecs.push_back(norm);
+	    parspecs.push_back(b);
+	    parspecs.push_back(gamma);
+	    
+	    log_info("The no. of fixed parameters for the TomFcn is %i.", numFixedParameters);
 	}
 
 	return parspecs;
@@ -774,78 +806,86 @@ I3MuonEnergyParamsPtr I3MuonEnergy::getMuonEnergyParams(boost::shared_ptr<I3Muon
 	Configure() ensures that fitFunction_ is set to NOFCN
 	when Minuit2 is not available.
 	*/
-	if (fitFunction_ != NOFCN)
-	{
 #ifdef USE_MINUIT2
-		boost::shared_ptr<MuonEnergyFCNBase> fitfcn;
-		MuonEnergyMinuit2 minuit2("d4rfit",
-				minuitTolerance_, minuitMaxIterations_,
-				minuitPrintLevel_, minuitStrategy_, 
-				minuitAlgorithm_);
-
-		if (fitFunction_ == EXPOFCN)
-		{
-			fitfcn.reset(new ExpoFcn(dEdXPerBin_, slantBins_));
+	if (fitFunction_ != FitFunction::NOFCN)
+	{
+	    boost::shared_ptr<I3GulliverBase> fitfcn;
+	    I3GulliverMinuit2 minuit2("d4rfit",
+				      minuitTolerance_, minuitMaxIterations_,
+				      minuitPrintLevel_, minuitStrategy_, 
+				      minuitAlgorithm_,
+				      false, false, false, false);
+		    
+	    if (fitFunction_ == FitFunction::EXPOFCN)
+	        {
+		    fitfcn.reset(new ExpoFcn(dEdXPerBin_, slantBins_));
 		}
-		else if (fitFunction_ == TOMFFCN)
-		{
-			fitfcn.reset(new TomFFcn(dEdXPerBin_, slantBins_));
+	    else if (fitFunction_ == FitFunction::TOMFFCN)
+	        {
+		    fitfcn.reset(new TomFFcn(dEdXPerBin_, slantBins_));
 		}
 
-		const std::vector<FitParameterSpecs> parspecsConst = getFitParameterSpecs(
+	    const std::vector<I3FitParameterInitSpecs> parspecsConst = getFitParameterSpecs(
 				fitFunction_);
-
-		MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
-		log_debug("Creating MuonEnergyParams.");
-
-		results->N = minuitResult.par_[0];
-		results->b = minuitResult.par_[1];
-		results->N_err = minuitResult.err_[0];
-		results->b_err = minuitResult.err_[1];
-
-		if (fitFunction_ == TOMFFCN)
-		{
-			results->gamma = minuitResult.par_[2];
-			results->gamma_err = minuitResult.err_[2];
+	    
+	    I3MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
+	    log_debug("Creating MuonEnergyParams.");
+	    
+	    results->N = minuitResult.par_[0];
+	    results->b = minuitResult.par_[1];
+	    results->N_err = minuitResult.err_[0];
+	    results->b_err = minuitResult.err_[1];
+	    boost::function<double (double)> f(ExpoFunction(results->N,
+							    results->b));
+	    	    
+	    if (fitFunction_ == FitFunction::TOMFFCN)
+	        {
+		    results->gamma = minuitResult.par_[2];
+		    results->gamma_err = minuitResult.err_[2];
+		    f = TomFFunction(results->N, results->b, results->gamma);
+		    //f.swap(TomFFunction(results->N,
+		    //results->b,
+		    //results->gamma));
 		}
 
-		if (!minuitResult.converged_)
-			results->status = I3Particle::FailedToConverge;
-		else if (std::isnan(results->N))
-			results->status = I3Particle::GeneralFailure;
-		else
-			results->status = I3Particle::OK;
-
-		log_debug("Calculating Chi^2 and rllh for the fit.");
-		if (results->nDOMs > 1 && !std::isnan(results->N))
-		{
-			for (int i = 0; i < eprofile->GetNBins(); i++)
-			{
-				try
-				{
-					double dEdX = eprofile->GetBinContent(i);
-					double edEdX = eprofile->GetBinError(i);
-					double slant = eprofile->GetBinCenter(i);
-					results->rllh 
-						+= pow(dEdX-fitfcn->f(minuitResult.par_, slant), 2)
-						/ (dEdX+1);
-					if (edEdX > 0.)
-					{
-						results->chi2 
-							+= pow((dEdX-fitfcn->f(minuitResult.par_, slant)) / edEdX, 2);
-					}
-				}
-				catch (const std::out_of_range& e)
-				{
-					log_warn("Couldn't compute rllh or chi^2, exception occured: %s", 
-							e.what());
-				}
+	    if (!minuitResult.converged_)
+	        results->status = I3Particle::FailedToConverge;
+	    else if (std::isnan(results->N))
+	        results->status = I3Particle::GeneralFailure;
+	    else
+	        results->status = I3Particle::OK;
+	    
+	    log_debug("Calculating Chi^2 and rllh for the fit.");
+	    if (results->nDOMs > 1 && !std::isnan(results->N)){
+	        for (int i = 0; i < eprofile->GetNBins(); i++){
+		    try {
+		        double dEdX = eprofile->GetBinContent(i);
+			double edEdX = eprofile->GetBinError(i);
+			double slant = eprofile->GetBinCenter(i);
+			results->rllh 
+			    += pow(f(slant), 2)
+			    / (dEdX+1);
+			if (edEdX > 0.){
+			  results->chi2 
+			      += pow(f(slant) / edEdX, 2);
 			}
+		    }
+		    catch (const std::out_of_range& e){
+		      log_warn("Couldn't compute rllh or chi^2, exception occured: %s", 
+			       e.what());
+		    }
 		}
-		results->chi2ndof = results->chi2 / ((double) eprofile->GetNBins()-nDoF_-1.);
-#endif // USE_MINUIT2
+	    }
+	    results->chi2ndof = results->chi2 / ((double) eprofile->GetNBins()-nDoF_-1.);
 	}
-
+#else
+	/*
+	If Minuit2 is not available, no fit is performed.
+	The corresponding fields in the `results` are initialized to
+	NAN in the constructor of I3MuonEnergyParams and stay like that.
+	*/
+#endif
+      
 	//Compute peak energy and error
 	results->peak_energy = eprofile->GetBinContent(eprofile->GetMaxBin());
 	results->peak_sigma = eprofile->GetBinError(eprofile->GetMaxBin());

@@ -1,10 +1,10 @@
 #include "ddddr/ExpoFcn.h"
 #include "ddddr/ExpoFunction.h"
-#include "ddddr/MuonEnergyFunctions.h"
+#include "gulliver/I3GulliverBase.h"
 
 #include <cassert>
 
-double ExpoFcn::operator()(const std::vector<double>& par) const 
+double ExpoFcn::operator()(const std::vector<double>& par)
 {
 	assert(par.size() == 2);
 	ExpoFunction expo(par[0], par[1]);
@@ -14,6 +14,12 @@ double ExpoFcn::operator()(const std::vector<double>& par) const
 		llh -= MuonEnergyFunctions::ln_poisson(measurements_[i], expo(positions_[i]));
 	}
 	return llh;
+}
+
+double ExpoFcn::operator()(const std::vector<double>& par,
+			   std::vector<double>& grad)
+{ 
+  return ExpoFcn::operator()(par);
 }
 
 /**

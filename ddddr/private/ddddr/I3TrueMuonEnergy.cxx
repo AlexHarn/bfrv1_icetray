@@ -10,7 +10,7 @@
 #include "phys-services/I3Calculator.h"
 #include "icetray/OMKey.h"
 #include "dataclasses/I3Map.h"
-#include "ddddr/MuonGunTrack.h"
+#include "MuonGunTrack.h"
 #include <boost/foreach.hpp>
 
 static const double SURFACE_HEIGHT = 1948.07; // https://wiki.icecube.wisc.edu/index.php/Coordinate_system
@@ -54,7 +54,7 @@ void I3TrueMuonEnergy::Configure()
 	GetParameter("SaveEnergyLosses", saveEnergyLosses_);
 
 	//Minuit parameters, for now just fixed here
-	minuitTolerance_ = 0.1;
+	minuitTolerance_ = 0.0001;
 	minuitMaxIterations_ = 10000;
 	minuitPrintLevel_ = -2;
 	minuitStrategy_ = 2;
@@ -182,35 +182,46 @@ I3MuonEnergyParamsPtr I3TrueMuonEnergy::getBundleEnergyDistribution(std::vector<
 	}
 
 #ifdef USE_MINUIT2
-	MuonEnergyMinuit2 minuit2("trueEnergyFit",
-			minuitTolerance_, minuitMaxIterations_,
-			minuitPrintLevel_, minuitStrategy_, 
-			minuitAlgorithm_);
+	I3GulliverMinuit2 minuit2("trueEnergyFit",
+				  minuitTolerance_, minuitMaxIterations_,
+				  minuitPrintLevel_, minuitStrategy_, 
+				  minuitAlgorithm_,
+				 false, false, false, false);
 
 	boost::shared_ptr<ExpoFcn> fitfcn(new ExpoFcn(measure, slant));
 
-	std::vector<FitParameterSpecs> parspecs;
-	FitParameterSpecs norm("norm", 10, 0.1, 0, 15);
-	FitParameterSpecs exponent("exp", 1e-3, 1e-1, -1e-1, 1e-1);
+	std::vector<I3FitParameterInitSpecs> parspecs;
+	I3FitParameterInitSpecs norm("norm");
+	norm.initval_ = 10;
+	norm.stepsize_ = 0.1;
+	norm.minval_ = 0;
+	norm.maxval_ = 15;
 	parspecs.push_back(norm);
+	
+	I3FitParameterInitSpecs exponent("exp");
+	exponent.initval_ = 1e-3;
+	exponent.stepsize_ = 1e-1;
+	exponent.minval_ = -1e-1;
+	exponent.maxval_ = 1e-1;
 	parspecs.push_back(exponent);
 
-	const std::vector<FitParameterSpecs> parspecsConst(parspecs.begin(),
+	const std::vector<I3FitParameterInitSpecs> parspecsConst(parspecs.begin(),
 			parspecs.begin()+2);
 
-	MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
+	I3MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
 
 	results->N = minuitResult.par_[0];
 	results->b = minuitResult.par_[1];
 	results->N_err = minuitResult.err_[0];
 	results->b_err = minuitResult.err_[1];
+
 #else
 	/*
 	If Minuit2 is not available, no fit is performed.
 	The corresponding fields in the `results` are initialized to
 	NAN in the constructor of I3MuonEnergyParams and stay like that.
 	*/
-#endif // USE_MINUIT2
+#endif
 
 	// calculate mean
 	double mean = 0, sum = 0, dev=0, sdev = 0;

@@ -1,14 +1,14 @@
 #ifndef _TOMFFCN_H_INCLUDED
 #define _TOMFFCN_H_INCLUDED
 
-#include "ddddr/MuonEnergyFCNBase.h"
+#include "gulliver/I3GulliverBase.h"
 #include <vector>
 
 /**
  * @brief Minimizer function based on an Tom Feusels' function for 
  * muon bundle energy loss (TomFFunction.h).
  */
-class TomFFcn : public MuonEnergyFCNBase
+class TomFFcn : public I3GulliverBase
 {
 	public:
 		/**
@@ -23,10 +23,10 @@ class TomFFcn : public MuonEnergyFCNBase
 
 		~TomFFcn() {}
 
-		virtual double Up() const {return errorDef_;}
-
 		/// Returns the log likelihood for given set of parameters.
-		virtual double operator()(const std::vector<double>&) const;
+		double operator()(const std::vector<double>&);
+		double operator()(const std::vector<double>&,
+				  std::vector<double>&);
 
 		/// Returns function value for given set of parameters.
 		double f(const std::vector<double>&, double) const;

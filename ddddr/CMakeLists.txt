@@ -14,32 +14,24 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/ddddr/I3TrueMuonEnergy.cxx
   private/ddddr/MuonEnergyFunctions.cxx
   private/ddddr/MuonGunTrack.cxx
+  private/ddddr/TomFFcn.cxx
+  private/ddddr/ExpoFcn.cxx
 )
 SET(LIB_${PROJECT_NAME}_TEST_SOURCEFILES
   private/test/I3MuonEnergyProfileTest.cxx
   private/test/main.cxx
 )
 SET(LIB_${PROJECT_NAME}_TOOLS boost gsl python)
-SET(LIB_${PROJECT_NAME}_PROJECTS serialization icetray dataclasses phys-services dataio simclasses)
+SET(LIB_${PROJECT_NAME}_PROJECTS serialization icetray dataclasses phys-services 
+				 dataio simclasses gulliver)
 
-if(USE_ROOT AND ROOT_FOUND)
-  LIST(APPEND LIB_${PROJECT_NAME}_TOOLS root)
-  colormsg(GREEN "+-- Using Minuit2 from ROOT.")
-endif()
-
-## during detection, we prefer ROOT's Minuit2 to the standalone version
+## Note whether we have I3GulliverMinuit2 for minimization
 if(MINUIT2_FOUND)
-  LIST(APPEND LIB_${PROJECT_NAME}_TOOLS minuit2)
+  LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS lilliput)
   colormsg(GREEN "+-- Found Minuit2, fitting enabled.")
   ADD_DEFINITIONS(-DUSE_MINUIT2)
-
-  LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
-    private/ddddr/MuonEnergyMinuit2.cxx
-    private/ddddr/TomFFcn.cxx
-    private/ddddr/ExpoFcn.cxx
-    )
 else()
-  colormsg(CYAN "+-- Either ROOT not found, disabled or Minuit2 not available.")
+  colormsg(CYAN "+-- Minuit2 not available.")
   colormsg(CYAN "    DDDDR will still be built and can be run with disabled fitting.")
 endif()
 

@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-double TomFFcn::operator()(const std::vector<double>& par) const 
+double TomFFcn::operator()(const std::vector<double>& par)
 {
 	assert(par.size() == 3);
 	TomFFunction tomf(par[0], par[1], par[2]);
@@ -14,6 +14,13 @@ double TomFFcn::operator()(const std::vector<double>& par) const
 		llh -= MuonEnergyFunctions::ln_poisson(measurements_[i], tomf(positions_[i]));
 	}
 	return llh;
+}
+
+
+double TomFFcn::operator()(const std::vector<double>& par,
+			   std::vector<double>& grad)
+{ 
+  return TomFFcn::operator()(par);
 }
 
 /**
