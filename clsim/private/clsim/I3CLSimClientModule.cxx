@@ -136,60 +136,27 @@ I3CLSimClientModule::~I3CLSimClientModule()
 {
     log_trace("%s", __PRETTY_FUNCTION__);
 
-    StopThread();
+    StopThreads();
     
 }
 
-void I3CLSimClientModule::StartThread()
+void I3CLSimClientModule::StartThreads()
 {
     log_trace("%s", __PRETTY_FUNCTION__);
-
-    if (threadObj_) {
-        log_debug("Thread is already running. Not starting a new one.");
-        return;
-    }
     
-    log_trace("Thread not running. Starting a new one..");
-    
-    // re-set flags
-    threadStarted_=false;
-    threadFinishedOK_=false;
-    
-    threadObj_ = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&I3CLSimClientModule::Thread_starter, this)));
-    
-    // wait for startup
-    {
-        boost::unique_lock<boost::mutex> guard(threadStarted_mutex_);
-        for (;;)
-        {
-            if (threadStarted_) break;
-            threadStarted_cond_.wait(guard);
-        }
-    }        
-    
-    log_trace("Thread started..");
-
+    feederTask_ = std::async(std::launch::async, &I3CLSimClientModule::FeedSteps, this);
+    harvesterTask_ = std::async(std::launch::async, &I3CLSimClientModule::HarvestPhotons, this);
 }
 
-void I3CLSimClientModule::StopThread()
+void I3CLSimClientModule::StopThreads()
 {
     log_trace("%s", __PRETTY_FUNCTION__);
     
-    if (threadObj_)
-    {
-        if (threadObj_->joinable())
-        {
-            log_trace("Stopping the thread..");
-            // threadObj_->interrupt();
-            threadObj_->join(); // wait for it indefinitely
-            log_trace("thread stopped.");
-        } 
-        else
-        {
-            log_trace("Thread did already finish, deleting reference.");
-        }
-        threadObj_.reset();
-    }
+    // Wait for tasks to exit, raise exceptions to main thread
+    if (feederTask_.valid())
+        feederTask_.get();
+    if (harvesterTask_.valid())
+        harvesterTask_.get();
 }
 
 void I3CLSimClientModule::Configure()
@@ -206,10 +173,11 @@ void I3CLSimClientModule::Configure()
         GetParameter("StepGenerator", stepGenerator_);
         if (!stepGenerator_)
             log_fatal("You need to provide a step generator");
-        uint64_t granularity = stepsToPhotonsConverter_->GetWorkgroupSize();
-        uint64_t maxBunchSize = stepsToPhotonsConverter_->GetMaxNumWorkitems();
-        stepGenerator_->SetBunchSizeGranularity(granularity);
-        stepGenerator_->SetMaxBunchSize(maxBunchSize);
+        // Emit a bunches of the size of the workgroup granularity.
+        // I3CLSimServer will bunch and pad these out to the full size bunch as
+        // needed.
+        stepGenerator_->SetBunchSizeGranularity(1);
+        stepGenerator_->SetMaxBunchSize(stepsToPhotonsConverter_->GetWorkgroupSize());
         stepGenerator_->Initialize();
     }
 
@@ -237,7 +205,7 @@ void I3CLSimClientModule::Configure()
     if ((flasherPulseSeriesName_=="") && (MCTreeName_==""))
         log_fatal("You need to set at least one of the \"MCTreeName\" and \"FlasherPulseSeriesName\" parameters.");
 
-    StartThread();
+    StartThreads();
     
     log_info("Initialization complete.");
 }
@@ -455,16 +423,9 @@ std::ostream& operator<<(std::ostream &s, const std::deque<T> &vec)
 }
 
 
-bool I3CLSimClientModule::Thread(boost::this_thread::disable_interruption &di)
+bool I3CLSimClientModule::FeedSteps()
 {
     // do some setup while the main thread waits..
-    
-    // notify the main thread that everything is set up
-    {
-        boost::unique_lock<boost::mutex> guard(threadStarted_mutex_);
-        threadStarted_=true;
-    }
-    threadStarted_cond_.notify_all();
 
     // the main thread is running again
     
@@ -475,14 +436,7 @@ bool I3CLSimClientModule::Thread(boost::this_thread::disable_interruption &di)
         boost::shared_ptr<std::vector<uint32_t>> finished;
         bool barrierWasJustReset=false;
         
-        {
-            boost::this_thread::restore_interruption ri(di);
-            try {
-                std::tie(steps, finished) = stepGenerator_->GetConversionResultWithBarrierInfoAndMarkers(barrierWasJustReset);
-            } catch(boost::thread_interrupted &i) {
-                return false;
-            }
-        }
+        std::tie(steps, finished) = stepGenerator_->GetConversionResultWithBarrierInfoAndMarkers(barrierWasJustReset);
         
         if (!steps) 
         {
@@ -560,84 +514,61 @@ bool I3CLSimClientModule::Thread(boost::this_thread::disable_interruption &di)
                 assert( framesInKernel_ >= 0 && framesInKernel_ <= std::distance(frameCache_.begin(), frameCache_.end()) );
             }
 
-
             // send to OpenCL
-            {
-                boost::this_thread::restore_interruption ri(di);
-                try {
-                    stepsToPhotonsConverter_->EnqueueSteps(steps, currentBunchId_);
-                } catch(boost::thread_interrupted &i) {
-                    return false;
-                }
-            }
-            
+            stepsToPhotonsConverter_->EnqueueSteps(steps, currentBunchId_);
             ++currentBunchId_; // this may overflow, but only when there are more than 4 billion workitems in flight
         }
-        
-        // now wait for OpenCL to finish; retrieve results
-        
-        I3CLSimStepToPhotonConverter::ConversionResult_t res;
-        {
-            boost::this_thread::restore_interruption ri(di);
-            try {
-                res = stepsToPhotonsConverter_->GetConversionResult();
-            } catch(boost::thread_interrupted &i) {
-                return false;
-            }
+
+        if (barrierWasJustReset) {
+            log_trace("Geant4 barrier has been reached. Exiting thread.");
+            stepsToPhotonsConverter_->EnqueueBarrier();
+            break;
         }
-        
+
+    }
+
+    return true;
+}
+
+bool I3CLSimClientModule::HarvestPhotons()
+{
+    bool barrierWasJustReset = false;
+
+    while (true) {
+        // wait for OpenCL to finish; retrieve results
+        auto res = stepsToPhotonsConverter_->GetConversionResultWithBarrierInfo(barrierWasJustReset);
+
         if (!res.photons) log_fatal("Internal error: received NULL photon series from OpenCL.");
-        
+        log_trace_stream("Got "<<res.photons->size()<<" photons from propagator");
+
         {
             boost::unique_lock<boost::mutex> guard(frameCache_mutex_);
-            
+
             // convert to I3Photons and add to their respective frames
             AddPhotonsToFrames(*(res.photons), res.photonHistories,
                                frameCache_,
                                particleCache_,
                                mcpeGenerator_,
                                collectStatistics_);
-            
+
             // This bunch is done. Remove all frame-bunch pairs with this bunch id.
             auto bounds = framesForBunches_.right.equal_range(res.identifier);
             log_debug("bunch %u had work from %zu frames", res.identifier, std::distance(bounds.first, bounds.second));
-            
+
             assert( framesForBunches_.empty() || bounds.first != bounds.second );
             framesForBunches_.right.erase(bounds.first, bounds.second);
-            
+
             newFramesAvailable_ = true;
         }
 
         if (barrierWasJustReset) {
-            log_trace("Geant4 barrier has been reached. Exiting thread.");
+            log_trace("Photon barrier has been reached. Exiting thread.");
             break;
         }
-
     }
-    
+
     return true;
 }
-
-void I3CLSimClientModule::Thread_starter()
-{
-    // do not interrupt this thread by default
-    boost::this_thread::disable_interruption di;
-    
-    try {
-        threadFinishedOK_ = Thread(di);
-        if (!threadFinishedOK_)
-        {
-            log_trace("thread exited due to interruption.");
-        }
-    } catch(...) { // any exceptions?
-        log_warn("thread died unexpectedly..");
-        
-        throw;
-    }
-    
-    log_debug("thread exited.");
-}
-
 
 void I3CLSimClientModule::DigestGeometry(I3FramePtr frame)
 {
@@ -831,9 +762,6 @@ bool I3CLSimClientModule::DigestOtherFrame(I3FramePtr frame)
 {
     frameCacheEntry frameCacheEntry(currentFrameId_, frame);
     
-    if (!threadObj_)
-        log_fatal("No connector thread running");
-    
     I3MCTreeConstPtr MCTree;
     I3CLSimFlasherPulseSeriesConstPtr flasherPulses;
     std::deque<I3CLSimLightSource> lightSources;
@@ -931,7 +859,7 @@ void I3CLSimClientModule::Finish()
     
     // Flush step generator and wait for collector thread to stop
     stepGenerator_->EnqueueBarrier();
-    StopThread();
+    StopThreads();
     
     // Emit any frames still in flight
     FlushFrameCache();

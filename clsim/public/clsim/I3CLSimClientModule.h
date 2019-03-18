@@ -29,6 +29,7 @@
 
 #include <atomic>
 #include <deque>
+#include <future>
 #include <boost/bimap/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/thread.hpp>
@@ -152,15 +153,11 @@ private:
     I3CLSimClientModule& operator=(const I3CLSimClientModule&);
     
     // thread stuff
-    void StopThread();
-    void StartThread();
-    void Thread_starter();
-    bool Thread(boost::this_thread::disable_interruption &di);
-    boost::shared_ptr<boost::thread> threadObj_;
-    boost::condition_variable_any threadStarted_cond_;
-    boost::mutex threadStarted_mutex_;
-    bool threadStarted_;
-    bool threadFinishedOK_;
+    void StopThreads();
+    void StartThreads();
+    bool FeedSteps();
+    bool HarvestPhotons();
+    std::future<bool> feederTask_, harvesterTask_;
     
     // helper functions
     std::size_t FlushFrameCache();

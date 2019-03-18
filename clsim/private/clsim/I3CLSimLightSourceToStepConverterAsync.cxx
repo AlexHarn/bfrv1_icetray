@@ -209,7 +209,7 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
     // Push steps to output queue
     auto flushStepStore = [&](bool resetBarrier=false) {
         // Flush full-sized bunches
-        while (stepStore.size() >= maxBunchSize_)
+        while (stepStore.size() > maxBunchSize_)
         {
             I3CLSimStepSeriesPtr steps(new I3CLSimStepSeries());
             stepStore.pop_bunch_to_vector(maxBunchSize_, *steps);

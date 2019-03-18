@@ -26,6 +26,8 @@
 
 #include <sstream>
 
+#include <icetray/python/gil_holder.hpp>
+
 #include <clsim/I3CLSimServer.h>
 #include <clsim/I3CLSimStepToPhotonConverter.h>
 #include <clsim/I3CLSimStepToPhotonConverterOpenCL.h>
@@ -258,6 +260,30 @@ bp::dict GetStatistics(const I3CLSimServer &server)
     return summary;
 }
 
+void EnqueueSteps(I3CLSimClient &obj, I3CLSimStepSeriesConstPtr steps, uint32_t identifier)
+{
+    bp::detail::allow_threads unblock;
+    obj.EnqueueSteps(steps,identifier);
+}
+
+void EnqueueBarrier(I3CLSimClient &obj)
+{
+    bp::detail::allow_threads unblock;
+    obj.EnqueueBarrier();
+}
+
+bp::tuple GetConversionResultWithBarrierInfo(I3CLSimClient &obj)
+{
+    bool barrierWasReset = false;
+    I3CLSimStepToPhotonConverter::ConversionResult_t ret;
+    {
+        bp::detail::allow_threads unblock;
+        ret = obj.GetConversionResultWithBarrierInfo(barrierWasReset);
+    }
+
+    return bp::make_tuple(ret, barrierWasReset);
+}
+
 }
 
 void register_I3CLSimServer()
@@ -272,8 +298,9 @@ void register_I3CLSimServer()
     ;
     
     bp::class_<I3CLSimClient, boost::shared_ptr<I3CLSimClient>, boost::noncopyable>("I3CLSimClient", bp::init<const std::string&>())
-        .def("EnqueueSteps", &I3CLSimClient::EnqueueSteps)
-        .def("GetConversionResult", &I3CLSimClient::GetConversionResult)
+        .def("EnqueueSteps", &EnqueueSteps)
+        .def("EnqueueBarrier", &EnqueueBarrier)
+        .def("GetConversionResultWithBarrierInfo", &GetConversionResultWithBarrierInfo)
         .add_property("workgroupSize", &I3CLSimClient::GetWorkgroupSize)
         .add_property("maxNumWorkitems", &I3CLSimClient::GetMaxNumWorkitems)
     ;

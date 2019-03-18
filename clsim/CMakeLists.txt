@@ -101,7 +101,6 @@ if (ZMQ_FOUND AND OPENCL_FOUND)
   LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
       private/clsim/I3CLSimServer.cxx
       private/clsim/I3CLSimClientModule.cxx
-      private/pybindings/I3CLSimStepToPhotonConverter.cxx
   )
   LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)  
   LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
