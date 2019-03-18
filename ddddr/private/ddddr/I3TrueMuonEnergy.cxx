@@ -53,12 +53,9 @@ void I3TrueMuonEnergy::Configure()
 	GetParameter("Prefix", framePrefix_);
 	GetParameter("SaveEnergyLosses", saveEnergyLosses_);
 
-	//Minuit parameters, for now just fixed here
-	minuitTolerance_ = 0.0001;
-	minuitMaxIterations_ = 10000;
-	minuitPrintLevel_ = -2;
-	minuitStrategy_ = 2;
-	minuitAlgorithm_ = "MIGRAD";
+	//minimization parameters, for now just fixed here
+	tolerance_ = 0.0001;
+	maxIterations_ = 10000;
 }
 
 void I3TrueMuonEnergy::Physics(I3FramePtr frame)
@@ -181,12 +178,9 @@ I3MuonEnergyParamsPtr I3TrueMuonEnergy::getBundleEnergyDistribution(std::vector<
 			measure.push_back(it->energy);
 	}
 
-#ifdef USE_MINUIT2
-	I3GulliverMinuit2 minuit2("trueEnergyFit",
-				  minuitTolerance_, minuitMaxIterations_,
-				  minuitPrintLevel_, minuitStrategy_, 
-				  minuitAlgorithm_,
-				 false, false, false, false);
+	I3GSLSimplex minimizer("trueEnergyFit",
+			       tolerance_, tolerance_, 
+			       maxIterations_, false);
 
 	boost::shared_ptr<ExpoFcn> fitfcn(new ExpoFcn(measure, slant));
 
@@ -208,20 +202,12 @@ I3MuonEnergyParamsPtr I3TrueMuonEnergy::getBundleEnergyDistribution(std::vector<
 	const std::vector<I3FitParameterInitSpecs> parspecsConst(parspecs.begin(),
 			parspecs.begin()+2);
 
-	I3MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
+	I3MinimizerResult result = minimizer.Minimize(*fitfcn, parspecsConst);
 
-	results->N = minuitResult.par_[0];
-	results->b = minuitResult.par_[1];
-	results->N_err = minuitResult.err_[0];
-	results->b_err = minuitResult.err_[1];
-
-#else
-	/*
-	If Minuit2 is not available, no fit is performed.
-	The corresponding fields in the `results` are initialized to
-	NAN in the constructor of I3MuonEnergyParams and stay like that.
-	*/
-#endif
+	results->N = result.par_[0];
+	results->b = result.par_[1];
+	results->N_err = result.err_[0];
+	results->b_err = result.err_[1];
 
 	// calculate mean
 	double mean = 0, sum = 0, dev=0, sdev = 0;

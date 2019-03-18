@@ -27,10 +27,7 @@
 
 #include "gulliver/I3FitParameterInitSpecs.h"
 #include "gulliver/I3GulliverBase.h"
-
-#ifdef USE_MINUIT2
-#include "lilliput/minimizer/I3GulliverMinuit2.h"
-#endif
+#include "lilliput/minimizer/I3GSLSimplex.h"
 
 #include "ddddr/ExpoFcn.h"
 
@@ -75,14 +72,10 @@ class I3TrueMuonEnergy : public I3ConditionalModule
 		/// Prefix for the objects to be stored in the frame
 		std::string framePrefix_;
 
-		double minuitTolerance_;
-		unsigned int minuitMaxIterations_;
-		int minuitPrintLevel_;
-		int minuitStrategy_;
-		std::string minuitAlgorithm_;
-
-		/// Fits an exponential function to the energy (loss) distribution, using
-		/// MuonEnergyMinuit2.
+		double tolerance_;
+		unsigned int maxIterations_;
+		
+		/// Fits an exponential function to the energy (loss) distribution
 		I3MuonEnergyParamsPtr getBundleEnergyDistribution(std::vector<BundleBin>&);
 		I3MuonEnergyCascadeParamsPtr getCascadeEnergyParams(I3ParticleConstPtr&, 
 				std::vector<BundleBin>);

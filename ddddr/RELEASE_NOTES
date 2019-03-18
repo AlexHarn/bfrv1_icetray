@@ -13,11 +13,10 @@ Trunk
 - Swapped copied classes (FitParameterSpecs, MinimizerResult, 
   MuonEnergyFCNBase, MuonEnergyMinuit2) for the corresponding 
   classes in the gulliver suite. 
-- Changed minimizer backend to use I3GulliverMinuit2 from lilliput
+- Removed duplicated classes 
+- Changed minimizer backend to use I3GSLSimplex from lilliput
 - Tightened the minimizer tolerance (0.1 --> 0.0001)
-- Removed direct ROOT dependence, although it still exists indirectly
-  via lilliput's I3GulliverMinuit2. Next step is to try other minimizers.
-
+- Removed direct ROOT dependence. 
 
 November 30, 2017 Kevin Meagher
 --------------------------------------------------------------------

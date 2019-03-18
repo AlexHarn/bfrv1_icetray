@@ -34,11 +34,7 @@
 ////// Fitting related classes
 #include "gulliver/I3FitParameterInitSpecs.h"
 #include "gulliver/I3GulliverBase.h"
-
-#ifdef USE_MINUIT2
-#include "lilliput/minimizer/I3GulliverMinuit2.h"
 #include "lilliput/minimizer/I3GSLSimplex.h"
-#endif
 
 enum FitFunction {NOFCN,
 		  EXPOFCN,
@@ -142,16 +138,15 @@ class I3MuonEnergy : public I3ConditionalModule
 
 		/// Number of degrees of freedom for the fit
 		int nDoF_;
-		double minuitTolerance_;
-		unsigned int minuitMaxIterations_;
-		int minuitPrintLevel_;
-		int minuitStrategy_;
+		double tolerance_;
+		unsigned int maxIterations_;
+		
 		I3GeometryConstPtr geometry_;
 		I3OMGeoMapPtr omGeo_;
 		I3DOMCalibrationMapPtr domCal_;
 		std::string badDomListName_;
 		I3VectorOMKeyConstPtr badDomList_;
-		std::string minuitAlgorithm_;
+		
 		int tracksFitted_;
 		double surface_height_;
 

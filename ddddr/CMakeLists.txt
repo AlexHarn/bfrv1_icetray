@@ -23,18 +23,7 @@ SET(LIB_${PROJECT_NAME}_TEST_SOURCEFILES
 )
 SET(LIB_${PROJECT_NAME}_TOOLS boost gsl python)
 SET(LIB_${PROJECT_NAME}_PROJECTS serialization icetray dataclasses phys-services 
-				 dataio simclasses gulliver)
-
-## Note whether we have I3GulliverMinuit2 for minimization
-if(MINUIT2_FOUND)
-  LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS lilliput)
-  colormsg(GREEN "+-- Found Minuit2, fitting enabled.")
-  ADD_DEFINITIONS(-DUSE_MINUIT2)
-else()
-  colormsg(CYAN "+-- Minuit2 not available.")
-  colormsg(CYAN "    DDDDR will still be built and can be run with disabled fitting.")
-endif()
-
+				 dataio simclasses gulliver lilliput)
 
 i3_add_library(ddddr
   ${LIB_${PROJECT_NAME}_SOURCEFILES}

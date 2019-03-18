@@ -35,7 +35,7 @@ static const double SURFACE_HEIGHT = 1948.07; // https://wiki.icecube.wisc.edu/i
 static const bool FIXB = true;
 static const bool FIXGAMMA = true;
 
-// default values for Minuit parameters
+// default values for fit parameters
 static const double EXPO_NORM_INIT = 10;
 static const double EXPO_NORM_STEPS = 0.1;
 static const double EXPO_NORM_MINV = 0;
@@ -168,21 +168,16 @@ I3MuonEnergy::I3MuonEnergy(const I3Context & ctx)
 	slantBinNo_ = 20;
 	AddParameter("SlantBinNumber", "Number of bins for slant depth. Only used together with Monte Carlo.",
 			slantBinNo_);
-	minuitMaxIterations_ = 500;
-	AddParameter("MaxIterations", "Maximum number of iterations for minuit.", minuitMaxIterations_);
+	maxIterations_ = 500;
+	AddParameter("MaxIterations", "Maximum number of iterations for the fit.", maxIterations_);
 	badDomListName_ = "BadDomsList";
 
-	minuitTolerance_ = 0.00001;
-	AddParameter("Tolerance", "Tolerance to pass to Minuit", minuitTolerance_);
+	tolerance_ = 0.00001;
+	AddParameter("Tolerance", "Tolerance to pass to the minimizer", tolerance_);
 	AddParameter("BadDomListName", "Name of the BadDomList frame object. Default is \"BadDomList\".",
 			badDomListName_);
 	AddOutBox("OutBox");
 
-	//Minuit parameters, for now just fixed here
-	//minuitMaxIterations_ = 10000;
-	minuitPrintLevel_ = -2;
-	minuitStrategy_ = 2;
-	minuitAlgorithm_ = "MIGRAD";
 }
 
 I3MuonEnergy::~I3MuonEnergy() {}
@@ -205,20 +200,14 @@ void I3MuonEnergy::Configure()
 	GetParameter("MMCTrackList", mmcName_);
 	GetParameter("UseMonteCarloTrack", useMonteCarloTrack_);
 	GetParameter("SlantBinNumber", slantBinNo_);
-	GetParameter("MaxIterations", minuitMaxIterations_);
-	GetParameter("Tolerance", minuitTolerance_);
+	GetParameter("MaxIterations", maxIterations_);
+	GetParameter("Tolerance", tolerance_);
 	GetParameter("BadDomListName", badDomListName_);
 
 
 	// Consistency checks__________________________________________________
 	if (inIcePulseName_ == "")
 		log_fatal("You have to specify a Pulse map.");
-
-#ifndef USE_MINUIT2
-	if (fitFunctionInt_ != -1)
-                log_fatal("Minuit2 was not found, so fitting cannot be performed. Set "
-                          "the Method to -1 to continue without minimization");
-#endif
 
 	// check if correct track parameters are set. Warn user if ambiguous
 	if (useMonteCarloTrack_)
@@ -783,7 +772,7 @@ std::vector<I3FitParameterInitSpecs> I3MuonEnergy::getFitParameterSpecs(FitFunct
  * are determined, as well as peak energy and sigma, median and mean of the 
  * energy loss distribution.
  *
- * @param minuitResult	The result from the fit
+ * @param result	The result from the fit
  * @param eprofile		The histogram with the energy losses
  * @param fitFunction	The chosen fit function
  *
@@ -801,20 +790,15 @@ I3MuonEnergyParamsPtr I3MuonEnergy::getMuonEnergyParams(boost::shared_ptr<I3Muon
 
 	/*
 	If `fitFunction_` is set to NOFCN, no fit will be done.
-	This allows running the module without Minuit2.
-
-	Configure() ensures that fitFunction_ is set to NOFCN
-	when Minuit2 is not available.
+	This allows running the module without fitting
 	*/
-#ifdef USE_MINUIT2
 	if (fitFunction_ != FitFunction::NOFCN)
 	{
 	    boost::shared_ptr<I3GulliverBase> fitfcn;
-	    I3GulliverMinuit2 minuit2("d4rfit",
-				      minuitTolerance_, minuitMaxIterations_,
-				      minuitPrintLevel_, minuitStrategy_, 
-				      minuitAlgorithm_,
-				      false, false, false, false);
+	    I3GSLSimplex minimizer("d4rfit",
+				   tolerance_, tolerance_,
+				   maxIterations_, maxIterations_,
+				   false);
 		    
 	    if (fitFunction_ == FitFunction::EXPOFCN)
 	        {
@@ -828,27 +812,27 @@ I3MuonEnergyParamsPtr I3MuonEnergy::getMuonEnergyParams(boost::shared_ptr<I3Muon
 	    const std::vector<I3FitParameterInitSpecs> parspecsConst = getFitParameterSpecs(
 				fitFunction_);
 	    
-	    I3MinimizerResult minuitResult = minuit2.Minimize(*fitfcn, parspecsConst);
+	    I3MinimizerResult result = minimizer.Minimize(*fitfcn, parspecsConst);
 	    log_debug("Creating MuonEnergyParams.");
 	    
-	    results->N = minuitResult.par_[0];
-	    results->b = minuitResult.par_[1];
-	    results->N_err = minuitResult.err_[0];
-	    results->b_err = minuitResult.err_[1];
+	    results->N = result.par_[0];
+	    results->b = result.par_[1];
+	    results->N_err = result.err_[0];
+	    results->b_err = result.err_[1];
 	    boost::function<double (double)> f(ExpoFunction(results->N,
 							    results->b));
 	    	    
 	    if (fitFunction_ == FitFunction::TOMFFCN)
 	        {
-		    results->gamma = minuitResult.par_[2];
-		    results->gamma_err = minuitResult.err_[2];
+		    results->gamma = result.par_[2];
+		    results->gamma_err = result.err_[2];
 		    f = TomFFunction(results->N, results->b, results->gamma);
 		    //f.swap(TomFFunction(results->N,
 		    //results->b,
 		    //results->gamma));
 		}
 
-	    if (!minuitResult.converged_)
+	    if (!result.converged_)
 	        results->status = I3Particle::FailedToConverge;
 	    else if (std::isnan(results->N))
 	        results->status = I3Particle::GeneralFailure;
@@ -878,13 +862,6 @@ I3MuonEnergyParamsPtr I3MuonEnergy::getMuonEnergyParams(boost::shared_ptr<I3Muon
 	    }
 	    results->chi2ndof = results->chi2 / ((double) eprofile->GetNBins()-nDoF_-1.);
 	}
-#else
-	/*
-	If Minuit2 is not available, no fit is performed.
-	The corresponding fields in the `results` are initialized to
-	NAN in the constructor of I3MuonEnergyParams and stay like that.
-	*/
-#endif
       
 	//Compute peak energy and error
 	results->peak_energy = eprofile->GetBinContent(eprofile->GetMaxBin());
