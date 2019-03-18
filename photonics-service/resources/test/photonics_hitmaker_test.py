@@ -67,10 +67,7 @@ def test(frame):
     s = np.std(residuals)
     assert (300 < s < 500), "the standard deviation of 'residuals' is out of range: s == %i" % s
 
-randomService = phys_services.I3SPRNGRandomService(
-    seed = 12345,
-    nstreams = 10000,
-    streamnum = 1)
+randomService = phys_services.I3GSLRandomService(seed = 12345)
 
 tray = I3Tray()
 

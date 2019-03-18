@@ -29,10 +29,8 @@ parser.add_option("--rootfile", action="store_true", default=False, dest="ROOTFI
 ####################### Tray 0 ###############################
 
 tray = I3Tray()
-tray.AddService("I3SPRNGRandomServiceFactory","sprngrandom",
-  NStreams = 2,
-  Seed = options.SEED,
-  StreamNum = 1,)
+tray.AddService("I3GSLRandomServiceFactory","sprngrandom",
+  Seed = options.SEED)
 
 tray.AddModule("I3WimpSimReader","wimpsim-reader",
   FileNameList = [options.INFILE], #default ""

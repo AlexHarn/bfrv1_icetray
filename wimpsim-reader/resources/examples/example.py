@@ -23,10 +23,8 @@ icetray.logging.log_notice("Output is written to %s"%(outfile))
 tray = I3Tray()
 
 # You'll gonna need a random service for the wimpsim-reader, configure a name that can be passed on
-tray.AddService("I3SPRNGRandomServiceFactory","Random",
-  NStreams = 2,
+tray.AddService("I3GSLRandomServiceFactory","Random",
   Seed = options.Seed,
-  StreamNum = 1,
   InstallServiceAs = "Random") #<--- Name of Service
 
 #Add the reader, here for sun events

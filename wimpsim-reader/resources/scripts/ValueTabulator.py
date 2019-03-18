@@ -56,7 +56,7 @@ from icecube import icetray, phys_services, dataclasses
 
 tray = I3Tray()
 
-randomX = phys_services.I3SPRNGRandomService(0, 2, 1)
+randomX = phys_services.I3GSLRandomService(0)
 
 from icecube import wimpsim_reader
 tray.AddModule("I3WimpSimReader","wimpsim-reader",

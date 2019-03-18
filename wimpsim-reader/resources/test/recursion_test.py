@@ -147,10 +147,8 @@ tray = I3Tray()
 
 Infile= os.path.join(os.getenv('I3_SRC'), 'wimpsim-reader/resources/test_data_sun.dat')
 
-tray.AddService("I3SPRNGRandomServiceFactory","Random",
-  NStreams = 2,
+tray.AddService("I3GSLRandomServiceFactory","Random",
   Seed = 0,
-  StreamNum = 1,
   InstallServiceAs = "Random")
 
 tray.AddModule("I3WimpSimReader","wimpsim-reader",
@@ -197,10 +195,8 @@ Infile= os.path.join(os.getenv('I3_SRC'), 'wimpsim-reader/resources/test_data_ea
 
 tray = I3Tray()
 
-tray.AddService("I3SPRNGRandomServiceFactory","Random",
-  NStreams = 2,
+tray.AddService("I3GSLRandomServiceFactory","Random",
   Seed = 0,
-  StreamNum = 1,
   InstallServiceAs = "Random")
 
 tray.AddModule("I3WimpSimReader","wimpsim-reader",

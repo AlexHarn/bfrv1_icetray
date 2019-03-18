@@ -29,7 +29,7 @@ pulses = "TWSRTHVInIcePulses"
 
 tray = I3Tray()
 
-tray.AddService("I3SPRNGRandomServiceFactory")
+tray.AddService("I3GSLRandomServiceFactory")
 
 # GSLMultiMin and LBFGSB are omitted because they use gradiants but
 # I3GulliverIPDFPandelFactory does not provide gradiants.

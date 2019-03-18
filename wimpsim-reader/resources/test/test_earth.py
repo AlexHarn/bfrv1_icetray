@@ -218,10 +218,8 @@ def DoUnitTestEarth(tray, name, options):
   # run the module an tell me about what you find
   from icecube import icetray, dataclasses, dataio
 
-  tray.AddService("I3SPRNGRandomServiceFactory","Random",
-    NStreams = 2,
+  tray.AddService("I3GSLRandomServiceFactory","Random",
     Seed = options.Seed,
-    StreamNum = 1,
     InstallServiceAs = "Random")
 
   tray.AddModule("I3WimpSimReader","wimpsim-reader",

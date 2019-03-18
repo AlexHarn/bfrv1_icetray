@@ -67,10 +67,7 @@ def test(frame):
     s = np.std(residuals)
     assert (100 < s < 1000), "the standard deviation of 'residuals' is out of range: s == %i" % s
 
-randomService = phys_services.I3SPRNGRandomService(
-    seed = 12345,
-    nstreams = 10000,
-    streamnum = 1)
+randomService = phys_services.I3GSLRandomService(seed = 12345)
 
 cascade_service = photonics_service.I3PhotoSplineService(
         amplitudetable=amplitudetable,

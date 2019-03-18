@@ -81,10 +81,8 @@ if (__name__=='__main__'):
   
   tray = I3Tray()
 
-  tray.AddService("I3SPRNGRandomServiceFactory","Random",
-    NStreams = 2,
+  tray.AddService("I3GSLRandomServiceFactory","Random",
     Seed = params.Seed,
-    StreamNum = 1,
     InstallServiceAs = "Random")
 
   tray.AddModule("I3WimpSimReader","wimpsim-reader",

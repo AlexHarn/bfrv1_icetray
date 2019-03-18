@@ -14,6 +14,10 @@ from icecube.MuonGun.segments import GenerateBundles
 from os.path import expandvars
 from os import unlink
 
+#if not compiled with sprng support don't do anything
+if not hasattr(phys_services,"I3SPRNGRandomService"):
+        exit(0)
+
 gcd = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz")
 
 def make_propagators():

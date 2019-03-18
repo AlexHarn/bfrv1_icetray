@@ -10,10 +10,12 @@ i3_project(simprod_scripts
   DOCS_DIR resources/docs
 )
 
-set(TEST_SCRIPT_LIST
-  resources/tests/segments/*.py
-  resources/tests/generators/*.py
+if (SPRNG_FOUND)
+  set(TEST_SCRIPT_LIST
+    resources/tests/segments/*.py
+    resources/tests/generators/*.py
   )
+endif(SPRNG_FOUND)    
 
 i3_test_scripts(${TEST_SCRIPT_LIST})
 
