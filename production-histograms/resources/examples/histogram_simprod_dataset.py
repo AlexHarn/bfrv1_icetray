@@ -27,7 +27,7 @@ from icecube.production_histograms.db import create_simprod_db_client
 client = create_simprod_db_client()
 collection_name = generate_collection_name(options.PATH)
 filelist = generate_filelist(options.PATH)
-histograms = generate_histogram_configuration_list(filelist)
+histograms = generate_histogram_configuration_list(filelist) # also logs corrupt files
 
 icetray.logging.log_info("Collection Name = %s" % collection_name)
 icetray.logging.log_info("len(filelist) = %d" % len(filelist))

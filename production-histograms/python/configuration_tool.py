@@ -4,7 +4,8 @@ import glob
 from icecube import icetray, dataio, dataclasses, simclasses, recclasses
 
 from icecube.production_histograms.find_gcd_file import find_gcd_file
-from icecube.production_histograms.categorize import categorize
+from icecube.production_histograms.db import create_simprod_db_client
+from icecube.production_histograms.generate_collection_name import generate_collection_name
 
 
 from icecube.production_histograms.histogram_modules.simulation.mctree_primary import I3MCTreePrimaryModule
@@ -39,23 +40,23 @@ def _get_modules(frame_object):
 
 def _log_corrupt_file(filename):
     icetray.logging.log_info("This file is corrupt: %s" % filename)
-    category = categorize(filename)
-    icetray.logging.log_debug("    %s" % category)
+    histogram_collection_name = generate_collection_name(filename)
+    icetray.logging.log_debug("    %s" % histogram_collection_name)
     
-    from pymongo import MongoClient
-    f = open('/home/olivas/.mongo')
-    client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" %
-                         f.readline().strip())
-
+    client = create_simprod_db_client()
     collection = client.simprod_filecatalog.filelist
-    document = collection.find_one({'category': category})
-                
-    if 'corrupt_filelist' not in document:
-        document['corrupt_filelist'] = list()
+    document = collection.find_one({'category': histogram_collection_name})
 
-    if filename not in document['corrupt_filelist']:
-        document['filelist'].remove(filename)
-        document['corrupt_filelist'].append(filename)
+    if not document:
+        collection.insert_one({'filelist': list(),
+                               'corrupt_filelist': [filename]})
+    else:    
+        if 'corrupt_filelist' not in document:
+            document['corrupt_filelist'] = list()
+
+        if filename not in document['corrupt_filelist']:
+            document['filelist'].remove(filename)
+            document['corrupt_filelist'].append(filename)
 
         result = collection.update({'_id': document['_id']}, document)
         print(result)
@@ -126,48 +127,66 @@ def generate_histogram_configuration_list(i3files):
         histogram_list.extend(hl) 
     return histogram_list
 
+def _generate_i3filelist(path, exclude_GCD = True):
+    '''
+    Get all I3Files with the option to exclude GCD files.
+    '''
+    filelist = list()
+    for root, dirs, files in os.walk(path):
+        for fn in files:
+            
+            if exclude_GCD and \
+               ('GeoCalibDetectorStatus' in fn or \
+                'GCD' in fn):
+                continue
+
+            if fn.endswith('.i3') or \
+               fn.endswith('.i3.bz2') or \
+               fn.endswith('.i3.gz') or \
+               fn.endswith('.i3.zst'):
+                
+                result.append(os.path.join(root, fn))
+    return filelist
+    
+def update_filecatalog(path):
+
+    client = create_simprod_db_client()
+    collection = client.simprod_filecatalog.filelist
+    histogram_collection_name = generate_collection_name(filename)
+    document = collection.find_one({'category': histogram_collection_name})
+
+    if not document:
+        collection.insert_one({'filelist': filelist})
+    else:
+        old_filelist = document['filelist']
+        document['filelist'] = list(set(old_filelist + filelist)) # don't want duplicates
+        result = collection.update({'_id': document['_id']}, document)
+        print(result)
+
+    
 def generate_filelist(path):
-    # first find the GCD file, because that needs
-    # to be the first file in the list.
+    '''
+    This function first finds the appropriate GCD file for this dataset, which
+    becomes the first entry in the list.
+
+    For the filelist, it'll look in the filecatalog first.  If there's no entry
+    '''
+
     gcdfile = find_gcd_file(path)
     if not gcdfile:
     	config_year = path.split("/")
-    	#gcddir = r'</data/sim/sim-new/downloads/GCD/>'
     	gcddir = '/data/sim/sim-new/downloads/GCD/'
     	keyword = config_year[4]
     	for filename in glob.glob(os.path.join(gcddir, '*.i3.gz')):
-	    #f = open(filename)
-	    #if keyword in f:
 	    if keyword in filename:
-	    	#print filename.split("_")	   
 		if len(filename.split("_")) < 4:
 		    gcdfile = filename
     if not gcdfile:
         print("Could not find GCD file in %s" % path)
-        sys.exit()
+        sys.exit(1)
+        
     filelist = [gcdfile]
-
-    from pymongo import MongoClient        
-    from icecube.production_histograms.db import create_simprod_db_client
-
-    """
-    f = open('/home/olivas/.mongo')
-    client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" %
-                         f.readline().strip())
-    """
-    client = create_simprod_db_client(password_path='/home/gmerino/mongo.txt')
-    collection = client.simprod_filecatalog.filelist
-    #print collection 
-    category = categorize(path)
-    #print category
-    document = collection.find_one({'category': category})
-
-    # icetray doesn't like unicode strings and the purpose of
-    # this function is to produce something that can be
-    # passed directly to I3Reader.
-    print document
-    filelist = generate_filelist(path)
-    print filelist
-    filelist.extend([str(fn) for fn in document['filelist']])
+    filelist.extend(_generate_i3filelist(path))
     return filelist
+
     
