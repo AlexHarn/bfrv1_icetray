@@ -97,6 +97,14 @@ class ProductionHistogramModule(I3Module) :
         for key in self.prescales.keys():
             self._frame_counters[key] = 0
 
+        if self.collection_name and not self.filenamelist:
+            icetray.logging.error('FilenameList is empty and CollectionName is set.')
+            icetray.logging.error('When writing to the DB you have to pass the '
+                                  'list of filenames used, since the histograms are '
+                                  'summed on the fly.\n  This protects against double-counting.')
+            icetray.logging.fatal('Please set FilenameList to the same value passed to I3Reader.')
+
+            
         # If both are configured then the assumption is
         # that a set of files are being read and written
         # to the DB.  Need to guard against double counting.
