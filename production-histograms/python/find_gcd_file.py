@@ -14,6 +14,7 @@ def find_gcd_file(path):
     in the path until it finds a frame with a Geometry,
     Calibration, and DetectorStatus frame.
     '''
+    from icecube import dataio
     for fn in os.listdir(path):        
         if '.i3' in fn and\
             (fn.startswith('GeoCalib') or\

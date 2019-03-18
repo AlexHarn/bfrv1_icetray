@@ -1,5 +1,6 @@
 import os
-
+import sys
+import glob
 from icecube import icetray, dataio, dataclasses, simclasses, recclasses
 
 from icecube.production_histograms.find_gcd_file import find_gcd_file
@@ -130,22 +131,43 @@ def generate_filelist(path):
     # to be the first file in the list.
     gcdfile = find_gcd_file(path)
     if not gcdfile:
+    	config_year = path.split("/")
+    	#gcddir = r'</data/sim/sim-new/downloads/GCD/>'
+    	gcddir = '/data/sim/sim-new/downloads/GCD/'
+    	keyword = config_year[4]
+    	for filename in glob.glob(os.path.join(gcddir, '*.i3.gz')):
+	    #f = open(filename)
+	    #if keyword in f:
+	    if keyword in filename:
+	    	#print filename.split("_")	   
+		if len(filename.split("_")) < 4:
+		    gcdfile = filename
+    if not gcdfile:
         print("Could not find GCD file in %s" % path)
         sys.exit()
     filelist = [gcdfile]
 
     from pymongo import MongoClient        
+    from icecube.production_histograms.db import create_simprod_db_client
+
+    """
     f = open('/home/olivas/.mongo')
     client = MongoClient("mongodb://DBadmin:%s@mongodb-simprod.icecube.wisc.edu" %
                          f.readline().strip())
+    """
+    client = create_simprod_db_client(password_path='/home/gmerino/mongo.txt')
     collection = client.simprod_filecatalog.filelist
-    
+    #print collection 
     category = categorize(path)
+    #print category
     document = collection.find_one({'category': category})
 
     # icetray doesn't like unicode strings and the purpose of
     # this function is to produce something that can be
     # passed directly to I3Reader.
+    print document
+    filelist = generate_filelist(path)
+    print filelist
     filelist.extend([str(fn) for fn in document['filelist']])
     return filelist
     
