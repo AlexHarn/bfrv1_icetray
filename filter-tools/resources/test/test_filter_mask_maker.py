@@ -41,11 +41,11 @@ for name,prescale in filters:
     pre_passed  = prescale_passed[name][cond_passed.astype(bool)]
     pre_notp    = prescale_passed[name][~(cond_passed.astype(bool))]
 
-    cond_passed_frac = sum(cond_passed)/len(cond_passed)
+    cond_passed_frac = float(sum(cond_passed))/len(cond_passed)
     cond_sigma = (0.5-cond_passed_frac)*np.sqrt(len(cond_passed))
 
     if prescale:               
-        prescale_passed_frac = len(pre_passed)/sum(pre_passed)
+        prescale_passed_frac = float(len(pre_passed))/sum(pre_passed)
         prescale_sigma = (prescale-prescale_passed_frac)/np.sqrt(len(pre_passed))
         if prescale==1:
             assert prescale_passed_frac==1.0
