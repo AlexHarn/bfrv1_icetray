@@ -163,7 +163,7 @@ class SanityCheck(unittest.TestCase):
 		print('Seed Energy: %.2f GeV' % seed.energy)
 		print('Reco vertex offset: %s' % (reco.pos-seed.pos))
 		print('Reco opening angle: %.1f deg' % (math.acos(reco.dir*seed.dir)/I3Units.degree))
-		self.assert_(abs(reco.energy - seed.energy)/seed.energy < 0.06, "Reco energy to within 6%")
+		self.assert_(abs(reco.energy - seed.energy)/seed.energy < 0.1, "Reco energy to within 10%")
 	def testLikelihood(self):
 		reco = self.frame[self.key+'FitParams']
 		seed = self.frame[self.seedkey+'Likelihood']

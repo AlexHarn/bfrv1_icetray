@@ -31,7 +31,7 @@ TEST(MatrixTest) {
 
 	boost::python::import("icecube.dataio");
 	tray.AddModule("I3Reader", "reader")("Filename",
-	    std::string(getenv("I3_TESTDATA")) + "/sim/GCD.i3.gz");
+	    std::string(getenv("I3_TESTDATA")) + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
 	tray.AddModule("MillipedeTestModule", "millipede_amps");
 	
 	tray.Execute();
@@ -190,25 +190,24 @@ TEST(PulseBinning) {
 	// Add an exclusion that eliminates the last pulse and covers the rest of the readout window
 	exclusions[key].push_back(I3TimeWindow(pulses.back().GetTime(), readout_window.GetStop()));
 	cachemap.UpdateData(readout_window, pulsemap, exclusions, 10., NAN, 0, true);
-	ENSURE_EQUAL(cache.nbins, 4);
-	ENSURE_EQUAL(cache.time_bin_edges[4], readout_window.GetStop(), "Last bin stops at the end of the readout window");
-	ENSURE_EQUAL(cache.valid[3], false);
+	ENSURE_EQUAL(cache.nbins, 3);
+	ENSURE_EQUAL(cache.time_bin_edges[3], pulses.back().GetTime(), "Last bin stops at the beginning of the exclusion window");
+	for (int i=0; i<cache.nbins; i++)
+		ENSURE(cache.valid[i]);
 	
-	// Add an exclusion window that doesn't cover any pulses. This
-	// should add an extra bin.
+	// Add an exclusion window that doesn't cover any pulses. This should simply
+	// shorten the readout window.
 	exclusions.clear();
 	exclusions[key].push_back(I3TimeWindow(0, 150.));
 	cachemap.UpdateData(readout_window, pulsemap, exclusions, 10., NAN, 0, true);
-	ENSURE_EQUAL(cache.nbins, 6);
-	ENSURE_EQUAL(cache.time_bin_edges[0], 0.);
-	ENSURE_EQUAL(cache.time_bin_edges[1], 150.);
-	ENSURE_EQUAL(cache.valid[0], false);
+	ENSURE_EQUAL(cache.nbins, 5);
+	ENSURE_EQUAL(cache.time_bin_edges[0], 150.);
 	
 	// and again, but in between pulses
 	exclusions.clear();
 	exclusions[key].push_back(I3TimeWindow(((t2+t3)/2.), ((t2+t3)/2.)+1));
 	cachemap.UpdateData(readout_window, pulsemap, exclusions, 10., NAN, 0, true);
-	ENSURE_EQUAL(cache.nbins, 6);
+	ENSURE_EQUAL(cache.nbins, 7);
 	ENSURE_EQUAL(cache.valid[2], true);
 	ENSURE_EQUAL(cache.valid[3], false);
 	ENSURE_EQUAL(cache.time_bin_edges[3], exclusions[key].front().GetStart());

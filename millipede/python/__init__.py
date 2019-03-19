@@ -13,8 +13,8 @@ except:
 # Add numpy-backed views into MillipedeDOMCache
 try:
 	import numpy
-	MillipedeDOMCache.time_bin_edges = property(lambda self: numpy.array(self._get_time_bin_edges(), copy=False))
-	MillipedeDOMCache.charges = property(lambda self: numpy.array(self._get_charges(), copy=False))
+	MillipedeDOMCache.time_bin_edges = property(lambda self: numpy.array(self._get_time_bin_edges(), copy=False) if self.nbins > 0 else None)
+	MillipedeDOMCache.charges = property(lambda self: numpy.array(self._get_charges(), copy=False) if self.nbins > 0 else None)
 except ImportError:
 	pass
 
@@ -244,6 +244,7 @@ def millipedefit(parametrization_segment):
 				Parametrization=paramer,
 				LogLikelihood=likelihood,
 				Minimizer=minimizer,
+				OutputName=tag,
 				NonStdName=tag+"Particles",
 				If=If,
 			)
@@ -255,6 +256,7 @@ def millipedefit(parametrization_segment):
 				Parametrization=paramer,
 				LogLikelihood=likelihood,
 				Minimizer=minimizer,
+				OutputName=tag,
 				NonStdName=tag+"Particles",
 				RandomService="SOBOL",
 				NIterations=Iterations,

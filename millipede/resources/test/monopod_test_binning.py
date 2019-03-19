@@ -154,9 +154,10 @@ class BinTester(PyPyMillipedeModule):
 		pulsemap = frame['OraclePulses']
 		readout_window = frame['OraclePulsesTimeRange']
 		sigma = self.GetParameter('BinSigma')
+		bad_doms = frame['BadDomsList']
 		ncp_prior = 0.5*sigma**2
 		for dom, cache in self.millipede.domCache.items():
-			if len(pulsemap[dom]) > 0:
+			if len(pulsemap[dom]) > 0 and dom not in bad_doms:
 				charges, edges = prebin_pulses(pulsemap[dom], readout_window)
 				block_edges = bayesian_blocks(edges, charges, ncp_prior)
 				block_bins = numpy.histogram([p.time for p in pulsemap[dom]], weights=[p.charge for p in pulsemap[dom]], bins=block_edges)[0]

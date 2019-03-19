@@ -10,6 +10,12 @@ pxs = photonics_service.I3DummyPhotonicsService()
 tray = I3Tray()
 tray.context['I3RandomService'] = phys_services.I3GSLRandomService(42)
 tray.AddModule('I3InfiniteSource', 'reader', Prefix=os.getenv('I3_TESTDATA') + '/sim/GeoCalibDetectorStatus_IC86.55697_corrected.i3.gz')
+def set_sane_noise_rate(frame):
+	for k, domcal in frame['I3Calibration'].dom_cal.items():
+		if not domcal.dom_noise_rate > 0:
+			domcal.dom_noise_rate = 850*I3Units.hertz
+			frame['I3Calibration'].dom_cal[k] = domcal
+tray.Add(set_sane_noise_rate, Streams=[icetray.I3Frame.Calibration])
 tray.AddModule(lambda fr: False, 'dropold', Streams=[icetray.I3Frame.Physics])
 
 energy = 100*I3Units.TeV # Nice and bright
