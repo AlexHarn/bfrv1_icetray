@@ -233,11 +233,15 @@ void I3ParaboloidFitter::Configure(){
     // Optional parameters are a special case. Figure out of the user meant to
     // leave it unconfigured, or just screwed up.
     if (!gridSeedService_){
-        std::string gridSeedServiceName;
+        boost::python::object gridSeedServiceName;
         GetParameter("GridPointVertexCorrection", gridSeedServiceName);
-        if (!gridSeedServiceName.empty()) {
-            log_info_stream("No grid seed service named "<<gridSeedServiceName<<" found");
-            fatal=true;
+        boost::python::extract<std::string> extractor(gridSeedServiceName);
+        if (extractor.check()) {
+            std::string name = extractor();
+            if (!name.empty()) {
+                log_info_stream("No grid seed service named "<<name<<" found");
+                fatal=true;
+            }
         }
     }
     
