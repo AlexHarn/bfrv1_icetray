@@ -8,13 +8,14 @@
 		{
 			"do_interpolation" : true,
 			"path_to_tables" : [
-				"$PROPOSALTABLEDIR",
 				"$I3_TESTDATA/PROPOSAL/resources/tables",
 				"$I3_TESTDATA/PROPOSAL/tables",
 				"$I3_BUILD/PROPOSAL/resources/tables",
 				"$I3_BUILD/PROPOSAL/tables"
 			],
 			"path_to_tables_readonly" : [
+				"$I3_TESTDATA/PROPOSAL/resources/tables",
+				"$I3_TESTDATA/PROPOSAL/tables",
 				"$I3_BUILD/PROPOSAL/resources/tables",
 				"$I3_BUILD/PROPOSAL/tables"
 			],

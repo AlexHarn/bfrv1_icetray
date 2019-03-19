@@ -13,4 +13,5 @@ int main()
     const char* I3_BUILD = getenv("I3_BUILD");
     std::string s(I3_BUILD);
     output.open(s + "/PROPOSAL/resources/tables/.tables.auto_generated");
+    output.close();
 }
