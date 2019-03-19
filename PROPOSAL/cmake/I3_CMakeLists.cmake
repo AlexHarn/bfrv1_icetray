@@ -78,9 +78,9 @@ set (PROPOSAL_SRC_FILES
     ${PROJECT_SOURCE_DIR}/private/PROPOSAL/sector/Sector.cxx
 )
 
-execute_process(
-  COMMAND touch ${PROPOSAL_SRC_FILES}
-)
+# execute_process(
+#   COMMAND touch ${PROPOSAL_SRC_FILES}
+# )
 i3_add_library(PROPOSAL
     ${PROPOSAL_SRC_FILES}
     private/PROPOSAL-icetray/I3PropagatorServicePROPOSAL.cxx
