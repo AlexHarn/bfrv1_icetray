@@ -94,6 +94,9 @@ private:
     ///  the RNG state.
     std::string rngStateName_;
 
+    /// Parameter: if true, skips nodes that appear to have been propagated already.
+    bool skipAlreadyPropagated_;
+  
 private:
     // default, assignment, and copy constructor declared private
     I3PropagatorModule();
@@ -131,6 +134,10 @@ I3PropagatorModule::I3PropagatorModule(const I3Context& context)
                  "Name under which to store the state of the supplied RNG",
                  "");
 
+    AddParameter("SkipAlreadyPropagated",
+                 "Don't re-propagate particles (experimental)",
+                 false);
+
     // add an outbox
     AddOutBox("OutBox");
 
@@ -151,6 +158,7 @@ void I3PropagatorModule::Configure()
     GetParameter("PropagatorServices", particleToPropagatorServiceMap_);
     GetParameter("RandomService", random_);
     GetParameter("RNGStateName", rngStateName_);
+    GetParameter("SkipAlreadyPropagated", skipAlreadyPropagated_);
 
     if (!random_)
         log_fatal("No random number generator service was configured. Please set the \"RandomService\" parameter");
@@ -207,7 +215,7 @@ void I3PropagatorModule::DAQ(I3FramePtr frame)
 
     // Extract a list of particles to work on
     std::deque<std::pair<I3MCTree::iterator, I3PropagatorServicePtr> > particlesToPropagate;
-
+    
     // build a map of MCTree::iterator to I3PropagatorService
     for(I3MCTree::iterator t_iter = outputMCTree->begin();
         t_iter != outputMCTree->end(); t_iter++)
@@ -216,7 +224,10 @@ void I3PropagatorModule::DAQ(I3FramePtr frame)
             particleToPropagatorServiceMap_->find(t_iter->GetType());
         // don't propagate particle types that are not configures
         if (it == particleToPropagatorServiceMap_->end()) continue;
-
+	
+	if(skipAlreadyPropagated_ && !std::isnan(t_iter->GetLength()))
+	   continue;
+	
         // it's something we know how to propagate. Add it to the list.
         particlesToPropagate.push_back(std::make_pair(t_iter, it->second));
     }
