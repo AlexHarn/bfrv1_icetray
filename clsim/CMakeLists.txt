@@ -95,6 +95,17 @@ phys-services tableio simclasses sim-services)
 SET(LIB_${PROJECT_NAME}_TOOLS python boost gsl)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
 
+# these files will be compiled in any case (with or without OpenCL/Geant4)
+SET(LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
+  # private/pybindings/I3Photon.cxx
+  # private/pybindings/I3CompressedPhoton.cxx
+  private/pybindings/I3CLSimEventStatistics.cxx
+  private/pybindings/I3CLSimFlasherPulse.cxx
+  # private/pybindings/I3Converters.cxx
+  private/pybindings/I3ShadowedPhotonRemover.cxx
+  private/pybindings/module.cxx
+)
+
 if (ZMQ_FOUND AND OPENCL_FOUND)
   set(_minimum_cppzmq_version 4.3.0)
   if (${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
@@ -106,6 +117,9 @@ if (ZMQ_FOUND AND OPENCL_FOUND)
         private/clsim/I3CLSimServer.cxx
         private/clsim/I3CLSimClientModule.cxx
     )
+    LIST(APPEND LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
+        private/pybindings/I3CLSimStepToPhotonConverter.cxx
+    )
     LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)
     LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
     colormsg(GREEN "+-- CLSim server")
@@ -114,17 +128,6 @@ else()
   colormsg(RED "--- Skipping client/server (cppzmq not found)")
   
 endif ()
-
-# these files will be compiled in any case (with or without OpenCL/Geant4)
-SET(LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
-  # private/pybindings/I3Photon.cxx
-  # private/pybindings/I3CompressedPhoton.cxx
-  private/pybindings/I3CLSimEventStatistics.cxx
-  private/pybindings/I3CLSimFlasherPulse.cxx
-  # private/pybindings/I3Converters.cxx
-  private/pybindings/I3ShadowedPhotonRemover.cxx
-  private/pybindings/module.cxx
-)
 
 if(BUILD_CLSIM_DATACLASSES_ONLY)
   ADD_DEFINITIONS(-DBUILD_CLSIM_DATACLASSES_ONLY)

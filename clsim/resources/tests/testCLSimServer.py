@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
 from icecube import clsim, icetray, dataclasses
+# skip out if I3CLSimServer was not built
+try:
+    clsim.I3CLSimServer
+except AttributeError:
+    import sys
+    sys.exit(0)
+
 import time
 from multiprocessing import Process
 from numpy.random import uniform
