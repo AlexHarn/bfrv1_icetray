@@ -9,7 +9,7 @@ parser.add_option("-o", "--outfile",default="",
                   dest="OUTFILE", help="Write output to OUTFILE (.i3{.gz} format)")
 parser.add_option("-s", "--seed",type="int",default=-1,
                   dest="SEED", help="Initial seed for the random number generator")
-parser.add_option("-n", "--numevents", type="int", default=20,
+parser.add_option("-n", "--numevents", type="int", default=50,
                   dest="NUMEVENTS", help="The number of events per run")
 parser.add_option("-g", "--gcdfile", default=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"),
 		  dest="GCDFILE", help="Read in GCD file")
@@ -43,7 +43,7 @@ triggers = {1006:[], 1011:[]}
 class NoiseTriggerTest(unittest.TestCase):
 	def test_nframes(self):
 		#self.assertEqual(nfound, 3)
-		self.assertTrue(nfound>1)
+		self.assertGreater(nfound,1)
 	
 	#def test_nhits(self):
 	#	expected = [33, 47, 38]
