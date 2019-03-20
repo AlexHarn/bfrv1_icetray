@@ -27,12 +27,26 @@ if not os.path.exists(TablePath):
 	print("tables not found, skipping test")
 	sys.exit(0)
 
+# The results of this test depend strongly on the distance of closest approach.
+# Use a pregenerated set of tracks that do not change when propagator
+# implementations change the number of random values they consume between
+# frames.
+# x, y, z, zenith, azimuth
+tracks = iter([
+  [-692.0821595186383, -406.38534323145575, 596.5511187506651, 0.9315993856664951, 3.6725415257078335],
+  [-232.53303197281232, -446.0681111472593, -864.2636341181129, 2.6144810183349056, 4.231850942423073],
+  [-146.80878516207454, 453.99543509775407, 878.8261065248556, 0.4973999877061872, 1.8835538019500448],
+  [-285.88021869068194, 672.1328025102099, -683.0153705087016, 2.322679394700654, 1.9729489407480325],
+  [-96.5187098132897, -943.938551612804, -315.69629303350996, 1.891986711746489, 4.610492063971288],
+  [-128.66803395211357, -305.83447712067215, 943.3503112011056, 0.3382093537156779, 4.314156463669455],
+  [-721.7900165300813, 294.50335624860327, 626.3281449813774, 0.8939622454076169, 2.7541933303834822],
+  [-315.4074993652831, 77.92586386574885, -945.7513780507621, 2.810695904987455, 2.8993791117758763],
+  [494.10484355278584, -850.4594974912196, -180.49666674113183, 1.7522877150837515, 5.238710069572165],
+  [715.9464958299037, 697.9385236933559, 17.390579450396633, 1.5534048706464918, 0.7726623339359069],
+])
+
 def muon_injector(frame):
-    zenith  = randomService.uniform(ZenithMin,ZenithMax)
-    azimuth = randomService.uniform(0,360*I3Units.degree)
-    x = GenerationRadius*math.cos(azimuth)*math.sin(zenith)
-    y = GenerationRadius*math.sin(azimuth)*math.sin(zenith)
-    z = GenerationRadius*math.cos(zenith)
+    x,y,z,zenith,azimuth = next(tracks)
 
     global mu_type
     if mu_type==dataclasses.I3Particle.MuMinus:
