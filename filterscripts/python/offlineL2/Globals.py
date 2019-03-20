@@ -45,18 +45,17 @@ def wimp_wg(frame):
 
 ### MUON ####
 def muon_wg(frame):
-    try:
-        return (
-                 bool(frame['FilterMask'][filter_globals.DeepCoreFilter]) or
-                 bool(frame['FilterMask'][filter_globals.MuonFilter]) or
-                 bool(frame['QFilterMask'][filter_globals.EHEFilter]) or
-                 bool(frame['FilterMask'][filter_globals.FilterMinBias]) or
-                 #bool(frame['FilterMask'][filter_globals.LowUpFilter]) or
-                 bool(frame['FilterMask'][filter_globals.SunFilter]) or
-                 bool(frame['FilterMask'][filter_globals.MoonFilter]))
-
-    except KeyError:
-        return False
+     try:
+         return (
+                  (frame['FilterMask'].has_key(filter_globals.DeepCoreFilter) and bool(frame['FilterMask'][filter_globals.DeepCoreFilter])) or
+                  (frame['FilterMask'].has_key(filter_globals.MuonFilter)     and bool(frame['FilterMask'][filter_globals.MuonFilter])) or
+                  (frame['QFilterMask'].has_key(filter_globals.HighQFilter)   and bool(frame['QFilterMask'][filter_globals.HighQFilter])) or
+                  (frame['FilterMask'].has_key(filter_globals.FilterMinBias)  and bool(frame['FilterMask'][filter_globals.FilterMinBias])) or
+                  #(frame['FilterMask'].has_key(filter_globals.LowUpFilter)    and bool(frame['FilterMask'][filter_globals.LowUpFilter])) or                                                                                                                                         
+                  (frame['FilterMask'].has_key(filter_globals.SunFilter)      and bool(frame['FilterMask'][filter_globals.SunFilter])) or
+                  (frame['FilterMask'].has_key(filter_globals.MoonFilter)     and bool(frame['FilterMask'][filter_globals.MoonFilter])))
+     except KeyError:
+         return False
 
 ### icetop-muon coincident ###
 def icetop_wg_coinc_icetop(frame):
