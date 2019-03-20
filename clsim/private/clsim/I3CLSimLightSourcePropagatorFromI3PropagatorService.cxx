@@ -7,14 +7,18 @@ I3CLSimLightSourcePropagatorFromI3PropagatorService::I3CLSimLightSourcePropagato
 {
     if (!particleToPropagatorServiceMap_)
         log_fatal("(null) propagator map is invalid");
+
+    std::stringstream ss;
     for (auto &pair : *particleToPropagatorServiceMap_) {
         if (!pair.second)
             log_fatal("(null) propagator in map is invalid");
         I3Particle p;
         p.SetType(pair.first);
-        log_info("Propagating Particle %s with %s",p.GetTypeString().c_str(),
-                 typeid(*(pair.second)).name());
+
+        std::string repr = boost::python::extract<const std::string>(boost::python::object(pair.second).attr("__repr__")());        
+        ss << std::setw(20) << p.GetTypeString() << " => " << repr << std::endl;
     }
+    log_info_stream("CLSim propagating particles with the following services:\n" << ss.str());
 }
 
 I3CLSimLightSourcePropagatorFromI3PropagatorService::~I3CLSimLightSourcePropagatorFromI3PropagatorService()
