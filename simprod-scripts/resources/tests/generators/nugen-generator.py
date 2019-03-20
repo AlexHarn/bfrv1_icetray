@@ -32,7 +32,7 @@ try:
     tray.Add('I3Reader', filename=tmpfile)
     def checky(frame):
         assert('NuGPrimary' in frame)
-        assert('I3MCTree' in frame)
+        assert('I3MCTree_preMuonProp' in frame)
     tray.Add(checky, Streams=[icetray.I3Frame.DAQ])
     tray.Execute()
 
