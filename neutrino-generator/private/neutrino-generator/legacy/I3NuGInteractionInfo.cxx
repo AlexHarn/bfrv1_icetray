@@ -161,11 +161,6 @@ void I3NuGInteractionInfo::Configure()
   } else {
      log_error("You have to set SteeringServiceName!");
   }
-
-  if(tablesDir_.empty()){
-    const std::string I3_BUILD(getenv("I3_BUILD"));
-    tablesDir_ = I3_BUILD + std::string("/neutrino-generator/cross_section_data/");
-  }
   
   Initialize();
   PrintSetting();
