@@ -3,7 +3,7 @@
 def run(run, spefile, outfile, skip_audit=False):
     from I3Tray import I3Tray
     from icecube import icetray, dataclasses, dataio
-    from icecube.sim_services import spe_fit_injector
+    from icecube.phys_services import spe_fit_injector
     from icecube.filterscripts.pass3 import gcd_generation
 
     tray = I3Tray()
