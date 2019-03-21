@@ -1,6 +1,6 @@
 
 i3_project(PROPOSAL
-    DOCS_DIR doc
+    DOCS_DIR resources/docs
 )
 
 # file(GLOB_RECURSE PROPOSAL_SRC_FILES ${PROJECT_SOURCE_DIR}/private/PROPOSAL/*)
