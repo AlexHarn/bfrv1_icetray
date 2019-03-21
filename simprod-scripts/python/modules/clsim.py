@@ -105,19 +105,14 @@ class ClSim(ipmodule.ParsingModule):
         from I3Tray import I3Tray,I3Units
 
 
-        self.summary_in  = self.summaryfile
-        self.summary_out = self.summaryfile
-        if not os.path.exists(self.summaryfile):
-           self.summary_in  = ''
-
         if self.gpu is not None and self.usegpus:
            os.putenv("CUDA_VISIBLE_DEVICES",str(self.gpu))
            os.putenv("COMPUTE",":0."+str(self.gpu))
            os.putenv("GPU_DEVICE_ORDINAL",str(self.gpu))
 
         # Configure IceTray services
-        if self.summary_in:
-           summary = ReadI3Summary(self.summary_in)
+        if os.path.exists(self.summaryfile):
+           summary = ReadI3Summary(self.summaryfile)
         else: 
            summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
@@ -227,7 +222,7 @@ class ClSim(ipmodule.ParsingModule):
 
         summary = tray.context['I3SummaryService']
         save_stats(tray,summary,stats)
-        WriteI3Summary(summary, self.summary_out)
+        WriteI3Summary(summary, self.summaryfile)
 
         del tray
         return 0
@@ -275,7 +270,7 @@ class ClSimResampleCorsika(ClSim):
         tray.Execute()
         summary = tray.context['I3SummaryService']
         save_stats(tray,summary,stats)
-        WriteI3Summary(summary, self.summary_out)
+        WriteI3Summary(summary, self.summaryfile)
 
         del tray
         return 0
@@ -336,14 +331,10 @@ class HybridPhotons(ipmodule.ParsingModule):
         inputfiles  = self.GetParameter('inputfilelist')
         outputfile  = self.GetParameter('outputfile')
 
-        self.summary_in  = self.summaryfile
-        self.summary_out = self.summaryfile
-        if not os.path.exists(self.summaryfile):
-           self.summary_in  = ''
 
         # Configure IceTray services
-        if self.summary_in:
-           summary = ReadI3Summary(self.summary_in)
+        if os.path.exists(self.summaryfile):
+           summary = ReadI3Summary(self.summaryfile)
         else: 
            summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
@@ -425,7 +416,7 @@ class HybridPhotons(ipmodule.ParsingModule):
 
         summary = tray.context['I3SummaryService']
         save_stats(tray,summary,stats)
-        WriteI3Summary(summary, self.summary_out)
+        WriteI3Summary(summary, self.summaryfile)
 
         del tray
         return 0
