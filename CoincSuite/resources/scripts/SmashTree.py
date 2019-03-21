@@ -32,7 +32,7 @@ class Smash(icetray.I3PacketModule):
 		mctree = dataclasses.I3MCTree()
 		mask = dataclasses.I3RecoPulseSeriesMapMask(frames[0], self.pulseSourceName, dataclasses.I3RecoPulseSeriesMap())
 		for frame in frames:
-			if (frame.Stop == icetray.I3Frame.Physics=:
+			if (frame.Stop == icetray.I3Frame.Physics):
 				if (frame["I3EventHeader"].sub_event_stream == self.splitName):
 					smallmctree = dataclasses.I3MCTree()
 					#need to have the time range
@@ -111,5 +111,3 @@ if (__name__=='__main__'):
     tray.Execute()
   else:
     tray.Execute(options.NEVENTS)
-
-  

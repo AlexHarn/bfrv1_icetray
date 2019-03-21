@@ -48,6 +48,8 @@ class I3GCDSanityChecker(icetray.I3Module):
             url = self.url + base_fn + '.checksums'
             response = urllib.urlopen(url)
             self.checksums = pickle.loads(response.read())
+        except:
+            print("Something went wrong checking/loading checksums")
             
     def Geometry(self, frame):
         frame['I3Geometry'] = self.geometry_frame
