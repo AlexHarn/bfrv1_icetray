@@ -90,7 +90,7 @@ TEST(ChargeRoundTrip){
         if(std::getenv("I3_TESTDATA") != NULL){
           I3_TESTDATA = std::string(std::getenv("I3_TESTDATA"));
         }else{
-          ENSURE( false, "Neither I3_PORTS nor I3_TESTDATA is defined! On of them must be...");
+          ENSURE( false, "I3_TESTDATA is not defined!");
         }
 
 	tray.AddService("I3GSLRandomServiceFactory","rng")
