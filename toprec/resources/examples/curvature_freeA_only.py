@@ -23,7 +23,6 @@ icetray.set_log_level_for_unit('Laputop', icetray.I3LogLevel.LOG_DEBUG)
 icetray.set_log_level_for_unit('Curvature', icetray.I3LogLevel.LOG_DEBUG)
 
 workspace = expandvars("$I3_BUILD")
-tools = expandvars("$I3_PORTS")
 HOME = expandvars("$HOME")
 
 #### PUT YOUR FAVORITE GCD AND INPUT FILE HERE

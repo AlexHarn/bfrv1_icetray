@@ -32,7 +32,6 @@ load("libflat-ntuple")
 
 
 workspace = expandvars("$I3_BUILD")
-tools = expandvars("$I3_PORTS")
 
 #### Put your favorite input file here:
 #### (Easiest if it's already a level2 file with COG and Planefit and whatnot...)

@@ -19,7 +19,6 @@ load("liblilliput")
 load("libtoprec")
 
 workspace = expandvars("$I3_BUILD")
-tools = expandvars("$I3_PORTS")
 HOME = expandvars("$HOME")
 
 #### PUT YOUR FAVORITE GCD AND INPUT FILE HERE
