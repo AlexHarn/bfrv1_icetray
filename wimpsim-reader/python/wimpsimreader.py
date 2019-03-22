@@ -12,15 +12,18 @@ def WimpSimReaderSUN(tray, name, Infile=None, StartMJD=float('nan'), EndMJD=floa
   """
   run this traysegement for Sun files
 
-  :param Infile: infile to read
+  :param Infile: infile or list of infiles to read
   :param StartMJD: read only from this MJD
   :param EndMJD: read only until this MJD
   """
   if (Infile == None):
     print('choose an infile')
-    
+
+  if type(Infile) not in [list, tuple]:
+    Infile = [Infile,]
+
   tray.AddModule("I3WimpSimReader", name+"WimpSimReader",
-    FileNameList = [Infile], #default ""
+    FileNameList = Infile, #default ""
     StartMJD = StartMJD, #default 0
     EndMJD = EndMJD, #default 0
     NEvents = 0, #default 0
@@ -43,7 +46,7 @@ def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=float
   """
   run this traysegement for earth files
 
-  :param Infile: infile to read
+  :param Infile: infile or list of infiles to read
   :param GCDFileName: specify either this to take the detector start_time as event-time -or- use a random time-stamp in [startMJD, endMJD]
   :param StartMJD: pick a random MJD starting from this time
   :param EndMJD: pick a random MJD ending at this time
@@ -63,9 +66,11 @@ def WimpSimReaderEarth(tray, name, GCDFileName=None, Infile=None, StartMJD=float
 
   if Infile is None:
     print('choose an infile')
+  if type(Infile) not in [list, tuple]:
+    Infile = [Infile,]
 
   tray.AddModule("I3WimpSimReader", name+"WimpSimReader",
-    FileNameList = [Infile], #default ""
+    FileNameList = Infile, #default ""
     StartMJD = StartMJD, #default 0
     EndMJD = EndMJD, #default 0
     NEvents = 0, #default 0
