@@ -102,11 +102,7 @@ int main(int argc, char ** argv)
   char *envLHAPDF = getenv("LHAPATH");
   if (!envLHAPDF)
   {
-    char *dummy = getenv("I3_PORTS");
-    if (!dummy) LOG("gmkspl", pFATAL) << "$I3_PORTS not set, LHAPATH environment variable cannot be auto-configured.";
-    const std::string I3_PORTS = dummy;
-    std::string LHAPDFPath_ = I3_PORTS + "/share/lhapdf/PDFsets";
-    setenv("LHAPATH", LHAPDFPath_.c_str(), 1); // 1 means: *do* overwrite
+    LOG("gmkspl", pFATAL) << "LHAPATH environment variable cannot be auto-configured.";
   }
   else
   {

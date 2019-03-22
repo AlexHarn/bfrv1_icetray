@@ -495,13 +495,7 @@ void I3GENIEGenerator::Configure()
     
     if (LHAPDFPath_=="")
     {
-        char *dummy = getenv("I3_PORTS");
-        if (!dummy) log_fatal("$I3_PORTS not set, LHAPDFPATH parameter can not be auto-configured.");
-        const std::string I3_PORTS = dummy;
-
-        LHAPDFPath_ = I3_PORTS + "/share/lhapdf/PDFsets";
-        log_info("\"LHAPDFPATH\" parameter not specified. Auto-configuring to \"%s\".",
-                 LHAPDFPath_.c_str());
+        log_fatal("\"LHAPDFPATH\" parameter not specified.");
     }
     
     if (genVolLength_ <= 0.)
