@@ -228,7 +228,7 @@ void I3WimpSimReader::Process() {
       wimpfileIsOpen = OpenNextFile(); // try open the next file in line
       if (wimpfileIsOpen){
         WimpHeaderPtr = boost::shared_ptr<WimpSimBaseHeader>(new WimpSimBaseHeader); //renew the object
-        fileHeaderIsRead = ReadFileHeader(wimpfile_, WimpHeaderPtr); // try to read the header from the newly opened file
+        fileHeaderIsRead = ReadFileHeader(WimpHeaderPtr); // try to read the header from the newly opened file
         if (!fileHeaderIsRead){
           wimpfile_.close();
           wimpfileIsOpen = false;
@@ -264,12 +264,12 @@ void I3WimpSimReader::Process() {
 
       if (WimpHeaderPtr->source_== "Sun") {
         boost::shared_ptr<WimpSimSunEvent> SunEventPtr = boost::shared_ptr<WimpSimSunEvent>(new WimpSimSunEvent);
-        event_exit_code = ReadSunEvent(wimpfile_, SunEventPtr);
+        event_exit_code = ReadSunEvent(SunEventPtr);
         WimpEventPtr = SunEventPtr;
       }
       else if (WimpHeaderPtr->source_== "Earth") {
         boost::shared_ptr<WimpSimEarthEvent> EarthEventPtr = boost::shared_ptr<WimpSimEarthEvent>(new WimpSimEarthEvent);
-        event_exit_code = ReadEarthEvent(wimpfile_, EarthEventPtr);
+        event_exit_code = ReadEarthEvent(EarthEventPtr);
         WimpEventPtr = EarthEventPtr;
       }
       else {
@@ -431,7 +431,7 @@ bool I3WimpSimReader::OpenNextFile(){
   }
 }
 //_______________________________________________________________________
-bool I3WimpSimReader::ReadFileHeader(ifstream &wimpfile, boost::shared_ptr<WimpSimBaseHeader> &WimpHeaderPtr) {
+bool I3WimpSimReader::ReadFileHeader(boost::shared_ptr<WimpSimBaseHeader> &WimpHeaderPtr) {
   log_debug("Entering ReadFileHeader()");
   // the Fileheader foramtion is a bit irradic so that readin must be done by a find-and-match;
   bool prog_reading = true; //progressive_reading : the file-header is templated, every error in reading will reset this and terminate this methode
@@ -446,7 +446,7 @@ bool I3WimpSimReader::ReadFileHeader(ifstream &wimpfile, boost::shared_ptr<WimpS
       prog_reading = false;
       break;
     }
-    if (wimpfile.eof()) {
+    if (wimpfile_.eof()) {
       IsEOF = true;
       //no break; will happen next iteration
     }
@@ -1086,7 +1086,7 @@ I3FramePtr I3WimpSimReader::WriteEvent(const boost::shared_ptr<WimpSimBaseHeader
   return frame;
 }
 //_______________________________________________________________________
-I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, boost::shared_ptr<WimpSimSunEvent> &SunEventPtr){
+I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(boost::shared_ptr<WimpSimSunEvent> &SunEventPtr){
   log_debug("Entering ReadSunEvent()");
 
   // fileio helpers
@@ -1102,7 +1102,7 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, bo
 
   //Read data:
   //------------------------------------------------------------------------------
-  if (!getline(wimpfile,datastring)) {
+  if (!getline(wimpfile_,datastring)) {
     log_error("could not read next line from file: corrupt or EOF");
     return ERROR_EVENTSTREAM;
   }
@@ -1130,7 +1130,7 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, bo
     lasteventnbr=SunEventPtr->eventnbr_;
 
   // read in primary particle
-  getline(wimpfile,datastring);
+  getline(wimpfile_,datastring);
   istringstream line2(datastring.c_str());
   line2 >> inout >> SunEventPtr->nu_type_ >> SunEventPtr->nu_energy_ >> SunEventPtr->nu_angle_ >> SunEventPtr->nu_weight_ >> SunEventPtr->nu_az_ >> SunEventPtr->nu_el_;
   if (inout != "I")
@@ -1140,7 +1140,7 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, bo
 
 
   // read in the first daughter particle
-  getline(wimpfile,datastring);
+  getline(wimpfile_,datastring);
   istringstream line3(datastring.c_str());
   line3 >> inout; // peak into the first word
   // Read the Particle
@@ -1157,14 +1157,14 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, bo
     if (! IsLepton(StringToParticleType(SunEventPtr->lep_type_)))
       log_fatal("leptonic particle has wrong type");
     // read the second daughter particle
-    getline(wimpfile,datastring);
+    getline(wimpfile_,datastring);
     istringstream line4(datastring.c_str());
     line4 >> inout >> SunEventPtr->had_type_ >> SunEventPtr->had_energy_ >> SunEventPtr->had_angle_ >> SunEventPtr->had_weight_ >> SunEventPtr->had_az_ >> SunEventPtr->had_el_;
     if (inout != "O")
       log_fatal("An Outgoing particle was not marked as such");
     if (StringToParticleType(SunEventPtr->had_type_) != hshow)
       log_fatal("hadronic particle has wrong type");
-    getline(wimpfile, datastring);
+    getline(wimpfile_, datastring);
     istringstream line5(datastring.c_str());
     line5 >> endevent;
     if (endevent != "EE") { // event EV,I,O,O,EE event did not end in EE
@@ -1178,7 +1178,7 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadSunEvent(ifstream &wimpfile, bo
   return SUCCESS;
 }
 //_______________________________________________________________________
-I3WimpSimReader::exit_codes I3WimpSimReader::ReadEarthEvent(ifstream &wimpfile, boost::shared_ptr<WimpSimEarthEvent> &EarthEventPtr) {
+I3WimpSimReader::exit_codes I3WimpSimReader::ReadEarthEvent(boost::shared_ptr<WimpSimEarthEvent> &EarthEventPtr) {
   log_debug("Entering ReadEarthEvent()");
 
   // fileio helpers
@@ -1194,7 +1194,7 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadEarthEvent(ifstream &wimpfile, 
 
   //Read data:
   //------------------------------------------------------------------------------
-  if (!getline(wimpfile,datastring)) {
+  if (!getline(wimpfile_,datastring)) {
     log_error("could not read next line from file: corrupt or EOF");
     return ERROR_EVENTSTREAM;
   }
@@ -1223,14 +1223,14 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadEarthEvent(ifstream &wimpfile, 
     lasteventnbr=EarthEventPtr->eventnbr_;
 
     // read in primary particle
-  getline(wimpfile,datastring);
+  getline(wimpfile_,datastring);
   istringstream line2(datastring.c_str());
   line2 >> inout >> EarthEventPtr->nu_type_ >> EarthEventPtr->nu_energy_ >> EarthEventPtr->nu_nadir_ >> EarthEventPtr->nu_az_ >> EarthEventPtr->nu_weight_;
   if (! IsNeutrino(StringToParticleType(EarthEventPtr->nu_type_)))
     log_fatal("neutrino particle has wrong type");
 
   // read in the first daughter particle
-  getline(wimpfile,datastring);
+  getline(wimpfile_,datastring);
   istringstream line3(datastring.c_str());
   line3 >> inout;
   // Read the Particle
@@ -1247,12 +1247,12 @@ I3WimpSimReader::exit_codes I3WimpSimReader::ReadEarthEvent(ifstream &wimpfile, 
     line3 >> EarthEventPtr->lep_type_ >> EarthEventPtr->lep_energy_ >> EarthEventPtr->lep_nadir_ >> EarthEventPtr->lep_az_ >> EarthEventPtr->lep_weight_;
     if (! IsLepton(StringToParticleType(EarthEventPtr->lep_type_)))
       log_fatal("leptonic particle has wrong type");
-    getline(wimpfile, datastring);
+    getline(wimpfile_, datastring);
     istringstream line4(datastring.c_str());
     line4 >> inout >> EarthEventPtr->had_type_ >> EarthEventPtr->had_energy_ >> EarthEventPtr->had_nadir_ >> EarthEventPtr->had_az_ >> EarthEventPtr->had_weight_;
     if (StringToParticleType(EarthEventPtr->had_type_) != hshow)
       log_fatal("hadronic particle has wrong type");
-    getline(wimpfile, datastring);
+    getline(wimpfile_, datastring);
     istringstream line5(datastring.c_str());
     line5 >> endevent;
 

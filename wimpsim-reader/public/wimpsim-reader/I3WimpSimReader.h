@@ -164,12 +164,11 @@ private: // methods
   bool OpenNextFile();
 
   /** @brief Reads Headers from the WimpSim-file
-    * @param wimpfile : A already opened file that contains WIMP data
     * @param WimpHeaderPtr pointer to the object to which to write the FileHeader
     * @return true if header was successfully read,
     *	      false if not
     */
-  bool ReadFileHeader(std::ifstream &wimpfile, boost::shared_ptr<WimpSimTools::WimpSimBaseHeader> &WimpHeaderPtr);
+  bool ReadFileHeader(boost::shared_ptr<WimpSimTools::WimpSimBaseHeader> &WimpHeaderPtr);
 
   /** @brief Calculate a position inside position_limits (with ranomization)
     * @return the randomized position.
@@ -279,18 +278,16 @@ private: // methods
   I3FramePtr WriteEvent(const boost::shared_ptr<WimpSimTools::WimpSimBaseHeader> WimpHeaderPtr, const boost::shared_ptr<WimpSimTools::WimpSimBaseEvent> WimpEventPtr, const double mjd) const;
 
   /** @brief write the Sun type event to the container
-    * @param wimpfile the file-object to read event from (progressive-reading)
     * @param SunEventPtr pointer to the object to which to write the event
     * @return WimpSimReader internal exit_codes
     */
-  exit_codes ReadSunEvent(std::ifstream &wimpfile, boost::shared_ptr<WimpSimTools::WimpSimSunEvent> &SunEventPtr);
+  exit_codes ReadSunEvent(boost::shared_ptr<WimpSimTools::WimpSimSunEvent> &SunEventPtr);
 
   /** @brief write the Earth type event to the container
-    * @param wimpfile the file-object to read event from (progressive-reading)
     * @param EarthEventPtr pointer to the object to which to write the event
     * @return WimpSimReader internal exit_codes
     */
-  exit_codes ReadEarthEvent(std::ifstream &wimpfile, boost::shared_ptr<WimpSimTools::WimpSimEarthEvent> &EarthEventPtr);
+  exit_codes ReadEarthEvent(boost::shared_ptr<WimpSimTools::WimpSimEarthEvent> &EarthEventPtr);
 
   /** @brief Evaluate Cuts and Weights of this event
     * @param WimpEventPtr pointer to the object from which the decision and values should be taken
