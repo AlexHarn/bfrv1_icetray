@@ -242,7 +242,7 @@ The basic PEP (photo-electron PDFs) interface is shown in ``public/ipdf/Simple/S
 Use Within the IceTray Environment
 ==================================
 
-The IPDF core code does not depend on any other IceTray projects but uses the GSL libraries from the `I3_PORTS`. All ROOT dependencies have been removed.
+The IPDF core code does not depend on any other IceTray projects but uses the GSL libraries. All ROOT dependencies have been removed.
 
 The IPDF project is bundled with extensive test suites, which test the majority of the IPDF functionality. By running `make ipdf-test` these tests can be performed; they are also a good place to begin learning about IPDF.
 
