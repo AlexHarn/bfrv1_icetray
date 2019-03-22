@@ -4,8 +4,6 @@
 
 if (GEANT4_CONFIG_ERROR OR NOT DEFINED GEANT4_CONFIG_ERROR)
 
-  message(STATUS "    Geant4 not in I3_PORTS - trying system installation")
-
   include(FindGeant4.cmake)
   include(FindCLHEP.cmake)
 
