@@ -35,8 +35,7 @@ icecube.icetray.logging.set_level_for_unit("I3FortyTwo", "INFO")
 if "I3_TESTDATA" in os.environ:
     testdata = os.environ["I3_TESTDATA"]
 else:
-    raise IOError("Cannot find test data file, please define either "
-                  "I3_TESTDATA or I3_PORTS")
+    raise IOError("Cannot find test data file, please define I3_TESTDATA")                  
 
 gcd = os.path.join(
     testdata, "sim", "GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")

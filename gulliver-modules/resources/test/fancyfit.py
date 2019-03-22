@@ -33,8 +33,8 @@ icecube.icetray.logging.set_level_for_unit("I3FortyTwo", "INFO")
 if "I3_TESTDATA" in os.environ:
     testdata = os.environ["I3_TESTDATA"]
 else:
-    raise IOError("Cannot find test data file, please define either "
-                  "I3_TESTDATA or I3_PORTS")
+    raise IOError("Cannot find test data file, please define I3_TESTDATA")
+                  
 
 filename = os.path.join(
         testdata, "event-viewer", "Level3aGCD_IC79_EEData_Run00115990.i3")
