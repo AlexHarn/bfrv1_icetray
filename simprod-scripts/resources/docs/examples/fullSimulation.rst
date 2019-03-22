@@ -91,7 +91,7 @@ I'll go through what these options mean: (you can use ``fullSimulation.py --help
   The other two models are "Spice1" and "SpiceMie". Including things like WHAM would be trivial if you need it.
 
 * ``--detector=IC86``
-  This will select a GCD file from ``$I3_PORTS`` automatically. Currently works for IC86 and IC79.
+  This will select a GCD file from ``$I3_TESTDATA`` automatically. Currently works for IC86 and IC79.
 
 * ``--unshadowed-fraction=0.99``
   This is the "DOMEfficiency", currently named like this for compatibility with other tools that use the same name.
