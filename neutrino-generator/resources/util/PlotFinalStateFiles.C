@@ -99,8 +99,6 @@ void PlotFinalStateFiles(){
    static Double_t  yyy4out[nStatebins];
    static Double_t  yyyy4out[nStatebins];
 
-  //string dir(getenv("I3_PORTS"));
-  //dir +="/anis-1.0/crosssections/cteq5/";
   string dir = "./anis.v1.8.2/data/cteq5/";
 
   string file1 = dir + "final_cteq5_cc_nu.data";

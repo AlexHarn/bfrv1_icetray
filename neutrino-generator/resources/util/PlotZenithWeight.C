@@ -5,7 +5,7 @@
 // To use the script, you need to compile neutrino-generator project
 // with -DUSE_CINT option, and execute "env.sh" at your I3_BUILD 
 // directory.
-// $ $I3_PORTS/bin/cmake -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_CINT ../src/
+// $ cmake -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_CINT ../src/
 // $ .$I3_BUILD/env.sh
 //
 // [example draw]

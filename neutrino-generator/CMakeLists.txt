@@ -87,8 +87,8 @@ if(ROOT_FOUND AND USE_ROOT AND GENIE_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/genie-
 	find_library(ROOT_GEOM_LIB Geom PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
 	find_library(ROOT_EG_LIB EG PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
 	find_library(ROOT_EGPYTHIA6_LIB EGPythia6 PATHS ${ROOTSYS}/lib NO_DEFAULT_PATH)
-	find_library(LHAPDF_LIB LHAPDF PATHS ${I3_PORTS}/lib NO_DEFAULT_PATH)
-	find_library(PYTHIA_SO_LIB Pythia6 PATHS ${I3_PORTS}/lib NO_DEFAULT_PATH)
+	find_library(LHAPDF_LIB LHAPDF)
+	find_library(PYTHIA_SO_LIB Pythia6)
 
 	# let the code know where GENIE is located in order to be able to read some data files
 	add_definitions(-DGENIE_PATH="${GENIE_PATH}")
