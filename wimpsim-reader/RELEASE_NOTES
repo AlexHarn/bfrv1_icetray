@@ -5,6 +5,13 @@
 Release Notes
 =============
 
+March 22, 2019 Michael Larson (mlarson@icecube.wisc.edu)
+--------------------------------------------------------------------
+Trunk
+* Cleaned up some of the file handling
+* Added the ability to read gzipped WimpSim files
+* Allow the tray segment to accept multiple input files
+
 Nov 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 --------------------------------------------------------------------
 Release V03-03-01

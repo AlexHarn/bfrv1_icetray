@@ -6,8 +6,8 @@
  * @file I3WimpSimReader.cxx
  * @date $Date: 2012-11-18$
  * @author mzoll <marcel.zoll@fysik.su.se>
- * @brief Reads WimpSim data for Sun and Earth Events of teh New WimpSim-v3.01 format
- * This Module takes a WIMPSim Files, reads them event by event and puts Varibales into the frame: I3EventHeader, I#MCTree, WIMP_params
+ * @brief Reads WimpSim data for Sun and Earth Events of the New WimpSim-v3.01 format
+ * This Module takes a WIMPSim Files, reads them event by event and puts Varibales into the frame: I3EventHeader, I3MCTree, WIMP_params
  */
 
 // code progeniators
@@ -35,6 +35,9 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assert.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/device/file.hpp>
 
 #include <list>
 #include <fstream>
@@ -46,6 +49,8 @@
 using namespace std;
 using namespace WimpSim;
 using namespace WimpSimTools;
+using boost::algorithm::ends_with;
+
 //_______________________________________________________________________
 I3WimpSimReader::~I3WimpSimReader() {}
 //_______________________________________________________________________
@@ -157,9 +162,10 @@ void I3WimpSimReader::Configure() {
     log_fatal("Specify a Filename with Parameter 'FileNameList'");
   else{
     for(uint filenames_index=0; filenames_index<filenames_.size(); filenames_index++) {
-      ifstream thisfile(filenames_[filenames_index].c_str(), ios_base::in);
-      if (! thisfile.good())
-        log_fatal("The specified file %s could not be accessed",filenames_[filenames_index].c_str());
+      string fname = filenames_[filenames_index];
+      boost::iostreams::file_source fs(fname.c_str());
+      if(!fs.is_open())
+        log_fatal("The specified file %s could not be accessed",fname.c_str());
     }
   }
   if ((position_limits_[0]+ position_limits_[1])/2 || (position_limits_[2]+ position_limits_[3])/2 || (position_limits_[4]+ position_limits_[5])/2)
@@ -220,7 +226,6 @@ void I3WimpSimReader::Process() {
   do {
     if (number_events_ != 0 && issued_events_ >= number_events_) {
       log_info("Issued the requested number of events: Exiting IceTray");
-      wimpfile_.close(); // close the file
       RequestSuspension();
       return;
     }
@@ -230,7 +235,6 @@ void I3WimpSimReader::Process() {
         WimpHeaderPtr = boost::shared_ptr<WimpSimBaseHeader>(new WimpSimBaseHeader); //renew the object
         fileHeaderIsRead = ReadFileHeader(WimpHeaderPtr); // try to read the header from the newly opened file
         if (!fileHeaderIsRead){
-          wimpfile_.close();
           wimpfileIsOpen = false;
           log_fatal("ERROR while reading FileHeader;");
           continue;
@@ -323,15 +327,13 @@ void I3WimpSimReader::Process() {
         processed_events_++;
         break;
       case END_EVENTSTREAM: // regular end of datafile was reached while reading
-        wimpfile_.close();
-        wimpfileIsOpen = false;
+	wimpfileIsOpen = false;
         fileHeaderIsRead = false;
         log_debug("End of event stream from files; Closed the file");
         break;
       case ERROR_EVENTSTREAM: // something unforeseen happened
         log_error("ERROR while reading next event; trying the next file");
-        wimpfile_.close();
-        wimpfileIsOpen = false;
+	wimpfileIsOpen = false;
         fileHeaderIsRead = false;
         break;
       //UNFORESEEN
@@ -345,8 +347,6 @@ void I3WimpSimReader::Process() {
 //_______________________________________________________________________
 void I3WimpSimReader::Finish() {
   log_debug("Entering Finish()");
-  if (wimpfile_.is_open()) // if forgotten to close
-    wimpfile_.close();
   log_notice("Delivered %i events from %i processed in %i files", issued_events_, processed_events_, issued_files_);
   if (issued_files_ != filenames_.size())
     log_warn("There were corrupt or wrongly read files");
@@ -423,10 +423,25 @@ bool I3WimpSimReader::OpenNextFile(){
     return false;
   }
   else{
-    wimpfile_.open(filenames_[file_index_].c_str(), ios_base::in); //open as read-only
-    if (!wimpfile_.good())
-      log_fatal("File %s is inaccessable", filenames_[file_index_].c_str());
-    log_debug("Opened the file %s ",filenames_[file_index_].c_str());
+    if(!wimpfile_.empty()) wimpfile_.pop();
+    wimpfile_.reset();
+    
+    string fname = filenames_[file_index_];
+
+    // Check if we need to decompress
+    if(ends_with(fname, ".gz")){
+      log_warn("File %s is a gzipped file", fname.c_str());
+      wimpfile_.push(boost::iostreams::gzip_decompressor());
+    }
+
+    boost::iostreams::file_source fs(fname.c_str());
+    if(!fs.is_open())
+      log_fatal("Filename %s could not be opened.", fname.c_str());
+
+    wimpfile_.push(fs);
+
+    log_debug("Opened the file %s ",fname.c_str());
+    log_warn("Opened the file %s ",fname.c_str());
     return true;
   }
 }
@@ -885,7 +900,7 @@ I3Time I3WimpSimReader::RandomMJDTime() const {
   }
 
   const double mjd_ = randomService_->Uniform(startmjd_,endmjd_);
-  log_warn("MJD range of %f - %f gave %f", startmjd_, endmjd_, mjd_);
+  log_trace("MJD range of %f - %f gave %f", startmjd_, endmjd_, mjd_);
   return I3Time(mjd_);
 }
 

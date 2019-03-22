@@ -27,6 +27,8 @@
 #include "phys-services/I3RandomService.h"
 
 #include "boost/shared_ptr.hpp"
+#include <boost/iostreams/filtering_stream.hpp>
+
 
 /**
  * A Generator Module for that reads WimpSimFiles
@@ -102,7 +104,7 @@ protected: // helpers/tracers
   /// the current index in file_vector_
   int file_index_;
   /// the currently opened file
-  std::ifstream wimpfile_;
+  boost::iostreams::filtering_istream wimpfile_;
 
 protected: //bookkeeping
   /// number of files that have been successfully read
