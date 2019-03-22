@@ -437,7 +437,7 @@ I3PhotoSplineService::GetProbabilityQuantileHessians(double *time_edges,
 			 * and store the right edge for the next bin. */
 			temp = grad[j];
 			grad[j] -= prev_grad[j];
-			prev_grad_buffer[j] = temp;	
+			prev_grad[j] = temp;	
 		}
 		
 		for (j = 0; j < 6; j++) {
@@ -453,7 +453,7 @@ I3PhotoSplineService::GetProbabilityQuantileHessians(double *time_edges,
 		convert_grad(jacobian, grad, gradients[i]);
 		/* Convert the Hessian to detector coordinates */
 		convert_hessian(hess_tensor, jacobian, hessian_buffer,
-		    &grad_buffer[1], hessians[i]);
+		    grad, hessians[i]);
 	}
 
 	return true;
