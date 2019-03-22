@@ -76,7 +76,7 @@ Is there anything I can do to install OpenCL myself?
     Now, you should be able to run cmake as usual::
     
         $ cd $I3_BUILD
-        $ $I3_PORTS/bin/cmake ../src
+        $ cmake ../src
     
     You should see it pick up OpenCL::
 

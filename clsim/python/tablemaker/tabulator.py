@@ -134,8 +134,6 @@ from icecube.clsim import GetDefaultParameterizationList
 from icecube.clsim import GetFlasherParameterizationList
 from icecube.clsim import GetHybridParameterizationList
 
-from icecube.clsim import AutoSetGeant4Environment
-
 from icecube.clsim.traysegments.common import configureOpenCLDevices, parseIceModel
 from icecube import icetray
 from os.path import expandvars
@@ -299,11 +297,6 @@ def I3CLSimTabulatePhotons(tray, name,
         if not clsim.I3CLSimLightSourceToStepConverterGeant4.can_use_geant4:
             raise RuntimeError("You have requested to use Geant 4, but clsim was compiled without Geant 4 support")
     
-    # at the moment the Geant4 paths need to be set, even if it isn't used
-    # TODO: fix this
-    if clsim.I3CLSimLightSourceToStepConverterGeant4.can_use_geant4:
-        AutoSetGeant4Environment()
-
     if MMCTrackListName is None or MMCTrackListName=="":
         # the input does not seem to have been processed by MMC
         ChopMuons = False

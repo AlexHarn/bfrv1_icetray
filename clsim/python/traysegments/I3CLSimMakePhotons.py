@@ -39,8 +39,6 @@ from icecube.clsim import GetDefaultParameterizationList
 from icecube.clsim import GetFlasherParameterizationList
 from icecube.clsim import GetHybridParameterizationList
 
-from icecube.clsim import AutoSetGeant4Environment
-
 from .common import setupPropagators, setupDetector, configureOpenCLDevices
 
 # use this instead of a simple "@icetray.traysegment" to support

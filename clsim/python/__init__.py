@@ -49,7 +49,6 @@ from .GetDefaultParameterizationList import GetDefaultParameterizationList
 from .GetHybridParameterizationList import GetHybridParameterizationList
 from .GetFlasherParameterizationList import GetFlasherParameterizationList
 from .AsyncTap import AsyncTap
-from .AutoSetGeant4Environment import AutoSetGeant4Environment
 
 from .I3CLSimRandomValueIceCubeFlasherTimeProfile import I3CLSimRandomValueIceCubeFlasherTimeProfile
 
