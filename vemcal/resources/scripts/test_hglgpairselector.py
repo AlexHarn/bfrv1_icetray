@@ -6,7 +6,7 @@ from os.path import expandvars, dirname, basename
 
 load('vemcal')
 
-test_data = expandvars('$I3_PORTS') + '/test-data/icetop/Raw_IC79_data_Run00117306_10events_IT.i3.bz2'
+test_data = expandvars('$I3_TESTDATA') + '/icetop/Raw_IC79_data_Run00117306_10events_IT.i3.bz2'
 
 tray = I3Tray()
 
