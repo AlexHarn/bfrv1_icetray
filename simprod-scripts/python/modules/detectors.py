@@ -14,22 +14,39 @@ from ..util import ReadI3Summary, WriteI3Summary
 logger = logging.getLogger('detector')
 
 
-class ICBase(ipmodule.ParsingModule):
-    """
-    Base class for detectors IC86, IC79, IC59.
+class IceCube(ipmodule.ParsingModule):
 
-    Common parts are factored out to reduce code redundancy.
-    Overwrite addparameter_X and segment_X in derived classes as needed
-    (X may be input or output, and must be main).
-    """
-
-    def __init__(self, detector_label):
+    def __init__(self):
         ipmodule.ParsingModule.__init__(self)
-        self.detector_label = detector_label
 
-        self.addparameter_input()
-        self.addparameter_output()
-        self.addparameter_main()
+        self.AddParameter('SummaryFile','Summary filename', None)
+        self.AddParameter('MCType','Generator particle type','corsika_weighted')
+        self.AddParameter('UseLinearTree','Use I3LinearizedMCTree for serialization', False)
+        self.AddParameter('MCPrescale','Prescale for keeping additional Monte Carlo info in the frame', 100)
+        self.AddParameter('IceTop','Do IceTop Simulation?', False)
+        self.AddParameter('Genie','Assume separate Genie MCPEs and BG MCPEs', False)
+        self.AddParameter('FilterTrigger','filter untriggered events', True)
+        self.AddParameter('Trigger','Run trigger simulation', True)
+        self.AddParameter('LowMem','Low Memory mode', False)
+        self.AddParameter('BeaconLaunches','Simulate beacon launches', True)
+        self.AddParameter('TimeShiftSkipKeys','Skip keys in the triggersim TimeShifter', [])
+        self.AddParameter('SampleEfficiency','Resample I3MCPESeriesMap for different efficiency', 0.0)
+        self.AddParameter('GeneratedEfficiency','Generated efficiency for resampling', 0.0)
+        self.AddParameter('RunID','Run ID', 0, explicit_type='int')
+        self.AddParameter('gcdfile', 'GeoCalibDetStatus filename', '')
+        self.AddParameter('inputfile', 'Input filename', '')
+        self.AddParameter('seed', 'RNG Seed', 123)
+        self.AddParameter('procnum', 'RNG stream number', 0)
+        self.AddParameter('nproc', 'RNG number of streams', 1)
+        self.AddParameter('MCPESeriesName', 'Name of MCPESeriesMap in frame', 'I3MCPESeriesMap')
+        self.AddParameter('HistogramFilename', 'Histogram filename.', None)
+        self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
+        self.AddParameter('outputfile', 'Output filename', 'output.i3.gz')
+        self.AddParameter('DetectorName', 'Name of detector', 'IC86')
+        self.AddParameter('SkipKeys', 'Skip keys for the writer', [])
+
+
+
 
     def Execute(self, stats):
         'Runs the tray, but the important stuff happens in segment_X(...)'
@@ -47,42 +64,15 @@ class ICBase(ipmodule.ParsingModule):
         # Instantiate a tray
         tray = I3Tray()
 
-        self.segment_input(tray, stats)
-        self.segment_main(tray, stats)
-        self.segment_output(tray, stats)
-
-        # Execute the Tray
-        tray.Execute()
-
-        for k in tray.Usage():
-            stats[str(k.key())+":usr"] = k.data().usertime
-            stats[str(k.key())+":sys"] = k.data().systime
-            stats[str(k.key())+":ncall"] = k.data().systime
-
-        # Free memory
-        del tray
-        return 0
-
-    def addparameter_input(self):
-        self.AddParameter('gcdfile', 'GeoCalibDetStatus filename', '')
-        self.AddParameter('inputfile', 'Input filename', '')
-        self.AddParameter('seed', 'RNG Seed', 123)
-        self.AddParameter('procnum', 'RNG stream number', 0)
-        self.AddParameter('nproc', 'RNG number of streams', 1)
-        self.AddParameter('MCPESeriesName', 'Name of MCPESeriesMap in frame', 'I3MCPESeriesMap')
-        self.AddParameter('HistogramFilename', 'Histogram filename.', None)
-        self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
-
-    def segment_input(self, tray, stats):
-        rngstate = "rng.state"
-        if not os.path.exists(rngstate):
-            rngstate = ''
-            self.logger.warning("no RNG state found. Using seed instead.")
-
-        tray.AddService("I3SPRNGRandomServiceFactory","random",
-            Seed=self.seed, StreamNum=self.procnum, NStreams=self.nproc,
-            inStateFile=rngstate, outStateFile="rng.state",
-        )
+        try:
+        	randomService = phys_services.I3SPRNGRandomService(
+             		seed = self.seed,
+             		nstreams = self.nproc,
+             		streamnum = self.procnum)
+        except AttributeError:
+        	self.logger.warn("SPRNG not available. Using GSL with seed 'nproc*seed + procnum'")
+        	randomService = phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+        tray.context['I3RandomService'] = randomService
 
         # Configure IceTray modules
         tray.AddModule("I3Reader","reader", FilenameList=[self.gcdfile, self.inputfile])
@@ -94,19 +84,34 @@ class ICBase(ipmodule.ParsingModule):
                 fr['I3MCPESeriesMap'] = fr[self.mcpeseriesname]
             tray.Add(mover, "move_MCPESeries",Streams=[icetray.I3Frame.DAQ])
 
-    def addparameter_main(self):
-        # not having parameters is okay
-        pass
 
-    def segment_main(self, tray, stats):
-        # not having a main segment is not okay! :)
-        raise NotImplementedError
+        # Instantiate a SummaryService if required
+        summary = dataclasses.I3MapStringDouble()
+        if self.summaryfile and os.path.exists(self.summaryfile):
+              summary = ReadI3Summary(self.summaryfile)
+        tray.context['I3SummaryService'] = summary
 
-    def addparameter_output(self):
-        self.AddParameter('outputfile', 'Output filename', 'output.i3.gz')
-        self.AddParameter('SkipKeys', 'Skip keys for the writer', [])
-
-    def segment_output(self, tray, stats):
+        tray.AddSegment(segments.DetectorSegment,"detector",
+            gcdfile=self.gcdfile,
+            mctype=self.mctype,
+            uselineartree=self.uselineartree,
+            detector_label=self.detectorname,
+            runtrigger=self.trigger,
+            filtertrigger=self.filtertrigger,
+            stats=stats,
+            icetop=self.icetop,
+            genie=self.genie,
+            prescale=self.mcprescale,
+            lowmem=self.lowmem,
+            BeaconLaunches=self.beaconlaunches,
+            TimeShiftSkipKeys=self.timeshiftskipkeys,
+            SampleEfficiency=self.sampleefficiency,
+            GeneratedEfficiency=self.generatedefficiency,
+            RunID=self.runid,
+            KeepMCHits = not self.procnum % self.mcprescale,
+            KeepPropagatedMCTree = not self.procnum % self.mcprescale,
+            KeepMCPulses = not self.procnum % self.mcprescale
+        )
 
         if self.enablehistogram and self.histogramfilename:         
             from icecube.production_histograms import ProductionHistogramModule
@@ -131,122 +136,19 @@ class ICBase(ipmodule.ParsingModule):
                      icetray.I3Frame.Stream('M')])
 
 
-class IC86(ICBase):
 
-    def __init__(self):
-        ICBase.__init__(self, "IC86:2012")
+        # Execute the Tray
+        tray.Execute()
 
-    def addparameter_main(self):
-        self.AddParameter('SummaryFile','Summary filename', None)
-        self.AddParameter('MCType','Generator particle type','corsika_weighted')
-        self.AddParameter('UseLinearTree','Use I3LinearizedMCTree for serialization', False)
-        self.AddParameter('MCPrescale','Prescale for keeping additional Monte Carlo info in the frame', 100)
-        self.AddParameter('IceTop','Do IceTop Simulation?', False)
-        self.AddParameter('Genie','Assume separate Genie MCPEs and BG MCPEs', False)
-        self.AddParameter('FilterTrigger','filter untriggered events', True)
-        self.AddParameter('Trigger','Run trigger simulation', True)
-        self.AddParameter('LowMem','Low Memory mode', False)
-        self.AddParameter('BeaconLaunches','Simulate beacon launches', True)
-        self.AddParameter('TimeShiftSkipKeys','Skip keys in the triggersim TimeShifter', [])
-        self.AddParameter('SampleEfficiency','Resample I3MCPESeriesMap for different efficiency', 0.0)
-        self.AddParameter('GeneratedEfficiency','Generated efficiency for resampling', 0.0)
-        self.AddParameter('RunID','Run ID', 0, explicit_type='int')
+        for k in tray.Usage():
+            stats[str(k.key())+":usr"] = k.data().usertime
+            stats[str(k.key())+":sys"] = k.data().systime
+            stats[str(k.key())+":ncall"] = k.data().systime
 
-    def segment_main(self, tray, stats):
+        # Free memory
+        del tray
+        return 0
 
-        # Instantiate a SummaryService if required
-        summary = dataclasses.I3MapStringDouble()
-        if self.summaryfile and os.path.exists(self.summaryfile):
-              summary = ReadI3Summary(self.summaryfile)
-        tray.context['I3SummaryService'] = summary
-
-        tray.AddSegment(segments.DetectorSegment,"detector",
-            gcdfile=self.gcdfile,
-            mctype=self.mctype,
-            uselineartree=self.uselineartree,
-            detector_label=self.detector_label,
-            runtrigger=self.trigger,
-            filtertrigger=self.filtertrigger,
-            stats=stats,
-            icetop=self.icetop,
-            genie=self.genie,
-            prescale=self.mcprescale,
-            lowmem=self.lowmem,
-            BeaconLaunches=self.beaconlaunches,
-            TimeShiftSkipKeys=self.timeshiftskipkeys,
-            SampleEfficiency=self.sampleefficiency,
-            GeneratedEfficiency=self.generatedefficiency,
-            RunID=self.runid,
-            KeepMCHits = not self.procnum % self.mcprescale,
-            KeepPropagatedMCTree = not self.procnum % self.mcprescale,
-            KeepMCPulses = not self.procnum % self.mcprescale
-        )
-
-
-class IC79(ICBase):
-
-    def __init__(self):
-        ICBase.__init__(self, "IC79")
-
-    def addparameter_output(self):
-        # overwriting default
-        self.AddParameter('outputfile', 'Output filename', 'output.i3.gz')
-
-    def segment_output(self, tray, stats):
-        # custom output
-        # Make P-frames for backwards compatibility
-        tray.AddModule(PConverter, "fullevent")
-        tray.AddModule("I3EventCounter", "counter")(
-            ("physicscountername", "%s Triggered Events" % self.detector_label),
-        )
-
-        skipkeys = [ "I3Triggers",
-                     "EnhancementFactor",
-                     "MCPMTResponseMap",
-                     "MCTimeIncEventID" ]
-
-        if self.icetop:
-             skipkeys += [ "IceTopRawData_unused",
-                           "MCPMTResponseMap",
-                           "MCTopHitSeriesMap" ]
-
-        tray.AddModule("I3Writer","writer",
-            filename=self.outputfile,
-            Streams=[icetray.I3Frame.TrayInfo,
-                     icetray.I3Frame.DAQ,
-                     icetray.I3Frame.Stream('S'),
-                     icetray.I3Frame.Stream('M')],
-            SkipKeys=skipkeys)
-
-    def addparameter_main(self):
-        self.AddParameter('Summaryfile','Summary filename',None)
-        self.AddParameter('IceTop','Enables IceTop Simulation', False)
-        self.AddParameter('MCType','Generator particle type','CORSIKA')
-        self.AddParameter('BeaconLaunches','Simulate beacon launches', True)
-
-    def segment_main(self, tray, stats):
-        # Instantiate a SummaryService if required
-        summary = dataclasses.I3MapStringDouble()
-        if self.summaryfile and os.path.exists(self.summaryfile):
-           summary = ReadI3Summary(self.summaryfile)
-        tray.context['I3SummaryService'] = summary
-
-
-        tray.AddSegment(segments.DetectorSegment,"detector",
-            detector_label=self.detector_label,
-            mctype=self.mctype,
-            runtrigger=True,
-            filtertrigger=True,
-            icetop=self.icetop,
-            gcdfile=self.gcdfile,
-            BeaconLaunches=self.beaconlaunches,
-            lowmem=False,
-        )
-
-class IC59(IC79):
-     def __init__(self):
-        IC79.__init__(self)
-        self.detector_label = "IC59"
 
 
 class IceTop(ipmodule.ParsingModule):
