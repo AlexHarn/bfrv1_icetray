@@ -32,8 +32,8 @@ logging.basicConfig()
 rootLogger = logging.getLogger('')
 rootLogger.setLevel(logging.INFO)
 
-from icecube.simprod.modules import IC86
+from icecube.simprod.modules import IceCube
 
 if __name__ == '__main__':
-    det = IC86()
+    det = IceCube()
     det.ExecuteOpts()
