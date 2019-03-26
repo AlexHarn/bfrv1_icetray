@@ -108,9 +108,9 @@ def _configure(filename, histograms):
 
 def generate_histogram_configuration_list(i3files):
     '''
-    Given a path, peek at the I3Files, loop over
-    some frames, and figure out which histograms
-    need to be loaded.
+    Given either a single path (string) or a list of paths, 
+    peek at the I3Files, loop over all frames, and figure 
+    out which histograms need to be loaded.
     '''
     histograms = dict()
 
