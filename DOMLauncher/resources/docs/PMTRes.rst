@@ -10,7 +10,7 @@ PMTResponseSimulator simulates the following effects:
 Time Jitter
 -----------
 
-The amount of time for the photoelectron to traverse the PMT to the first dynode and for the electron shower to traverse the dynode chain can both vary. This is referred to as the "PMT jitter" or just "jitter". According to the PMT Paper [PMT_Paper]_ (page 17): "The main peak of the time histogram has width equivalent to a Gaussian of σ = 2.0 ns, although the rising and falling edges of the peak fit better to half-Gaussians with σ = 1.2 ns and 2.7 ns, respectively." We use a slightly different parameterization created by R. Porrata, using a Gumbel distribution, which is shown below:
+The amount of time for the photoelectron to traverse the PMT to the first dynode and for the electron shower to traverse the dynode chain can both vary. This is referred to as the "PMT jitter" or just "jitter". According to the [PMT_Paper]_ (page 17): "The main peak of the time histogram has width equivalent to a Gaussian of σ = 2.0 ns, although the rising and falling edges of the peak fit better to half-Gaussians with σ = 1.2 ns and 2.7 ns, respectively." We use a slightly different parameterization created by R. Porrata, using a Gumbel distribution, which is shown below:
 
 .. image:: images/Jitter_Parameterization.png
 
@@ -39,15 +39,15 @@ He further noted that this was never implemented, since it has only been theoriz
 
 Late Pulses
 -----------
-When a photoelectron scatters back from the first dynode it will take a short time to turn around and reach the dynode again, producing a late pulse. According to the PMT paper[PMT_Paper]_: "About 4% of hits are found in a shoulder (25–65 ns) and secondary peak at 71 ns, and 0.2% make up a corresponding tertiary structure (85–160 ns)." We simulate a (default) probability of .035 that a given pulse is a late pulse. Since late pulses are single photoelectrons arriving at the first dynode, just at a delayed time, they have a weight of one, subject to the usual SPE Charge Distribution. For the timing distribution we use the paramterization shown on `Late Pulse Data <https://wiki.icecube.wisc.edu/index.php/Late_Pulse_Data>`_.
+When a photoelectron scatters back from the first dynode it will take a short time to turn around and reach the dynode again, producing a late pulse. According to the PMT paper [PMT_Paper]_: "About 4% of hits are found in a shoulder (25–65 ns) and secondary peak at 71 ns, and 0.2% make up a corresponding tertiary structure (85–160 ns)." We simulate a (default) probability of .035 that a given pulse is a late pulse. Since late pulses are single photoelectrons arriving at the first dynode, just at a delayed time, they have a weight of one, subject to the usual SPE Charge Distribution. For the timing distribution we use the paramterization shown on `Late Pulse Data <https://wiki.icecube.wisc.edu/index.php/Late_Pulse_Data>`_.
 
 Afterpulses
 -----------
-Photoelectrons passing through the PMT can ionize residual gas atoms, which then drift back to the photocathode (due to their positive charge) where they can dislodge several electrons, which are then amplified in the usual way by the dynode chain. According to the [PMT_Paper]_: "Up to primary pulses of 1 × 106 p.e., the integral from 300 ns to 11 μs corresponds to 0.06 SPE per primary photoelectron", we use a probability of 0.0593, but subject to SPE weighting, which reduces the charge on average. We use the timing distribution shown on `Afterpulse Data <https://wiki.icecube.wisc.edu/index.php/Afterpulse_Data>`_. Note also that we (incorrectly) simulate each afterpulse electron independently from distributions whose relative weights are enhanced by the bunch size, rather than simulating correlated bunches. Our parameterization of the charges of the early afterpulses is summarized on https://wiki.icecube.wisc.edu/index.php/Early_Afterpulse_Data.
+Photoelectrons passing through the PMT can ionize residual gas atoms, which then drift back to the photocathode (due to their positive charge) where they can dislodge several electrons, which are then amplified in the usual way by the dynode chain. According to the [PMT_Paper]_: "Up to primary pulses of 1 × 106 p.e., the integral from 300 ns to 11 μs corresponds to 0.06 SPE per primary photoelectron", we use a probability of 0.0593, but subject to SPE weighting, which reduces the charge on average. We use the timing distribution shown on `Afterpulse Data <https://wiki.icecube.wisc.edu/index.php/Afterpulse_Data>`_. Note also that we (incorrectly) simulate each afterpulse electron independently from distributions whose relative weights are enhanced by the bunch size, rather than simulating correlated bunches. Our parameterization of the charges of the early afterpulses is summarized on https://wiki.icecube.wisc.edu/index.php/Early_Afterpulse_Data. See also the [Afterpulse_Paper]_.
 
 Saturation
 ----------
-The current which the PMT can supply is limited, and as the illumination becomes strong its output departs from depending linearly on the input and approaches a constant. We use the parameterization described on `PMT saturation at low gain <https://wiki.icecube.wisc.edu/index.php/PMT_saturation_at_low_gain>`_ to convert ideal currents to visible output currents[#Sat_Hist]_.
+The current which the PMT can supply is limited, and as the illumination becomes strong its output departs from depending linearly on the input and approaches a constant. We use the parameterization described on `PMT saturation at low gain <https://wiki.icecube.wisc.edu/index.php/PMT_saturation_at_low_gain>`_ to convert ideal currents to visible output currents [Sat_Hist]_.
 
 TODO: Is there an actual reference for Tom F.'s parameterization constants besides the pmt-simulator source code?
 
@@ -68,6 +68,6 @@ With or without hit merging, the output of PMTResponseSimulator is always time-o
 .. [PMT_Paper] Calibration and Characterization of the IceCube Photomultiplier Tube http://arxiv.org/abs/1002.2442v1
 .. [Charge_response_function] https://wiki.icecube.wisc.edu/index.php/ROMEO_Charge_Response_Function#Charge_response_function
 .. [Afterpulse_Paper] http://arxiv.org/abs/0911.5336v1
-.. [#Sat_Hist] For more of the historical background of this model, see https://wiki.icecube.wisc.edu/index.php/IC79_Benchmark_Simulation_Validation#IceTop_.28Serap_and_Tom_F..29
+.. [Sat_Hist] For more of the historical background of this model, see https://wiki.icecube.wisc.edu/index.php/IC79_Benchmark_Simulation_Validation#IceTop_.28Serap_and_Tom_F..29
 .. [CWendtPrepulses] Chris Wendt's lab notes on prepulses: http://icecube.wisc.edu/~chwendt/prepulse-notes/
 .. [CWendtGhentTalk] Chris Wendt's talk at the 2007 Ghent meeting on detialed PMT measurements: http://icecube.wisc.edu/~chwendt/talks/PMTChargeSpectrumVsTime-Ghent2007.pdf
