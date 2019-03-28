@@ -75,7 +75,7 @@ def SplitterTray(tray, name, options):
     AdditionalInfo = True)
 	      
   from icecube import MCHitSeparator
-  tray.AddModule(MCHitSeparator.MCRecombiner, "MCRecombiner"
+  tray.AddModule(MCHitSeparator.MCRecombiner, "MCRecombiner",
       PulsesName = "MaskedOfflinePulses",
       SplitName = "toposplit",
       RemoveNoise = True)
