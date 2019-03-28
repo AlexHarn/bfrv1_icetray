@@ -1,1 +1,6 @@
-link ../../RELEASE_NOTES
+===============
+ Release Notes
+===============
+
+.. include:: RELEASE_NOTES.txt
+    :literal:
