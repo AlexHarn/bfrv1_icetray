@@ -2,7 +2,7 @@ Weights in NuGen
 ----------------
 
 What are production weights?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The production weights consist of weights that enhance number of simulated (and triggered) events at the detector. 
 They are totally artificial weights, has no relation with physics parameters, and must be applied event by event to get reasonable results.
@@ -54,7 +54,7 @@ Considering these extra works, the latest NuGen sets emulation mode of flat in z
 
 
 Control zenith weight
-"""""""""""""""""""""""""""""
+"""""""""""""""""""""
 To control zenith distribution of generated events, set following parameters to I3NuGInjector or I3NuGDiffuseSource.
 Generation weight (DirectionWeight) is included in I3MCWeightDict.TotalWeight and I3MCWeightDict.OneWeight (OneWeightPerType). As long as a user uses these weights, no change is needed for analysis scripts.
 If you construct your weight from the scratch, do not forget to multiply I3MCWeightDict.DirectionWeight.
@@ -143,7 +143,7 @@ of "triggered" events to do a reasonable comparison.
 .. figure:: figs/NuMu_Primary_LogE_E1_NoPropWVsAutoDetect.png
 
 Parameters to control weighted propagation
-"""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""
 
 Set parameter to I3NeutrinoGenerator or I3NeutrinoPropagator.
 
