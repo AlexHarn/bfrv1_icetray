@@ -10,16 +10,11 @@
 
 .. _corsika-reader:
 
-I3CORSIKAReader
-==============
+CORSIKAReader
+=============
 
-.. toctree::
-   :maxdepth: 3
-   
-   release_notes
-
-I3CorsikaReader Module
-----------------------
+CorsikaReader Module
+--------------------
 
 I3CorsikaReader provides a module to read output binary files from the CORSIKA
 air-shower simulation package. Each simulated shower is emitted as a single

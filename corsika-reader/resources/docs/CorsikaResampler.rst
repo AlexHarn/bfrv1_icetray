@@ -11,15 +11,10 @@
 .. _corsika-resampler:
 
 CORSIKAResampler
-==============
-
-.. toctree::
-   :maxdepth: 3
-   
-   release_notes
+================
 
 CorsikaResampler Module
-----------------------
+-----------------------
 
 CorsikaResampler provides a module to resample events read by I3CORSIKAReader. It then
 Randomly shifts the shower core around the surface of a cylinder with configurable dimensions.
@@ -29,7 +24,6 @@ object containing weight information and a header with the shower number.
 
 Arguments
 ^^^^^^^^^
-
 
 1. OverSampling (default: ``1``)
 
