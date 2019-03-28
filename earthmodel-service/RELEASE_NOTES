@@ -3,25 +3,25 @@ Release Notes
 Trunk
 
 June 22, 2018 (juancarlos@icecube.wisc.edu)
---------------------------------------------------------------------
+-------------------------------------------
 
 Release V00-01-02
 * Minor cleanup of import statements
 
---------------------------------------------------------------------
 June 01, 2016 (cweaver@icecube.wisc.edu)
+----------------------------------------
+
 * Switch to using our own serialization library
 
-
 July 22, 2014 Kotoyo Hoshina (hoshina@icecube.wisc.edu)
---------------------------------------------------------------------
+-------------------------------------------------------
 
 * clipAtEarthSurfice option is removed from several public functions.
 * fEarthRadius parameter is removed and earthmodel-service no longer
   takes into account simulation volume (world volume)
 
 July 14, 2014 Alex Olivas (olivas@icecube.umd.edu)
---------------------------------------------------------------------
+--------------------------------------------------
 
 * Material properties are now read from data files. 
 * RVector3 is no longer used. 
@@ -40,7 +40,7 @@ July 14, 2014 Alex Olivas (olivas@icecube.umd.edu)
   along a given direction to the next boundary between materials. 
 
 September 12, 2012 Kotoyo Hoshina  (hoshina@icecube.wisc.edu)
---------------------------------------------------------------------
+-------------------------------------------------------------
 
 Started project
 

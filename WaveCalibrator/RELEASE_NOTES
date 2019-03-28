@@ -12,7 +12,7 @@ Release V18-06-00
 * no change.  identical to V17-11-00.
 
 November 15, 2017, Alex Olivas (olivas@icecube.umd.edu)
----------------------------------------------------
+-------------------------------------------------------
 Release V17-11-00
 
 * very minor cleanups
@@ -40,7 +40,8 @@ Release V15-12-00
 * add RELEASE_NOTES to the docs
 
 August 31, 2015, Alex Olivas  (olivas@icecube.umd.edu)
---------------------------------------------------------------------
+------------------------------------------------------
+
 * (r136999) Removed beacon baseline code that's not needed anymore.  Relied on files that don't exist anymore.  Some were moved.
 * (r136999) baseline_reader is gone...which included the following:
 
@@ -56,7 +57,7 @@ August 31, 2015, Alex Olivas  (olivas@icecube.umd.edu)
 * (r136999) plowshare.py was made to work again, but renamed to simple_example.py.
 
 March 15, 2015, Alex Olivas  (olivas@icecube.umd.edu)
---------------------------------------------------------------------
+-----------------------------------------------------
 
 At some point we just stopped updating release notes.
 
@@ -67,7 +68,7 @@ Release V15-03-00
   Remove unused old constants from I3DOMCalibration.
 
 August 11, 2011, Alex Olivas  (olivas@icecube.umd.edu)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V11-08-00
 
@@ -98,7 +99,7 @@ Bugfixes:
   -- Jakob
 
 August 2, 2011, Erik Blaufuss  (blaufuss@icecube.umd.edu)
---------------------------------------------------------------------
+---------------------------------------------------------
 
 Release V11-07-00
 
@@ -153,7 +154,7 @@ Bugfixes:
   -- Timo Karg
 
 April 15, 2011, Fabian Kislat  (fabian.kislat@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V00-01-01
 
@@ -169,6 +170,6 @@ Bugfixes:
 
 
 March 31, 2011, Fabian Kislat  (fabian.kislat@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V00-01-00. Initial release.

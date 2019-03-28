@@ -12,14 +12,14 @@ On The Trunk
 
 
 June 22, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
----------------------------
+------------------------------------------------------------------
 Release V00-01-01
 
 * Adds ''PositionShift'' option
 
 
 Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
----------------------------
+----------------------------------------------------------------
 Release V00-01-00
 
 * Random sevice specification made simpler, more flexible, and more standard

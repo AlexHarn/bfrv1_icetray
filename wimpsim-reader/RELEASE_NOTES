@@ -8,6 +8,7 @@ Release Notes
 March 22, 2019 Michael Larson (mlarson@icecube.wisc.edu)
 --------------------------------------------------------------------
 Trunk
+
 * Cleaned up some of the file handling
 * Added the ability to read gzipped WimpSim files
 * Allow the tray segment to accept multiple input files
@@ -15,16 +16,19 @@ Trunk
 Nov 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 --------------------------------------------------------------------
 Release V03-03-01
+
 * bugfix: fixes typo in example. closes #2154
 * allow passing of a GCD file and Start/End MJD 
 
 Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 --------------------------------------------------------------------
 Release V03-03-00
+
 * Updated scripts. Also see March 14th, 2017 notes
 
 March 14th, 2017 Marcel Zoll (marcel.zoll@fysik.su.se)
 --------------------------------------------------------------------
+
 - python 3 compat
   -- KJ Meager
 - use serialization project
@@ -38,6 +42,7 @@ March 14th, 2017 Marcel Zoll (marcel.zoll@fysik.su.se)
 
 Oct 1st, 2015 Marcel Zoll (marcel.zoll@fysik.su.se)
 --------------------------------------------------------------------
+
 * fixed some spelling errors
 * fix documentation warnings
 * move I3WimpParams out to simclasses; include converters

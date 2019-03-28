@@ -8,55 +8,49 @@ Release Notes
 trunk
 -----
 
-* Merge multiprocess-server branch 
+* Merge multiprocess-server branch
 
 Nov. 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+------------------------------------------------------------------
 Release V04-04-00
+
 * Individual SPE template correction factors and RDE
 * Reads DOMefficiency from icemodel cfg.
 * Unshadowed fraction parameter multiplies by IceModel DOMefficiency
 
-Dec 7, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.umd.edu)
--------------------------------------------------------------------
-Release V04-03-01
-* update geant4 detection script for py2-v3 support
-
-Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.umd.edu)
--------------------------------------------------------------------
-Release V04-03-00
-* @157950 GPU optimization: Fix double buffering in TotalEnergyToProcess? mode Resetting 
-	maxNumParallelEvents_ and maxNumParallelEventsSecondFlush_ Fixes bug #1461
-
-August 22, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.umd.edu)
--------------------------------------------------------------------
+June 22, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.umd.edu)
+-----------------------------------------------------------------
 Release V04-03-02
-* Changes default hole-ice model to 
+
+* Changes default hole-ice model to
 * Changes Summary service to XML agnostic version
 
 Dec 7, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+----------------------------------------------------------------
 Release V04-03-01
+
 * update geant4 detection script for py2-v3 support
 
 Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+----------------------------------------------------------------
 Release V04-03-00
-* @157950 GPU optimization: Fix double buffering in TotalEnergyToProcess? mode Resetting 
-	maxNumParallelEvents_ and maxNumParallelEventsSecondFlush_ Fixes bug #1461
+
+* :trac:`r157950/IceCube` GPU optimization: Fix double buffering in ``TotalEnergyToProcess`` mode Resetting
+  ``maxNumParallelEvents_`` and ``maxNumParallelEventsSecondFlush_`` Fixes bug :trac:`#1461`
 
 August 22, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+--------------------------------------------------------------------
 Release V04-02-02
- * generation of compressed MCPEs. 
+
+* generation of compressed MCPEs.
 
 June 26, 2017 Alex Olivas (olivas@icecube.umd.edu)
--------------------------------------------------------------------
-
+--------------------------------------------------
 Release V04-02-01
- * clsim now works with Geant4 versions >= 4.10.x
- * Emit I3CompressedPhotons if PhotonHistoryEntries? == 0
- * fixed benchmark.py and tray segment parameters
+
+* clsim now works with Geant4 versions >= 4.10.x
+* Emit ``I3CompressedPhotons`` if ``PhotonHistoryEntries`` == 0
+* fixed benchmark.py and tray segment parameters
 
 March 24, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 -------------------------------------------------------------------
@@ -66,37 +60,37 @@ Release V04-02-00
 Major bug fixes are marked with "``***``".
 Do not use older versions of clsim without these for anything!
 
-  * r153861 + r153865: Make thread unpinning to work around stupid cluster 
-    managers also work on Ubuntu, and make the tabulator raise an error if no
-    CPU OpenCL devices are found.
-  * r153710: I3CLSimMakePhotons can now take a wavelength acceptance directly.
-    The user is responsible for getting all the scaling factors right.
-  * r149069 + r150508: new parameterizations for hadronic and EM showers are used
-    (thanks andrii.terliuk) -> now re-factored into CMC (thanks jvs!)
-  * ``***`` r148636: fixed the hadronic shower parametrization by using the correct
-    radiation length (thanks musner!)
-  * ``***`` r149250: clsim/Geant4 does no longer use seawater when simulating glacial
-    ice. This mostly affects late pulses from neutrons. (thanks asteuer!)
-  * r149878: hole ice parameterizations can now be configured when setting
-    up clsim (thanks sebastian.sanchez)
-  * several minor improvements to support mDOMs better (such as optional
-    oversizing [r148281])
-  * ``***`` r147029 and r150787: Make clsim run efficiently on GTX 1080* cards and
-    on TITAN X GPUs. Do *NOT* use older versions of clsim on these cards
-    or you will waste a ton of GPU cycles.
-  * r143614: Moved I3Photon and I3CompressedPhoton to simclasses
-  * ``***`` r140057: Fixed a bug where in rare cases the last few frames would not be processed
-    by clsim. (Thanks dschultz!)
-  * r131448: The cutoff distance for sources further away from any DOM than a certain
-    distance is now configurable using the I3CLSimModule option
-    "ClosestDOMDistanceCutoff". It used to be hard-coded to 300m.
-  * r130869: New "TotalEnergyToProcess" option to keep collecting input events as long
-    as the total energy to be propagated is below a threshold. (Instead of
-    just processing a fixed number of events in parallel.) Using this option
-    should reduce fluctuations in the memory requirements of clsim jobs.
-    This cannot currently be used with flasher simulations. If unset, the
-    previous behavior is used.
-  * various tablemaker fixes
+* r153861 + r153865: Make thread unpinning to work around stupid cluster
+  managers also work on Ubuntu, and make the tabulator raise an error if no
+  CPU OpenCL devices are found.
+* r153710: I3CLSimMakePhotons can now take a wavelength acceptance directly.
+  The user is responsible for getting all the scaling factors right.
+* r149069 + r150508: new parameterizations for hadronic and EM showers are used
+  (thanks andrii.terliuk) -> now re-factored into CMC (thanks jvs!)
+* ``***`` r148636: fixed the hadronic shower parametrization by using the correct
+  radiation length (thanks musner!)
+* ``***`` r149250: clsim/Geant4 does no longer use seawater when simulating glacial
+  ice. This mostly affects late pulses from neutrons. (thanks asteuer!)
+* r149878: hole ice parameterizations can now be configured when setting
+  up clsim (thanks sebastian.sanchez)
+* several minor improvements to support mDOMs better (such as optional
+  oversizing [r148281])
+* ``***`` r147029 and r150787: Make clsim run efficiently on GTX 1080* cards and
+  on TITAN X GPUs. Do *NOT* use older versions of clsim on these cards
+  or you will waste a ton of GPU cycles.
+* r143614: Moved I3Photon and I3CompressedPhoton to simclasses
+* ``***`` r140057: Fixed a bug where in rare cases the last few frames would not be processed
+  by clsim. (Thanks dschultz!)
+* r131448: The cutoff distance for sources further away from any DOM than a certain
+  distance is now configurable using the I3CLSimModule option
+  "ClosestDOMDistanceCutoff". It used to be hard-coded to 300m.
+* r130869: New "TotalEnergyToProcess" option to keep collecting input events as long
+  as the total energy to be propagated is below a threshold. (Instead of
+  just processing a fixed number of events in parallel.) Using this option
+  should reduce fluctuations in the memory requirements of clsim jobs.
+  This cannot currently be used with flasher simulations. If unset, the
+  previous behavior is used.
+* various tablemaker fixes
 
 December 22, 2014 Alex Olivas  (olivas@icecube.umd.edu)
 -------------------------------------------------------

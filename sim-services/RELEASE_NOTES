@@ -11,7 +11,7 @@ trunk
 - Add `I3CosmicEventGenerator`, an interface for using CORSIKA as a service in mulitprocess-server clsim
 
 June 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+------------------------------------------------------------------
 V01-08-01 - Incremental release
 
   r161706 - Merged branches/streaming-hit-merging
@@ -21,7 +21,7 @@ V01-08-01 - Incremental release
 
 
 Nov 2, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+----------------------------------------------------------------
 V01-08-00 - Incremental release
 
 * (Kotoyo) Modified pure virtual function I3PropergatorService::Propagate
@@ -29,7 +29,7 @@ V01-08-00 - Incremental release
   in order to make I3NeutrinoPropagator work properly.
 
 August 22, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+--------------------------------------------------------------------
 V01-07-01 - Incremental release
 
 March 24, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)

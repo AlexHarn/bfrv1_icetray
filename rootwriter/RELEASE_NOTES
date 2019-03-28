@@ -4,35 +4,35 @@ Release Notes
 Please, if you make changes in this project, leave some notes, your name  and the date.
  
 Trunk
-^^^^^
+-----
 
 June 13, 2018, Alex Olivas  (olivas@icecube.umd.edu)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------------
 Release V18-06-00
 
 * very minor cleanups
 
 November 15, 2017, Alex Olivas  (olivas@icecube.umd.edu)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
 Release V17-11-00
 
 * very minor cleanups
 
 
 March 23, 2017, Alex Olivas  (olivas@icecube.umd.edu)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------------------
 Release V17-03-00
 
 * very minor cleanups
 
 March 18, 2016, don la dieu  (nega@icecube.umd.edu)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------------
 Release V16-03-00
 
 * minor doc updates
 
 December 14, 2015, don la dieu  (nega@icecube.umd.edu)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------------------
 
 Release V15-12-00
 
@@ -43,7 +43,7 @@ Release V15-12-00
   -- September 17, 2015. Giuliano Maggi.
 
 Old Releases
-^^^^^^^^^^^^
+------------
 
 * Added a script that ensures the example script runs.  Removed the dependence on linefit, since that project isn't available in all meta-projects.
 

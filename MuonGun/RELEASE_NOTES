@@ -9,7 +9,7 @@ trunk
 -----
 
 Release V00-02-03
------
+-----------------
 * Added support for boost >= 1.63.
   For these newer versions of boost, boostnumpy has been integrated into boost
   and is not an external dependency anymore.
@@ -21,10 +21,11 @@ Release V00-02-02
 * Unbiased generation with natural rates
 
 Release V00-02-01ug
------------------
+-------------------
 * Unbiased generation with natural rates
 
 V00-02-00: March 24, 2017
+-------------------------
 Mostly docs. Changes since 00-00-04:
 
 * Document:

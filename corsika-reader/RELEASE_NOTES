@@ -9,28 +9,29 @@ On the trunk
 ------------
 
 Nov 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+-----------------------------------------------------------------
 V00-02-00
+
 * Separated surface sampling (and oversampling) to CORSIKAResampler module. 
 * Legacy mode oversampling parameter (needed for background coincident showers).
 
 
 Nov 3, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
--------------------------------------------------------------------
+----------------------------------------------------------------
 V00-01-02
-* updated scripts
 
+* updated scripts
 
 March 24, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 -------------------------------------------------------------------
-
 V00-01-01
 
 * Parameter name typo corrected
 * Improved docs
 
+April 8, 2016 Alex Olivas (olivas@icecube.umd.edu)
+--------------------------------------------------
 V00-01-00
----------
 
 * EHistory parameter added. This will carry out rotation to I3 coordinate 
   system for Ehistory shower particles. EHistory option is not compatible 
@@ -52,23 +53,20 @@ V00-01-00
 * Update to new I3MCTree
 
 November 24, 2014 Alex Olivas (olivas@icecube.umd.edu)
---------------------------------------------------------------------
-
+------------------------------------------------------
 V00-00-05
 
 * CorsikaInteractionHeight is now added to the frame (temporarily).
 
 August 11, 2014 Juan Carlos Diaz Velez (juancarlos@icecube.wisc.edu)
 --------------------------------------------------------------------
-
 V00-00-04
 
 * Fixed arguments passed to MuonGun::GetTotalArea(cos(thetaMax), cos(thetaMin)). 
   Order was swapped resulting in negative area.
  
 July 14, 2014 Alex Olivas  (olivas@icecube.umd.edu)
---------------------------------------------------------------------
-
+---------------------------------------------------
 V00-00-03
 
 * Take the curvature of the Earth into account when shifting the shower

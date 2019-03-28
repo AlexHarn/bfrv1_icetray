@@ -8,12 +8,14 @@ Release Notes
 trunk
 -----
 
-V01-03-02﻿
+V01-03-02
 ---------
+
 * link cleanup and documentation updates
 
 V01-03-01
 ---------
+
 * (r158928)  Added support for printing most types
 * (r156953)  Adapted to latest dataio changes.
 * (r158807)  Updated test scripts
@@ -55,6 +57,6 @@ V01-01-00
   These can be used for general simulations.
 
 October 10, 2011 Alex Olivas  (olivas@icecube.umd.edu)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Going to get serious about release notes for individual projects.

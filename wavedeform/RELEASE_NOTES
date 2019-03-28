@@ -6,10 +6,10 @@ Release Notes
 =============
 
 Since last release:
---------------------------------------------------------------------
+-------------------
 
 January 15, 2019 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
---------------------------------------------------------------------
+---------------------------------------------------------------------
 * Update (r167078): Make new unfolding the default
 * Update (r166506): Use more accurate determination of ATWD time range
                     for FADC deweighting
@@ -19,13 +19,13 @@ January 15, 2019 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 
 
 June 22, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
---------------------------------------------------------------------
+------------------------------------------------------------------
 Release V02-01-01
 * Bug fix: random memory access when template bins evently spaced.
 
 
 Nov 6, 2017 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
---------------------------------------------------------------------
+----------------------------------------------------------------
 Release V02-01-00
 
 * Update (r155973): Fix Coxae issue: Use ATWD calibration from ATWD used
@@ -43,7 +43,7 @@ Release V02-01-00
   the end pointer for the final column of basis matrix
 
 April 4, 2015 Meike de With (meike.de.with@desy.de)
---------------------------------------------------------------------
+---------------------------------------------------
 
 Release V02-00-00
 
@@ -76,7 +76,7 @@ Release V02-00-00
 
 
 December 9, 2014 Meike de With (meike.de.with@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V01-02-02
 
@@ -86,7 +86,7 @@ Release V01-02-02
 
 
 April 17, 2014 Meike de With (meike.de.with@desy.de)
---------------------------------------------------------------------
+----------------------------------------------------
 
 Release V01-02-01
 
@@ -97,7 +97,7 @@ Release V01-02-01
 
 
 January 13, 2014 Meike de With (meike.de.with@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V01-02-00
 
@@ -108,7 +108,7 @@ Release V01-02-00
 
 
 August 20, 2013 Meike de With (meike.de.with@desy.de)
---------------------------------------------------------------------
+-----------------------------------------------------
 
 Release V01-01-00
 
@@ -127,7 +127,7 @@ Release V01-01-00
 
 
 February 21, 2013 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+----------------------------------------------------------
 
 Release V01-00-05
 
@@ -138,7 +138,7 @@ Release V01-00-05
 
 
 October 22, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+---------------------------------------------------------
 
 Release V01-00-04
 
@@ -149,7 +149,7 @@ Release V01-00-04
 
 
 June 25, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V01-00-03
 
@@ -159,7 +159,7 @@ Release V01-00-03
 
 
 January 11, 2012 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+---------------------------------------------------------
 
 Release V01-00-02
 
@@ -172,7 +172,7 @@ Release V01-00-02
 
 
 August 25, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+--------------------------------------------------------
 
 Release V01-00-01
 
@@ -185,7 +185,7 @@ Release V01-00-01
 
 
 August 9, 2011 Emanuel Jacobi  (emanuel.jacobi@desy.de)
---------------------------------------------------------------------
+-------------------------------------------------------
 
 Release V01-00-00
 
@@ -195,7 +195,7 @@ Release V01-00-00
   -- Jakob van Santen
 
 June 16, 2011, Nathan Whitehorn (nwhitehorn@icecube.wisc.edu)
---------------------------------------------------------------------
+-------------------------------------------------------------
 
 New features:
 
@@ -206,7 +206,7 @@ New features:
 * NoiseFloor argument removed (now calculated dynamically)
 
 March 24, 2011, Fabian Kislat  (fabian.kislat@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V00-01-01
 
@@ -218,6 +218,6 @@ Bugfixes:
 
 
 March 12, 2011, Fabian Kislat  (fabian.kislat@desy.de)
---------------------------------------------------------------------
+------------------------------------------------------
 
 Release V00-01-00. Initial release.
