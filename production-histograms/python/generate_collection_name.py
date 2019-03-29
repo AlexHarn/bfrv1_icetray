@@ -27,6 +27,7 @@ def generate_collection_name(path):
     You can look at this as a readable hash, in that it should
     be unique, that can be used for a collection name.
     '''
+    
     rval = ""
     for d in path.split('/')[3:]:
         if not _is_range(d):

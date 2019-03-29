@@ -75,7 +75,6 @@ class ExpressionHistogram(Histogram):
             icetray.logging.log_debug("Histogram Name : %s" % self.name)
             icetray.logging.log_debug("Calling fill(%f) " % value)
 
-
     def __getstate__(self):
         '''
         Allows Histograms to be pickled.

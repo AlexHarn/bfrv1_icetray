@@ -3,7 +3,6 @@ import sys
 import glob
 from icecube import icetray, dataio, dataclasses, simclasses, recclasses
 
-from icecube.production_histograms.find_gcd_file import find_gcd_file
 from icecube.production_histograms.db import create_simprod_db_client
 from icecube.production_histograms.generate_collection_name import generate_collection_name
 
@@ -90,6 +89,8 @@ def _configure(filename, histograms):
     an indication that the file is corrupt, so we catch
     that and log the file in the database.
     '''
+    good_filelist = list()
+    corrupt_filelist = list()
     try:
         i3file = dataio.I3File(filename)
         for frame in i3file:
@@ -98,13 +99,13 @@ def _configure(filename, histograms):
                     hlist = _configure_from_frame(frame, frame_key)
                     if hlist:
                         histograms[frame_key] = hlist
-
+        good_filelist.append(filename)
     except RuntimeError:
-        _log_corrupt_file(filename)
+        corrupt_filelist.append(filename)
         
     finally:
         print("configure: %d" % len(histograms))
-        return histograms
+        return good_filelist, corrupt_filelist
 
 def generate_histogram_configuration_list(i3files):
     '''
@@ -113,31 +114,32 @@ def generate_histogram_configuration_list(i3files):
     out which histograms need to be loaded.
     '''
     histograms = dict()
-
+    good_filelist = list()
+    corrupt_filelist = list()
+    
     filelist = [i3files] if isinstance(i3files, str) else i3files
     
     file_counter = 0
     for filename in filelist:
         file_counter += 1
         print("Processing file (%d/%d): %s " % (file_counter, len(filelist), filename))
-        _configure(filename, histograms)
+        good_filelist, corrupt_filelist = _configure(filename, histograms)
 
     histogram_list = list()
     for frame_key, hl in histograms.iteritems():
         histogram_list.extend(hl) 
-    return histogram_list
+    return histogram_list, good_filelist, corrupt_filelist
 
-def _generate_i3filelist(path, exclude_GCD = True):
+def generate_i3filelist(path):
     '''
-    Get all I3Files with the option to exclude GCD files.
+    Get all I3Files, excluding GCD files.
     '''
     filelist = list()
     for root, dirs, files in os.walk(path):
         for fn in files:
             
-            if exclude_GCD and \
-               ('GeoCalibDetectorStatus' in fn or \
-                'GCD' in fn):
+            if 'GeoCalibDetectorStatus' in fn or \
+                'GCD' in fn:
                 continue
 
             if fn.endswith('.i3') or \
@@ -145,48 +147,7 @@ def _generate_i3filelist(path, exclude_GCD = True):
                fn.endswith('.i3.gz') or \
                fn.endswith('.i3.zst'):
                 
-                result.append(os.path.join(root, fn))
+                filelist.append(os.path.join(root, fn))
     return filelist
     
-def update_filecatalog(path):
 
-    client = create_simprod_db_client()
-    collection = client.simprod_filecatalog.filelist
-    histogram_collection_name = generate_collection_name(filename)
-    document = collection.find_one({'category': histogram_collection_name})
-
-    if not document:
-        collection.insert_one({'filelist': filelist})
-    else:
-        old_filelist = document['filelist']
-        document['filelist'] = list(set(old_filelist + filelist)) # don't want duplicates
-        result = collection.update({'_id': document['_id']}, document)
-        print(result)
-
-    
-def generate_filelist(path):
-    '''
-    This function first finds the appropriate GCD file for this dataset, which
-    becomes the first entry in the list.
-
-    For the filelist, it'll look in the filecatalog first.  If there's no entry
-    '''
-
-    gcdfile = find_gcd_file(path)
-    if not gcdfile:
-    	config_year = path.split("/")
-    	gcddir = '/data/sim/sim-new/downloads/GCD/'
-    	keyword = config_year[4]
-    	for filename in glob.glob(os.path.join(gcddir, '*.i3.gz')):
-	    if keyword in filename:
-		if len(filename.split("_")) < 4:
-		    gcdfile = filename
-    if not gcdfile:
-        print("Could not find GCD file in %s" % path)
-        sys.exit(1)
-        
-    filelist = [gcdfile]
-    filelist.extend(_generate_i3filelist(path))
-    return filelist
-
-    

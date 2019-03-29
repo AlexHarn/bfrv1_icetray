@@ -12,8 +12,13 @@ class TestHistogram(unittest.TestCase):
         
         PATH = os.path.expandvars("$I3_TESTDATA/production-histograms/")
         fn = os.path.join(PATH, "Level2_IC86.2016_corsika.020699.000000.i3.zst")
-        histogram_list = generate_histogram_configuration_list(fn)
+        histogram_list, good_filelist, corrupt_filelist = generate_histogram_configuration_list(fn)
 
+        print("Good Filelist:")
+        print(good_filelist)
+        print("Corrupt Filelist:")
+        print(corrupt_filelist)
+        
         # currently there are 456 histograms.
         # we might add more later.
         self.assertTrue(len(histogram_list) >= 456)
