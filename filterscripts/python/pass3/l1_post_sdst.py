@@ -92,9 +92,10 @@ def sdst_to_l1(tray, name, ic79_geometry=False):
 
     # Generate filter Masks for all P frames
     filter_mask_randoms = phys_services.I3GSLRandomService(9999)
+    filter_mask_configs = dataclasses.I3MapStringInt(filter_globals.filter_pairs + filter_globals.sdst_pairs)
     tray.AddModule("FilterMaskMaker", "MakeFilterMasks",
-                   OutputMaskName = filter_globals.filter_mask,
-                   FilterConfigs = filter_globals.filter_pairs + filter_globals.sdst_pairs,
+                   OutputMaskName = filter_globals.filter_mask,                   
+                   FilterConfigs = filter_mask_configs,
                    RandomService = filter_mask_randoms)
 
     # Merge the FilterMasks into Q frame:
