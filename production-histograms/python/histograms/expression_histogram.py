@@ -61,20 +61,15 @@ class ExpressionHistogram(Histogram):
         value = 0.
         try:
             value = eval(self.expression)
-        except Exception as e: 
-            icetray.logging.log_debug("%s: %s" % (type(e),str(e)))
-            icetray.logging.log_debug("Histogram Name : %s" % self.name)
-            icetray.logging.log_debug("Calling : %s" % self.expression)
+        except Exception as e:
             return
             
         # Call fill and catch all errors
         try:
             self.fill(value)
         except Exception as e: 
-            icetray.logging.log_debug("%s: %s" % (type(e),str(e)))
-            icetray.logging.log_debug("Histogram Name : %s" % self.name)
-            icetray.logging.log_debug("Calling fill(%f) " % value)
-
+            return
+            
     def __getstate__(self):
         '''
         Allows Histograms to be pickled.
