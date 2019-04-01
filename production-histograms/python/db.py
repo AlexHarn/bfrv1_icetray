@@ -5,7 +5,7 @@ from icecube import icetray
     
 def create_simprod_db_client(database_url = 'mongodb-simprod.icecube.wisc.edu',
                              dbuser = 'DBadmin',
-                             password_path = join('data', 'user', environ["USER"], '.mongo')):
+                             password_path = join(environ["HOME"], '.mongo')):
     
     try:
         from pymongo import MongoClient

@@ -3,10 +3,7 @@ import sys
 import glob
 from icecube import icetray, dataio, dataclasses, simclasses, recclasses
 
-from icecube.production_histograms.db import create_simprod_db_client
 from icecube.production_histograms.generate_collection_name import generate_collection_name
-
-
 from icecube.production_histograms.histogram_modules.simulation.mctree_primary import I3MCTreePrimaryModule
 from icecube.production_histograms.histogram_modules.simulation.mctree import I3MCTreeModule
 from icecube.production_histograms.histogram_modules.simulation.mcpe_module import I3MCPEModule
@@ -36,29 +33,6 @@ def _get_modules(frame_object):
     for frame_type in _type_to_histogram.keys():
         if isinstance( frame_object, frame_type):
             return _type_to_histogram[frame_type]    
-
-def _log_corrupt_file(filename):
-    icetray.logging.log_info("This file is corrupt: %s" % filename)
-    histogram_collection_name = generate_collection_name(filename)
-    icetray.logging.log_debug("    %s" % histogram_collection_name)
-    
-    client = create_simprod_db_client()
-    collection = client.simprod_filecatalog.filelist
-    document = collection.find_one({'category': histogram_collection_name})
-
-    if not document:
-        collection.insert_one({'filelist': list(),
-                               'corrupt_filelist': [filename]})
-    else:    
-        if 'corrupt_filelist' not in document:
-            document['corrupt_filelist'] = list()
-
-        if filename not in document['corrupt_filelist']:
-            document['filelist'].remove(filename)
-            document['corrupt_filelist'].append(filename)
-
-        result = collection.update({'_id': document['_id']}, document)
-        print(result)
 
 def _configure_from_frame(frame, frame_key):
     '''

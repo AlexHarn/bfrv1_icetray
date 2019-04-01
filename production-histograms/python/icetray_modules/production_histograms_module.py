@@ -75,6 +75,7 @@ class ProductionHistogramModule(I3Module) :
         self.AddParameter("OutputFilename", "Name of output pickle file.", None )
         self.AddParameter("CollectionName", "Name of the MongoDB collection.", None )
         self.AddParameter("FilenameList", "List of I3Files passed to I3Reader", None) 
+        self.AddParameter("PasswordPath", "Path to plain text password file for the DB.", None) 
         self.AddParameter("Prescales", "Dictionary of frame type to prescale",  
                           {"Geometry" : 1,
                            "Calibration": 1,
@@ -91,6 +92,11 @@ class ProductionHistogramModule(I3Module) :
         self.filenamelist = self.GetParameter("FilenameList")
         self.prescales = self.GetParameter("Prescales")        
         self.histograms = parameter_conversion(self.GetParameter("Histograms"))
+        
+        _password_path = self.GetParameter("PasswordPath")
+        self.password_path = _password_path \
+                             if _password_path \
+                                else os.path.join(os.environ["HOME"], '.mongo'))
         
         # initialize the frame counters
         self._frame_counters = dict()
@@ -111,7 +117,7 @@ class ProductionHistogramModule(I3Module) :
         if self.filenamelist and self.collection_name:
             configured_filenamelist_len = len(self.filenamelist)
             
-            client = create_simprod_db_client()
+            client = create_simprod_db_client(self.password_path)
             db = client.simprod_histograms
 
             collection = db[str(self.collection_name)]
@@ -181,7 +187,7 @@ class ProductionHistogramModule(I3Module) :
 
     def __write_to_database(self, histograms):
 
-        client = create_simprod_db_client()
+        client = create_simprod_db_client(self.password_path)
         if not client:
             return
         
