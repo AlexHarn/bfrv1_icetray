@@ -96,7 +96,7 @@ class ProductionHistogramModule(I3Module) :
         _password_path = self.GetParameter("PasswordPath")
         self.password_path = _password_path \
                              if _password_path \
-                                else os.path.join(os.environ["HOME"], '.mongo'))
+                                else os.path.join(os.environ["HOME"], '.mongo')
         
         # initialize the frame counters
         self._frame_counters = dict()

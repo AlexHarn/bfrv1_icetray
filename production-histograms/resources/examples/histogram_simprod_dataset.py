@@ -13,8 +13,6 @@ parser.add_option("-g","--gcd_file",
 parser.add_option("-c","--collection-name",
                   dest = "collection_name",
                   help = "Name of the DB collection.")
-parser.add_option("password-path",
-                  help = "Path to password file.")
 (options, args) = parser.parse_args()
 
 import os
@@ -41,7 +39,7 @@ if not options.gcd_file:
 # if the credentials path is not $HOME/.mongo then you need
 # to pass the path to create_simprod_db_client
 # e.g. create_simprod_db_client(password_path='/home/fizzycist/please-hacker-dont-read-me.txt')
-client = create_simprod_db_client(options.password_path)
+client = create_simprod_db_client()
 
 collection_name = options.collection_name \
                   if options.collection_name \
@@ -66,8 +64,7 @@ tray = I3Tray()
     
 tray.Add("I3Reader", FilenameList = good_filelist)
 
-tray.Add(ProductionHistogramModule,
-         PasswordPath = options.password_path,
+tray.Add(ProductionHistogramModule, 
          Histograms = histograms,
          CollectionName = collection_name,
          FilenameList = good_filelist
