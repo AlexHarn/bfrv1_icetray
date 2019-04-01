@@ -116,7 +116,7 @@ class ProductionHistogramModule(I3Module) :
         # to the DB.  Need to guard against double counting.
         if self.filenamelist and self.collection_name:
             configured_filenamelist_len = len(self.filenamelist)
-            
+            print "EMILY", self.password_path
             client = create_simprod_db_client(self.password_path)
             db = client.simprod_histograms
 

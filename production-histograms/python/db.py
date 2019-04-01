@@ -1,3 +1,4 @@
+import os
 from os import environ
 from os.path import join
 from os.path import exists
@@ -5,7 +6,7 @@ from icecube import icetray
     
 def create_simprod_db_client(database_url = 'mongodb-simprod.icecube.wisc.edu',
                              dbuser = 'DBadmin',
-                             password_path = expandvars('$HOME/.mongo')):
+                             password_path = os.path.expandvars('$HOME/.mongo')):
     
     try:
         from pymongo import MongoClient
