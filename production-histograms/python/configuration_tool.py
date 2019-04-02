@@ -87,16 +87,20 @@ def generate_histogram_configuration_list(i3files):
     peek at the I3Files, loop over all frames, and figure 
     out which histograms need to be loaded.
     '''
+    if not isinstance(i3files, list):
+        icetray.logging.log_fatal("Expecting a list of I3File names.")    
+
+    if not i3files:
+        icetray.logging.log_fatal("Passed an empty list")    
+        
     histograms = dict()
     good_filelist = list()
     corrupt_filelist = list()
-    
-    filelist = [i3files] if isinstance(i3files, str) else i3files
-    
+  
     file_counter = 0
-    for filename in filelist:
+    for filename in i3files:
         file_counter += 1
-        print("Processing file (%d/%d): %s " % (file_counter, len(filelist), filename))
+        icetray.logging.log_info("Processing file (%d/%d): %s " % (file_counter, len(i3files), filename))
         good_filelist, corrupt_filelist = _configure(filename, histograms)
 
     histogram_list = list()
