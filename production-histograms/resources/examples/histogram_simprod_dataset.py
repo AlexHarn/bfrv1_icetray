@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -10,12 +11,15 @@ parser.add_option("-p","--path",
 parser.add_option("-g","--gcd_file",
                   dest = "gcd_file",
                   help = "The GCD file.")
+parser.add_option("-x","--password_path",
+                  dest = "password_path",
+                  default = os.path.join(os.environ['HOME'], '.mongo'),
+                  help = "DB password file.")
 parser.add_option("-c","--collection-name",
                   dest = "collection_name",
                   help = "Name of the DB collection.")
 (options, args) = parser.parse_args()
 
-import os
 import sys
 
 from pymongo import MongoClient        
@@ -35,11 +39,7 @@ if not os.path.exists(options.path):
 if not options.gcd_file:
     icetray.logging.log_fatal('You must specify a GCD file.')
 
-    
-# if the credentials path is not $HOME/.mongo then you need
-# to pass the path to create_simprod_db_client
-# e.g. create_simprod_db_client(password_path='/home/fizzycist/please-hacker-dont-read-me.txt')
-client = create_simprod_db_client()
+client = create_simprod_db_client(password_path=options.password_path)
 
 collection_name = options.collection_name \
                   if options.collection_name \
