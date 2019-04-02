@@ -13,7 +13,7 @@ parser.add_option("-g","--gcd_file",
                   help = "The GCD file.")
 parser.add_option("-x","--password_path",
                   dest = "password_path",
-                  default = os.path.join(os.environ['HOME'], '.mongo'),
+                  default = os.path.expandvars('$HOME/.mongo'),
                   help = "DB password file.")
 parser.add_option("-c","--collection-name",
                   dest = "collection_name",
