@@ -14,7 +14,7 @@ def create_simprod_db_client(database_url = 'mongodb-simprod.icecube.wisc.edu',
         icetray.logging.log_fatal("PyMongo not installed.")
 
     if not exists(password_path):
-        icetray.logging.log_fatal("Credentials not found.")
+        icetray.logging.log_fatal("Password file '%s' not found." % password_path)
         
     f = open(password_path)
     uri = "mongodb://%s:%s@%s" % (dbuser, f.readline().strip(), database_url)
