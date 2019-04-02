@@ -65,6 +65,7 @@ tray = I3Tray()
 tray.Add("I3Reader", FilenameList = good_filelist)
 
 tray.Add(ProductionHistogramModule, 
+         PasswordPath = options.password_path,
          Histograms = histograms,
          CollectionName = collection_name,
          FilenameList = good_filelist
