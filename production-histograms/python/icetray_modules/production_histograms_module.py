@@ -117,7 +117,7 @@ class ProductionHistogramModule(I3Module) :
         if self.filenamelist and self.collection_name:
             configured_filenamelist_len = len(self.filenamelist)
             print "EMILY", self.password_path
-            client = create_simprod_db_client(self.password_path)
+            client = create_simprod_db_client(password_path=self.password_path)
             db = client.simprod_histograms
 
             collection = db[str(self.collection_name)]
@@ -187,7 +187,7 @@ class ProductionHistogramModule(I3Module) :
 
     def __write_to_database(self, histograms):
 
-        client = create_simprod_db_client(self.password_path)
+        client = create_simprod_db_client(password_path=self.password_path)
         if not client:
             return
         
