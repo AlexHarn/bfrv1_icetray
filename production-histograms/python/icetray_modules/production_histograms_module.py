@@ -193,7 +193,7 @@ class ProductionHistogramModule(I3Module) :
         collection = db[str(self.collection_name)]
 
         icetray.logging.log_info('Loading %d histograms into the DB' % len(histograms))
-        icetray.logging.log_info('Collection name = ' % self.collection_name)
+        icetray.logging.log_info('Collection name = %s' % self.collection_name)
         for histogram in histograms:            
             h = collection.find_one({'name': histogram.name})
             if h:
