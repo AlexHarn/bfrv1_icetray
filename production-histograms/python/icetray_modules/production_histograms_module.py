@@ -116,7 +116,6 @@ class ProductionHistogramModule(I3Module) :
         # to the DB.  Need to guard against double counting.
         if self.filenamelist and self.collection_name:
             configured_filenamelist_len = len(self.filenamelist)
-            print "EMILY", self.password_path
             client = create_simprod_db_client(password_path=self.password_path)
             db = client.simprod_histograms
 
@@ -125,7 +124,6 @@ class ProductionHistogramModule(I3Module) :
                 # check to see if these I3Files have been histogrammed
                 # already and fail to avoid double counting.            
                 filelist = collection.find_one({'name': 'filelist'})
-
                 if filelist:
                     for fn in filelist['files']:
                         if fn in self.filenamelist:
@@ -195,6 +193,7 @@ class ProductionHistogramModule(I3Module) :
         collection = db[str(self.collection_name)]
 
         icetray.logging.log_info('Loading %d histograms into the DB' % len(histograms))
+        icetray.logging.log_info('Collection name = ' % self.collection_name)
         for histogram in histograms:            
             h = collection.find_one({'name': histogram.name})
             if h:
@@ -204,9 +203,9 @@ class ProductionHistogramModule(I3Module) :
                 h['overflow'] += histogram.overflow
                 h['underflow'] += histogram.underflow
                 h['nan_count'] += histogram.nan_count                
-                result = collection.replace_one({'_id': h['_id']}, h)
+                result = collection.replace_one({'_id': h['_id']}, h)                
             else:
-                # this is the first histogram...add it
+                # this is the first histogram...add it                
                 result = collection.insert_one(histogram.__getstate__())
             icetray.logging.log_debug(str(result))
 
@@ -220,7 +219,7 @@ class ProductionHistogramModule(I3Module) :
                         'files': self.filenamelist}
             result = collection.insert_one(filelist)
         else:
-            filelist['files'].extend(filelist)
+            filelist['files'].extend(self.filenamelist)
             result = collection.replace_one({'_id': filelist['_id']}, filelist)
 
         
