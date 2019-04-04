@@ -12,12 +12,24 @@
 #include <TVector3.h>
 
 #include "genie-icetray/GConstantDensityGeometryAnalyzer.h"
+
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
+#else
 #include "EVGDrivers/PathLengthList.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
+#endif
 
 using namespace genie;
 using namespace genie::geometry;

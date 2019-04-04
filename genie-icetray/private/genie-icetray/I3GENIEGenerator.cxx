@@ -53,6 +53,36 @@
 
 
 // Genie
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Conventions/XmlParserStatus.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/EventGen/GFluxI.h"
+#include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/EventGen/GMCJDriver.h"
+#include "Framework/EventGen/GMCJMonitor.h"
+#include "Framework/EventGen/GEVGPool.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpWriter.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/XSecSplineList.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/EventGen/GMCJDriver.h"
+#else
 #include "Algorithm/AlgConfigPool.h"
 #include "Registry/Registry.h"
 #include "Conventions/XmlParserStatus.h"
@@ -78,12 +108,8 @@
 #include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
-//#include "Utils/CmdLineArgParserUtils.h"
-//#include "Utils/CmdLineArgParserException.h"
-
-//#include "Geo/PointGeomAnalyzer.h"
-//#include "FluxDrivers/GMonoEnergeticFlux.h"
-//#include "HelperClasses/CrossSectionAccessor.h"
+#include "EVGDrivers/GMCJDriver.h"
+#endif
 
 // ROOT
 #include "TPythia6.h"
@@ -100,8 +126,6 @@
 #include "genie-icetray/GCylindPowerLawFlux.h"
 #include "genie-icetray/GCylindPowerLawFlux.h"
 #include "genie-icetray/GConstantDensityGeometryAnalyzer.h"
-//#include "genie-icetray/MyGMCJDriver.h"
-#include "EVGDrivers/GMCJDriver.h"
 #include "genie-icetray/I3GENIESystWeights.h"
 
 // helpers

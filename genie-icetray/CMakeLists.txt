@@ -44,7 +44,7 @@ i3_project(genie-icetray
   find_library(GENVECTOR_LIB GenVector PATHS ${ROOTSYS}/lib)
 
   # let the code know where GENIE is located in order to be able to read some data files
-  add_definitions(-DGENIE_PATH="${GENIE_PATH}")
+  add_definitions(-DGENIE_PATH="${GENIE_PATH}" -DGENIE_GVERSION_H="${GENIE_GVERSION_H}")
 
   i3_add_library(genie-icetray
     private/genie-icetray/*.cxx

@@ -30,6 +30,30 @@
 
 #include "icetray/I3Logging.h"
 
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/GVersion.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepUtils.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+//#include "Framework/Utils/CmdLineArgParserUtils.h"
+//#include "Framework/Utils/CmdLineArgParserException.h"
+#include "Framework/Utils/SystemUtils.h"
+#include "Framework/Utils/T2KEvGenMetaData.h"
+#else
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
@@ -50,6 +74,7 @@
 //#include "Utils/CmdLineArgParserException.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/T2KEvGenMetaData.h"
+#endif
 
 using namespace genie;
 

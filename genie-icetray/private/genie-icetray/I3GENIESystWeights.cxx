@@ -7,6 +7,28 @@
  */
 
 #include "genie-icetray/I3GENIESystWeights.h"
+
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+// These are now in a separate product from the GENIE folks
+#include "Framework/ReWeight/GSystSet.h"
+#include "Framework/ReWeight/GSyst.h"
+#include "Framework/ReWeight/GReWeightNuXSecNCEL.h"
+#include "Framework/ReWeight/GReWeightNuXSecCCQE.h"
+#include "Framework/ReWeight/GReWeightNuXSecCCRES.h"
+#include "Framework/ReWeight/GReWeightNuXSecCOH.h"
+#include "Framework/ReWeight/GReWeightNonResonanceBkg.h"
+#include "Framework/ReWeight/GReWeightFGM.h"
+#include "Framework/ReWeight/GReWeightDISNuclMod.h"
+#include "Framework/ReWeight/GReWeightResonanceDecay.h"
+#include "Framework/ReWeight/GReWeightFZone.h"
+#include "Framework/ReWeight/GReWeightINuke.h"
+#include "Framework/ReWeight/GReWeightAGKY.h"
+#include "Framework/ReWeight/GReWeightNuXSecCCQEvec.h"
+#include "Framework/ReWeight/GReWeightNuXSecNCRES.h"  
+#include "Framework/ReWeight/GReWeightNuXSecDIS.h"
+#else
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSyst.h"
 #include "ReWeight/GReWeightNuXSecNCEL.h"
@@ -23,6 +45,7 @@
 #include "ReWeight/GReWeightNuXSecCCQEvec.h"
 #include "ReWeight/GReWeightNuXSecNCRES.h"  
 #include "ReWeight/GReWeightNuXSecDIS.h"
+#endif
 
 using namespace genie;
 

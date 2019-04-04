@@ -15,12 +15,23 @@
 
 #include <TVector3.h>
 
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/Utils/PrintUtils.h"
+#else
 #include "Conventions/Constants.h"
-#include "genie-icetray/GCylindPowerLawFlux.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/PrintUtils.h"
+#endif
+
+#include "genie-icetray/GCylindPowerLawFlux.h"
 
 using namespace genie;
 using namespace genie::constants;

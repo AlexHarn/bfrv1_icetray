@@ -17,7 +17,13 @@
 
 #include <TLorentzVector.h>
 
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/EventGen/GFluxI.h"
+#else
 #include "EVGDrivers/GFluxI.h"
+#endif
 
 class TVector3;
 

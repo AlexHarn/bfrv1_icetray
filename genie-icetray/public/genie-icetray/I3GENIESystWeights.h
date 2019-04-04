@@ -9,10 +9,18 @@
 #ifndef I3GENIESYSTWEIGHTS_H_INCLUDED
 #define I3GENIESYSTWEIGHTS_H_INCLUDED
 
-#include "EVGCore/EventRecord.h"
-#include "genie-icetray/I3GENIEResultDict.h"
-#include "ReWeight/GReWeight.h"
+#include GENIE_GVERSION_H
 
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/EventGen/EventRecord.h"
+// this is in a separate "ReWeight" product from the GENIE folks
+// #include "Framework/ReWeight/GReWeight.h"
+#else
+#include "EVGCore/EventRecord.h"
+#include "ReWeight/GReWeight.h"
+#endif
+
+#include "genie-icetray/I3GENIEResultDict.h"
 namespace genie { 
     
   class I3GENIESystWeights

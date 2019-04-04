@@ -27,10 +27,15 @@
 #ifndef CONVERTTOGST_H_INCLUDED
 #define CONVERTTOGST_H_INCLUDED
 
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/EventGen/EventRecord.h"
+#else
+#include "EVGCore/EventRecord.h"
+#endif
 
 #include "genie-icetray/I3GENIEResultDict.h"
-
-#include "EVGCore/EventRecord.h"
 
 namespace I3GENIE_Helper
 {

@@ -13,7 +13,13 @@
 
 #include <map>
 
+#include GENIE_GVERSION_H
+
+#if __GENIE_RELEASE_CODE__ >= GRELCODE(3,0,0) 
+#include "Framework/EventGen/GeomAnalyzerI.h"
+#else
 #include "EVGDrivers/GeomAnalyzerI.h"
+#endif
 
 namespace genie { namespace geometry {
     
