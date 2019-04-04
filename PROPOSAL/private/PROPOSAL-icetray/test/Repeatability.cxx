@@ -69,40 +69,40 @@ TEST(SimplePropagator)
     }
 }
 
-// TEST(PropagatorService)
-// {
-//     I3RandomServicePtr rng(new I3SPRNGRandomService(1, 10000, 1));
-//     I3FrameObjectPtr state = rng->GetState();
+TEST(PropagatorService)
+{
+    I3RandomServicePtr rng(new I3SPRNGRandomService(1, 10000, 1));
+    I3FrameObjectPtr state = rng->GetState();
 
-//     PROPOSAL::I3PropagatorServicePROPOSALPtr prop(new PROPOSAL::I3PropagatorServicePROPOSAL);
-//     prop->SetRandomNumberGenerator(rng);
+    PROPOSAL::I3PropagatorServicePROPOSALPtr prop(new PROPOSAL::I3PropagatorServicePROPOSAL);
+    prop->SetRandomNumberGenerator(rng);
 
-//     I3PropagatorService::DiagnosticMapPtr frame(new I3PropagatorService::DiagnosticMap);
-//     // the dummy I3Frame makes compiler happy, but won't be used
-//     I3FramePtr dummy(new I3Frame()); 
+    I3PropagatorService::DiagnosticMapPtr frame(new I3PropagatorService::DiagnosticMap);
+    // the dummy I3Frame makes compiler happy, but won't be used
+    I3FramePtr dummy(new I3Frame()); 
 
-//     std::vector<std::vector<I3Particle> > daughters;
-//     for (int i = 0; i < 2; i++)
-//     {
-//         I3Particle p              = make_particle();
-//         std::vector<I3Particle> d = prop->Propagate(p, frame, dummy);
-//         daughters.push_back(d);
-//     }
+    std::vector<std::vector<I3Particle> > daughters;
+    for (int i = 0; i < 2; i++)
+    {
+        I3Particle p              = make_particle();
+        std::vector<I3Particle> d = prop->Propagate(p, frame, dummy);
+        daughters.push_back(d);
+    }
 
-//     rng->RestoreState(state);
+    rng->RestoreState(state);
 
-//     for (size_t i = 0; i < daughters.size(); i++)
-//     {
-//         I3Particle p              = make_particle();
-//         std::vector<I3Particle> d = prop->Propagate(p, frame, dummy);
-//         ENSURE_EQUAL(daughters[i].size(), d.size());
-//         for (size_t j = 0; j < daughters[i].size(); j++)
-//         {
-//             I3Particle& p1 = daughters[i][j];
-//             I3Particle& p2 = d[j];
-//             ENSURE_EQUAL(p1.GetType(), p2.GetType());
-//             ENSURE_EQUAL(p1.GetTime(), p2.GetTime());
-//             ENSURE_EQUAL(p1.GetEnergy(), p2.GetEnergy());
-//         }
-//     }
-// }
+    for (size_t i = 0; i < daughters.size(); i++)
+    {
+        I3Particle p              = make_particle();
+        std::vector<I3Particle> d = prop->Propagate(p, frame, dummy);
+        ENSURE_EQUAL(daughters[i].size(), d.size());
+        for (size_t j = 0; j < daughters[i].size(); j++)
+        {
+            I3Particle& p1 = daughters[i][j];
+            I3Particle& p2 = d[j];
+            ENSURE_EQUAL(p1.GetType(), p2.GetType());
+            ENSURE_EQUAL(p1.GetTime(), p2.GetTime());
+            ENSURE_EQUAL(p1.GetEnergy(), p2.GetEnergy());
+        }
+    }
+}
