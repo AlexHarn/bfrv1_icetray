@@ -61,10 +61,9 @@ def _configure(filename, histograms):
     '''
     When we can't get a frame from an I3File, that's
     an indication that the file is corrupt, so we catch
-    that and log the file in the database.
+    that return False if the file is no good.  True otherwise.
     '''
-    good_filelist = list()
-    corrupt_filelist = list()
+    goodfile = True
     try:
         i3file = dataio.I3File(filename)
         for frame in i3file:
@@ -73,13 +72,10 @@ def _configure(filename, histograms):
                     hlist = _configure_from_frame(frame, frame_key)
                     if hlist:
                         histograms[frame_key] = hlist
-        good_filelist.append(filename)
     except RuntimeError:
-        corrupt_filelist.append(filename)
+        goodfile = False
         
-    finally:
-        print("configure: %d" % len(histograms))
-        return good_filelist, corrupt_filelist
+    return goodfile
 
 def generate_histogram_configuration_list(i3files):
     '''
@@ -101,7 +97,10 @@ def generate_histogram_configuration_list(i3files):
     for filename in i3files:
         file_counter += 1
         icetray.logging.log_info("Processing file (%d/%d): %s " % (file_counter, len(i3files), filename))
-        good_filelist, corrupt_filelist = _configure(filename, histograms)
+        if _configure(filename, histograms):
+            good_filelist.append(filename)
+        else:
+            corrupt_filelist.append(filename)
 
     histogram_list = list()
     for frame_key, hl in histograms.iteritems():
