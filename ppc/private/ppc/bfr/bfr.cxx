@@ -14,7 +14,7 @@ bool orefr=false;
 double elong=1.0;
 double xx=1.e-10;
 
-float xrnd(){
+double xrnd(){
   return drand48();
 }
 
@@ -88,7 +88,7 @@ public:
     double size=temp.norm();
     if(size>0) temp.divide(size);
     else{
-      temp=this->cross(q.smallest());
+      temp=this->smallest().cross(q);
       temp.normalize();
     }
     return temp;
@@ -130,8 +130,8 @@ public:
   // for directions sampled from sphere and weights according to
   // https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
   void ellipsoid(double a, double b, double c){
-    float weight = 0;
-    float maxweight = min(a, min(b, c));
+    double weight = 0;
+    double maxweight = min(a, min(b, c));
 
     do{
       double costheta=2*xrnd()-1;
@@ -143,7 +143,7 @@ public:
       y=sintheta*sinphi/b;
       z=costheta/c;
 
-      weight=maxweight*sqrt(x*x+y*y+z*z);
+      weight=maxweight*norm();
     } while(xrnd() >= weight);
 
     this->normalize();
@@ -215,10 +215,10 @@ public:
 
   double n;
   myvect s; // photon propagation direction
-  myvect k; // wave vector
-  myvect H; // magnetic field
-  myvect E; // electric field
-  myvect D; // displacement field and polarization
+  myvect k, ki; // wave vector
+  myvect H, Hi; // magnetic field
+  myvect E, Ei; // electric field
+  myvect D, Di; // displacement field and polarization
 
   void advance(double r){
     set(* this + s * (r/s.norm()));
@@ -229,19 +229,26 @@ ostream& operator<<(ostream& o, const photon& q){
   o << "n = " << q.n << endl;
   o << "r = " << (myvect) q << endl;
   o << "s = " << q.s << endl;
-  o << "k = " << q.k << endl;
-  o << "H = " << q.H << endl;
-  o << "E = " << q.E << endl;
-  o << "D = " << q.D << endl;
+  o << "k = " << q.k << " " << "ki = " << q.ki << endl;
+  o << "H = " << q.H << " " << "Hi = " << q.Hi << endl;
+  o << "E = " << q.E << " " << "Ei = " << q.Ei << endl;
+  o << "D = " << q.D << " " << "Di = " << q.Di << endl;
   return o;
 }
 
+surface plane_saved;
 class medium:
   public myvect // optical axis
 {
 public:
   double no,  ne; // refractive indices
   double beta;
+
+  enum type{
+    any = 3,
+    ordinary = 1,
+    extraordinary = 2
+  } current;
 
   medium() : myvect() {
     set_n();
@@ -259,10 +266,27 @@ public:
     no=1.3185, ne=1.3200; // at 405 nm
     double aux=ne/no;
     beta=aux*aux-1;
+    current=any;
   }
 
   void set_n(double n){
     no=n, ne=n, beta=0;
+  }
+
+  void eires(myvect q, myvect E, myvect D){
+    double k2=q.dot(q);
+    double nE=q.dot(E);
+    myvect a=E*k2-q*nE-D;
+    cout<<"EIGEN RESIDUAL NORM: "<<a.norm()<<endl;
+  }
+
+  void eires(myvect q, myvect qi, myvect E, myvect Ei, myvect D, myvect Di){
+    double k2r=q.dot(q)-qi.dot(qi), k2i=2*q.dot(qi);
+    double nEr=q.dot(E)-qi.dot(Ei);
+    double nEi=qi.dot(E)+q.dot(Ei);
+    myvect ar=(E*k2r-Ei*k2i)-(q*nEr-qi*nEi)-D;
+    myvect ai=(E*k2i+Ei*k2r)-(qi*nEr+q*nEi)-Di;
+    cout<<"EIGEN RESIDUAL NORM: "<<ar.norm()<<" "<<ai.norm()<<endl;
   }
 
   void set_k(myvect q, photon & o, photon & e, bool p = false){ // o: ordinary; e: extraordinary; q=p?s:k
@@ -275,11 +299,10 @@ public:
     o.k=q;
     o.k.multiply(o.n);
 
-    myvect ort = axis.cross(o.D);
-
     if(p){
       myvect E=q.cross(o.D);
-      e.D=axis*(axis.dot(E)*(ne*ne))+ort*(ort.dot(E)*(no*no));
+      myvect axe=axis*axis.dot(E);
+      e.D=axe*(ne*ne)+(E-axe)*(no*no);
       e.D.normalize();
       q=o.D.cross(e.D);
     }
@@ -294,13 +317,62 @@ public:
     o.H=o.k.cross(o.E);
     o.s=o.E.cross(o.H);
 
-    e.E=axis*(axis.dot(e.D)/(ne*ne))+ort*(ort.dot(e.D)/(no*no));
+    myvect axd=axis*axis.dot(e.D);
+    e.E=axd/(ne*ne)+(e.D-axd)/(no*no);
     e.H=e.k.cross(e.E);
     e.s=e.E.cross(e.H);
 
+    if(current&ordinary)      eires(o.k, o.E, o.D);
+    if(current&extraordinary) eires(e.k, e.E, e.D);
+
     if(verbose){
-      cout<<"\tk="<<o.k<<"\ts="<<o.s<<"\tdot="<<o.k.dot(o.s)*o.n*o.n<<endl;
-      cout<<"\tk="<<e.k<<"\ts="<<e.s<<"\tdot="<<e.k.dot(e.s)*e.n*e.n<<endl;
+      if(current&ordinary)      cout<<"\tk="<<o.k<<"\ts="<<o.s<<"\tdot="<<o.k.dot(o.s)*o.n*o.n<<endl;
+      if(current&extraordinary) cout<<"\tk="<<e.k<<"\ts="<<e.s<<"\tdot="<<e.k.dot(e.s)*e.n*e.n<<endl;
+    }
+  }
+
+  void set_k(myvect q, myvect qi, photon & o, photon & e){ // o: ordinary; e: extraordinary
+    myvect& axis = *this;
+
+    myvect tr=axis.cross(q), ti=axis.cross(qi);
+    double sr=tr.norm(), si=ti.norm();
+    double size=sqrt(sr*sr+si*si);
+    if(size==0){
+      myvect temp=axis.smallest();
+      tr=temp.cross(q), ti=temp.cross(qi);
+      sr=tr.norm(), si=ti.norm();
+      size=sqrt(sr*sr+si*si);
+    }
+    tr.divide(size), ti.divide(size);
+
+    o.D=tr, o.Di=ti;
+    o.n=no;
+    o.k=q, o.ki=qi;
+
+    e.D=q.cross(o.D)-qi.cross(o.Di), e.Di=qi.cross(o.D)+q.cross(o.Di);
+    sr=e.D.norm(), si=e.Di.norm();
+    size=sqrt(sr*sr+si*si);
+    if(size>0) e.D.divide(size), e.Di.divide(size);
+
+    sr=q.norm(), si=qi.norm();
+    e.n=sqrt(sr*sr+si*si);
+    e.k=q, e.ki=qi;
+
+    o.E=o.D/(no*no), o.Ei=o.Di/(no*no);
+    o.H=o.k.cross(o.E)-o.ki.cross(o.Ei), o.Hi=o.ki.cross(o.E)+o.k.cross(o.Ei);
+    o.s=o.E.cross(o.H)+o.Ei.cross(o.Hi);
+
+    myvect axd=axis*axis.dot(e.D), axdi=axis*axis.dot(e.Di);
+    e.E=axd/(ne*ne)+(e.D-axd)/(no*no), e.Ei=axdi/(ne*ne)+(e.Di-axdi)/(no*no);
+    e.H=e.k.cross(e.E)-e.ki.cross(e.Ei), e.Hi=e.ki.cross(e.E)+e.k.cross(e.Ei);
+    e.s=e.E.cross(e.H)+e.Ei.cross(e.Hi);
+
+    if(current&ordinary)      eires(o.k, o.ki, o.E, o.Ei, o.D, o.Di);
+    if(current&extraordinary) eires(e.k, e.ki, e.E, e.Ei, e.D, e.Di);
+
+    if(verbose){
+      if(current&ordinary)      cout<<"\tk="<<o.k<<"\tki="<<o.ki<<"\tdot="<<plane_saved.dot(o.s)<<endl;
+      if(current&extraordinary) cout<<"\tk="<<e.k<<"\tki="<<e.ki<<"\tdot="<<plane_saved.dot(e.s)<<endl;
     }
   }
 
@@ -318,9 +390,10 @@ public:
     double kx=X.norm();
     if(kx>0) X.divide(kx);
 
+    bool evan=true;
     {
+      current=ordinary;
       double D=no*no-kx*kx;
-      if(-xx<D && D<0) D=0;
       if(D>=0){
 	D=sqrt(D);
 	double ry=same?D:-D;
@@ -329,13 +402,21 @@ public:
 	set_k(K, O, E);
 	result.push_back(O);
       }
+      else if(evan){
+	D=sqrt(-D);
+	double ry=same?D:-D;
+	myvect K=X*kx, Ki=Y*ry;
+	photon O, E;
+	set_k(K, Ki, O, E);
+	result.push_back(O);
+      }
     }
 
     {
+      current=extraordinary;
       double ax=this->dot(X);
       double ay=this->dot(Y);
       double D=ne*ne*(1+beta*ay*ay)-kx*kx*(1+beta*(ax*ax+ay*ay));
-      if(-xx<D && D<0) D=0;
       if(D>=0){
 	D=sqrt(D);
 	double b=-beta*ax*ay*kx, a=1+beta*ay*ay;
@@ -346,17 +427,35 @@ public:
 	set_k(K, O, E);
 	result.push_back(E);
       }
+      else if(evan){
+	D=sqrt(-D);
+	double b=-beta*ax*ay*kx, a=1+beta*ay*ay;
+
+	myvect K=X*kx+Y*(b/a);
+	double r1=D/a, r2=-D/a;
+	double ry=same?r1:r2;
+	myvect Ki=Y*ry;
+
+	photon O, E;
+	set_k(K, Ki, O, E);
+	result.push_back(E);
+      }
     }
 
+    current=any;
     return result;
   }
 };
 
 bool interact(medium one, medium two, surface plane, photon & p){
+  myvect r(p);
+  // plane.setp(); //  nominal  basis
+  plane.setp(p.k); // optimized basis
+
   if(verbose){
     cout<<"one: "<<one<<endl;
     cout<<"two: "<<two<<endl;
-    cout<<"ref: "<<plane<<endl;
+    cout<<"ref: "<<plane<<" "<<plane.p1<<" "<<plane.p2<<endl;
   }
 
   bool same=true;
@@ -365,12 +464,14 @@ bool interact(medium one, medium two, surface plane, photon & p){
     return same;
   }
 
+  plane_saved=plane;
   vector<photon> reflected=one.set_k(p.k, plane, true);
   vector<photon> refracted=two.set_k(p.k, plane, false);
 
   int refl=reflected.size();
   int refr=refracted.size();
   int dim=refl+refr, num=6;
+  int xdm=2*dim, xnm=2*num;
   double chisq=0;
 
   if(dim<=0){
@@ -378,12 +479,10 @@ bool interact(medium one, medium two, surface plane, photon & p){
     return same;
   }
 
-  myvect r(p);
-  // plane.setp(); //  nominal  basis
-  plane.setp(p.k); // optimized basis
-  double q[num][dim], f[num], x[dim], s[dim];
+  double q[xnm][dim], f[xnm], x[dim], s[dim+1];
 
   for(int i=0; i<=dim; i++){
+    for(int j=0; j<xnm; j++) f[j]=0;
     photon& tmp = i<refl ? reflected[i] : i<dim ? refracted[i-refl] : p;
 
     if(verbose) cout << i << ": " << tmp << endl;
@@ -391,24 +490,37 @@ bool interact(medium one, medium two, surface plane, photon & p){
     f[0]=tmp.D.dot(plane);
     f[1]=tmp.E.dot(plane.p1);
     f[2]=tmp.E.dot(plane.p2);
-    f[3]=tmp.H.x, f[4]=tmp.H.y, f[5]=tmp.H.z;
 
-    if(i<dim) for(int j=0; j<num; j++) q[j][i]=(i<refl?-1:1)*f[j];
+    f[3]=tmp.H.dot(plane);
+    f[4]=tmp.H.dot(plane.p1);
+    f[5]=tmp.H.dot(plane.p2);
+
+    f[6]=tmp.Di.dot(plane);
+    f[7]=tmp.Ei.dot(plane.p1);
+    f[8]=tmp.Ei.dot(plane.p2);
+
+    f[9]=tmp.Hi.dot(plane);
+    f[10]=tmp.Hi.dot(plane.p1);
+    f[11]=tmp.Hi.dot(plane.p2);
+
+    if(i<dim) for(int j=0; j<xnm; j++) q[j][i]=(i<refl?-1:1)*f[j];
     s[i]=tmp.s.dot(plane); // norm();
   }
 
   {
-    gsl_matrix * A = gsl_matrix_alloc(num, dim);
-    gsl_vector * B = gsl_vector_alloc(num);
+    gsl_matrix * A = gsl_matrix_alloc(xnm, xdm);
+    gsl_vector * B = gsl_vector_alloc(xnm);
 
-    for(int i=0; i<num; i++){
-      for(int j=0; j<dim; j++) gsl_matrix_set(A, i, j, q[i][j]);
+    for(int i=0; i<xnm; i++){
+      for(int j=0; j<xdm; j++) gsl_matrix_set(A, i, j, j<dim?q[i][j]:i<num?-q[i+num][j-dim]:q[i-num][j-dim]);
       gsl_vector_set(B, i, f[i]);
     }
 
-    gsl_multifit_linear_workspace * W = gsl_multifit_linear_alloc(num, dim);
-    gsl_vector * X = gsl_vector_alloc(dim);
-    gsl_matrix * C = gsl_matrix_alloc(dim, dim);
+    for(int i=0; i<num; i++) cout<<"f["<<i<<"]: "<<f[i]<<" "<<f[i+num]<<endl;
+
+    gsl_multifit_linear_workspace * W = gsl_multifit_linear_alloc(xnm, xdm);
+    gsl_vector * X = gsl_vector_alloc(xdm);
+    gsl_matrix * C = gsl_matrix_alloc(xdm, xdm);
 
     gsl_multifit_linear(A, B, X, C, &chisq, W);
 
@@ -418,7 +530,10 @@ bool interact(medium one, medium two, surface plane, photon & p){
     gsl_multifit_linear_svd(A, B, tol, & rank, X, C, &chisq, W); cout<<"rank="<<rank<<endl;
     */
 
-    for(int i=0; i<dim; i++) x[i]=gsl_vector_get(X, i);
+    for(int i=0; i<dim; i++){
+      double xre=gsl_vector_get(X, i), xim=gsl_vector_get(X, i+dim);
+      x[i]=xre*xre+xim*xim; cout<<"x["<<i<<"]: "<<xre<<" "<<xim<<endl;
+    }
 
     gsl_vector_free(X);
     gsl_matrix_free(C);
@@ -429,7 +544,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
   }
 
   double sum=0;
-  for(int i=0; i<dim; i++){ s[i]=fabs(x[i]*x[i]*s[i]/s[dim]); sum+=s[i]; }
+  for(int i=0; i<dim; i++){ s[i]=fabs(x[i]*s[i]/s[dim]); sum+=s[i]; }
   if(verbose) cout<<refl<<" "<<refr<<"  "<<chisq<<" "<<sum<<" "<<p.k.dot(plane)<<" "<<p.s.dot(plane)<<endl;
 
   if(verbose){
@@ -469,11 +584,23 @@ bool interact(medium one, medium two, surface plane, photon & p){
 void test(){
   verbose=true;
 
+  /*
   myvect k(0, 0, 1);
   medium one(1, 0, 0), two(0, 1, 0); // two media definitions
-  surface plane(0, 0, 1); // interface between two media
+  // surface plane(0, 0, 1); // interface between two media
+  double f=0.03;
+  surface plane(sqrt(1-f*f), 0, f);
+  */
 
-  // one.set_n(1), two.set_n(2);
+  myvect k(0.0953507,0.00228455,1.31646); k.normalize();
+  medium one(0.260065,0.92991,-0.260065), two(-0.601485,0.525768,0.601485);
+  surface plane(0.927202,0.371614,-0.0469062);
+  one.normalize();
+  two.normalize();
+  plane.normalize();
+
+  //medium one(0, 0, 1), two(0, 0, 1); // two media definitions
+  //one.set_n(2), two.set_n(1);
 
   photon o, e;
   one.set_k(k, o, e, true);
@@ -489,6 +616,7 @@ void test(){
 }
 
 void test2(double p, int num, int tot){
+  verbose=true;
   for(int j=0; j<tot; j++){
     myvect k(0, 0, 1);
     medium one, two; // two media definitions
@@ -520,7 +648,7 @@ void test2(double p, int num, int tot){
   }
 }
 
-main(int arg_c, char *arg_a[]){
+int main(int arg_c, char *arg_a[]){
   {
     char * bmp=getenv("SEED");
     if(bmp!=NULL){
