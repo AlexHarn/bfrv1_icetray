@@ -322,12 +322,15 @@ public:
     e.H=e.k.cross(e.E);
     e.s=e.E.cross(e.H);
 
-    if(current&ordinary)      eires(o.k, o.E, o.D);
-    if(current&extraordinary) eires(e.k, e.E, e.D);
-
     if(verbose){
-      if(current&ordinary)      cout<<"\tk="<<o.k<<"\ts="<<o.s<<"\tdot="<<o.k.dot(o.s)*o.n*o.n<<endl;
-      if(current&extraordinary) cout<<"\tk="<<e.k<<"\ts="<<e.s<<"\tdot="<<e.k.dot(e.s)*e.n*e.n<<endl;
+      if(current&ordinary){
+	eires(o.k, o.E, o.D);
+	cout<<"\tk="<<o.k<<"\ts="<<o.s<<"\tdot="<<o.k.dot(o.s)*o.n*o.n<<endl;
+      }
+      if(current&extraordinary){
+	eires(e.k, e.E, e.D);
+	cout<<"\tk="<<e.k<<"\ts="<<e.s<<"\tdot="<<e.k.dot(e.s)*e.n*e.n<<endl;
+      }
     }
   }
 
@@ -367,12 +370,15 @@ public:
     e.H=e.k.cross(e.E)-e.ki.cross(e.Ei), e.Hi=e.ki.cross(e.E)+e.k.cross(e.Ei);
     e.s=e.E.cross(e.H)+e.Ei.cross(e.Hi);
 
-    if(current&ordinary)      eires(o.k, o.ki, o.E, o.Ei, o.D, o.Di);
-    if(current&extraordinary) eires(e.k, e.ki, e.E, e.Ei, e.D, e.Di);
-
     if(verbose){
-      if(current&ordinary)      cout<<"\tk="<<o.k<<"\tki="<<o.ki<<"\tdot="<<plane_saved.dot(o.s)<<endl;
-      if(current&extraordinary) cout<<"\tk="<<e.k<<"\tki="<<e.ki<<"\tdot="<<plane_saved.dot(e.s)<<endl;
+      if(current&ordinary){
+	eires(o.k, o.ki, o.E, o.Ei, o.D, o.Di);
+	cout<<"\tk="<<o.k<<"\tki="<<o.ki<<"\tdot="<<plane_saved.dot(o.s)<<endl;
+      }
+      if(current&extraordinary){
+	eires(e.k, e.ki, e.E, e.Ei, e.D, e.Di);
+	cout<<"\tk="<<e.k<<"\tki="<<e.ki<<"\tdot="<<plane_saved.dot(e.s)<<endl;
+      }
     }
   }
 
@@ -516,7 +522,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
       gsl_vector_set(B, i, f[i]);
     }
 
-    for(int i=0; i<num; i++) cout<<"f["<<i<<"]: "<<f[i]<<" "<<f[i+num]<<endl;
+    if(verbose) for(int i=0; i<num; i++) cout<<"f["<<i<<"]: "<<f[i]<<" "<<f[i+num]<<endl;
 
     gsl_multifit_linear_workspace * W = gsl_multifit_linear_alloc(xnm, xdm);
     gsl_vector * X = gsl_vector_alloc(xdm);
@@ -532,7 +538,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
 
     for(int i=0; i<dim; i++){
       double xre=gsl_vector_get(X, i), xim=gsl_vector_get(X, i+dim);
-      x[i]=xre*xre+xim*xim; cout<<"x["<<i<<"]: "<<xre<<" "<<xim<<endl;
+      x[i]=xre*xre+xim*xim; if(verbose) cout<<"x["<<i<<"]: "<<xre<<" "<<xim<<endl;
     }
 
     gsl_vector_free(X);
@@ -584,23 +590,22 @@ bool interact(medium one, medium two, surface plane, photon & p){
 void test(){
   verbose=true;
 
-  /*
   myvect k(0, 0, 1);
   medium one(1, 0, 0), two(0, 1, 0); // two media definitions
-  // surface plane(0, 0, 1); // interface between two media
   double f=0.03;
-  surface plane(sqrt(1-f*f), 0, f);
+  surface plane(sqrt(1-f*f), 0, f);  // interface between two media
+
+  /*
+    myvect k(0.0953507,0.00228455,1.31646); k.normalize();
+    medium one(0.260065,0.92991,-0.260065), two(-0.601485,0.525768,0.601485);
+    surface plane(0.927202,0.371614,-0.0469062);
+    one.normalize();
+    two.normalize();
+    plane.normalize();
   */
 
-  myvect k(0.0953507,0.00228455,1.31646); k.normalize();
-  medium one(0.260065,0.92991,-0.260065), two(-0.601485,0.525768,0.601485);
-  surface plane(0.927202,0.371614,-0.0469062);
-  one.normalize();
-  two.normalize();
-  plane.normalize();
-
-  //medium one(0, 0, 1), two(0, 0, 1); // two media definitions
-  //one.set_n(2), two.set_n(1);
+  // medium one(0, 0, 1), two(0, 0, 1);
+  // one.set_n(2), two.set_n(1);
 
   photon o, e;
   one.set_k(k, o, e, true);
@@ -616,7 +621,8 @@ void test(){
 }
 
 void test2(double p, int num, int tot){
-  verbose=true;
+  // verbose=true;
+
   for(int j=0; j<tot; j++){
     myvect k(0, 0, 1);
     medium one, two; // two media definitions
