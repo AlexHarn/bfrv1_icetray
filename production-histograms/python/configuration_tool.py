@@ -25,13 +25,19 @@ _type_to_histogram = {
 
 def _known_type(frame_object):
     for frame_type in _type_to_histogram.keys():
-        if isinstance(frame_object, frame_type):
-            return True
+        try:
+            # this is one way to catch a SyntaxError
+            # needs to throw from eval, exec, or import
+            result = eval('isinstance(frame_object, frame_type)')
+            if isinstance(frame_object, frame_type):
+                return True
+        except SyntaxError as e:
+            print(e)
     return False
 
 def _get_modules(frame_object):
     for frame_type in _type_to_histogram.keys():
-        if isinstance( frame_object, frame_type):
+        if isinstance(frame_object, frame_type):
             return _type_to_histogram[frame_type]    
 
 def _configure_from_frame(frame, frame_key):
@@ -92,7 +98,9 @@ def generate_histogram_configuration_list(i3files):
     histograms = dict()
     good_filelist = list()
     corrupt_filelist = list()
-  
+
+    icetray.logging.log_info("blerg")
+    
     file_counter = 0
     for filename in i3files:
         file_counter += 1
