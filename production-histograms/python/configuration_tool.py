@@ -99,8 +99,6 @@ def generate_histogram_configuration_list(i3files):
     good_filelist = list()
     corrupt_filelist = list()
 
-    icetray.logging.log_info("blerg")
-    
     file_counter = 0
     for filename in i3files:
         file_counter += 1
