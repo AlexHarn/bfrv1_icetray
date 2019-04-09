@@ -16,7 +16,7 @@ i3_add_library(polyplopia
 
   USE_TOOLS python boost 
 
-  USE_PROJECTS serialization icetray dataclasses dataio simclasses phys-services interfaces trigger-sim MuonGun
+  USE_PROJECTS serialization icetray dataclasses dataio simclasses phys-services interfaces trigger-sim MuonGun sim-services
 )
 
 # TODO: these tests should be updated to use modern projects
