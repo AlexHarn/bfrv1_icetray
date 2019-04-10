@@ -26,8 +26,8 @@ def instance_of(h):
         else:
             icetray.logging.log_warn("%s is neither a Histogram or HistogramModule.  Ignoring." % str(h))
     except TypeError:
-        print("Bad classinfo")
-        print(classes)
+        icetray.logging.log_error("Bad classinfo")
+        icetray.logging.log_error("h = %s" % str(h))
 
 def parameter_conversion(container):
     '''

@@ -11,6 +11,7 @@ i3_test_scripts(
   resources/tests/test_daq_histogram.py
   resources/tests/test_physics_histogram.py
   resources/tests/test_parameter_conversion.py
+  resources/tests/test_configuration_tools.py
   # Get test data, enable this, and close ticket #1623
   #resources/tests/test_example_scripts.py
 )

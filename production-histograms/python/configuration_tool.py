@@ -24,6 +24,11 @@ _type_to_histogram = {
 }
 
 def _known_type(frame_object):
+    '''
+    Returns True if the frame_object is a type we know how to histogram.
+    For user defined frames (i.e. non-standard) the configuration written to
+    I (TrayInfo) frames throw a Syntax Error.
+    '''
     for frame_type in _type_to_histogram.keys():
         try:
             # this is one way to catch a SyntaxError
@@ -36,6 +41,10 @@ def _known_type(frame_object):
     return False
 
 def _get_modules(frame_object):
+    '''
+    For a given frame_object, presumably something we know how to 
+    histogram, map the 
+    '''
     for frame_type in _type_to_histogram.keys():
         if isinstance(frame_object, frame_type):
             return _type_to_histogram[frame_type]    
@@ -69,6 +78,7 @@ def _configure(filename, histograms):
     an indication that the file is corrupt, so we catch
     that return False if the file is no good.  True otherwise.
     '''
+    assert(isinstance(histograms, dict))
     goodfile = True
     try:
         i3file = dataio.I3File(filename)
