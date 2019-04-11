@@ -40,6 +40,7 @@
 
 #include "G4PhysListFactory.hh"
 #include "G4ParticleGun.hh"
+#include "G4HadronicProcessType.hh"
 
 #include "G4Version.hh"
 
@@ -56,6 +57,9 @@
 #include "Randomize.hh"
 
 #include "dataclasses/physics/I3Particle.h"
+#include "dataclasses/physics/I3MCTree.h"
+#include "dataclasses/physics/I3MCTreeUtils.h"
+
 #include "clsim/I3CLSimLightSource.h"
 #include "clsim/function/I3CLSimFunction.h"
 #include "clsim/I3CLSimMediumProperties.h"
@@ -98,14 +102,16 @@ public:
 
 I3CLSimLightSourcePropagatorGeant4::I3CLSimLightSourcePropagatorGeant4(std::string physicsListName,
                                                                            double maxBetaChangePerStep,
-                                                                           uint32_t maxNumPhotonsPerStep
+                                                                           uint32_t maxNumPhotonsPerStep,
+                                                                           bool collectParticleHistory
                                                                            )
 :
 queueFromGeant4Messages_(new I3CLSimQueue<boost::shared_ptr<std::pair<const std::string, bool> > >(UINT_MAX)), // no maximum size
 physicsListName_(physicsListName),
 maxBetaChangePerStep_(maxBetaChangePerStep),
 maxNumPhotonsPerStep_(maxNumPhotonsPerStep),
-initialized_(false)
+initialized_(false),
+collectParticleHistory_(collectParticleHistory)
 {
     // Geant4 keeps LOTS of global state and is inherently non-thread-safe.
     // To prevent users from using more than one instance of Geant4 within the
@@ -199,6 +205,93 @@ namespace {
     }
 }
 
+namespace {
+
+I3Particle to_I3Particle(const G4Track &track)
+{
+    I3Particle particle;
+
+    const G4ThreeVector &trackPos = track.GetPosition();
+    const G4ThreeVector &trackDir = track.GetMomentumDirection();
+
+    particle.SetPdgEncoding(track.GetDefinition()->GetPDGEncoding());
+    particle.SetPos(trackPos.x()*I3Units::m/CLHEP::m,
+                    trackPos.y()*I3Units::m/CLHEP::m,
+                    trackPos.z()*I3Units::m/CLHEP::m);
+    particle.SetDir(trackDir.x(),trackDir.y(),trackDir.z());
+    particle.SetTime(track.GetGlobalTime()*I3Units::ns/CLHEP::ns);
+    particle.SetEnergy(track.GetKineticEnergy()*I3Units::GeV/CLHEP::GeV);
+
+    return particle;
+}
+
+class TrackingAction : public G4UserTrackingAction {
+public:
+    void PreUserTrackingAction(const G4Track *track) {
+        // always track muons and taus
+        G4int pdgcode = track->GetParticleDefinition()->GetPDGEncoding();
+        if (std::abs(pdgcode) == 13 || std::abs(pdgcode) == 15) {
+            auto p = to_I3Particle(*track);
+            if (track->GetParentID() > 0) {
+                auto parent = ids_.find(track->GetParentID());
+                if (parent != ids_.end()) {
+                    tree_.append_child(parent->second, p);
+                    ids_.emplace(track->GetTrackID(),p.GetID());
+                }
+            // collect the track if it is not the primary
+            } else if (track->GetTrackID() != 1) {
+                tree_.insert_after(p);
+                ids_.emplace(track->GetTrackID(),p.GetID());
+            }
+        } else {
+            // in addition, track secondaries for muons and taus
+            // 1) secondaries over 500 MeV
+            // 2) capture (e.g. mu- capture at rest)
+            // 3) decay
+            auto parent_id = ids_.find(track->GetParentID());
+            auto parent = parent_id == ids_.end() ? tree_.end() : tree_.find(parent_id->second);
+            if (parent != tree_.end() && (std::abs(parent->GetType()) == 13 || std::abs(parent->GetType()) == 15)
+                && (track->GetKineticEnergy() > 500*CLHEP::MeV
+                    // decays
+                    || track->GetCreatorProcess()->GetProcessType() == fDecay
+                    // muMinusCaptureAtRest
+                    || (track->GetCreatorProcess()->GetProcessType() == fHadronic
+                       && track->GetCreatorProcess()->GetProcessSubType() == fHadronAtRest))) {
+                auto p = to_I3Particle(*track);
+                tree_.append_child(parent, p);
+                ids_.emplace(track->GetTrackID(), p.GetID());
+            }
+        }
+    }
+
+    void PostUserTrackingAction(const G4Track *track) {
+        // update length for muons and taus
+        G4int pdgcode = track->GetParticleDefinition()->GetPDGEncoding();
+        if (std::abs(pdgcode) == 13 || std::abs(pdgcode) == 15) {
+            auto prev = ids_.find(track->GetTrackID());
+            if (prev != ids_.end())
+                tree_.find(prev->second)->SetLength(track->GetTrackLength()*I3Units::m/CLHEP::m);
+        }
+    }
+
+    void SetPrimary(const I3Particle &p)
+    {
+        Reset();
+        tree_.insert_after(p);
+        ids_.emplace(1,p.GetID());
+    }
+
+    void Reset() {
+        tree_.clear();
+        ids_.clear();
+    }
+
+    I3MCTree tree_;
+    std::map<G4int, I3ParticleID> ids_;
+};
+
+}
+
 void I3CLSimLightSourcePropagatorGeant4::Initialize()
 {
     LogGeant4Messages();
@@ -246,6 +339,8 @@ void I3CLSimLightSourcePropagatorGeant4::Initialize()
     
     runManager_->SetUserAction(thePrimaryGenerator);     // runManager now owns this pointer
     runManager_->SetUserAction(new TrkStackingAction());   // runManager now owns this pointer
+    if (collectParticleHistory_)
+        runManager_->SetUserAction(new TrackingAction());
 
     const double maxRefractiveIndex = GetMaxRIndex(mediumProperties_);
     G4cout << "overall maximum refractive index is " << maxRefractiveIndex << G4endl;
@@ -272,6 +367,10 @@ void I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lig
 {
     const I3Particle &particle = lightSource->GetParticle();
 
+	// FIXME: this is a terrible way to clear the state
+    // delete runManager_->GetUserTrackingAction();
+	runManager_->SetUserAction(new TrackingAction());
+
     // configure the Geant4 particle gun
     {
         TrkPrimaryGeneratorAction *thePrimaryGenerator =
@@ -294,13 +393,22 @@ void I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lig
     theEventAction->SetExternalParticleID(lightSourceIdentifier);
     theEventAction->SetSecondaryCallback(emitSecondary);
     theEventAction->SetStepCallback(emitStep);
-    
+
+    // set the primary particle for history tracking
+    TrackingAction *theTrackingAction = const_cast<TrackingAction*>(dynamic_cast<const TrackingAction*>(runManager_->GetUserTrackingAction()));
+    if (collectParticleHistory_)
+        theTrackingAction->SetPrimary(particle);
+
     G4cout << "Geant4: shooting a " << particle.GetTypeString() << " with id " << lightSourceIdentifier << " and E=" << particle.GetEnergy()/I3Units::GeV << "GeV." << G4endl;
-    
+
     // turn on the Geant4 beam!
     // (this fills the stepStore with steps and our particle list with
     // output particles for the available parameterizations..)
     runManager_->BeamOn(1);
+
+    if (collectParticleHistory_ && theTrackingAction->tree_.size() > 1) {
+        log_info_stream("Ranged particles:\n"<<I3MCTreeUtils::Dump(theTrackingAction->tree_));
+    }
 }
 
 bool I3CLSimLightSourcePropagatorGeant4::IsInitialized() const

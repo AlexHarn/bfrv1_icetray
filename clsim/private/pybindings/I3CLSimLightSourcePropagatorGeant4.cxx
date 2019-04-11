@@ -35,10 +35,12 @@ void register_I3CLSimLightSourcePropagatorGeant4()
                bp::bases<I3CLSimLightSourcePropagator>,
                boost::noncopyable>(
                  "I3CLSimLightSourcePropagatorGeant4",
-                 bp::init<std::string,double,uint32_t>((
+                 bp::init<std::string,double,uint32_t,bool>((
                    bp::arg("physicsListName")=I3CLSimLightSourcePropagatorGeant4::default_physicsListName,
                    bp::arg("maxBetaChangePerStep")=I3CLSimLightSourcePropagatorGeant4::default_maxBetaChangePerStep,
-                   bp::arg("maxNumPhotonsPerStep")=I3CLSimLightSourcePropagatorGeant4::default_maxNumPhotonsPerStep
+                   bp::arg("maxNumPhotonsPerStep")=I3CLSimLightSourcePropagatorGeant4::default_maxNumPhotonsPerStep,
+                   bp::arg("collectParticleHistory")=false
+                   
                 ))
     );
 }

@@ -55,7 +55,8 @@ public:
     
     I3CLSimLightSourcePropagatorGeant4(std::string physicsListName=default_physicsListName,
                                          double maxBetaChangePerStep=default_maxBetaChangePerStep,
-                                         uint32_t maxNumPhotonsPerStep=default_maxNumPhotonsPerStep
+                                         uint32_t maxNumPhotonsPerStep=default_maxNumPhotonsPerStep,
+                                         bool collectParticleHistory=false
                                          );
     virtual ~I3CLSimLightSourcePropagatorGeant4();
 
@@ -106,6 +107,7 @@ private:
     uint32_t maxNumPhotonsPerStep_;
     
     bool initialized_;
+    bool collectParticleHistory_;
     
     std::unique_ptr<G4RunManager> runManager_;
     
