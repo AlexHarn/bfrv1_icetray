@@ -45,7 +45,7 @@ public:
     virtual bool IsInitialized() const { return initialized_; };
     
     virtual bool IsValidForLightSource(const I3CLSimLightSource &source);
-    virtual void Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback);
+    virtual I3MCTreePtr Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback);
     
 private:
     I3ParticleTypePropagatorServiceMapPtr particleToPropagatorServiceMap_;

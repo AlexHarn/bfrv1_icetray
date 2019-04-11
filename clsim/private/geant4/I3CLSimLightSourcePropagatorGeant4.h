@@ -93,7 +93,7 @@ public:
     virtual bool IsInitialized() const;
     
     virtual bool IsValidForLightSource(const I3CLSimLightSource &source) { return source.GetType() == I3CLSimLightSource::Particle; };
-    virtual void Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback);
+    virtual I3MCTreePtr Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback);
     
 private:
     void LogGeant4Messages(bool allAsWarn=false) const;

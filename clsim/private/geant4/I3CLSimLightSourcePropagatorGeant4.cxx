@@ -362,10 +362,11 @@ void I3CLSimLightSourcePropagatorGeant4::Initialize()
     initialized_=true;
 }
 
-void I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lightSource, uint32_t lightSourceIdentifier,
+I3MCTreePtr I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lightSource, uint32_t lightSourceIdentifier,
     secondary_callback emitSecondary, step_callback emitStep)
 {
     const I3Particle &particle = lightSource->GetParticle();
+    I3MCTreePtr mctree;
 
 	// FIXME: this is a terrible way to clear the state
     // delete runManager_->GetUserTrackingAction();
@@ -384,7 +385,7 @@ void I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lig
         if (!ret) {
             G4cerr << "Could not configure Geant4 to shoot a " << particle.GetTypeString() << "! Ignoring." << G4endl;
 
-            return;
+            return mctree;
         }
     }
     
@@ -407,8 +408,10 @@ void I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstPtr &lig
     runManager_->BeamOn(1);
 
     if (collectParticleHistory_ && theTrackingAction->tree_.size() > 1) {
-        log_info_stream("Ranged particles:\n"<<I3MCTreeUtils::Dump(theTrackingAction->tree_));
+        mctree.reset(new I3MCTree());
+        mctree->swap(theTrackingAction->tree_);
     }
+    return mctree;
 }
 
 bool I3CLSimLightSourcePropagatorGeant4::IsInitialized() const

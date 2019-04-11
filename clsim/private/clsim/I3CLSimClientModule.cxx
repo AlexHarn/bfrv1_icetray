@@ -433,10 +433,11 @@ bool I3CLSimClientModule::FeedSteps()
     {
         // retrieve steps from Geant4
         I3CLSimStepSeriesConstPtr steps;
-        boost::shared_ptr<std::vector<uint32_t>> finished;
+        std::vector<uint32_t> finished;
+        std::map<uint32_t, I3MCTreePtr> histories;
         bool barrierWasJustReset=false;
         
-        std::tie(steps, finished) = stepGenerator_->GetConversionResultWithBarrierInfoAndMarkers(barrierWasJustReset);
+        std::tie(steps, finished, histories) = stepGenerator_->GetConversionResultWithBarrierInfoAndMarkers(barrierWasJustReset);
         
         if (!steps) 
         {
@@ -484,7 +485,7 @@ bool I3CLSimClientModule::FeedSteps()
                 auto lastFinishedFrame = frameCache_.begin() + framesInKernel_;
                 
                 // note which light sources were finalized in this bunch
-                for (uint32_t identifier : *finished) {
+                for (uint32_t identifier : finished) {
                     auto particle = ::find(particleCache_, identifier);
                     if (particle != particleCache_.end()) {
                         uint32_t frameId = particle->frameId;
@@ -495,6 +496,18 @@ bool I3CLSimClientModule::FeedSteps()
                         // Advance end marker if the frame is final
                         if (--frame->numPendingParticles == 0)
                             lastFinishedFrame = frame;
+                        // Splice history into master MCTree
+                        auto history = histories.find(identifier);
+                        if (frame->particleHistories && history != histories.end() && history->second) {
+                            I3ParticleID key(particle->particleMajorID, particle->particleMinorID);
+                            auto original = frame->particleHistories->find(key);
+                            auto updated = history->second->find(key);
+                            *original = *updated;
+                            for (auto child=history->second->children(updated); child!=history->second->end_sibling(); child++) {
+                                frame->particleHistories->append_child(original, child);
+                            }
+                            histories.erase(history);
+                        }
                     } else
                         log_fatal("Unknown particle ID %u!", identifier);
                 }
@@ -648,6 +661,11 @@ std::size_t I3CLSimClientModule::FlushFrameCache()
             frameCacheEntry->frame->Put(mcpeSeriesMapName_, hits);
             frameCacheEntry->frame->Put(mcpeSeriesMapName_+"ParticleIDMap", pidmap);
         }
+        // Commit particle histories
+        if (frameCacheEntry->particleHistories) {
+            frameCacheEntry->frame->Delete(MCTreeName_);
+            frameCacheEntry->frame->Put(MCTreeName_, frameCacheEntry->particleHistories);
+        }
         
         // Clean up particle cache and collect statistics
         auto &particles = frameCacheEntry->particles;
@@ -789,6 +807,7 @@ bool I3CLSimClientModule::DigestOtherFrame(I3FramePtr frame)
 
           frame->Delete(MCTreeName_);
           frame->Put(MCTreeName_,newtree);
+          frameCacheEntry.particleHistories = newtree;
         }
         if (flasherPulses){
           ConvertFlasherPulsesToLightSources(*flasherPulses, lightSources, timeOffsets);

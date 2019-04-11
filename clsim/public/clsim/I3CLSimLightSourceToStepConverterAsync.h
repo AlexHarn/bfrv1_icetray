@@ -29,6 +29,7 @@
 
 #include "clsim/I3CLSimLightSourceToStepConverter.h"
 #include "dataclasses/physics/I3Particle.h"
+#include "dataclasses/physics/I3MCTree.h"
 
 I3_FORWARD_DECLARATION(I3CLSimLightSourcePropagator);
 
@@ -48,7 +49,7 @@ I3_FORWARD_DECLARATION(I3CLSimLightSourcePropagator);
 class I3CLSimLightSourceToStepConverterAsync : public I3CLSimLightSourceToStepConverter
 {
 public:
-    typedef std::tuple<I3CLSimStepSeriesConstPtr, boost::shared_ptr<std::vector<uint32_t>>, bool> FromGeant4Pair_t;
+    typedef std::tuple<I3CLSimStepSeriesConstPtr, std::vector<uint32_t>, std::map<uint32_t, I3MCTreePtr>, bool> FromGeant4Pair_t;
     
     static const uint32_t default_maxQueueItems;
     
@@ -165,7 +166,7 @@ public:
      * Like GetConversionResultWithBarrierInfo(), but also returns
      * a vector of the identifiers that have finished processing.
      */
-    virtual std::tuple<I3CLSimStepSeriesConstPtr, boost::shared_ptr<std::vector<uint32_t>>> GetConversionResultWithBarrierInfoAndMarkers(bool &barrierWasReset, double timeout=NAN);
+    virtual std::tuple<I3CLSimStepSeriesConstPtr, std::vector<uint32_t>, std::map<uint32_t, I3MCTreePtr>> GetConversionResultWithBarrierInfoAndMarkers(bool &barrierWasReset, double timeout=NAN);
     
     
 private:

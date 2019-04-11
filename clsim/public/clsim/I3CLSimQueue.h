@@ -73,8 +73,26 @@ public:
         // notify the consumer thread
         cond_.notify_one();
     }
-    
-    
+
+    void Put(T &&msg)
+    {
+        // lock the mutex to ensure exclusive access to the queue
+        boost::unique_lock<boost::mutex> guard(mutex_);
+        
+        // as long as the queue is full, wait until something is taken off of it
+        // (or there is a thread waiting to consume immediately)
+        while ((queue_.size() >= max_size_))
+        {
+            cond_.wait(guard);
+        }
+
+        // add the message to the queue
+        queue_.push(msg);
+        
+        // notify the consumer thread
+        cond_.notify_one();
+    }
+
     T Get()
     {
         // lock the mutex to ensure exclusive access to the queue
@@ -91,7 +109,7 @@ public:
         }
         
         // the queue is not empty anymore, read the value
-        T msg = queue_.front();
+        T msg = std::move(queue_.front());
         
         // remove the current message from the queue
         queue_.pop();

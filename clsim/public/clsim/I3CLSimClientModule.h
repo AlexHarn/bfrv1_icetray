@@ -189,6 +189,7 @@ public:
         boost::shared_ptr<I3CompressedPhotonSeriesMap> photons;
         typedef std::map<OMKey, MCHitMerging::MCPEStream> MCPEStreamMap;
         boost::shared_ptr<MCPEStreamMap> hits;
+        I3MCTreePtr particleHistories;
         
         frameCacheEntry(uint32_t identifier, const I3FramePtr &f)
             : frameId(identifier), currentPhotonId(0), numPendingParticles(0), frame(f)
@@ -223,7 +224,7 @@ public:
         double timeShift; // optional time that needs to be added to the final output photon
         uint64_t particleMajorID;
         int particleMinorID;
-        
+
         particleCacheEntry(uint32_t id, const I3CLSimLightSource &lightSource, uint32_t frame, double dt);
         
         uint32_t key() const { return particleId; }

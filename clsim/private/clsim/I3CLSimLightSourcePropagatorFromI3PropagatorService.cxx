@@ -37,7 +37,7 @@ bool I3CLSimLightSourcePropagatorFromI3PropagatorService::IsValidForLightSource(
         && (particleToPropagatorServiceMap_->find(source.GetParticle().GetType()) != particleToPropagatorServiceMap_->end());
 }
 
-void I3CLSimLightSourcePropagatorFromI3PropagatorService::Convert(I3CLSimLightSourceConstPtr &lightSource, uint32_t identifier,
+I3MCTreePtr I3CLSimLightSourcePropagatorFromI3PropagatorService::Convert(I3CLSimLightSourceConstPtr &lightSource, uint32_t identifier,
     secondary_callback emitSecondary, step_callback)
 {
     std::deque<std::pair<I3Particle, I3PropagatorServicePtr>> queue;
@@ -72,5 +72,7 @@ void I3CLSimLightSourcePropagatorFromI3PropagatorService::Convert(I3CLSimLightSo
 
         queue.pop_front();
     }
+
+    return I3MCTreePtr();
 }
 

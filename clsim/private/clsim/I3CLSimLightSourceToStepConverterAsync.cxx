@@ -195,7 +195,9 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
     
     // this stores the ids of light sources we are still processing
     std::deque<uint32_t> markers;
-    
+
+    std::map<uint32_t, I3MCTreePtr> particleHistories;
+
     // notify the main thread that everything is set up
     {
         boost::unique_lock<boost::mutex> guard(threadStarted_mutex_);
@@ -216,9 +218,15 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
             
             // emit markers for any _previous_ light sources whose output
             // is no longer in the store
-            auto finished = boost::make_shared<std::vector<uint32_t>>();
+            std::vector<uint32_t> finished;
+            std::map<uint32_t, I3MCTreePtr> daughters;
             while (!markers.empty() && stepStore.count(markers.front()) == 0) {
-                finished->push_back(markers.front());
+                finished.push_back(markers.front());
+                auto target = particleHistories.find(markers.front());
+                if (target != particleHistories.end()) {
+                    daughters.emplace(std::move(*target));
+                    particleHistories.erase(target);
+                }
                 markers.pop_front();
             }
             
@@ -226,7 +234,7 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
                 boost::this_thread::restore_interruption ri(di);
                 // this blocks if the queue from Geant4 to
                 // OpenCL is full.
-                queueFromGeant4_->Put(std::make_tuple(steps, finished, false));
+                queueFromGeant4_->Put(std::make_tuple(steps, std::move(finished), std::move(daughters), false));
             }
         }
         
@@ -255,14 +263,12 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
                 log_fatal("Internal logic error. step store should be empty.");
             
             // emit all remaining markers
-            auto finished = boost::make_shared<std::vector<uint32_t>>(markers.begin(), markers.end());
-            markers.clear();
-            
             {
                 boost::this_thread::restore_interruption ri(di);
-                queueFromGeant4_->Put(std::make_tuple(steps, finished, true /* this is the LAST reply before the barrier is reached! */));
+                queueFromGeant4_->Put(std::make_tuple(steps, std::vector<uint32_t>(markers.begin(), markers.end()), particleHistories, true /* this is the LAST reply before the barrier is reached! */));
             }
-            
+            markers.clear();
+            particleHistories.clear();
         }
     };
     
@@ -334,7 +340,10 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread_impl(boost::this_threa
                 namespace ph = std::placeholders;
                 I3CLSimLightSourcePropagator::secondary_callback emitSecondary =
                     std::bind<bool>(addLightSource, ph::_1, ph::_2, propagator);
-                propagator->Convert(lightSource, lightSourceIdentifier, emitSecondary, emitStep);
+                I3MCTreePtr daughters = propagator->Convert(lightSource, lightSourceIdentifier, emitSecondary, emitStep);
+                if (daughters) {
+                    particleHistories[lightSourceIdentifier] = daughters;
+                }
                 return true;
             }
         }
@@ -512,7 +521,7 @@ bool I3CLSimLightSourceToStepConverterAsync::MoreStepsAvailable() const
     return (!queueFromGeant4_->empty());
 }
 
-std::tuple<I3CLSimStepSeriesConstPtr, boost::shared_ptr<std::vector<uint32_t>>>
+std::tuple<I3CLSimStepSeriesConstPtr, std::vector<uint32_t>, std::map<uint32_t, I3MCTreePtr>>
 I3CLSimLightSourceToStepConverterAsync::GetConversionResultWithBarrierInfoAndMarkers(bool &barrierWasReset, double timeout)
 {
     if (!initialized_)
@@ -522,11 +531,11 @@ I3CLSimLightSourceToStepConverterAsync::GetConversionResultWithBarrierInfoAndMar
     
     FromGeant4Pair_t ret;
     if (!std::isnan(timeout))
-        ret = queueFromGeant4_->Get(timeout/I3Units::second, FromGeant4Pair_t(nullptr, nullptr, false));
+        ret = queueFromGeant4_->Get(timeout/I3Units::second, FromGeant4Pair_t(nullptr, {}, {}, false));
     else
         ret = queueFromGeant4_->Get(); // no timeout
     
-    if (std::get<2>(ret))
+    if (std::get<3>(ret))
     {
         {
             boost::unique_lock<boost::mutex> guard(barrier_is_enqueued_mutex_);
@@ -536,14 +545,14 @@ I3CLSimLightSourceToStepConverterAsync::GetConversionResultWithBarrierInfoAndMar
             barrier_is_enqueued_=false;
         }
     }
-    return std::make_tuple(std::get<0>(ret), std::get<1>(ret));
+    return std::make_tuple(std::move(std::get<0>(ret)), std::move(std::get<1>(ret)), std::move(std::get<2>(ret)));
 }
 
 I3CLSimStepSeriesConstPtr I3CLSimLightSourceToStepConverterAsync::GetConversionResultWithBarrierInfo(bool &barrierWasReset, double timeout)
 {
     I3CLSimStepSeriesConstPtr steps;
     
-    std::tie(steps, std::ignore) = GetConversionResultWithBarrierInfoAndMarkers(barrierWasReset, timeout);
+    std::tie(steps, std::ignore, std::ignore) = GetConversionResultWithBarrierInfoAndMarkers(barrierWasReset, timeout);
     
     return steps;
 }

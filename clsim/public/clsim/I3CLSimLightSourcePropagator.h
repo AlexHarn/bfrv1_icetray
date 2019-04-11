@@ -3,6 +3,7 @@
 #define CLSIM_I3CLSIMLIGHTSOURCEPROPAGATOR_H_INCLUDED
 
 #include "icetray/I3PointerTypedefs.h"
+#include "dataclasses/physics/I3MCTree.h"
 
 struct I3CLSimStep;
 I3_FORWARD_DECLARATION(I3CLSimLightSource);
@@ -24,7 +25,7 @@ public:
     typedef std::function<void(const I3CLSimStep&)> step_callback;
     
     virtual bool IsValidForLightSource(const I3CLSimLightSource &) = 0;
-    virtual void Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback) = 0;
+    virtual I3MCTreePtr Convert(I3CLSimLightSourceConstPtr &, uint32_t, secondary_callback, step_callback) = 0;
     
     /**
      * Sets the wavelength bias. Set this to a constant value
