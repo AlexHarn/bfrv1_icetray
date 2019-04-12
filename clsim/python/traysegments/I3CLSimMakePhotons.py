@@ -47,6 +47,7 @@ def unchanged(func): return func
 my_traysegment = icetray.traysegment if hasattr(icetray, "traysegment") else unchanged
 @my_traysegment
 def I3CLSimMakePhotons(tray, name,
+                       GCDFile,
                        UseCPUs=False,
                        UseGPUs=True,
                        UseOnlyDeviceNumber=None,
@@ -78,7 +79,6 @@ def I3CLSimMakePhotons(tray, name,
                        OverrideApproximateNumberOfWorkItems=None,
                        IgnoreSubdetectors=['IceTop'],
                        ExtraArgumentsToI3CLSimClientModule=dict(),
-                       GCDFile=None,
                        If=lambda f: True
                        ):
     """Do standard clsim processing up to the I3Photon level.
@@ -315,7 +315,6 @@ def I3CLSimMakePhotons(tray, name,
         RandomService=RandomService,
         ParticleHistory=ParticleHistory,
         ExtraArgumentsToI3CLSimClientModule=ExtraArgumentsToI3CLSimClientModule,
-        GCDFile=GCDFile,
         If=If,
     )
 
@@ -345,7 +344,6 @@ def I3CLSimMakePhotonsWithServer(tray, name,
                        RandomService=None,
                        ParticleHistory=False,
                        ExtraArgumentsToI3CLSimClientModule=dict(),
-                       GCDFile=None,
                        If=lambda f: True
                        ):
     """
