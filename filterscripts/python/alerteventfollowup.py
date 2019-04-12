@@ -214,12 +214,12 @@ def AlertEventFollowup(tray,name,
 
         pb_ok = frame.Has(paraboloid_name) and \
                 (frame[paraboloid_name].pbfStatus == paraboloid.I3ParaboloidFitParams.PBF_SUCCESS)
-        pb_err1 = pb_ok and round(frame[paraboloid_name].pbfErr1,5) or None
-        pb_err2 = pb_ok and round(frame[paraboloid_name].pbfErr2,5) or None
-        bs_est  = frame.Has(bootstrap_name) and frame[bootstrap_name].value or None
+        pb_err1 = round(frame[paraboloid_name].pbfErr1,5) if pb_ok else None
+        pb_err2 = round(frame[paraboloid_name].pbfErr2,5) if pb_ok else None
+        bs_est  = frame[bootstrap_name].value if frame.Has(bootstrap_name) else None
         # BDT scores depend on the zenith
-        bdt_up   = frame.Has('GammaFollowUp_BDT_Score_Up')   and round(frame['GammaFollowUp_BDT_Score_Up'].value,5)   or None
-    	bdt_down = frame.Has('GammaFollowUp_BDT_Score_Down') and round(frame['GammaFollowUp_BDT_Score_Down'].value,5) or None
+        bdt_up   = round(frame['GammaFollowUp_BDT_Score_Up'].value,5)   if frame.Has('GammaFollowUp_BDT_Score_Up')   else None
+        bdt_down = round(frame['GammaFollowUp_BDT_Score_Down'].value,5) if frame.Has('GammaFollowUp_BDT_Score_Down') else None
         truncatedEnergyName = 'OnlineL2_SplineMPE_TruncatedEnergy_AllDOMS_Muon'
         truncatedEnergy = round(frame[truncatedEnergyName].energy,5) if frame.Has(truncatedEnergyName) else None
 
