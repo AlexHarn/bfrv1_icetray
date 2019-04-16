@@ -24,9 +24,11 @@ TEST(NonThermalNoise){
 
   double expected = 1022;
   std::set<double> bufferset(buffer.begin(), buffer.end());
+  std::set<double> decayTimes(buffer.begin(), buffer.end());
   MakeNonThermalHits(randomService,
 		     bufferset,
 		     bufferTime,
+		     decayTimes,
 		     rate,
 		     nhits,
 		     mean,
