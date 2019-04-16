@@ -235,7 +235,7 @@ public:
             if (track->GetParentID() > 0) {
                 auto parent = ids_.find(track->GetParentID());
                 if (parent != ids_.end()) {
-                    tree_.append_child(parent->second, p);
+                    insert_child(tree_.find(parent->second), p);
                     ids_.emplace(track->GetTrackID(),p.GetID());
                 }
             // collect the track if it is not the primary
@@ -258,7 +258,7 @@ public:
                     || (track->GetCreatorProcess()->GetProcessType() == fHadronic
                        && track->GetCreatorProcess()->GetProcessSubType() == fHadronAtRest))) {
                 auto p = to_I3Particle(*track);
-                tree_.append_child(parent, p);
+                insert_child(parent, p);
                 ids_.emplace(track->GetTrackID(), p.GetID());
             }
         }
@@ -288,6 +288,19 @@ public:
 
     I3MCTree tree_;
     std::map<G4int, I3ParticleID> ids_;
+private:
+    /// Insert a child particle, keeping the children ordered in time
+    template<typename Iterator>
+    void insert_child(const Iterator &parent, const I3Particle &child)
+    {
+        auto bound = std::upper_bound(tree_.children(parent), tree_.end_sibling(), child,
+            [](const I3Particle &p1, const I3Particle &p2) { return p1.GetTime() < p2.GetTime(); });
+        if (bound == tree_.end_sibling()) {
+            tree_.append_child(parent, child);
+        } else {
+            tree_.insert(bound, child);
+        }
+    }
 };
 
 }
