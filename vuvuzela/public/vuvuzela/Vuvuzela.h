@@ -92,6 +92,7 @@ class Vuvuzela : public I3Module
     std::vector<int> goodOMTypes_;
     bool useIndividual_;    
     bool simulateNewDoms_;
+    bool multiPMT_;
     bool useEventHeaderBounds_;
     bool disableLowDTcutoff_;
 
@@ -105,6 +106,7 @@ class Vuvuzela : public I3Module
     I3RandomServicePtr randomService;
     std::string randomServiceName_;
     std::map<OMKey, std::set<double> > bufferMap;
+    std::map<OMKey, int> maxPMTMap_;
 
     bool firstTime;
     int nhits;

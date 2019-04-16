@@ -3,6 +3,58 @@
 #include "vuvuzela/VuvuzelaFunctions.h"
 
 /* ******************************************************************** */ 
+/* MakeCoincidentHits                                                   */
+/** Produces the hits on neighboring PMTs due to decays observed on the 
+ * DOM face. Parametrizations for mDOMs are from Martin Unland.
+ *
+ *  \param random A random service capable of producing a uniform distribution
+ *  \param decayTimes The times associated with the decays on pmt1
+ *  \param pmt1 PMT which observed the first hit from the decay
+ *  \param pmt2 PMT to which we're adding hits
+ *  \param maxPMTs Number of PMTs on this DOM. A poor man's way of identifying mDOM vs D-Egg
+ *  \param bufferSeries The buffer holding the hit times. New hits are added here
+ *  \param bufferTime The current time of the buffer. This is used to keep ordering of the buffer hits.
+ *  \param start The time for the event to begin
+ *  \param stop The time for the event to end
+ *  \returns void
+ *//******************************************************************* */ 
+void MakeCoincidentHits(I3RandomServicePtr randomService,
+                        const std::set<double>& decayTimes,
+                        const int pmt1, 
+                        const int pmt2, 
+                        const int maxPMTs,
+                        std::set<double>& bufferSeries,
+                        const double bufferTime,
+                        const double start, 
+                        const double stop)
+{
+    // Do something fun here.
+    // I'll need to have some dependence on both pmt1 and pmt2
+    // the maxPMTs is for identifying mdom vs degg without having
+    // to know the number of PMTs in an mdom a priori
+    // may want to just pass orientations instead, but that would be a
+    // bit of a large object to hold in memory maybe.
+    
+    // Here's the python code that generates the mdom orientations.
+    // note that the 22.5 have been removed!
+    /*for i in range(4):
+         d.rotate_y((90-57)*icetray.I3Units.degree);
+         d.rotate_z((90*i)*icetray.I3Units.degree);
+    for i in range(4,12):
+         d.rotate_y((90-16)*icetray.I3Units.degree);
+         d.rotate_z((45*i)*icetray.I3Units.degree);
+    for i in range(12,20):
+         d.rotate_y((90+16)*icetray.I3Units.degree);
+         d.rotate_z((45*i)*icetray.I3Units.degree);
+    for i in range(20,24):
+         d.rotate_y((90+57)*icetray.I3Units.degree);
+         d.rotate_z((90*i)*icetray.I3Units.degree);
+    */
+
+  
+}
+
+/* ******************************************************************** */ 
 /* MakeNonThermalHits                                                   */
 /** Produces the decay and scintillation hits. The former are produced 
  * by throwing decays uniformly in time from start to stop. The latter 
@@ -25,13 +77,14 @@
 void MakeNonThermalHits(I3RandomServicePtr random,
                         std::set<double>& bufferSeries,
                         const double bufferTime,
+                        std::set<double>& decayTimes,
                         const double decayRate,
                         const double nHits,
                         const double mean,
                         const double sigma,
                         const double start,
                         const double stop,
-			bool disableCutoff)
+                        bool disableCutoff)
 {
   // First hit of the clusters
   int nClusters = random->Poisson(fabs(stop-start) * decayRate);
@@ -41,6 +94,7 @@ void MakeNonThermalHits(I3RandomServicePtr random,
     // We want to keep the current time in the event
     double currentTime = bufferTime + random->Uniform(0, stop-start);
     bufferSeries.insert( currentTime );
+    decayTimes.insert( currentTime );
 
     // The number of hits is drawn from a Poisson distribution with
     // a constant mean.
@@ -60,13 +114,9 @@ void MakeNonThermalHits(I3RandomServicePtr random,
     double hitTime = *(deltaTs.begin()) * 2 + currentTime;
     for(dtIter = deltaTs.begin(); dtIter != deltaTs.end(); ++dtIter){
 
-
-      // Truncate the distribution?
-      if (!disableCutoff)
-	if (*dtIter < 2*I3Units::microsecond) continue;
-
-      //double hitTime = std::accumulate(deltaTs.begin(), dtIter,
-      //                                 *(deltaTs.begin()) + currentTime);
+        // Truncate the distribution?
+        if (!disableCutoff)
+            if (*dtIter < 2*I3Units::microsecond) continue;
 
       // Put the hit time into the buffer
       bufferSeries.insert(hitTime);
@@ -142,6 +192,7 @@ std::pair<double, double> GetTimeRange(I3MCPESeriesMapConstPtr inputHitMap){
 
   return std::pair<double, double>(firstHit, lastHit);
 }
+
 
 /* ******************************************************************** */ 
 /* CompareMCPEs                                                        */

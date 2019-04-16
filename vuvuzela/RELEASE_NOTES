@@ -17,6 +17,7 @@ V01-01-02
   This takes a list of OMTypes from I3OMGeo in order to grant some more
   freedom for the future. By default, this will be IceCube, mDOM, pDOM,
   and dEgg. I'll add parameters files for these other pmt types later.
+* Add in the framework for multi-pmt noise simulation
 
 June 22, 2018 Juan Carlos Diaz-Velez (juancarlso@icecube.wisc.edu)
 ------------------------------------------------------------------

@@ -41,26 +41,30 @@ namespace bp = boost::python;
 #if __cplusplus >= 201103L
 namespace {
 
-std::vector<double>
-generate_noise(
-        const double thermal_rate,
-        const double rate, 
-        const double hits,
-        const double mean, 
-        const double sigma,
-        const double length, 
-        I3RandomServicePtr rng) {
+void generate_noise(std::set<double> buffer,
+	       std::set<double> decays,
+	       std::vector<double> noisehits,
+	       const double thermal_rate,
+	       const double rate, 
+	       const double hits,
+	       const double mean, 
+	       const double sigma,
+	       const double length, 
+	       I3RandomServicePtr rng) {
 
-    std::set<double> buffer;
-    std::vector<double> out;
     
+    if(buffer.size() == 0){
+      // Need to start some of the correlated noise before the current window so ensure proper coverage
+      MakeNonThermalHits(rng, buffer, 0, decays, rate, hits, mean, sigma, -100000, 0, true);
+    }
+
     MakeThermalHits(rng, buffer, 0, thermal_rate, 0, length);
-    MakeNonThermalHits(rng, buffer, 0, rate, hits, mean, sigma, 0, length, true);
+    MakeNonThermalHits(rng, buffer, 0, decays, rate, hits, mean, sigma, 0, length, true);
+
+    std::copy_if(buffer.begin(), buffer.end(), std::back_inserter(noisehits), [length](double t) { return t >= 0 && t < length; });
     
-    std::copy_if(buffer.begin(), buffer.end(), std::back_inserter(out), [length](double t) { return t >= 0 && t < length; });
-    
-    return out;
-}
+    return;
+    }
 
 }
 #endif
@@ -68,7 +72,8 @@ generate_noise(
 static void register_VuvuzelaFunctions()
 {
 #if __cplusplus >= 201103L
-    def("generate_noise", &generate_noise, (bp::arg("thermal_rate"), "rate", "hits", "mean", "sigma", "length", "rng"));
+  def("generate_noise", &generate_noise, (bp::arg("buffer"), bp::arg("decays"), bp::arg("noisehits"),
+					  "thermal_rate", "rate", "hits", "mean", "sigma", "length", "rng"));
 #endif
 }
 

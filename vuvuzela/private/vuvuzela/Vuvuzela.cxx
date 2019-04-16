@@ -64,6 +64,9 @@ Vuvuzela::Vuvuzela(const I3Context& ctx) : I3Module(ctx)
   simulateNewDoms_=false;
   AddParameter("SimulateNewDOMs", "Should DOMs with no calibration entry be simulated (ie, for PINGU)?", simulateNewDoms_);
 
+  multiPMT_=true;
+  AddParameter("MultiPMT", "Simulate multi-PMT noise for mDOMs/D-Eggs?", multiPMT_);
+
   AddParameter("RandomService","Random Number Generator",randomService);
 
   disableLowDTcutoff_ = true;
@@ -125,6 +128,7 @@ void Vuvuzela::Configure()
   GetParameter("ScintillationHits", scintillationHits_);
   GetParameter("UseIndividual", useIndividual_);
   GetParameter("SimulateNewDOMs", simulateNewDoms_);
+  GetParameter("MultiPMT", multiPMT_);
   GetParameter("DisableLowDTCutoff", disableLowDTcutoff_);
 
   //   Check to see if valid values were passed
@@ -156,6 +160,9 @@ void Vuvuzela::Configure()
   if (useEventHeaderBounds_)
 	  log_warn("Noise will be generated according to the length of the eventheader, i.e. "
 		       "range = endtime - starttime. This is abnormal and probably wrong!");
+
+  if (multiPMT_)
+      log_info("Will simulate multi-PMT noise");
 
   // Configure I3RandomService
   if (!randomService){
@@ -291,7 +298,8 @@ void Vuvuzela::DAQ(I3FramePtr frame)
 /* GetGoodDoms                                                          */
 /** Loops through the geometry and saves a list of the good doms
  *  to simulate. This is only done once to avoid the std::find used
- *  in the excludeList search
+ *  in the excludeList search. If multiPMT, then also take the opportunity
+ *  to find the maximum number of pmts on a single module.
  *
  *  \param geometry The I3Geometry used to loop over all DOMs.
  *  \returns A vector of OMKeys of DOMs to simulate.
@@ -317,6 +325,8 @@ void Vuvuzela::GetGoodDoms(const I3Geometry& geometry,
     }
     if( !keep ) continue;
 
+    if(maxPMTMap_.find(dom) == maxPMTMap_.end()) maxPMTMap_[dom] = dom.GetPMT();
+    else if(maxPMTMap_[dom] < dom.GetPMT()) maxPMTMap_[dom] = dom.GetPMT();
     log_debug("\t Good!");
     
     //Don't generate hits for any DOMs we want to exclude
@@ -355,8 +365,6 @@ void Vuvuzela::GetGoodDoms(const I3Geometry& geometry,
 I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
 					       double start, double stop){
   
-  I3MCPESeriesMap *noiseMap = new I3MCPESeriesMap();
-
   std::vector<OMKey>::iterator domIter;
   for(domIter = goodDOMs.begin(); domIter != goodDOMs.end(); ++domIter){
     
@@ -385,21 +393,20 @@ I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
 	    std::isnan(currentScintillationHits) ||
 	    std::isnan(currentScintillationMean) ||
 	    std::isnan(currentScintillationSigma)) )
-	{
-	  if (simulateNewDoms_){
-	    currentThermalRate = thermalRate_;
-	    currentDecayRate = decayRate_ ;
-	    currentScintillationHits = scintillationHits_;
-	    currentScintillationMean = scintillationMean_;
-	    currentScintillationSigma = scintillationSigma_;
-	  }
-	  else{
-	    log_fatal("DOM %02i-%02i has no Vuvuzela parameters in GCD file! If you want to simply use the default values, enable SimulateNewDOMs.", 
-		      dom.GetString(),
-		      dom.GetOM());
-	  }
-	}
-
+	  {
+	    if (simulateNewDoms_){
+	      currentThermalRate = thermalRate_;
+	      currentDecayRate = decayRate_ ;
+	      currentScintillationHits = scintillationHits_;
+	      currentScintillationMean = scintillationMean_;
+	      currentScintillationSigma = scintillationSigma_;
+	    }
+	    else
+	      log_fatal("DOM %02i-%02i has no Vuvuzela parameters in GCD file! If you want to simply "
+                    "use the default values, enable SimulateNewDOMs.", 
+                    dom.GetString(),
+                    dom.GetOM());
+      }
     }
 
     // Multiply the rates (not anything else) by the scale factor.
@@ -424,9 +431,11 @@ I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
 		    stop);
     
     // And the decay + scintillation hits
+    std::set<double> decayTimes;
     MakeNonThermalHits(randomService, 
-    		       bufferHits,
+    		   bufferHits,
 		       bufferTime,
+               decayTimes,
 		       currentDecayRate, 
 		       currentScintillationHits,
 		       currentScintillationMean,
@@ -434,9 +443,37 @@ I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
 		       start, stop,
 		       disableLowDTcutoff_);
 
+
+    // Produce the multi-PMT noise
+    if(multiPMT_){
+      for(int i=0; i<=maxPMTMap_[dom]; ++i){
+          if(dom.GetPMT() == i) continue;
+          OMKey neighbor(dom.GetString(), dom.GetOM(), i);
+          if(neighbor == dom) continue;
+          MakeCoincidentHits(randomService,
+                             decayTimes,
+                             dom.GetPMT(), i,
+                             maxPMTMap_[dom],
+                             bufferMap[dom],
+                             bufferTime,
+                             start, stop);
+      }
+    }
+  }
+
+  // Actually put everything into MCPEs
+  I3MCPESeriesMap *noiseMap = new I3MCPESeriesMap();
+  std::map<OMKey, std::set<double> >::iterator hitDomIter;
+  for(hitDomIter = bufferMap.begin(); hitDomIter != bufferMap.end(); ++hitDomIter){
+    OMKey dom = hitDomIter->first;
+    std::set<double>& bufferHits = hitDomIter->second;
+    
     // At this point, the buffer is sorted so that we can pop_back with amortized O(1) time
     // Pop all of the hits in the right time range to the MCPESeries
     I3MCPESeries hitSeries;
+    if(noiseMap->find(dom) != noiseMap->end())
+        hitSeries = (*noiseMap)[dom];
+        
     while(!bufferHits.empty()){
       
       // The time for this hit, corrected with start and buffer times
@@ -444,7 +481,7 @@ I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
 
       if( hitTime > stop) break;
       
-      // Now make an I3MCPESeries with the hits
+      // Now make an I3MCPE with the hits
       I3MCPE hit;
       hit.time = hitTime;
       hit.npe = 1;
@@ -457,6 +494,10 @@ I3MCPESeriesMapConstPtr Vuvuzela::GetNoiseHits(const I3Calibration& calibration,
     
     // Add the hit series to the map and save the buffer
     if(hitSeries.size() > 0) (*noiseMap)[dom] = hitSeries;
+
+
+            
+
   }
   
   I3MCPESeriesMapConstPtr hitMapPtr(noiseMap);

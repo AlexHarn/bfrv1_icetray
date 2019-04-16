@@ -26,6 +26,20 @@
 #include "phys-services/I3RandomService.h"
 
 /* ******************************************************************** */ 
+/* MakeCoincidentHits                                                   */
+/** \brief Produces correlated noise hits on a second PMT
+ *//******************************************************************* */ 
+void MakeCoincidentHits(I3RandomServicePtr randomService,
+                        const std::set<double>& decayTimes,
+                        const int pmt1, 
+                        const int pmt2, 
+                        const int maxPMTs,
+                        std::set<double>& bufferSeries,
+                        const double bufferTime,
+                        const double start, 
+                        const double stop);
+
+/* ******************************************************************** */ 
 /* MakeNonThermalHits                                                   */
 /** \brief Produces the decay and scintillation hits. The former are produced 
  * by throwing decays uniformly in time from start to stop. The latter 
@@ -34,8 +48,9 @@
 void MakeNonThermalHits(I3RandomServicePtr random,
 			std::set<double>& bufferSeries,
 			const double bufferTime,
+            std::set<double>& decayTimes,
 			const double rate, 
-			const double index, 
+			const double nHits, 
 			const double mean, 
 			const double sigma,
 			const double start, 
