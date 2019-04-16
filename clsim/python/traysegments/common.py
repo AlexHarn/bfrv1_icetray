@@ -26,6 +26,15 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
         if OverrideApproximateNumberOfWorkItems is not None:
             device.approximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems
 
+        # OpenCL native math functions can be faster than their standard
+        # equivalents, but have implementation-defined precision. This tends to
+        # be sufficient on GPUs whose microarchitectures date from less than a
+        # decade ago. X86 single-precision operations, on the other hand, are
+        # full of >= 20 years of legacy cruft and can have precision as low as
+        # 11 bits, which is enough to miss a DOM at a distance of 20 m. Do not
+        # use.
+        device.useNativeMath = not device.cpu
+
         if DoNotParallelize and device.cpu:
             # check if we can split this device into individual cores
             try:
@@ -50,7 +59,6 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
                 openCLDevices.append(device)
             
         else:
-            device.useNativeMath=True
             openCLDevices.append(device)
     
     return openCLDevices
