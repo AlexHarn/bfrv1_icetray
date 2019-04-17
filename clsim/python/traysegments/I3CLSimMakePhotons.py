@@ -529,5 +529,5 @@ def I3CLSimMakePhotonsWithServer(tray, name,
             OutputMCPESeriesMapName = MCPESeriesName,
             **sliceRemoverAdditionalParams
             )
-
-        tray.Add("Delete", keys=[clSimMCTreeName])
+        if OutputMCTreeName is None:
+            tray.Add("Delete", keys=[clSimMCTreeName])
