@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <vector>
 
+#include <fstream>
 #include <iostream>
 
 #include <gsl/gsl_multifit.h>
@@ -111,6 +112,7 @@ public:
 
   myvect p1, p2;
   bool skip; // no crossing this iteration (skip this step)
+  double a, b, c;
 
   void setp(myvect q){ // (assume |*this|=1)
     q.normalize();
@@ -131,7 +133,7 @@ public:
   // computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation
   // for directions sampled from sphere and weights according to
   // https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
-  myvect ellipsoid(double a = 1, double b = 1, double c = elong){  // substitute for rand_x().
+  myvect ellipsoid(){  // substitute for rand_x().
     double weight = 0;
     double maxweight = min(a, min(b, c));
     myvect r;
@@ -176,7 +178,7 @@ public:
   }
 
   myvect rand_x(){ // interface plane orientation
-    // return ellipsoid();
+    if(elong<0) return ellipsoid();
     myvect r;
     if(elong!=1){
       double ct=elong_sampling(elong);
@@ -628,6 +630,34 @@ void test(){
 void test2(double p, int num, int tot){
   // verbose=true;
 
+  double pq[3];
+  myvect ps[4];
+  if(elong<0){
+    ifstream inFile("/dev/stdin", ifstream::in);
+    if(!inFile.fail()){
+      int size=0;
+      float a, b, c, d;
+
+      string in;
+      while(getline(inFile, in)){
+	int num=sscanf(in.c_str(), "%f %f %f %f", &a, &b, &c, &d);
+	if(size<4 && num>=3) ps[size]=myvect(a, b, c), ps[size].normalize();
+	if(size<3 && num>=4) pq[size]=d;
+	size++;
+      }
+      inFile.close();
+      if(size!=4){
+	cerr << "expecting the following on stdin:" << endl;
+	cerr << "x y z a [vector p1]" << endl;
+	cerr << "x y z b [vector p2]" << endl;
+	cerr << "x y z c [vector p3]" << endl;
+	cerr << "x y z [photon sdir]" << endl;
+	exit(1);
+      }
+    }
+    else{ cerr << "cannot read from stdin" << endl; exit(1); }
+  }
+
   for(int j=0; j<tot; j++){
     myvect k(0, 0, 1);
     medium one, two; // two media definitions
@@ -635,6 +665,12 @@ void test2(double p, int num, int tot){
 
     surface flow(sin(p), 0, cos(p)); // direction of ice flow
     flow.setp();
+    if(elong<0){
+      flow=ps[2]; flow.c=pq[2];
+      flow.p1=ps[0]; flow.a=pq[0];
+      flow.p2=ps[1]; flow.b=pq[1];
+      k=ps[3];
+    }
 
     one = flow.rand_c();
     myvect r(0, 0, 0);
