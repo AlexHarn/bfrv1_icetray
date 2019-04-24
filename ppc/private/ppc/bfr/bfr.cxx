@@ -110,9 +110,8 @@ public:
   surface(myvect q) : myvect(q) {}
   surface(double x, double y, double z) : myvect(x, y, z) {}
 
-  myvect p1, p2;
+  myvect p1, p2, e;
   bool skip; // no crossing this iteration (skip this step)
-  double a, b, c;
 
   void setp(myvect q){ // (assume |*this|=1)
     q.normalize();
@@ -129,13 +128,13 @@ public:
   }
 
   // random surface segment of an ellipsoid, representing the average grain
-  // a,b,c are the x,y,z radia
+  // e.x,y,z=a,b,c are the x,y,z radia
   // computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation
   // for directions sampled from sphere and weights according to
   // https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
   myvect ellipsoid(){  // substitute for rand_x().
     double weight = 0;
-    double maxweight = min(a, min(b, c));
+    double maxweight = min(e.x, min(e.y, e.z));
     myvect r;
 
     do {
@@ -144,9 +143,9 @@ public:
       double ph=2*M_PI*xrnd();
       double cosphi=cos(ph), sinphi=sin(ph);
 
-      r.x=sintheta*cosphi/a;
-      r.y=sintheta*sinphi/b;
-      r.z=costheta/c;
+      r.x=sintheta*cosphi/e.x;
+      r.y=sintheta*sinphi/e.y;
+      r.z=costheta/e.z;
 
       weight=maxweight*r.norm();
     } while((skip=(xrnd() >= weight)) && loop);
@@ -630,47 +629,49 @@ void test(){
 void test2(double p, int num, int tot){
   // verbose=true;
 
-  double pq[3];
-  myvect ps[4];
+  myvect ki(0, 0, 1);
+  surface flow(sin(p), 0, cos(p)); // direction of ice flow
+  flow.setp();
+  surface crys=flow;
+
   if(elong<0){
+    myvect pq[3];
     ifstream inFile("/dev/stdin", ifstream::in);
     if(!inFile.fail()){
       int size=0;
-      float a, b, c, d;
+      double x, y, z;
 
       string in;
       while(getline(inFile, in)){
-	int num=sscanf(in.c_str(), "%f %f %f %f", &a, &b, &c, &d);
-	if(size<4 && num>=3) ps[size]=myvect(a, b, c), ps[size].normalize();
-	if(size<3 && num>=4) pq[size]=d;
-	size++;
+	int num=sscanf(in.c_str(), "%lf %lf %lf", &x, &y, &z);
+	if(num==3) pq[size++]=myvect(x, y, z);
       }
       inFile.close();
-      if(size!=4){
+      if(size!=3){
 	cerr << "expecting the following on stdin:" << endl;
-	cerr << "x y z a [vector p1]" << endl;
-	cerr << "x y z b [vector p2]" << endl;
-	cerr << "x y z c [vector p3]" << endl;
+	cerr << "a b c [ ellipsoid ]" << endl;
+	cerr << "x y z [ ice  flow ]" << endl;
 	cerr << "x y z [photon sdir]" << endl;
 	exit(1);
       }
     }
     else{ cerr << "cannot read from stdin" << endl; exit(1); }
+
+    {
+      crys=myvect(0, 0, 1);
+      crys.p1=myvect(1, 0, 0);
+      crys.p2=myvect(0, 1, 0);
+      crys.e=pq[0];
+      flow=pq[1];
+      flow.setp();
+      ki=pq[2];
+    }
   }
 
   for(int j=0; j<tot; j++){
-    myvect k(0, 0, 1);
+    myvect k(ki);
     medium one, two; // two media definitions
     surface plane; // interface between two media
-
-    surface flow(sin(p), 0, cos(p)); // direction of ice flow
-    flow.setp();
-    if(elong<0){
-      flow=ps[2]; flow.c=pq[2];
-      flow.p1=ps[0]; flow.a=pq[0];
-      flow.p2=ps[1]; flow.b=pq[1];
-      k=ps[3];
-    }
 
     one = flow.rand_c();
     myvect r(0, 0, 0);
@@ -684,8 +685,8 @@ void test2(double p, int num, int tot){
     int count=0;
     for(int i=0; i<num; i++){
       p.advance(1./num);
-      plane = flow.rand_i(p.s);
-      if(flow.skip) continue;
+      plane = crys.rand_i(p.s);
+      if(crys.skip) continue;
       count++;
       bool same=interact(one, two, plane, p);
       if(!same) one=two;
