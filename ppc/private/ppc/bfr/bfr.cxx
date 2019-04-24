@@ -11,6 +11,7 @@ using namespace std;
 bool verbose=false;
 bool girdle=true;
 bool orefr=false;
+bool loop=true; // guarantee interaction at every step
 double elong=1.0;
 double xx=1.e-10;
 
@@ -109,6 +110,7 @@ public:
   surface(double x, double y, double z) : myvect(x, y, z) {}
 
   myvect p1, p2;
+  bool skip; // no crossing this iteration (skip this step)
 
   void setp(myvect q){ // (assume |*this|=1)
     q.normalize();
@@ -129,24 +131,27 @@ public:
   // computes gradients of ellipsoid surface from x^2/a^2+y^2/b^2+z^2/c^2=1 defining equation
   // for directions sampled from sphere and weights according to
   // https://math.stackexchange.com/questions/973101/how-to-generate-points-uniformly-distributed-on-the-surface-of-an-ellipsoid
-  void ellipsoid(double a, double b, double c){
+  myvect ellipsoid(double a = 1, double b = 1, double c = elong){  // substitute for rand_x().
     double weight = 0;
     double maxweight = min(a, min(b, c));
+    myvect r;
 
-    do{
+    do {
       double costheta=2*xrnd()-1;
       double sintheta=sqrt(1-costheta*costheta);
       double ph=2*M_PI*xrnd();
       double cosphi=cos(ph), sinphi=sin(ph);
 
-      x=sintheta*cosphi/a;
-      y=sintheta*sinphi/b;
-      z=costheta/c;
+      r.x=sintheta*cosphi/a;
+      r.y=sintheta*sinphi/b;
+      r.z=costheta/c;
 
-      weight=maxweight*norm();
-    } while(xrnd() >= weight);
+      weight=maxweight*r.norm();
+    } while((skip=(xrnd() >= weight)) && loop);
 
-    this->normalize();
+    r.normalize();
+    r=p1*r.x+p2*r.y+(*this)*r.z;
+    return r;
   }
 
   myvect rand(){ // random from sphere
@@ -158,21 +163,20 @@ public:
   }
 
   double elong_sampling(double p){ // returns the cos(th) value for elongated (stretched) ice
-    double p2=p*p;
-    double weight, xi, num;
+    double p2=p*p, pm=max(1., p);
+    double weight, xi, area;
 
     do {
       xi=2*xrnd()-1;
-      double x2=xi*xi;
-      double px=p2*(1-x2);
-      num=x2+px;
-      weight=num/p2;
-    } while(xrnd() >= weight);
+      area=sqrt(p2+(1-p2)*xi*xi);
+      weight=area/pm;
+    } while((skip=(xrnd() >= weight)) && loop);
 
-    return xi/sqrt(num);
+    return xi/area;
   }
 
   myvect rand_x(){ // interface plane orientation
+    // return ellipsoid();
     myvect r;
     if(elong!=1){
       double ct=elong_sampling(elong);
@@ -181,7 +185,7 @@ public:
       double cp=cos(ph), sp=sin(ph);
       r=(*this)*ct+(p1*cp+p2*sp)*st;
     }
-    else r=rand();
+    else r=rand(), skip=false;
     return r;
   }
 
@@ -189,7 +193,7 @@ public:
     // gets grain boundary plane according to uniform distribution on sphere (ellipsoid optional)
     // dot product between boundary and poynting vector = probability to see plane
     myvect r;
-    do r=rand_x(); while(xrnd() >= fabs(r.dot(q)/q.norm()));
+    do r=rand_x(); while((!skip) && (skip=(xrnd() >= fabs(r.dot(q)/q.norm()))) && loop);
     return r;
   }
 
@@ -552,6 +556,7 @@ bool interact(medium one, medium two, surface plane, photon & p){
   double sum=0;
   for(int i=0; i<dim; i++){ s[i]=fabs(x[i]*s[i]/s[dim]); sum+=s[i]; }
   if(verbose) cout<<refl<<" "<<refr<<"  "<<chisq<<" "<<sum<<" "<<p.k.dot(plane)<<" "<<p.s.dot(plane)<<endl;
+  // cout<<chisq<<" "<<sum<<endl;
 
   if(verbose){
     cout<<"x:"; for(int i=0; i<dim; i++) cout<<" "<<x[i]; cout<<endl;
@@ -640,9 +645,12 @@ void test2(double p, int num, int tot){
     if(verbose) cout<<endl<<endl;
     two = flow.rand_c();
 
+    int count=0;
     for(int i=0; i<num; i++){
       p.advance(1./num);
       plane = flow.rand_i(p.s);
+      if(flow.skip) continue;
+      count++;
       bool same=interact(one, two, plane, p);
       if(!same) one=two;
       two = flow.rand_c();
@@ -650,7 +658,7 @@ void test2(double p, int num, int tot){
 
     myvect s=p.s;
     s.normalize();
-    cout<<s.x<<" "<<s.y<<" "<<s.z<<" "<<p.x<<" "<<p.y<<" "<<p.z<<endl;
+    cout<<s.x<<" "<<s.y<<" "<<s.z<<" "<<p.x<<" "<<p.y<<" "<<p.z<<" "<<count<<endl;
   }
 }
 
@@ -672,6 +680,13 @@ int main(int arg_c, char *arg_a[]){
   }
 
   if(arg_c>1){
+    {
+      char * bmp=getenv("NOLO");
+      if(bmp!=NULL && !(*bmp!=0 && atoi(bmp)==0)){
+	loop=false;
+	cerr<<"Do not force crossings"<<endl;
+      }
+    }
     int inum=1000;
     {
       char * bmp=getenv("INUM");
@@ -691,7 +706,7 @@ int main(int arg_c, char *arg_a[]){
     test2(atof(arg_a[1])*M_PI/180, inum, jnum);
   }
   else{
-    cerr<<"Usage: [SEED=0] [ORFR=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle] [elongation]"<<endl;
+    cerr<<"Usage: [SEED=0] [ORFR=0] [NOLO=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle] [elongation]"<<endl;
     test();
   }
 }
