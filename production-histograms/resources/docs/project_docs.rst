@@ -111,3 +111,22 @@ Class Hierarchy
 .. figure:: production_histogram_inheritance_cropped.png
 
             This is the histogram class hierarchy.
+
+
+Database
+++++++++
+
+To get histograms directly from the database: ::
+
+  In [1]: from pymongo import MongoClient
+  In [2]: client = MongoClient('mongodb://icecube:skua@mongodb-simprod.icecube.wisc.edu') # read only access
+  In [3]: db = client['simprod_histograms']
+  In [4]: db.list_collection_names()
+  In [5]: collection_name = db.list_collection_names()[0]
+  In [6]: collection = db[collection_name]
+  In [7]: primary_energy = collection.find_one({'name':'PrimaryEnergy'})
+  In [8]: primary_energy.keys()                                                                                                                 
+  Out[8]: dict_keys(['_id', 'bin_values', 'name', 'underflow', 'xmax', 'xmin', 'overflow', 'nan_count'])
+  In [9]: filelist = collection.find_one({'name':'filelist'})['files']
+  In [10]: histogram_names = [h['name'] for h in collection.find({'name' : {'$ne':'filelist'}})]
+  
