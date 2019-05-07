@@ -115,7 +115,7 @@ I3Wavedeform::I3Wavedeform(const I3Context &context) :
 	    " bins. This option is intended to expert use only; most users"
 	    " should leave it set to the default value.", true);
 	AddParameter("ApplySPECorrections", "Whether to apply DOM-by-DOM"
-	    " corrections to the pulse charge scaling if available", false);
+	    " corrections to the pulse charge scaling if available", true);
 	AddParameter("Reduce", "Find the optimal NNLS solution, then eliminate"
 	    " basis members until tolerance is reached", true);
 
@@ -695,11 +695,13 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 	// Load the SPE corrections
 	double atwdSPECorrection = 1.;
 	double fadcSPECorrection = 1.;
-	if (calibration.IsMeanATWDChargeValid()) {
-		atwdSPECorrection = 1. / calibration.GetMeanATWDCharge();
-	}
-	if (calibration.IsMeanFADCChargeValid()) {
-		fadcSPECorrection = 1. / calibration.GetMeanFADCCharge();
+	if (apply_spe_corr_) {
+		if (calibration.IsMeanATWDChargeValid()) {
+			atwdSPECorrection = 1. / calibration.GetMeanATWDCharge();
+		}
+		if (calibration.IsMeanFADCChargeValid()) {
+			fadcSPECorrection = 1. / calibration.GetMeanFADCCharge();
+		}
 	}
 
 	// Convert to pulse series
