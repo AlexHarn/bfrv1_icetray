@@ -37,7 +37,12 @@ bool I3InIceDOM::Configure(const I3DOMCalibration& cal,
                            const I3DOMStatus& stat){
 
   bool success(true);
-  double threshold = SPEPMTThreshold(stat, cal);
+  // This .93 magic number will scale the discrimintor down to 0.2325PE.
+  // Magic number needs to be replaced by a proper
+  // handling of the SPEPMTThreshold
+  log_warn("magic number .93 factor applied to SPEPMTThreshold. Please fix.");
+  double threshold = 0.93*SPEPMTThreshold(stat, cal);
+  //double threshold = SPEPMTThreshold(stat, cal);
   if(std::isnan(threshold)){
     log_error("threshold = %f", threshold);
     success = false;

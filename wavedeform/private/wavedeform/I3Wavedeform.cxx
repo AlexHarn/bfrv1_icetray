@@ -695,13 +695,11 @@ I3RecoPulseSeriesPtr I3Wavedeform::GetPulses(
 	// Load the SPE corrections
 	double atwdSPECorrection = 1.;
 	double fadcSPECorrection = 1.;
-	if (apply_spe_corr_) {
-		if (calibration.IsMeanATWDChargeValid()) {
-			atwdSPECorrection = 1. / calibration.GetMeanATWDCharge();
-		}
-		if (calibration.IsMeanFADCChargeValid()) {
-			fadcSPECorrection = 1. / calibration.GetMeanFADCCharge();
-		}
+	if (calibration.IsMeanATWDChargeValid()) {
+		atwdSPECorrection = 1. / calibration.GetMeanATWDCharge();
+	}
+	if (calibration.IsMeanFADCChargeValid()) {
+		fadcSPECorrection = 1. / calibration.GetMeanFADCCharge();
 	}
 
 	// Convert to pulse series

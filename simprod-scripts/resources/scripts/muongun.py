@@ -10,4 +10,4 @@ if __name__ == '__main__':
    stats = {}
    mu = MuonGunGenerator()
    mu.ExecuteOpts(stats)
-   print stats
+   print(stats)
