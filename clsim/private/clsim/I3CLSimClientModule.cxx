@@ -184,9 +184,11 @@ void I3CLSimClientModule::Configure()
         // Emit a bunches of the size of the workgroup granularity.
         // I3CLSimServer will bunch and pad these out to the full size bunch as
         // needed.
-        stepGenerator_->SetBunchSizeGranularity(1);
-        stepGenerator_->SetMaxBunchSize(stepsToPhotonsConverter_->GetWorkgroupSize());
-        stepGenerator_->Initialize();
+        if (!stepGenerator_->IsInitialized()) {
+            stepGenerator_->SetBunchSizeGranularity(1);
+            stepGenerator_->SetMaxBunchSize(stepsToPhotonsConverter_->GetWorkgroupSize());
+            stepGenerator_->Initialize();
+        }
     }
 
     GetParameter("MCTreeName", MCTreeName_);

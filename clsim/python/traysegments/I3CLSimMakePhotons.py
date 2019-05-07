@@ -235,6 +235,7 @@ def I3CLSimMakePhotons(tray, name,
         You should only change this if you know what you are doing.
     :param If:
         Python function to use as conditional execution test for segment modules.        
+    :returns: the dictionary of keyword arguments passed to I3CLSimClientModule
     """
 
     from icecube import icetray, dataclasses, phys_services, clsim
@@ -302,6 +303,7 @@ def I3CLSimMakePhotons(tray, name,
         if UseGeant4:
             loggin.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
 
+    module_config = \
     tray.Add(I3CLSimMakePhotonsWithServer, name,
         ServerAddress=address,
         DetectorSettings=clsimParams,
@@ -329,6 +331,8 @@ def I3CLSimMakePhotons(tray, name,
             for k, v in server.GetStatistics().items():
                 summary[prefix+k] = v
     tray.Add(GatherStatistics)
+
+    return module_config
 
 @my_traysegment
 def I3CLSimMakePhotonsWithServer(tray, name,
@@ -399,6 +403,7 @@ def I3CLSimMakePhotonsWithServer(tray, name,
         this, the default I3RandomServiceFactory will be used.
     :param If:
         Python function to use as conditional execution test for segment modules.        
+    :returns: the dictionary of keyword arguments passed to I3CLSimClientModule
     """
     from icecube import icetray, dataclasses, phys_services, clsim
 
@@ -486,22 +491,25 @@ def I3CLSimMakePhotonsWithServer(tray, name,
     }
     clsimModuleArgs.update(**ExtraArgumentsToI3CLSimClientModule)
 
-    stepGenerator = clsim.I3CLSimLightSourceToStepConverterAsync(1)
-    stepGenerator.SetLightSourceParameterizationSeries(DetectorSettings['ParameterizationList'])
-    stepGenerator.SetMediumProperties(DetectorSettings['MediumProperties'])
-    stepGenerator.SetRandomService(RandomService)
-    stepGenerator.SetWlenBias(DetectorSettings['WavelengthGenerationBias'])
-    propagators = []
-    if not ChopMuons:
-        from icecube.simprod.segments.PropagateMuons import make_standard_propagators
-        pmap = make_standard_propagators(EmitTrackSegments=True, SplitSubPeVCascades=False)
-        propagators.append(clsim.I3CLSimLightSourcePropagatorFromI3PropagatorService(pmap))
+    # Set up light source -> step conversion if not already configured
+    # This allows step generators with expensive initialization to be reused
+    if not 'StepGenerator' in clsimModuleArgs:
+        stepGenerator = clsim.I3CLSimLightSourceToStepConverterAsync(1)
+        stepGenerator.SetLightSourceParameterizationSeries(DetectorSettings['ParameterizationList'])
+        stepGenerator.SetMediumProperties(DetectorSettings['MediumProperties'])
+        stepGenerator.SetRandomService(RandomService)
+        stepGenerator.SetWlenBias(DetectorSettings['WavelengthGenerationBias'])
+        propagators = []
+        if not ChopMuons:
+            from icecube.simprod.segments.PropagateMuons import make_standard_propagators
+            pmap = make_standard_propagators(EmitTrackSegments=True, SplitSubPeVCascades=False)
+            propagators.append(clsim.I3CLSimLightSourcePropagatorFromI3PropagatorService(pmap))
 
-    if DetectorSettings['UseGeant4']:
-        propagators.append(clsim.I3CLSimLightSourcePropagatorGeant4(collectParticleHistory=ParticleHistory))
+        if DetectorSettings['UseGeant4']:
+            propagators.append(clsim.I3CLSimLightSourcePropagatorGeant4(collectParticleHistory=ParticleHistory))
 
-    stepGenerator.SetPropagators(propagators);
-    clsimModuleArgs['StepGenerator'] = stepGenerator
+        stepGenerator.SetPropagators(propagators);
+        clsimModuleArgs['StepGenerator'] = stepGenerator
 
     if clsimModuleArgs['MCPESeriesMapName']:
         # convert photons to MCPE in the worker thread of I3CLSimClientModule
@@ -531,3 +539,5 @@ def I3CLSimMakePhotonsWithServer(tray, name,
             )
         if OutputMCTreeName is None:
             tray.Add("Delete", keys=[clSimMCTreeName])
+
+    return clsimModuleArgs
