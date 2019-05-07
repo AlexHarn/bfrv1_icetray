@@ -136,6 +136,8 @@ I3CLSimClientModule::~I3CLSimClientModule()
 {
     log_trace("%s", __PRETTY_FUNCTION__);
 
+    if (feederTask_.valid())
+        stepGenerator_->EnqueueBarrier();
     StopThreads();
     
 }
@@ -153,10 +155,16 @@ void I3CLSimClientModule::StopThreads()
     log_trace("%s", __PRETTY_FUNCTION__);
     
     // Wait for tasks to exit, raise exceptions to main thread
-    if (feederTask_.valid())
+    if (feederTask_.valid()) {
+        log_trace("waiting for feeder");
         feederTask_.get();
-    if (harvesterTask_.valid())
+        log_trace("feeder stopped");
+    }
+    if (harvesterTask_.valid()) {
+        log_trace("waiting for harvester");
         harvesterTask_.get();
+        log_trace("harvester stopped");
+    }
 }
 
 void I3CLSimClientModule::Configure()
@@ -444,12 +452,12 @@ bool I3CLSimClientModule::FeedSteps()
             log_debug("Got NULL I3CLSimStepSeriesConstPtr from Geant4.");
             continue;
         }
-        else if (steps->empty())
+        else if (!barrierWasJustReset && steps->empty())
         {
             log_error("Got 0 steps from Geant4, nothing to do for OpenCL.");
             continue;
         }
-        else
+        else if (!steps->empty())
         {
             log_debug("Got %zu steps from Geant4, sending them to OpenCL",
                      steps->size());
@@ -551,10 +559,8 @@ bool I3CLSimClientModule::HarvestPhotons()
         // wait for OpenCL to finish; retrieve results
         auto res = stepsToPhotonsConverter_->GetConversionResultWithBarrierInfo(barrierWasJustReset);
 
-        if (!res.photons) log_fatal("Internal error: received NULL photon series from OpenCL.");
-        log_trace_stream("Got "<<res.photons->size()<<" photons from propagator");
-
-        {
+        if (res.photons) {
+            log_trace_stream("Got "<<res.photons->size()<<" photons from propagator");
             boost::unique_lock<boost::mutex> guard(frameCache_mutex_);
 
             // convert to I3Photons and add to their respective frames
@@ -572,6 +578,8 @@ bool I3CLSimClientModule::HarvestPhotons()
             framesForBunches_.right.erase(bounds.first, bounds.second);
 
             newFramesAvailable_ = true;
+        } else if (!barrierWasJustReset) {
+            log_fatal("Internal error: received NULL photon series from OpenCL.");
         }
 
         if (barrierWasJustReset) {

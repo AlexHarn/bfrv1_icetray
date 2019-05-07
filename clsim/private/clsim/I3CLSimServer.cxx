@@ -198,7 +198,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     /// Map from internal task ID to address of originating client and external ID
     std::map<uint32_t, std::array<zmq::message_t, 2> > clients;
     
-    log_trace("Server thread started");
+    log_trace_stream("Server thread started on "<<bindAddress);
     while (true) {
         
         if (int rc = zmq::poll(&items[0], 3, -1) < -1) {
@@ -547,6 +547,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
         zmq::message_t address;
         std::list<zmq::message_t> body;
         std::string greeting = "servus";
+        log_trace_stream("connecting to "<<serverAddress);
         server.send(zmq::message_t(greeting.data(), greeting.size()), 0);
         std::tie(address, body) = read_message(server);
         for (auto &msg : body) {
@@ -602,6 +603,12 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
                 server.send(std::move(msg), flags);
                 count++;
             } while (flags);
+
+            // server will never reply to a flush with no pending steps
+            if (barrierActive && lastIdentifier.size() == 0) {
+                outbox.send(serialize(barrierActive), ZMQ_SNDMORE);
+                outbox.send(serialize(UINT_MAX), 0);
+            }
         }
 
         if (items[2].revents & ZMQ_POLLIN) {
