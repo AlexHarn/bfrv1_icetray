@@ -115,13 +115,14 @@ def make_standard_propagators(SplitSubPeVCascades=True,
     else:
         cascade_propagator.SetThresholdSplit(1*I3Units.PeV)
     cascade_propagator.SetMaxMuons(MaxMuons)
+    muon_propagator = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
+            config_file=default_media_definition)
     propagator_map =\
         icecube.sim_services.I3ParticleTypePropagatorServiceMap()
 
     for pt in "MuMinus", "MuPlus", "TauMinus", "TauPlus":
         key = getattr(icecube.dataclasses.I3Particle.ParticleType, pt)
-        propagator_map[key] = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
-            config_file=default_media_definition)
+        propagator_map[key] = muon_propagator
 
     for pt in "DeltaE", "Brems", "PairProd", "NuclInt", "Hadrons",\
               "EMinus", "EPlus":
