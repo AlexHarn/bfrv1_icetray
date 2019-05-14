@@ -377,6 +377,7 @@ class HybridPhotons(ipmodule.ParsingModule):
         	) 
 
         tray.AddSegment(segments.PropagatePhotons, "hybridpes",
+            GCDFile=gcdfile,
             RandomService = randomService,
             HybridMode = True,
             UseGPUs = False,

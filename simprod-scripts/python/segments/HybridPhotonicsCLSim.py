@@ -78,6 +78,7 @@ def LoadCascadeTables(IceModel = "SpiceMie", TablePath = "/data/sim/sim-new/spli
 
 @icetray.traysegment
 def PropagatePhotons(tray, name,
+    GCDFile,
     If=lambda f:True ,
     RandomService = None,
     KeepIndividualMaps = False,
@@ -99,7 +100,6 @@ def PropagatePhotons(tray, name,
     HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
     InputMCTree="I3MCTree",
     MMCTrackListName="MMCTrackList",
-    GCDFile=None,
     OutputPESeriesMapName="I3MCPESeriesMap",
     OutputPhotonSeriesName=None,
 ):
