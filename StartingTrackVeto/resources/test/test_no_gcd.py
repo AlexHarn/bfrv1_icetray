@@ -13,7 +13,7 @@ def get_pxs():
         raise errno.ENOENT((base % "abs") + " does not exist!")
     if not os.path.exists(base % "prob"):
         raise errno.ENOENT((base % "prob") + " does not exist!")
-    
+
     return photonics_service.I3PhotoSplineService(base % "abs", base % "prob", 0.)
 
 try:
@@ -47,7 +47,7 @@ def pullbadDOMList(frame):
     BadOMs=frame["BadDomsList"]
     BadOMs.extend(frame["BadDomsListSLC"])
 tray.Add(pullbadDOMList,"soitonlyhappensonce2",Streams=[icetray.I3Frame.DetectorStatus])
-           
+
 def make_n_segment_vector(frame,fit,n=1):
     if n%2==0:
         print "n=",n,"is even! Change this!"
@@ -84,7 +84,7 @@ def make_n_segment_vector(frame,fit,n=1):
             particle.length=0
         else:
             particle.shape=particle.shape.ContainedTrack
-            particle.length=segment_length         
+            particle.length=segment_length
         segments.append(particle)
     del frame[fit+"_"+str(n)+"_segments"]
     frame[fit+"_"+str(n)+"_segments"]=dataclasses.I3VectorI3Particle(segments)
@@ -97,7 +97,7 @@ tray.Add("StartingTrackVeto","STV",Pulses=pulses,Photonics_Service=pxs,
 
 q1=0
 q2=0
-def test(frame): 
+def test(frame):
     global q1,q2
     all_obs_q_map=frame[pulses+"_"+fit+"_allObsQs_1"]
     all_obs_q=0

@@ -25,23 +25,23 @@ namespace StartingTrackVetoUtils {
     /* This is a namespace for functions and variables needed to calculate a Track Veto
      *
      */
-    void ObtainEventInfo( I3FramePtr frame, I3VectorI3ParticleConstPtr segments,
+    void ObtainEventInfo(I3FramePtr frame, I3VectorI3ParticleConstPtr segments,
             I3PhotonicsServicePtr photonService,
             std::vector<double> & timeEdges, std::string pulsesName,
             std::string fitName, double mincadDist,
-            I3GeometryConstPtr geo, I3VectorOMKeyPtr badDOMs );
-    double WeightedAvg( std::vector<double> & xs, I3VectorDouble & ws );
-    double WeightedVar( std::vector<double> & xs, I3VectorDouble & ws );
-    void FindNormalization( I3FramePtr frame, std::string pulsesName,
+            I3GeometryConstPtr geo, I3VectorOMKeyPtr badDOMs);
+    double WeightedAvg(std::vector<double> & xs, I3VectorDouble & ws);
+    double WeightedVar(std::vector<double> & xs, I3VectorDouble & ws);
+    void FindNormalization(I3FramePtr frame, std::string pulsesName,
             std::string fitName, int sls, double tol, int iterations,
-            bool supressStoch, bool cascade );
-    double GetNextA( double a, double change, double stepSize );
-    double GetPoissonLlh( double a, const I3VectorDouble & obs, const I3VectorDouble & exp,
-            const I3VectorDouble & bg );
-    void FindDistances( I3FramePtr frame, std::string pulsesName,
-            std::string fitName, int sls );
-    double AssessProbability( I3FramePtr frame, std::string pulsesName,
-            std::string fitName, int sls, std::string datType, double sds );
+            bool supressStoch, bool cascade);
+    double GetNextA(double a, double change, double stepSize);
+    double GetPoissonLlh(double a, const I3VectorDouble & obs, const I3VectorDouble & exp,
+            const I3VectorDouble & bg);
+    void FindDistances(I3FramePtr frame, std::string pulsesName,
+            std::string fitName, int sls);
+    double AssessProbability(I3FramePtr frame, std::string pulsesName,
+            std::string fitName, int sls, std::string datType, double sds);
 };
 
 #endif

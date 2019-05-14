@@ -16,7 +16,7 @@ StartingTrackVeto
 
    code_review
    release_notes
-   
+
 This is an Icetray Module designed to preform a look-back veto using the photon tables. An overview of the veto can be found in Note 1.  Basically, this module is designed to preform the following
 
 * Find the first hit associated with the track you provided.
@@ -72,7 +72,7 @@ Some configuration options are available to the user
   * "contrib_dat: Distance along track from Cherenkov Angles contributing from segments ", (Default:cher_dat, the calculation finds the hit which maps back the earliest along the Fit provided. There are a few options about how to calculate this with the cher_dat and cad_dat being their normal definition. The contrib_dat is only for vetos using the segmented track table. It computes the charge weighted average and std. dev. from each segment of the Cherenkov distance to that track. The DOM which as the earliest avg. position-2(std. dev.) is the earliest. This helps with regions where scattering in the ice means none of the photons are direct and the Cherenkov angle approx. breaks down.)
 
 * Parameter:"Geometry"->Name of geometry object to use (Default:I3DefaultName<I3Geometry>::value(), this is here for completeness, show not need to be changed.)
-* Parameter:"BadDOMs"->Name of BadDOMs object to use (Default:"BadDomsList", Info from bad DOMs is ignored, makes the veto aware of holes in the detector. I assume there is a corresponding SLC list.) 
+* Parameter:"BadDOMs"->Name of BadDOMs object to use (Default:"BadDomsList", Info from bad DOMs is ignored, makes the veto aware of holes in the detector. I assume there is a corresponding SLC list.)
 
 Note 1:
 https://docushare.icecube.wisc.edu/dsweb/Get/Document-77688/ESTES_Update_Muon_Call_Kyle_Jero_6_6_16.pdf
