@@ -138,12 +138,6 @@ void I3CLSimLightSourceToStepConverterAsync::Initialize()
         
         propagator->Initialize();
     }
-    
-    // making a copy of the medium properties
-    {
-        I3CLSimMediumPropertiesConstPtr copiedMediumProperties(new I3CLSimMediumProperties(*mediumProperties_));
-        mediumProperties_ = copiedMediumProperties;
-    }
 
     
     log_debug("Starting the worker thread..");
