@@ -155,6 +155,7 @@ void I3DOM::DOMCalibration::Configure(const I3DOMCalibration& cal){
   //distribution which exists before this correction, so applying the correction
   //to the data we simulate would be bad. Try to detect here whether the user is
   //using calibration data which specifies such a correction, and object.
+    /*
   if(cal.IsMeanATWDChargeValid() && cal.GetMeanATWDCharge()!=1)
     log_fatal("DOM calibration with mean ATWD charge constant not equal to unity.\n"
               "Processing simulation with this calibration will overcorrect the s.p.e\n"
@@ -163,6 +164,7 @@ void I3DOM::DOMCalibration::Configure(const I3DOMCalibration& cal){
     log_fatal("DOM calibration with mean FADC charge constant not equal to unity.\n"
               "Processing simulation with this calibration will overcorrect the s.p.e\n"
               "distribution. This is almost certainly not what you want.");
+    */
 }
 
 void I3DOM::DOMStatus::Configure(const I3DOMStatus& stat){

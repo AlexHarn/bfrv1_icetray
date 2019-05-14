@@ -132,13 +132,13 @@ void PMTResponseSimulator::Configure(){
 	genericChargeDistribution_ = boost::make_shared<I3SumGenerator>(randomService_,
 	    SPEChargeDistribution(
 	        6.9, //exp1_amp
-	        0.032, //exp1_width
-	        0.564111709633, //exp2_amp
-	        0.426704575986, //exp2_width
-	        0.710004984597, //gaus_amp
-	        1.0, //gaus_mean
-	        0.304733427686, //gaus_width
-	        1.313, // compensation factor
+	        0.027, //exp1_width
+	        0.5487936979998159, //exp2_amp
+	        0.38303036483159947, //exp2_width
+	        0.753056240984677, //gaus_amp
+	        1.0037645548431489, //gaus_mean
+	        0.3199834176880081, //gaus_width
+	        1.25, // compensation factor
 	        1. // SLC mean
 	    ),
 	    0, //minimum value
