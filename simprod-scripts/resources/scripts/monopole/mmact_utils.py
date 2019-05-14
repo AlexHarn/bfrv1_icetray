@@ -11,7 +11,7 @@ gen_params        = { "beta_spectrum":    [  0.750,
                       "step_length_max":    10.0    * I3Units.m,   }
 
 default_settings = { "n_events": 1000,
-                     "icemodel": "$I3_BUILD/ppc/resources/ice/",
+                     "icemodel": "$I3_BUILD/ice-models/resources/models/",
                      "gcd":      "/data/sim/sim-new/downloads/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz", }
 
 filename_template = "mmact_FLAVOR_IC86__beta_BETALOW_BETAHIGH__DATALEVEL_level__proc_PROCESSNUMBER.i3.gz"
@@ -19,12 +19,9 @@ filename_template = "mmact_FLAVOR_IC86__beta_BETALOW_BETAHIGH__DATALEVEL_level__
 
 
 def check_monopole_lengths_10m(frame):
-	flavor = "monopole"
+	flavor = "Monopole"
 	tree   = frame["I3MCTree"]
 	maxlength = 10. * I3Units.m
-#	for i in range(len(tree)):
-#		if ( str(tree[i].type) == flavor ) and ( tree[i].length > maxlength ):
-#			exit( "Found a monopole track segment longer than 10 m! This is a bug that should have been fixed in the monopole-generator trunk!" )
 	non_mm = [ int(str(mm.type)!=flavor) for mm in tree ]
 	if any(non_mm):
 		exit( "Found {} non-monopole particle(-s) in the MCTree! This should never happen!".format(sum(non_mm)) )

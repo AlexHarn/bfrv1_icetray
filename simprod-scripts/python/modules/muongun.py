@@ -1,5 +1,7 @@
 from .. import ipmodule
 from ..util import ReadI3Summary, WriteI3Summary
+from ..util import CombineHits, DrivingTime, choose_max_efficiency
+import os.path
 
 
 class MuonGunGenerator(ipmodule.ParsingModule):
@@ -86,6 +88,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         self.AddParameter("z_dc", "inner cylinder z-position in m", -300.)
         self.AddParameter("deepcore", "use inner cylinder", False)
         self.AddParameter('propagate_muons','Run PROPOSAL.', True)
+        self.AddParameter('propagate_photons','Run ClSim.', True)
 
         self.AddParameter("outputfile", "output filename", "corsika.i3")
         self.AddParameter("summaryfile", "Summary filename", "muongun.json")
@@ -93,6 +96,23 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
         self.AddParameter("natural_rate", "Sample natural rate muon bundles", False)
+
+        self.AddParameter("GPU", 
+                          "Graphics Processing Unit number (shoud default to environment if None)",
+                          None)
+        self.AddParameter("UseGPUs", "Use Graphics Processing Unit",False)
+        self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
+        self.AddParameter("holeiceparametrization", "Location of hole ice param files", 
+                          os.path.expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"))
+        self.AddParameter("efficiency","overall DOM efficiency correction",[1.00])
+        self.AddParameter("volumecyl","set volume to regular cylinder (set to False for 300m spacing from the DOMs)",True)
+        self.AddParameter("IceModelLocation","Location of ice model param files", os.path.expandvars("$I3_BUILD/ice-models/resources/models")) 
+        self.AddParameter("IceModel","ice model subdirectory", "spice_3.2") 
+        self.AddParameter("PhotonSeriesName","Photon Series Name","I3MCPESeriesMap") 
+        self.AddParameter("RawPhotonSeriesName","Raw Photon Series Name",None) 
+        self.AddParameter('KeepMCTree','Delete propagated MCTree otherwise',True)
+
+
 
     def Execute(self, stats):
         if not ipmodule.ParsingModule.Execute(self, stats):
@@ -106,6 +126,14 @@ class MuonGunGenerator(ipmodule.ParsingModule):
 
         from ..util import BasicCounter
         from ..segments import GenerateCosmicRayMuons, PropagateMuons, GenerateNaturalRateMuons
+
+
+
+        if self.gpu is not None and self.usegpus:
+           os.putenv("CUDA_VISIBLE_DEVICES",str(self.gpu))
+           os.putenv("COMPUTE",":0."+str(self.gpu))
+           os.putenv("GPU_DEVICE_ORDINAL",str(self.gpu))
+
 
         # Instantiate a tray.
         tray = I3Tray()
@@ -165,13 +193,60 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                        Stats=stats)
 
 
+        if self.propagate_photons:
+		if not self.propagate_muons: 
+			raise BaseException("You have to propagate muons if you want to propagate photons")
+	
+		if type(self.efficiency) == list or type(self.efficiency) == tuple:
+		   if len(self.efficiency) == 1:
+		      efficiency=float(self.efficiency[0])
+		   elif len(self.efficiency) > 1:
+		      efficiency=map(float,self.efficiency)
+		   elif len(self.efficiency) > 1:
+		      raise Exception("Configured empty efficiency list")
+		else:
+		    efficiency = choose_max_efficiency(self.efficiency)
+	 
+		from icecube import clsim
+		tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
+		    GCDFile = self.gcdfile,
+		    RandomService = randomService,
+		    UseGPUs = self.usegpus,
+		    UseCPUs= not self.usegpus,
+		    IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
+		    UnshadowedFraction = efficiency,
+		    UseGeant4 = False,
+		    DOMOversizeFactor = self.oversize,
+		    MCTreeName = "I3MCTree", 
+		    MMCTrackListName="MMCTrackList",
+		    MCPESeriesName = self.photonseriesname,
+		    PhotonSeriesName = self.rawphotonseriesname,
+		    HoleIceParameterization = self.holeiceparametrization
+		)
+
+
+        from icecube import polyplopia
+        tray.AddModule("MPHitFilter","hitfilter",
+                 HitOMThreshold=1,
+                 RemoveBackgroundOnly=False,
+                 I3MCPESeriesMapName=self.photonseriesname)
+
+
+        if not self.keepmctree:
+            self.logger.info("discarding %s" % (self.photonseriesname))
+            tray.Add("Delete","clean_mctruth",
+        	           Keys=["I3MCTree",'I3MCTree_preSampling'])
+
+
+
         if self.enablehistogram and self.histogramfilename:         
             from icecube.production_histograms import ProductionHistogramModule
             from icecube.production_histograms.histogram_modules.simulation.mctree_primary import I3MCTreePrimaryModule
             from icecube.production_histograms.histogram_modules.simulation.mctree import I3MCTreeModule
+            from icecube.production_histograms.histogram_modules.simulation.mcpe_module import I3MCPEModule
         
             tray.AddModule(ProductionHistogramModule, 
-                           Histograms = [I3MCTreePrimaryModule, I3MCTreeModule],
+                           Histograms = [I3MCTreePrimaryModule, I3MCTreeModule,I3MCPEModule],
                            OutputFilename = self.histogramfilename)
 
         tray.AddModule("I3Writer", "writer",

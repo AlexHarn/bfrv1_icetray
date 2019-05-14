@@ -91,6 +91,7 @@ class IceCube(ipmodule.ParsingModule):
               summary = ReadI3Summary(self.summaryfile)
         tray.context['I3SummaryService'] = summary
 
+        
         tray.AddSegment(segments.DetectorSegment,"detector",
             gcdfile=self.gcdfile,
             mctype=self.mctype,
