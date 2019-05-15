@@ -169,6 +169,9 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
 {
     zmq::socket_t frontend(context_, ZMQ_ROUTER);
     frontend.setsockopt(ZMQ_RCVHWM, 1);
+    frontend.setsockopt(ZMQ_SNDHWM, 1);
+    frontend.setsockopt(ZMQ_IMMEDIATE, 1);
+    frontend.setsockopt(ZMQ_ROUTER_MANDATORY, 1);
     frontend.bind(bindAddress);
 
     zmq::socket_t backend(context_, ZMQ_ROUTER);
@@ -188,7 +191,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     }
     
     zmq::pollitem_t items[] = {
-      { static_cast<void *>(frontend), 0, ZMQ_POLLIN, 0 },
+      { static_cast<void *>(frontend), 0, ZMQ_POLLIN|ZMQ_POLLOUT, 0 },
       { static_cast<void *>(backend),  0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(control),   0, ZMQ_POLLIN, 0 },
     };
@@ -261,7 +264,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
         }
         
         // Message from worker
-        if (items[1].revents & ZMQ_POLLIN) {
+        if ((items[1].revents & ZMQ_POLLIN) && (items[0].revents & ZMQ_POLLOUT)) {
             
             zmq::message_t address;
             std::list<zmq::message_t> body;
@@ -539,6 +542,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
 
     // connect and forward join message to main thread
     server.setsockopt(ZMQ_SNDHWM, queueDepth);
+    server.setsockopt(ZMQ_RCVHWM, queueDepth);
     server.connect(serverAddress);
     {
         zmq::socket_t heartbeat(context, ZMQ_REQ);
@@ -557,7 +561,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
     }
 
     zmq::pollitem_t items[] = {
-      { static_cast<void *>(server), 0, ZMQ_POLLIN, 0 },
+      { static_cast<void *>(server), 0, ZMQ_POLLIN|ZMQ_POLLOUT, 0 },
       { static_cast<void *>(inbox),  0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(control),  0, ZMQ_POLLIN, 0 }
     };
@@ -586,7 +590,8 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
             }
         }
         
-        if (items[1].revents & ZMQ_POLLIN) {
+        // Forward a messages to the server only if they will not block
+        if ((items[1].revents & ZMQ_POLLIN) && (items[0].revents & ZMQ_POLLOUT)) {
             int count(0);
             int flags(0);
             do {
