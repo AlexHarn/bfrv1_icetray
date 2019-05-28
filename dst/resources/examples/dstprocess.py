@@ -12,7 +12,6 @@ import os.path
 from os.path import expandvars
 import icecube.icetray
 from icecube import icetray, dataclasses, dataio, dst
-import gridftp
 
 
 
@@ -37,13 +36,13 @@ if __name__ == "__main__":
 	dstfile = os.path.basename(taskinfo['dstfile']).encode("utf8")
 	dstdir = os.path.dirname(taskinfo['dstfile'])
 
-	ftp = gridftp.GridFTP()
+	#ftp = gridftp.GridFTP()
 	filelist = map(lambda x:x.encode("utf8"),[taskinfo['gcd']]+taskinfo['files'])
 	local_path = os.getcwd()
 	local_filelist = map(lambda x:local_path+"/"+os.path.basename(x),filelist)
-	for source,dest in zip(filelist,local_filelist):
-	    print("downloading file %s" % source)
-	    ftp.get(source,filename=dest)
+	#for source,dest in zip(filelist,local_filelist):
+	#    print("downloading file %s" % source)
+	#    ftp.get(source,filename=dest)
 
 
 	tray = I3Tray()
@@ -86,5 +85,3 @@ if __name__ == "__main__":
 
 	tray.Execute()
 
-	print("uploading dstfile %(dstfile)s" % taskinfo)
-	ftp.put(taskinfo['dstfile'],filename=local_path+"/"+dstfile)

@@ -537,3 +537,40 @@ class GridFTP(object):
             Exception on error
         """
         return cls._chksum('sha512sum',address,request_timeout=request_timeout)
+
+
+if __name__ == "__main__":
+	from optparse import OptionParser
+	import json
+
+	usage = "usage: %prog [options] inputfile"
+	parser = OptionParser(usage)
+
+	parser.add_option("-p", "--procnum",default=0,type=int,
+			  dest="PROCNUM", help="Job number")
+	parser.add_option("-j", "--json",default="dst_catalog.json",
+			  dest="JSON", help="JSON catalog file")
+	parser.add_option("-m", "--movement",default="input",
+			  dest="MOVEMENT", help="movement (input, output)")
+
+	(options,args) = parser.parse_args()
+	
+	jsonfile = json.load(open(options.JSON,'r'))
+	taskinfo = jsonfile['tasks'][options.PROCNUM]
+
+	dstfile = os.path.basename(taskinfo['dstfile']).encode("utf8")
+	dstdir = os.path.dirname(taskinfo['dstfile'])
+
+	ftp = GridFTP()
+	filelist = map(lambda x:x.encode("utf8"),[taskinfo['gcd']]+taskinfo['files'])
+	local_path = os.getcwd()
+	local_filelist = map(lambda x:local_path+"/"+os.path.basename(x),filelist)
+	if options.MOVEMENT == "input":
+	    for source,dest in zip(filelist,local_filelist):
+	        print("downloading file %s" % source)
+	        ftp.get(source,filename=dest)
+
+
+	if options.MOVEMENT == "output":
+	    print("uploading dstfile %(dstfile)s" % taskinfo)
+	    ftp.put(taskinfo['dstfile'],filename=local_path+"/"+dstfile)
