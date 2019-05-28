@@ -427,17 +427,16 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
     tdst->RASun = sunEq.ra / I3Units::degree;
     tdst->DecSun = sunEq.dec / I3Units::degree;
 
-    // Place holders for when this is implemented in astro
-    /*
+    // Antisid frame
+    double lst = I3GetGMST(eventTime);
     tdst->localAntiS = I3GetGMAST(eventTime);
-    I3Equatorial eqAnti = I3GetEquatorialAntiSidFromDirection(reco2->GetDir(), eventTime);
-    tdst->RAAntiS = eqAnti.ra / I3Units::degree;
-    tdst->DecAntiS = eqAnti.dec / I3Units::degree;
-    */
+    tdst->RAAntiS = (eq.ra - (lst + tdst->localAntiS)*I3Constants::pi/12)/ I3Units::degree;
+    tdst->DecAntiS = eq.dec / I3Units::degree;
 
-    //I3Equatorial eqSol = I3GetEquatorialSolarFromDirection(reco2->GetDir(), eventTime);
-    //tdst->RASolar = eqSol.ra / I3Units::degree;
-    //tdst->DecSolar = eqSol.dec / I3Units::degree;
+    // Solar frame
+    double tod = tod = ( mjd - int(mjd)) * 24.;
+    tdst->RASolar = (eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree;
+    tdst->DecSolar = eq.dec / I3Units::degree;
 
     tdst->nchan      = dst->GetNDOM();
     tdst->triggertag = dst->GetTriggerTag();
