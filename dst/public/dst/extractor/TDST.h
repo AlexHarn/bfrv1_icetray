@@ -51,6 +51,7 @@ class TDST: public I3FrameObject
         double mjd, usec, mjdTime;
         double localMST;
         double localAntiS;
+        double localExtS;
 
         float llhAzimuth;
         float llhZenith;
@@ -71,6 +72,9 @@ class TDST: public I3FrameObject
         // RA, Dec calculated with solar time
         float RASolar;
         float DecSolar;
+
+        // RA calculated with extended-sidereal time
+        float RAExtS;
 
         // Position of the sun
         float RASun;

@@ -8,6 +8,8 @@ class TDSTConverter(tableio.I3Converter):
    def CreateDescription(self,part):
         desc = tableio.I3TableRowDescription()
         desc.add_field("LocalMST", tableio.types.Float64, "s", "Local siderial time (GMST)")
+        desc.add_field("LocalAntiS", tableio.types.Float64, "s", "Local anti-siderial time (GMAST)")
+        desc.add_field("LocalExtS", tableio.types.Float64, "s", "Local extend-siderial time (GMEST)")
         desc.add_field("ModJulDay", tableio.types.Float64, "d", "Modified Julian Day")
         desc.add_field("LLHAzimuthDeg", tableio.types.Float32, "deg", "Log-likelyhood azimuth angle")
         desc.add_field("LLHZenithDeg", tableio.types.Float32, "deg", "Log-likelyhood zenith angle")
@@ -18,6 +20,7 @@ class TDSTConverter(tableio.I3Converter):
         desc.add_field("DecDeg", tableio.types.Float32, "deg", "Declination")
         desc.add_field("RAAntiS", tableio.types.Float32, "deg", "Antisiderial RA")
         desc.add_field("DecAntiS", tableio.types.Float32, "deg", "Antisiderial Dec")
+        desc.add_field("RAExtS", tableio.types.Float32, "deg", "Extended-siderial RA")
         desc.add_field("RASolar", tableio.types.Float32, "deg", "RA solar time")
         desc.add_field("DecSolar", tableio.types.Float32, "deg", "Dec solar time")
         desc.add_field("RASun", tableio.types.Float32, "deg", "RA of Sun")
@@ -41,6 +44,8 @@ class TDSTConverter(tableio.I3Converter):
 
    def Convert(self,dst,row,frame):
         row['LocalMST'] = dst.localMST
+        row['LocalAntiS'] = dst.localAntiS
+        row['LocalExtS'] = dst.localExtS
         row['ModJulDay'] = dst.mjdTime
         row['LLHAzimuthDeg'] = dst.llhAzimuth
         row['LLHZenithDeg'] = dst.llhZenith
@@ -51,6 +56,7 @@ class TDSTConverter(tableio.I3Converter):
         row['DecDeg'] = dst.Dec
         row['RAAntiS'] = dst.RAAntiS
         row['DecAntiS'] = dst.DecAntiS
+        row['RAExtS'] = dst.RAExtS
         row['RASolar'] = dst.RASolar
         row['DecSolar'] = dst.DecSolar
         row['RASun'] = dst.RASun

@@ -436,6 +436,9 @@ bool I3DSTExtractor13::ProcessDSTReco(I3FramePtr frame, I3DST13Ptr dst, I3DSTRec
     tdst->RASolar = (eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree;
     tdst->DecSolar = eq.dec / I3Units::degree;
 
+    // Antisid frame
+    tdst->localExtS = I3GetGMEST(eventTime);
+    tdst->RAExtS = (eq.ra - (lst + tdst->localExtS)*I3Constants::pi/12)/ I3Units::degree;
 
 
     tdst->nchan      = dstreco->GetNDOM();
