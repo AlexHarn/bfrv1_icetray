@@ -169,9 +169,9 @@ void I3CLSimLightSourceToStepConverterAsync::WorkerThread()
     try {
         WorkerThread_impl(di);
     } catch(...) { // any exceptions?
-        log_warn("Worker thread died unexpectedly..");
-        
-        //throw; // don't bother cleaning up, we can't continue and the process is going to die anyway
+        log_error("Worker thread died unexpectedly..");
+        // If we do not throw here, I3CLSimClientModule will wait forever
+        throw;
     }
 }
 
