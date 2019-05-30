@@ -210,6 +210,7 @@ std::string I3CLSimScalarFieldIceTiltZShift::GetOpenCLFunction(const std::string
     "            return (val_at_upper * frac_at_upper + val_at_lower * frac_at_lower);\n"
     "        }\n"
     "    }\n"
+    "    return 0;\n"
     "}\n"
     ;
 
