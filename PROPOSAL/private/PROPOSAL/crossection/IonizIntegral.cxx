@@ -9,10 +9,9 @@
 #include "PROPOSAL/medium/Medium.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
+#include "PROPOSAL/Logging.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 IonizIntegral::IonizIntegral(const Ionization& param)
     : CrossSectionIntegral(DynamicData::DeltaE, param)
@@ -30,17 +29,11 @@ IonizIntegral::~IonizIntegral() {}
 // Public methods
 // ----------------------------------------------------------------- //
 
-double IonizIntegral::CalculatedEdx(double energy)
+double IonizIntegral::CalculatedEdxWithoutMultiplier(double energy)
 {
-    if (parametrization_->GetMultiplier() <= 0)
-    {
-        return 0;
-    }
-
     double result, aux;
 
     Parametrization::IntegralLimits limits = parametrization_->GetIntegralLimits(energy);
-    ;
     ParticleDef particle_def = parametrization_->GetParticleDef();
     const Medium& medium     = parametrization_->GetMedium();
 
@@ -48,13 +41,13 @@ double IonizIntegral::CalculatedEdx(double energy)
 
     // PDG eq. 33.10
     // with Spin 1/2 correction by Rossi
-    double square_momentum   = energy * energy - particle_def.mass * particle_def.mass;
-    double particle_momentum = sqrt(std::max(square_momentum, 0.0));
+    double square_momentum   = (energy - particle_def.mass) * (energy + particle_def.mass);
+    double particle_momentum = std::sqrt(std::max(square_momentum, 0.0));
     double beta              = particle_momentum / energy;
     double gamma             = energy / particle_def.mass;
 
     aux    = beta * gamma / (1.e-6 * medium.GetI());
-    result = log(limits.vUp * (2 * ME * energy)) + 2 * log(aux);
+    result = std::log(limits.vUp * (2 * ME * energy)) + 2 * std::log(aux);
     aux    = limits.vUp / (2 * (1 + 1 / gamma));
     result += aux * aux;
     aux = beta * beta;
@@ -67,12 +60,21 @@ double IonizIntegral::CalculatedEdx(double energy)
     {
         result = 0;
     }
-    return parametrization_->GetMultiplier() * medium.GetMassDensity() * result +
-           energy * dedx_integral_.Integrate(
+    return  medium.GetMassDensity() * result + energy * dedx_integral_.Integrate(
                         limits.vMin,
                         limits.vUp,
-                        std::bind(&Parametrization::FunctionToDEdxIntegral, parametrization_, energy, _1),
+                        std::bind(&Parametrization::FunctionToDEdxIntegral, parametrization_, energy, std::placeholders::_1),
                         4);
+}
+
+double IonizIntegral::CalculatedEdx(double energy)
+{
+    if (parametrization_->GetMultiplier() <= 0)
+    {
+        return 0;
+    }
+
+    return parametrization_->GetMultiplier() * IonizIntegral::CalculatedEdxWithoutMultiplier(energy);
 }
 
 // ------------------------------------------------------------------------- //
@@ -83,12 +85,17 @@ double IonizIntegral::CalculatedE2dx(double energy)
         return 0;
     }
 
+    return parametrization_->GetMultiplier() * IonizIntegral::CalculatedE2dxWithoutMultiplier(energy);
+}
+
+double IonizIntegral::CalculatedE2dxWithoutMultiplier(double energy)
+{
     Parametrization::IntegralLimits limits = parametrization_->GetIntegralLimits(energy);
 
     return de2dx_integral_.Integrate(
         limits.vMin,
         limits.vUp,
-        std::bind(&Parametrization::FunctionToDE2dxIntegral, parametrization_, energy, _1),
+        std::bind(&Parametrization::FunctionToDE2dxIntegral, parametrization_, energy, std::placeholders::_1),
         2);
 }
 
@@ -105,11 +112,11 @@ double IonizIntegral::CalculatedNdx(double energy)
     sum_of_rates_ =
         dndx_integral_[0].Integrate(limits.vUp,
                                     limits.vMax,
-                                    std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1),
+                                    std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1),
                                     3,
                                     1);
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -127,12 +134,12 @@ double IonizIntegral::CalculatedNdx(double energy, double rnd)
     sum_of_rates_ = dndx_integral_[0].IntegrateWithRandomRatio(
         limits.vUp,
         limits.vMax,
-        std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1),
+        std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1),
         3,
         rnd,
         1);
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -154,7 +161,7 @@ double IonizIntegral::CalculateStochasticLoss(double energy, double rnd1)
         }
     }
 
-    log_fatal("m.totZ was not initialized correctly");
+    log_fatal("SumCharge of medium was not initialized correctly");
 
     return 0;
 }
@@ -165,14 +172,14 @@ double IonizIntegral::Delta(double beta, double gamma)
     const Medium& medium = parametrization_->GetMedium();
     double X;
 
-    X = log(beta * gamma) / log(10);
+    X = std::log(beta * gamma) / std::log(10);
 
     if (X < medium.GetX0())
     {
-        return medium.GetD0() * pow(10, 2 * (X - medium.GetX0()));
+        return medium.GetD0() * std::pow(10, 2 * (X - medium.GetX0()));
     } else if (X < medium.GetX1())
     {
-        return 2 * LOG10 * X + medium.GetC() + medium.GetA() * pow(medium.GetX1() - X, medium.GetM());
+        return 2 * LOG10 * X + medium.GetC() + medium.GetA() * std::pow(medium.GetX1() - X, medium.GetM());
     } else
     {
         return 2 * LOG10 * X + medium.GetC();

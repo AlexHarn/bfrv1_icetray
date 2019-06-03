@@ -69,7 +69,6 @@
         static const std::string name_;                                                                                \
     };
 
-// using namespace std::placeholders;
 
 namespace PROPOSAL {
 
@@ -179,10 +178,10 @@ PhotoQ2Interpolant<Param>::PhotoQ2Interpolant(const ParticleDef& particle_def,
     for (unsigned int i = 0; i < this->components_.size(); ++i)
     {
         builder2d[i]
-            .SetMax1(NUM1)
+            .SetMax1(def.nodes_cross_section)
             .SetX1Min(this->particle_def_.low)
-            .SetX1Max(BIGENERGY)
-            .SetMax2(NUM1)
+            .SetX1Max(def.max_node_energy)
+            .SetMax2(def.nodes_cross_section)
             .SetX2Min(0.0)
             .SetX2Max(1.0)
             .SetRomberg1(def.order_of_interpolation)
@@ -255,7 +254,7 @@ double PhotoQ2Interpolant<Param>::DifferentialCrossSection(double energy, double
     if (v >= limits.vUp)
     {
         return std::max(interpolant_[this->component_index_]->Interpolate(
-                            energy, log(v / limits.vUp) / log(limits.vMax / limits.vUp)),
+                            energy, std::log(v / limits.vUp) / std::log(limits.vMax / limits.vUp)),
                         0.0);
     }
 
@@ -273,7 +272,7 @@ double PhotoQ2Interpolant<Param>::FunctionToBuildPhotoInterpolant(double energy,
         return 0;
     }
 
-    v = limits.vUp * exp(v * log(limits.vMax / limits.vUp));
+    v = limits.vUp * std::exp(v * std::log(limits.vMax / limits.vUp));
 
     return Param::DifferentialCrossSection(energy, v);
 }

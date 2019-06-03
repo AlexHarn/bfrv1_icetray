@@ -5,13 +5,11 @@
 #include <cmath>
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
 #include "PROPOSAL/decay/ManyBodyPhaseSpace.h"
 #include "PROPOSAL/math/RandomGenerator.h"
 #include "PROPOSAL/particle/Particle.h"
 
 
-using namespace std::placeholders;
 using namespace PROPOSAL;
 
 const std::string ManyBodyPhaseSpace::name_ = "ManyBodyPhaseSpace";
@@ -33,13 +31,13 @@ ManyBodyPhaseSpace::ManyBodyPhaseSpace(std::vector<const ParticleDef*> daughters
     {
         matrix_element_ = ManyBodyPhaseSpace::DefaultEvaluate;
         use_default_matrix_element_ = true;
-        estimate_ = std::bind(&ManyBodyPhaseSpace::EstimateMaxWeight, this, _1, _2);
+        estimate_ = std::bind(&ManyBodyPhaseSpace::EstimateMaxWeight, this, std::placeholders::_1, std::placeholders::_2);
     }
     else
     {
         matrix_element_ = me;
         use_default_matrix_element_ = false;
-        estimate_ = std::bind(&ManyBodyPhaseSpace::SampleEstimateMaxWeight, this, _1, _2);
+        estimate_ = std::bind(&ManyBodyPhaseSpace::SampleEstimateMaxWeight, this, std::placeholders::_1, std::placeholders::_2);
     }
 
     for (std::vector<const ParticleDef*>::iterator it = daughters.begin(); it != daughters.end(); ++it)
@@ -75,11 +73,11 @@ ManyBodyPhaseSpace::ManyBodyPhaseSpace(const ManyBodyPhaseSpace& mode)
 {
     if (use_default_matrix_element_)
     {
-        estimate_ = std::bind(&ManyBodyPhaseSpace::EstimateMaxWeight, this, _1, _2);
+        estimate_ = std::bind(&ManyBodyPhaseSpace::EstimateMaxWeight, this, std::placeholders::_1, std::placeholders::_2);
     }
     else
     {
-        estimate_ = std::bind(&ManyBodyPhaseSpace::SampleEstimateMaxWeight, this, _1, _2);
+        estimate_ = std::bind(&ManyBodyPhaseSpace::SampleEstimateMaxWeight, this, std::placeholders::_1, std::placeholders::_2);
     }
 
     for (std::vector<const ParticleDef*>::const_iterator it = mode.daughters_.begin(); it != mode.daughters_.end();
@@ -152,7 +150,7 @@ DecayChannel::DecayProducts ManyBodyPhaseSpace::Decay(const Particle& particle)
     }
 
     // Boost all daughters to parent frame
-    Boost(products, particle.GetDirection(), particle.GetMomentum() / particle.GetEnergy());
+    Boost(products, particle.GetDirection(), particle.GetEnergy()/particle.GetMass(), particle.GetMomentum() / particle.GetMass());
 
     CopyParticleProperties(products, particle);
 
@@ -187,12 +185,14 @@ double ManyBodyPhaseSpace::GenerateEvent(DecayProducts& products, const PhaseSpa
         // Boost previous particles to new frame
 
         double M    = kinematics.virtual_masses[i - 1];
-        double beta = momentum / std::sqrt(momentum * momentum + M * M);
+        // double beta = momentum / std::sqrt(momentum * momentum + M * M);
+        double gamma = std::sqrt(momentum * momentum + M * M) / M;
+        double betagamma = momentum / M;
 
         for (unsigned int s = 0; s < i; ++s)
         {
             // Boost in -p_i direction
-            Boost(*products[s], products[i]->GetDirection(), beta);
+            Boost(*products[s], products[i]->GetDirection(), gamma, betagamma);
         }
     }
 

@@ -6,10 +6,9 @@
 #include "PROPOSAL/medium/Medium.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
+#include "PROPOSAL/Logging.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 // ------------------------------------------------------------------------- //
 // Constructor & Destructor
@@ -59,6 +58,15 @@ double CrossSectionIntegral::CalculatedE2dx(double energy)
         return 0;
     }
 
+    double aux = 0;
+    aux = CrossSectionIntegral::CalculatedE2dxWithoutMultiplier(energy);
+
+
+    return parametrization_->GetMultiplier() * aux;
+}
+
+double CrossSectionIntegral::CalculatedE2dxWithoutMultiplier(double energy)
+{
     double sum = 0;
 
     for (size_t i = 0; i < components_.size(); ++i)
@@ -69,7 +77,7 @@ double CrossSectionIntegral::CalculatedE2dx(double energy)
         sum += de2dx_integral_.Integrate(
             limits.vMin,
             limits.vUp,
-            std::bind(&Parametrization::FunctionToDE2dxIntegral, parametrization_, energy, _1),
+            std::bind(&Parametrization::FunctionToDE2dxIntegral, parametrization_, energy, std::placeholders::_1),
             2);
     }
 
@@ -94,11 +102,11 @@ double CrossSectionIntegral::CalculatedNdx(double energy)
         prob_for_component_[i] = dndx_integral_[i].Integrate(
             limits.vUp,
             limits.vMax,
-            std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1),
+            std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1),
             4);
         sum_of_rates_ += prob_for_component_[i];
     }
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -121,16 +129,16 @@ double CrossSectionIntegral::CalculatedNdx(double energy, double rnd)
         parametrization_->SetCurrentComponent(i);
         Parametrization::IntegralLimits limits = parametrization_->GetIntegralLimits(energy);
 
-        prob_for_component_.at(i) = dndx_integral_[i].IntegrateWithRandomRatio(
+        prob_for_component_[i] = dndx_integral_[i].IntegrateWithRandomRatio(
             limits.vUp,
             limits.vMax,
-            std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1),
+            std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1),
             4,
             rnd);
-        sum_of_rates_ += prob_for_component_.at(i);
+        sum_of_rates_ += prob_for_component_[i];
     }
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //

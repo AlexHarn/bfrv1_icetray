@@ -9,11 +9,9 @@
 #include "PROPOSAL/math/InterpolantBuilder.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
 #include "PROPOSAL/methods.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 EpairInterpolant::EpairInterpolant(const EpairProduction& param, InterpolationDef def)
     : CrossSectionInterpolant(DynamicData::Epair, param)
@@ -31,9 +29,9 @@ EpairInterpolant::EpairInterpolant(const EpairProduction& param, InterpolationDe
     // Needed for CalculatedEdx integration
     EpairIntegral epair(param);
 
-    builder1d.SetMax(NUM1)
-        .SetXMin(param.GetParticleDef().low)
-        .SetXMax(BIGENERGY)
+    builder1d.SetMax(def.nodes_cross_section)
+        .SetXMin(param.GetParticleDef().mass)
+        .SetXMax(def.max_node_energy)
         .SetRomberg(def.order_of_interpolation)
         .SetRational(true)
         .SetRelative(false)
@@ -42,7 +40,7 @@ EpairInterpolant::EpairInterpolant(const EpairProduction& param, InterpolationDe
         .SetRationalY(false)
         .SetRelativeY(false)
         .SetLogSubst(true)
-        .SetFunction1D(std::bind(&CrossSection::CalculatedEdx, &epair, _1));
+        .SetFunction1D(std::bind(&CrossSectionIntegral::CalculatedEdxWithoutMultiplier, &epair, std::placeholders::_1));
 
     builder_container.push_back(std::make_pair(&builder1d, &dedx_interpolant_));
 
@@ -53,9 +51,9 @@ EpairInterpolant::EpairInterpolant(const EpairProduction& param, InterpolationDe
     Interpolant1DBuilder builder_de2dx;
     Helper::InterpolantBuilderContainer builder_container_de2dx;
 
-    builder_de2dx.SetMax(NUM2)
-        .SetXMin(param.GetParticleDef().low)
-        .SetXMax(BIGENERGY)
+    builder_de2dx.SetMax(def.nodes_continous_randomization)
+        .SetXMin(param.GetParticleDef().mass)
+        .SetXMax(def.max_node_energy)
         .SetRomberg(def.order_of_interpolation)
         .SetRational(false)
         .SetRelative(false)
@@ -64,7 +62,7 @@ EpairInterpolant::EpairInterpolant(const EpairProduction& param, InterpolationDe
         .SetRationalY(false)
         .SetRelativeY(false)
         .SetLogSubst(false)
-        .SetFunction1D(std::bind(&CrossSection::CalculatedE2dx, &epair, _1));
+        .SetFunction1D(std::bind(&EpairIntegral::CalculatedE2dxWithoutMultiplier, &epair, std::placeholders::_1));
 
     builder_container_de2dx.push_back(std::make_pair(&builder_de2dx, &de2dx_interpolant_));
 
@@ -92,5 +90,5 @@ double EpairInterpolant::CalculatedEdx(double energy)
         return 0;
     }
 
-    return std::max(dedx_interpolant_->Interpolate(energy), 0.0);
+    return parametrization_->GetMultiplier() * std::max(dedx_interpolant_->Interpolate(energy), 0.0);
 }

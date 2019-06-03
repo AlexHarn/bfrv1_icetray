@@ -19,7 +19,7 @@
 ```
 
 [![Build Status](https://travis-ci.org/tudo-astroparticlephysics/PROPOSAL.svg?branch=master)](https://travis-ci.org/tudo-astroparticlephysics/PROPOSAL)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2551770.svg)](https://doi.org/10.5281/zenodo.2551770)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3066511.svg)](https://doi.org/10.5281/zenodo.3066511)
 
 # PROPOSAL #
 
@@ -31,12 +31,12 @@ Ter-Mikaelian effects, muon and tau decay, as well as Molière scattering are
 implemented for different parametrizations.
 The full Paper can be found
 [here](https://doi.org/10.1016/j.cpc.2013.04.001).
-Recent improvements are documented [here](https://arxiv.org/abs/1809.07740).
+Recent improvements are documented [here](https://doi.org/10.1016/j.cpc.2019.03.021).
 
-PROPOSAL was tested on Mac OS X V. 10.10.5, Ubuntu 12.04, SUSE Enterprise 10 and PCLinuxos. Since
+PROPOSAL was tested on Mac OS X V. 10.13.6, Ubuntu 12.04, SUSE Enterprise 10 and PCLinuxos. Since
 all these OS are UNIX based it should be fine to run and compile PROPOSAL on a UNIX based OS.
 
-PROPOSAL is now a C++11 library using also pybind11 instead of boost python!
+PROPOSAL is now a C++11 library using pybind11 Python bindings!
 
 
 ## How to cite PROPOSAL?
@@ -64,19 +64,22 @@ If you use PROPOSAL, please cite the PROPOSAL paper
 ```
 and our zenodo entry of the version you use
 ```bibtex
-@misc{mario_dunsch_2019_2551770,
+@misc{mario_dunsch_2019_2598747,
   author = {Dunsch, Mario and
             Soedingrekso, Jan and
-            Köhne, Jan-Hendrik and
+            Koehne, Jan-Hendrik and
             Fuchs, Tomasz and
+            Alameddine, Jean-Marco and
+            Sackel, Maximilian and
             van Santen, Jacob and
             Kopper, Claudio and
+            Krings, Kai and
             Olivas, Alex},
-  title   = {tudo-astroparticlephysics/PROPOSAL: Zenodo},
-  month  = jan,
+  title  = {tudo-astroparticlephysics/PROPOSAL: Zenodo},
+  month  = may,
   year   = 2019,
-  doi    = {10.5281/zenodo.2551770},
-  url    = {https://doi.org/10.5281/zenodo.2551770}
+  doi    = {10.5281/zenodo.3066511},
+  url    = {https://doi.org/10.5281/zenodo.3066511}
 }
 ```
 and if you want to cite the latest improvements
@@ -91,8 +94,10 @@ and if you want to cite the latest improvements
                  Rhode, Wolfgang},
   year        = {2018},
   eprint      = {1809.07740},
-  eprinttype  =  {arxiv},
-  eprintclass = {hep-ph}
+  eprinttype  = {arxiv},
+  eprintclass = {hep-ph},
+  journal     = {Computer Physics Communications},
+  doi         = {10.1016/j.cpc.2019.03.021}
 }
 ```
 
@@ -114,27 +119,9 @@ and if you want to cite the latest improvements
 
 ## Installation ##
 
-### Standalone ###
-
-Install instruction for the standalone installation
+Install and compiling instructions for the standalone installation
 are found in [install](INSTALL.md).
 
----
-
-### IceSim ###
-
-Before installation of icesim, one should copy some files from the
-resources folder to other IceCube Simulation projects to provide compatibility:
-
-```sh
-cp src/PROPOSAL/resources/icesim/MuonGun/MuonPropagator.* src/MuonGun/private/MuonGun/
-cp src/PROPOSAL/resources/icesim/MuonGun/shower_and_propagate.py src/MuonGun/resources/scripts/
-cp src/PROPOSAL/resources/icesim/MuonGun/utils.py src/MuonGun/resources/scripts/
-cp src/PROPOSAL/resources/icesim/simprod-scripts/PropagateMuons.py src/simprod-scripts/python/segments/
-cp src/PROPOSAL/resources/icesim/simprod-scripts/proposal_alternate_cross_sections.py src/simprod-scripts/resources/examples/proposal_alternate_cross_sections.py
-cp src/PROPOSAL/resources/icesim/clsim/PropagateMuons.py src/clsim/resources/scripts/photonPaths/
-```
----
 
 ## Usage ##
 
@@ -152,26 +139,28 @@ The parameters of the configuration file are described
 
 using namespace PROPOSAL;
 
-Propagator prop(MuMinusDef::Get(), "resources/config.json");
-Particle& mu = prop.GetParticle();
-Particle mu_backup(mu);
+int main(){
+    Propagator prop(MuMinusDef::Get(), "resources/config.json");
+    Particle& mu = prop.GetParticle();
+    Particle mu_backup(mu);
 
-mu_backup.SetEnergy(9e6);
-mu_backup.SetDirection(Vector3D(0, 0, -1));
+    mu_backup.SetEnergy(9e6);
+    mu_backup.SetDirection(Vector3D(0, 0, -1));
 
-std::vector<double> ranges;
+    std::vector<double> ranges;
 
-for (int i = 0; i < 10; i++)
-{
-  mu.InjectState(mu_backup);
-
-  prop.Propagate();
-
-  ranges.push_back(mu.GetPropagatedDistance());
-}
-
+    for (int i = 0; i < 10; i++)
+    {
+    mu.InjectState(mu_backup);
+    
+    prop.Propagate();
+    
+    ranges.push_back(mu.GetPropagatedDistance());
+    }
+    
 // ... Do stuff with ranges, e.g. plot histogram
 
+}
 ```
 
 Supposing this snippet is the content of `foo.cxx` within the
@@ -189,16 +178,24 @@ the `CMakeLists.txt` could look like
 
 ```
 cmake_minimum_required(VERSION 2.6)
+set (CMAKE_CXX_STANDARD 11)
 
 add_executable(foo source/foo.cpp)
 
 find_library(PROPOSAL_LIBRARIES REQUIRED NAMES PROPOSAL)
 
 if (PROPOSAL_LIBRARIES)
-  include_directories(${PROPOAL_INCLUDE_DIRS})
   target_link_libraries (foo ${PROPOSAL_LIBRARIES})
 endif ()
 ```
+
+The file can then be compiled with
+    
+    cmake . 
+    
+and
+
+    make
 
 ### Python ###
 
@@ -264,11 +261,11 @@ Modifcations of the LGPL [License](LICENSE.md):
 	> Comput.Phys.Commun. 184 (2013) 2070-2090
 	> DOI: 10.1016/j.cpc.2013.04.001
 
-2. The user should report any bugs/errors or improvments to the current maintainer of PROPOSAL.
+2. The user should report any bugs/errors or improvements to the current maintainer of PROPOSAL.
 
 ## Developers and Maintainers ##
 
-*Jan Soedingrekso*, *Alexander Sandrock*, *Jean-Marco Alameddine*
+*Jan Soedingrekso*, *Alexander Sandrock*, *Jean-Marco Alameddine*, *Maximilian Sackel*
 
 ## Former Developers and Maintainers ##
 

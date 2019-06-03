@@ -13,11 +13,10 @@
 #include "PROPOSAL/medium/Medium.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
+#include "PROPOSAL/Logging.h"
 #include "PROPOSAL/methods.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 IonizInterpolant::IonizInterpolant(const Ionization& param, InterpolationDef def)
     : CrossSectionInterpolant(DynamicData::DeltaE, param)
@@ -34,9 +33,9 @@ IonizInterpolant::IonizInterpolant(const Ionization& param, InterpolationDef def
 
     IonizIntegral ioniz(param);
 
-    builder1d.SetMax(NUM1)
-        .SetXMin(param.GetParticleDef().low)
-        .SetXMax(BIGENERGY)
+    builder1d.SetMax(def.nodes_cross_section)
+        .SetXMin(param.GetParticleDef().mass)
+        .SetXMax(def.max_node_energy)
         .SetRomberg(def.order_of_interpolation)
         .SetRational(true)
         .SetRelative(false)
@@ -45,7 +44,7 @@ IonizInterpolant::IonizInterpolant(const Ionization& param, InterpolationDef def
         .SetRationalY(false)
         .SetRelativeY(false)
         .SetLogSubst(true)
-        .SetFunction1D(std::bind(&CrossSection::CalculatedEdx, &ioniz, _1));
+        .SetFunction1D(std::bind(&CrossSectionIntegral::CalculatedEdxWithoutMultiplier, &ioniz, std::placeholders::_1));
 
     builder_container.push_back(std::make_pair(&builder1d, &dedx_interpolant_));
 
@@ -56,9 +55,9 @@ IonizInterpolant::IonizInterpolant(const Ionization& param, InterpolationDef def
     Interpolant1DBuilder builder_de2dx;
     Helper::InterpolantBuilderContainer builder_container_de2dx;
 
-    builder_de2dx.SetMax(NUM2)
-        .SetXMin(param.GetParticleDef().low)
-        .SetXMax(BIGENERGY)
+    builder_de2dx.SetMax(def.nodes_continous_randomization)
+        .SetXMin(param.GetParticleDef().mass)
+        .SetXMax(def.max_node_energy)
         .SetRomberg(def.order_of_interpolation)
         .SetRational(false)
         .SetRelative(false)
@@ -67,7 +66,7 @@ IonizInterpolant::IonizInterpolant(const Ionization& param, InterpolationDef def
         .SetRationalY(false)
         .SetRelativeY(false)
         .SetLogSubst(false)
-        .SetFunction1D(std::bind(&CrossSection::CalculatedE2dx, &ioniz, _1));
+        .SetFunction1D(std::bind(&IonizIntegral::CalculatedE2dxWithoutMultiplier, &ioniz, std::placeholders::_1));
 
     builder_container_de2dx.push_back(std::make_pair(&builder_de2dx, &de2dx_interpolant_));
 
@@ -105,10 +104,10 @@ void IonizInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
         // Order of builder matter because the functions needed for 1d interpolation
         // needs the already intitialized 2d interpolants.
         builder2d[i]
-            .SetMax1(NUM1)
-            .SetX1Min(parametrization_->GetParticleDef().low)
-            .SetX1Max(BIGENERGY)
-            .SetMax2(NUM1)
+            .SetMax1(def.nodes_cross_section)
+            .SetX1Min(parametrization_->GetParticleDef().mass)
+            .SetX1Max(def.max_node_energy)
+            .SetMax2(def.nodes_cross_section)
             .SetX2Min(0.0)
             .SetX2Max(1.0)
             .SetRomberg1(def.order_of_interpolation)
@@ -124,15 +123,15 @@ void IonizInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
             .SetRelativeY(false)
             .SetLogSubst(false)
             .SetFunction2D(std::bind(
-                &IonizInterpolant::FunctionToBuildDNdxInterpolant2D, this, _1, _2, std::ref(integral), i));
+                &IonizInterpolant::FunctionToBuildDNdxInterpolant2D, this, std::placeholders::_1, std::placeholders::_2, std::ref(integral), i));
 
         builder_container2d[i].first  = &builder2d[i];
         builder_container2d[i].second = &dndx_interpolant_2d_[i];
 
         builder1d[i]
-            .SetMax(NUM1)
-            .SetXMin(parametrization_->GetParticleDef().low)
-            .SetXMax(BIGENERGY)
+            .SetMax(def.nodes_cross_section)
+            .SetXMin(parametrization_->GetParticleDef().mass)
+            .SetXMax(def.max_node_energy)
             .SetRomberg(def.order_of_interpolation)
             .SetRational(false)
             .SetRelative(false)
@@ -141,7 +140,7 @@ void IonizInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
             .SetRationalY(true)
             .SetRelativeY(false)
             .SetLogSubst(false)
-            .SetFunction1D(std::bind(&IonizInterpolant::FunctionToBuildDNdxInterpolant, this, _1, i));
+            .SetFunction1D(std::bind(&IonizInterpolant::FunctionToBuildDNdxInterpolant, this, std::placeholders::_1, i));
 
         builder_container1d[i].first  = &builder1d[i];
         builder_container1d[i].second = &dndx_interpolant_1d_[i];
@@ -165,7 +164,7 @@ double IonizInterpolant::CalculatedEdx(double energy)
         return 0;
     }
 
-    return std::max(dedx_interpolant_->Interpolate(energy), 0.);
+    return parametrization_->GetMultiplier() * std::max(dedx_interpolant_->Interpolate(energy), 0.);
 }
 
 // ------------------------------------------------------------------------- //
@@ -178,7 +177,7 @@ double IonizInterpolant::CalculatedNdx(double energy)
 
     sum_of_rates_ = std::max(dndx_interpolant_1d_[0]->Interpolate(energy), 0.);
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -193,7 +192,7 @@ double IonizInterpolant::CalculatedNdx(double energy, double rnd)
 
     sum_of_rates_ = std::max(dndx_interpolant_1d_[0]->Interpolate(energy), 0.);
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -209,17 +208,17 @@ double IonizInterpolant::FunctionToBuildDNdxInterpolant2D(double energy, double 
     (void)component;
 
     Parametrization::IntegralLimits limits = parametrization_->GetIntegralLimits(energy);
-    ;
+
 
     if (limits.vUp == limits.vMax)
     {
         return 0;
     }
 
-    v = limits.vUp * exp(v * log(limits.vMax / limits.vUp));
+    v = limits.vUp * std::exp(v * std::log(limits.vMax / limits.vUp));
 
     return integral.Integrate(
-        limits.vUp, v, std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1), 3, 1);
+        limits.vUp, v, std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1), 3, 1);
 }
 
 // ------------------------------------------------------------------------- //
@@ -243,12 +242,12 @@ double IonizInterpolant::CalculateStochasticLoss(double energy, double rnd1)
             {
                 return energy * limits.vUp;
             }
-            return energy * (limits.vUp * exp(dndx_interpolant_2d_[0]->FindLimit(energy, rnd1 * sum_of_rates_) *
-                                              log(limits.vMax / limits.vUp)));
+            return energy * (limits.vUp * std::exp(dndx_interpolant_2d_[0]->FindLimit(energy, rnd1 * sum_of_rates_) *
+                                              std::log(limits.vMax / limits.vUp)));
         }
     }
 
-    log_fatal("m.totZ was not initialized correctly");
+    log_fatal("SumCharge of medium was not initialized correctly");
 
     return 0;
 }

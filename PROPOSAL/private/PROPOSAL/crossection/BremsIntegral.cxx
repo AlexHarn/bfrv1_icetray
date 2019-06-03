@@ -6,7 +6,6 @@
 #include "PROPOSAL/medium/Medium.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 BremsIntegral::BremsIntegral(const Bremsstrahlung& param)
     : CrossSectionIntegral(DynamicData::Brems, param)
@@ -23,14 +22,7 @@ BremsIntegral::~BremsIntegral() {}
 // ----------------------------------------------------------------- //
 // Public methods
 // ----------------------------------------------------------------- //
-
-double BremsIntegral::CalculatedEdx(double energy)
-{
-    if (parametrization_->GetMultiplier() <= 0)
-    {
-        return 0;
-    }
-
+double BremsIntegral::CalculatedEdxWithoutMultiplier(double energy){
     double sum = 0;
 
     for (int i = 0; i < (parametrization_->GetMedium().GetNumComponents()); i++)
@@ -41,9 +33,19 @@ double BremsIntegral::CalculatedEdx(double energy)
         sum += dedx_integral_.Integrate(
             limits.vMin,
             limits.vUp,
-            std::bind(&Parametrization::FunctionToDEdxIntegral, parametrization_, energy, _1),
+            std::bind(&Parametrization::FunctionToDEdxIntegral, parametrization_, energy, std::placeholders::_1),
             2);
     }
 
     return energy * sum;
+}
+
+double BremsIntegral::CalculatedEdx(double energy)
+{
+    if (parametrization_->GetMultiplier() <= 0)
+    {
+        return 0;
+    }
+
+    return parametrization_->GetMultiplier() * BremsIntegral::CalculatedEdxWithoutMultiplier(energy);
 }

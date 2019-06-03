@@ -3,10 +3,9 @@
 
 #include "PROPOSAL/PROPOSAL.h"
 
-using namespace std;
 using namespace PROPOSAL;
 
-ParticleDef getParticleDef(const string& name)
+ParticleDef getParticleDef(const std::string& name)
 {
     if (name == "MuMinus")
     {
@@ -148,8 +147,8 @@ TEST(Assignment, Copyconstructor2)
 
 TEST(Sector, Propagate)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Sector_propagate.txt";
+    std::ifstream in;
+    std::string filename = "bin/TestFiles/Sector_propagate.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -157,11 +156,15 @@ TEST(Sector, Propagate)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
 
     Utility::Definition utility_def;
 
+    double energyTillStochastic_calc;
+    double energyTillStochastic_stored;
+    double stochasticLoss_calc;
+    double stochasticLoss_stored;
     double energy_final_calc;
     double energy_final_stored;
     double energy_previous = -1;
@@ -171,7 +174,7 @@ TEST(Sector, Propagate)
 
     bool first_line = true;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     RandomGenerator::Get().SetSeed(1234);
 
@@ -179,7 +182,7 @@ TEST(Sector, Propagate)
     {
         if (first_line)
         {
-            in >> particleName >> mediumName >> ecut >> vcut >> energy_init >> energy_final_stored >> distance;
+            in >> particleName >> mediumName >> ecut >> vcut >> energy_init >> energyTillStochastic_stored >> stochasticLoss_stored >> energy_final_stored >> distance;
             first_line = false;
         }
 
@@ -202,10 +205,15 @@ TEST(Sector, Propagate)
             particle.SetEnergy(energy_init);
             particle.SetDirection(Vector3D(1, 0, 0));
 
+            energyTillStochastic_calc = sector.CalculateEnergyTillStochastic(energy_init).first;
+            stochasticLoss_calc = sector.MakeStochasticLoss(energy_init).first;
             energy_final_calc = sector.Propagate(distance);
+
+            ASSERT_NEAR(energyTillStochastic_calc, energyTillStochastic_stored, std::abs(1e-3 * energyTillStochastic_calc));
+            ASSERT_NEAR(stochasticLoss_calc, stochasticLoss_stored, std::abs(1e-3 * stochasticLoss_calc));
             ASSERT_NEAR(energy_final_calc, energy_final_stored, std::abs(1e-3 * energy_final_calc));
 
-            in >> particleName >> mediumName >> ecut >> vcut >> energy_init >> energy_final_stored >> distance;
+            in >> particleName >> mediumName >> ecut >> vcut >> energy_init >> energyTillStochastic_stored >> stochasticLoss_stored >> energy_final_stored >> distance;
         }
 
         delete medium;

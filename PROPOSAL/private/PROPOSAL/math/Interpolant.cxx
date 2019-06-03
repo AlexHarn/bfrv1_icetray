@@ -25,12 +25,13 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 
 #include "PROPOSAL/math/Interpolant.h"
-#include "PROPOSAL/Output.h"
+#include "PROPOSAL/Logging.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 const double Interpolant::bigNumber_  = -300;
 const double Interpolant::aBigNumber_ = -299;
@@ -210,6 +211,90 @@ double Interpolant::InterpolateArray(double x)
     }
 
     return Interpolate(x, start);
+}
+
+//----------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+
+double Interpolant::InterpolateArray(double x1, double x2)
+{
+    int i, j, m, start, auxdir, aux, aux2;
+    bool dir;
+
+    reverse_ = false;
+    i        = 0;
+    j        = max_ - 1;
+    dir      = iX_.at(max_ - 1) > iX_.at(0);
+
+    while (j - i > 1)
+    {
+        m = (i + j) / 2;
+
+        if ((x1 > iX_.at(m)) == dir)
+        {
+            i = m;
+        } else
+        {
+            j = m;
+        }
+    }
+
+    if (i + 1 < max_)
+    {
+        if (((x1 - iX_.at(i)) < (iX_.at(i + 1) - x1)) == dir)
+        {
+            auxdir = 0;
+        } else
+        {
+            auxdir = 1;
+        }
+    } else
+    {
+        auxdir = 0;
+    }
+
+    starti_ = i + auxdir;
+    start   = i - (int)(0.5 * (romberg_ - 1 - auxdir));
+
+    if (start < 0)
+    {
+        start = 0;
+    }
+
+    if (start + romberg_ > max_ || start > max_)
+    {
+        start = max_ - romberg_;
+    }
+
+    for (i = start; i < start + romberg_; i++)
+    {
+        iY_.at(i) = Interpolant_.at(i)->InterpolateArray(x2);
+    }
+
+    if (!fast_)
+    {
+        aux = 0;
+        aux2 = 0;
+
+        for (i = start; i < start + romberg_; i++)
+        {
+            if (Interpolant_.at(i)->precision_ > aux)
+            {
+                aux  = Interpolant_.at(i)->precision_;
+                aux2 = Interpolant_.at(i)->worstX_;
+            }
+        }
+
+        if (aux > precision2_)
+        {
+            precision2_ = aux;
+            worstX2_    = aux2;
+        }
+    }
+
+    double result = Interpolate(x1, start);
+
+    return result;
 }
 
 //----------------------------------------------------------------------------//
@@ -485,11 +570,11 @@ double Interpolant::FindLimit(double x1, double y)
 //----------------------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-bool Interpolant::Save(std::string Path, bool raw)
+bool Interpolant::Save(std::string Path, bool binary_tables)
 {
     std::ofstream out;
 
-    if (!raw)
+    if (!binary_tables)
     {
         std::stringstream ss;
         ss << Path << ".txt";
@@ -515,7 +600,7 @@ bool Interpolant::Save(std::string Path, bool raw)
         }
     }
 
-    Save(out, raw);
+    Save(out, binary_tables);
 
     out.close();
     return 1;
@@ -524,7 +609,7 @@ bool Interpolant::Save(std::string Path, bool raw)
 //----------------------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-bool Interpolant::Save(std::ofstream& out, bool raw)
+bool Interpolant::Save(std::ofstream& out, bool binary_tables)
 {
     if (!out.good())
     {
@@ -535,7 +620,7 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
     if (function2d_ != NULL)
         D2 = true;
 
-    if (raw)
+    if (binary_tables)
     {
         out.write(reinterpret_cast<char*>(&D2), sizeof D2);
 
@@ -543,8 +628,8 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
         {
             if (isLog_)
             {
-                double xmax = exp(xmax_);
-                double xmin = exp(xmin_);
+                double xmax = std::exp(xmax_);
+                double xmin = std::exp(xmin_);
 
                 out.write(reinterpret_cast<char*>(&max_), sizeof max_);
                 out.write(reinterpret_cast<char*>(&xmin), sizeof xmin);
@@ -567,14 +652,14 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
             for (int i = 0; i < max_; i++)
             {
                 out.write(reinterpret_cast<char*>(&iX_.at(i)), sizeof iX_.at(i));
-                Interpolant_.at(i)->Save(out, raw);
+                Interpolant_.at(i)->Save(out, binary_tables);
             }
         } else
         {
             if (isLog_)
             {
-                double xmax = exp(xmax_);
-                double xmin = exp(xmin_);
+                double xmax = std::exp(xmax_);
+                double xmin = std::exp(xmin_);
 
                 out.write(reinterpret_cast<char*>(&max_), sizeof max_);
                 out.write(reinterpret_cast<char*>(&xmin), sizeof xmin);
@@ -609,7 +694,7 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
         {
             if (isLog_)
             {
-                out << max_ << "\t" << exp(xmin_) << "\t" << exp(xmax_) << std::endl;
+                out << max_ << "\t" << std::exp(xmin_) << "\t" << std::exp(xmax_) << std::endl;
             } else
             {
                 out << max_ << "\t" << xmin_ << "\t" << xmax_ << std::endl;
@@ -620,13 +705,13 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
             for (int i = 0; i < max_; i++)
             {
                 out << iX_.at(i) << std::endl;
-                Interpolant_.at(i)->Save(out, raw);
+                Interpolant_.at(i)->Save(out, binary_tables);
             }
         } else
         {
             if (isLog_)
             {
-                out << max_ << "\t" << exp(xmin_) << "\t" << exp(xmax_) << std::endl;
+                out << max_ << "\t" << std::exp(xmin_) << "\t" << std::exp(xmax_) << std::endl;
             } else
             {
                 out << max_ << "\t" << xmin_ << "\t" << xmax_ << std::endl;
@@ -647,12 +732,12 @@ bool Interpolant::Save(std::ofstream& out, bool raw)
 //----------------------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-bool Interpolant::Load(std::string Path, bool raw)
+bool Interpolant::Load(std::string Path, bool binary_tables)
 {
     bool success;
     std::ifstream in;
 
-    if (!raw)
+    if (!binary_tables)
     {
         std::stringstream ss;
         ss << Path << ".txt";
@@ -663,7 +748,7 @@ bool Interpolant::Load(std::string Path, bool raw)
         in.open(Path.c_str(), std::ios::binary);
     }
 
-    success = Load(in, raw);
+    success = Load(in, binary_tables);
 
     in.close();
     return success;
@@ -672,7 +757,7 @@ bool Interpolant::Load(std::string Path, bool raw)
 //----------------------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-bool Interpolant::Load(std::ifstream& in, bool raw)
+bool Interpolant::Load(std::ifstream& in, bool binary_tables)
 {
     bool D2;
 
@@ -681,7 +766,7 @@ bool Interpolant::Load(std::ifstream& in, bool raw)
     int romberg, rombergY;
     bool rational, rationalY, relative, relativeY, isLog, logSubst;
 
-    if (raw)
+    if (binary_tables)
     {
         in.read(reinterpret_cast<char*>(&D2), sizeof D2);
 
@@ -714,7 +799,7 @@ bool Interpolant::Load(std::ifstream& in, bool raw)
                 if (!in.good())
                     return 0;
                 Interpolant_.at(i) = new Interpolant();
-                Interpolant_.at(i)->Load(in, raw);
+                Interpolant_.at(i)->Load(in, binary_tables);
                 Interpolant_.at(i)->self_ = false;
             }
 
@@ -768,7 +853,7 @@ bool Interpolant::Load(std::ifstream& in, bool raw)
                 if (!in.good())
                     return 0;
                 Interpolant_.at(i) = new Interpolant();
-                Interpolant_.at(i)->Load(in, raw);
+                Interpolant_.at(i)->Load(in, binary_tables);
                 Interpolant_.at(i)->self_ = false;
             }
 
@@ -1028,7 +1113,7 @@ Interpolant::Interpolant(int max1,
     double aux;
 
     function2d_ = function2d;
-    function1d_ = std::bind(&Interpolant::Get2dFunctionFixedY, this, _1);
+    function1d_ = std::bind(&Interpolant::Get2dFunctionFixedY, this, std::placeholders::_1);
 
     Interpolant_.resize(max_);
 
@@ -1120,6 +1205,220 @@ Interpolant::Interpolant(std::vector<double> x, std::vector<double> y, int rombe
     {
         iY_.at(i) = y.at(i);
     }
+}
+
+//----------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+
+Interpolant::Interpolant(std::vector<double> x1, std::vector<double> x2, std::vector< std::vector<double> > y, int romberg1, bool rational1, bool relative1 , int romberg2, bool rational2, bool relative2)
+        : romberg_(1.)
+        , rombergY_(1.)
+        , iX_()
+        , iY_()
+        , iY2_()
+        , c_()
+        , d_()
+        , max_(1.)
+        , xmin_(1.)
+        , xmax_(1.)
+        , step_(0)
+        , rational_(false)
+        , relative_(false)
+        , function1d_(NULL)
+        , function2d_(NULL)
+        , Interpolant_()
+        , row_(0)
+        , starti_(0)
+        , rationalY_(false)
+        , relativeY_(false)
+        , reverse_(false)
+        , self_(true)
+        , flag_(false)
+        , isLog_(false)
+        , logSubst_(false)
+        , precision_(0)
+        , worstX_(0)
+        , precision2_(0)
+        , worstX2_(0)
+        , precisionY_(0)
+        , worstY_(0)
+        , fast_(true)
+        , x_save_(1)
+        , y_save_(0)
+{
+
+    //TODO: Not sure what is happening in the romberg=0 case
+    if (romberg1 <= 0)
+    {
+        log_warn("romberg1 = %i must be > 0! setting to 1!", romberg1);
+        romberg1 = 1;
+    }
+
+    if (romberg2 <= 0)
+    {
+        log_warn("romberg2 = %i must be > 0! setting to 1!", romberg2);
+        romberg2 = 1;
+    }
+
+    InitInterpolant(std::min(x1.size(), y.size()),
+                    x1.at(0),
+                    x1.at(x1.size() - 1),
+                    romberg1,
+                    rational1,
+                    relative1,
+                    false,
+                    romberg1,
+                    rational1,
+                    relative1,
+                    false);
+
+    if (x2.size() != y[0].size())
+    {
+        log_fatal("size of x2(%i) and y(%i) do not match!", (int)(x2.size()), (int)(y[0].size()));
+    }
+
+    if (x1.size() != y.size())
+    {
+        log_fatal("size of x1(%i) and y(%i) do not match!", (int)(x1.size()), (int)(y.size()));
+    }
+
+
+    Interpolant_.resize((int)x1.size());
+
+    iY2_.resize(y.size());
+    for (int i = 0; i < (int)iY2_.size(); i++)
+    {
+        iY2_[i].resize(y[i].size());
+        for(int j=0; j < (int)iY2_[i].size(); j++){
+            iY2_.at(i).at(j) = y.at(i).at(j);
+        }
+    }
+
+    for (int i = 0; i < (int)x1.size(); i++)
+    {
+        iX_.at(i) = x1.at(i);
+        row_      = i;
+
+        Interpolant_.at(i) = new Interpolant(x2,
+                                             iY2_[i],
+                                             romberg2,
+                                             rational2,
+                                             relative2);
+
+        Interpolant_.at(i)->self_ = false;
+    }
+
+    precision2_ = 0;
+}
+
+//----------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
+
+Interpolant::Interpolant(std::vector<double> x1, std::vector< std::vector<double> > x2, std::vector< std::vector<double> > y, int romberg1, bool rational1, bool relative1 , int romberg2, bool rational2, bool relative2)
+        : romberg_(1.)
+        , rombergY_(1.)
+        , iX_()
+        , iY_()
+        , c_()
+        , d_()
+        , max_(1.)
+        , xmin_(1.)
+        , xmax_(1.)
+        , step_(0)
+        , rational_(false)
+        , relative_(false)
+        , function1d_(NULL)
+        , function2d_(NULL)
+        , Interpolant_()
+        , row_(0)
+        , starti_(0)
+        , rationalY_(false)
+        , relativeY_(false)
+        , reverse_(false)
+        , self_(true)
+        , flag_(false)
+        , isLog_(false)
+        , logSubst_(false)
+        , precision_(0)
+        , worstX_(0)
+        , precision2_(0)
+        , worstX2_(0)
+        , precisionY_(0)
+        , worstY_(0)
+        , fast_(true)
+        , x_save_(1)
+        , y_save_(0)
+{
+
+    //TODO: Not sure what is happening in the romberg=0 case
+    if (romberg1 <= 0)
+    {
+        log_warn("romberg1 = %i must be > 0! setting to 1!", romberg1);
+        romberg1 = 1;
+    }
+
+    if (romberg2 <= 0)
+    {
+        log_warn("romberg2 = %i must be > 0! setting to 1!", romberg2);
+        romberg2 = 1;
+    }
+
+    InitInterpolant(std::min(x1.size(), y.size()),
+                    x1.at(0),
+                    x1.at(x1.size() - 1),
+                    romberg1,
+                    rational1,
+                    relative1,
+                    false,
+                    romberg1,
+                    rational1,
+                    relative1,
+                    false);
+
+    for(int i = 0; i < (int)x1.size(); i++){
+        if (x2[i].size() != y[i].size())
+        {
+            log_fatal("size of x2(%i) and y(%i) do not match!", (int)(x2[i].size()), (int)(y[i].size()));
+        }
+    }
+
+    if (x1.size() != y.size())
+    {
+        log_fatal("size of x1(%i) and y(%i) do not match!", (int)(x1.size()), (int)(y.size()));
+    }
+
+    if (x2.size() != x1.size())
+    {
+        log_fatal("size of x2(%i) and x1(%i) do not match!", (int)(x2.size()), (int)(x1.size()));
+    }
+
+
+    Interpolant_.resize((int)x1.size());
+
+    iY2_.resize(y.size());
+    for (int i = 0; i < (int)iY2_.size(); i++)
+    {
+        iY2_[i].resize(y[i].size());
+        for(int j=0; j < (int)iY2_[i].size(); j++){
+            iY2_.at(i).at(j) = y.at(i).at(j);
+        }
+    }
+
+    for (int i = 0; i < (int)x1.size(); i++)
+    {
+        iX_.at(i) = x1.at(i);
+        row_      = i;
+
+        Interpolant_.at(i) = new Interpolant(x2[i],
+                                             iY2_[i],
+                                             romberg2,
+                                             rational2,
+                                             relative2);
+
+        Interpolant_.at(i)->self_ = false;
+    }
+
+    precision2_ = 0;
 }
 
 //----------------------------------------------------------------------------//
@@ -1476,11 +1775,11 @@ double Interpolant::Interpolate(double x, int start)
     } else
     {
         num = 0;
-        aux = fabs(x - iX_.at(start + 0));
+        aux = std::abs(x - iX_.at(start + 0));
 
         for (i = 0; i < romberg_; i++)
         {
-            aux2 = fabs(x - iX_.at(start + i));
+            aux2 = std::abs(x - iX_.at(start + i));
 
             if (aux2 == 0)
             {
@@ -1528,7 +1827,7 @@ double Interpolant::Interpolate(double x, int start)
             }
         } else
         {
-            if (fabs(x - aux) > fabs(x - aux2))
+            if (std::abs(x - aux) > std::abs(x - aux2))
             {
                 dd = true;
             } else
@@ -1615,14 +1914,14 @@ double Interpolant::Interpolate(double x, int start)
         {
             if (result != 0)
             {
-                aux = fabs(error / result);
+                aux = std::abs(error / result);
             } else
             {
                 aux = 0;
             }
         } else
         {
-            aux = fabs(error);
+            aux = std::abs(error);
         }
 
         if (aux > precision_)

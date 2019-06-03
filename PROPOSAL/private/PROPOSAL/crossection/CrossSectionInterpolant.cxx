@@ -10,11 +10,10 @@
 #include "PROPOSAL/math/Interpolant.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
+#include "PROPOSAL/Logging.h"
 #include "PROPOSAL/math/InterpolantBuilder.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 // ------------------------------------------------------------------------- //
 // Constructor & Destructor
@@ -79,10 +78,10 @@ void CrossSectionInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
         // Order of builder matter because the functions needed for 1d interpolation
         // needs the already intitialized 2d interpolants.
         builder2d[i]
-            .SetMax1(NUM1)
-            .SetX1Min(parametrization_->GetParticleDef().low)
-            .SetX1Max(BIGENERGY)
-            .SetMax2(NUM1)
+            .SetMax1(def.nodes_cross_section)
+            .SetX1Min(parametrization_->GetParticleDef().mass)
+            .SetX1Max(def.max_node_energy)
+            .SetMax2(def.nodes_cross_section)
             .SetX2Min(0.0)
             .SetX2Max(1.0)
             .SetRomberg1(def.order_of_interpolation)
@@ -98,15 +97,20 @@ void CrossSectionInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
             .SetRelativeY(false)
             .SetLogSubst(false)
             .SetFunction2D(std::bind(
-                &CrossSectionInterpolant::FunctionToBuildDNdxInterpolant2D, this, _1, _2, std::ref(integral), i));
+                &CrossSectionInterpolant::FunctionToBuildDNdxInterpolant2D,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::ref(integral),
+                i));
 
         builder_container2d[i].first  = &builder2d[i];
         builder_container2d[i].second = &dndx_interpolant_2d_[i];
 
         builder1d[i]
-            .SetMax(NUM1)
-            .SetXMin(parametrization_->GetParticleDef().low)
-            .SetXMax(BIGENERGY)
+            .SetMax(def.nodes_cross_section)
+            .SetXMin(parametrization_->GetParticleDef().mass)
+            .SetXMax(def.max_node_energy)
             .SetRomberg(def.order_of_interpolation)
             .SetRational(false)
             .SetRelative(false)
@@ -115,7 +119,7 @@ void CrossSectionInterpolant::InitdNdxInerpolation(const InterpolationDef& def)
             .SetRationalY(true)
             .SetRelativeY(false)
             .SetLogSubst(false)
-            .SetFunction1D(std::bind(&CrossSectionInterpolant::FunctionToBuildDNdxInterpolant, this, _1, i));
+            .SetFunction1D(std::bind(&CrossSectionInterpolant::FunctionToBuildDNdxInterpolant, this, std::placeholders::_1, i));
 
         builder_container1d[i].first  = &builder1d[i];
         builder_container1d[i].second = &dndx_interpolant_1d_[i];
@@ -135,10 +139,16 @@ CrossSectionInterpolant::CrossSectionInterpolant(const CrossSectionInterpolant& 
     {
         dedx_interpolant_ = new Interpolant(*cross_section.dedx_interpolant_);
     }
+    else{
+        dedx_interpolant_ = NULL;
+    }
 
     if (cross_section.de2dx_interpolant_ != NULL)
     {
         de2dx_interpolant_ = new Interpolant(*cross_section.de2dx_interpolant_);
+    }
+    else{
+        de2dx_interpolant_ = NULL;
     }
 
     int num_components = cross_section.parametrization_->GetMedium().GetNumComponents();
@@ -185,7 +195,7 @@ CrossSectionInterpolant::~CrossSectionInterpolant()
 // ------------------------------------------------------------------------- //
 double CrossSectionInterpolant::CalculatedE2dx(double energy)
 {
-    return std::max(de2dx_interpolant_->Interpolate(energy), 0.0);
+    return parametrization_->GetMultiplier() * std::max(de2dx_interpolant_->Interpolate(energy), 0.0);
 }
 
 // ------------------------------------------------------------------------- //
@@ -201,10 +211,10 @@ double CrossSectionInterpolant::CalculatedNdx(double energy)
     const ComponentVec& components = parametrization_->GetMedium().GetComponents();
     for (size_t i = 0; i < components.size(); ++i)
     {
-        prob_for_component_[i] = std::max(dndx_interpolant_1d_.at(i)->Interpolate(energy), 0.);
+        prob_for_component_[i] = std::max(dndx_interpolant_1d_[i]->Interpolate(energy), 0.);
         sum_of_rates_ += prob_for_component_[i];
     }
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -225,11 +235,11 @@ double CrossSectionInterpolant::CalculatedNdx(double energy, double rnd)
     const ComponentVec& components = parametrization_->GetMedium().GetComponents();
     for (size_t i = 0; i < components.size(); ++i)
     {
-        prob_for_component_[i] = std::max(dndx_interpolant_1d_.at(i)->Interpolate(energy), 0.);
-        sum_of_rates_ += prob_for_component_.at(i);
+        prob_for_component_[i] = std::max(dndx_interpolant_1d_[i]->Interpolate(energy), 0.);
+        sum_of_rates_ += prob_for_component_[i];
     }
 
-    return sum_of_rates_;
+    return parametrization_->GetMultiplier() * sum_of_rates_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -272,8 +282,8 @@ double CrossSectionInterpolant::CalculateStochasticLoss(double energy, double rn
             }
 
             return energy *
-                   (limits.vUp * exp(dndx_interpolant_2d_.at(i)->FindLimit(energy, rnd_ * prob_for_component_[i]) *
-                                     log(limits.vMax / limits.vUp)));
+                   (limits.vUp * std::exp(dndx_interpolant_2d_.at(i)->FindLimit(energy, rnd_ * prob_for_component_[i]) *
+                                     std::log(limits.vMax / limits.vUp)));
         }
     }
 
@@ -319,8 +329,8 @@ double CrossSectionInterpolant::FunctionToBuildDNdxInterpolant2D(double energy,
         return 0;
     }
 
-    v = limits.vUp * exp(v * log(limits.vMax / limits.vUp));
+    v = limits.vUp * std::exp(v * std::log(limits.vMax / limits.vUp));
 
     return integral.Integrate(
-        limits.vUp, v, std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, _1), 4);
+        limits.vUp, v, std::bind(&Parametrization::FunctionToDNdxIntegral, parametrization_, energy, std::placeholders::_1), 4);
 }

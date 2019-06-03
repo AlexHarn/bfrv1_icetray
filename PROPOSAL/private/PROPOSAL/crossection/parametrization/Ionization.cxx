@@ -4,12 +4,10 @@
 #include "PROPOSAL/crossection/parametrization/Ionization.h"
 
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
 #include "PROPOSAL/math/Integral.h"
 #include "PROPOSAL/medium/Medium.h"
 
 using namespace PROPOSAL;
-using namespace std::placeholders;
 
 /******************************************************************************
  *                               Ionization                                *
@@ -51,8 +49,8 @@ double Ionization::DifferentialCrossSection(double energy, double v)
     IntegralLimits limits = GetIntegralLimits(energy);
 
     // TODO(mario): Better way? Sat 2017/09/02
-    double square_momentum   = energy * energy - particle_def_.mass * particle_def_.mass;
-    double particle_momentum = sqrt(std::max(square_momentum, 0.0));
+    double square_momentum   = (energy - particle_def_.mass) * (energy + particle_def_.mass);
+    double particle_momentum = std::sqrt(std::max(square_momentum, 0.0));
     double beta              = particle_momentum / energy;
     double gamma             = energy / particle_def_.mass;
     beta *= beta;
@@ -67,7 +65,7 @@ double Ionization::DifferentialCrossSection(double energy, double v)
     result = 1 - beta * (v / limits.vMax) + spin_1_2_contribution;
     result *= IONK * particle_def_.charge * particle_def_.charge * medium_->GetZA() / (2 * beta * energy * v * v);
 
-    return multiplier_ * medium_->GetMassDensity() * result * (1 + InelCorrection(energy, v));
+    return medium_->GetMassDensity() * result * (1 + InelCorrection(energy, v));
     ;
 }
 
@@ -130,9 +128,9 @@ double Ionization::InelCorrection(double energy, double v)
 
     double gamma = energy / particle_def_.mass;
 
-    a      = log(1 + 2 * v * energy / ME);
-    b      = log((1 - v / limits.vMax) / (1 - v));
-    c      = log((2 * gamma * (1 - v) * ME) / (particle_def_.mass * v));
+    a      = std::log(1 + 2 * v * energy / ME);
+    b      = std::log((1 - v / limits.vMax) / (1 - v));
+    c      = std::log((2 * gamma * (1 - v) * ME) / (particle_def_.mass * v));
     result = a * (2 * b + c) - b * b;
 
     return ALPHA / (2 * PI) * result;
@@ -150,8 +148,8 @@ double Ionization::CrossSectionWithoutInelasticCorrection(double energy, double 
     IntegralLimits limits = GetIntegralLimits(energy);
 
     // TODO(mario): Better way? Sat 2017/09/02
-    double square_momentum   = energy * energy - particle_def_.mass * particle_def_.mass;
-    double particle_momentum = sqrt(std::max(square_momentum, 0.0));
+    double square_momentum   = (energy - particle_def_.mass) * (energy + particle_def_.mass);
+    double particle_momentum = std::sqrt(std::max(square_momentum, 0.0));
     double beta              = particle_momentum / energy;
     double gamma             = energy / particle_def_.mass;
     beta *= beta;
@@ -166,7 +164,7 @@ double Ionization::CrossSectionWithoutInelasticCorrection(double energy, double 
     result = 1 - beta * (v / limits.vMax) + spin_1_2_contribution;
     result *= IONK * particle_def_.charge * particle_def_.charge * medium_->GetZA() / (2 * beta * energy * v * v);
 
-    return multiplier_ * medium_->GetMassDensity() * result;
+    return medium_->GetMassDensity() * result;
 }
 
 // ------------------------------------------------------------------------- //

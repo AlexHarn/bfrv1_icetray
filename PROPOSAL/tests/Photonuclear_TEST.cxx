@@ -1,8 +1,8 @@
 
 #include "gtest/gtest.h"
 
+#include <fstream>
 #include "PROPOSAL/Constants.h"
-#include "PROPOSAL/Output.h"
 #include "PROPOSAL/crossection/PhotoIntegral.h"
 #include "PROPOSAL/crossection/PhotoInterpolant.h"
 #include "PROPOSAL/crossection/factories/PhotonuclearFactory.h"
@@ -13,10 +13,9 @@
 #include "PROPOSAL/medium/MediumFactory.h"
 #include "PROPOSAL/methods.h"
 
-using namespace std;
 using namespace PROPOSAL;
 
-ParticleDef getParticleDef(const string& name)
+ParticleDef getParticleDef(const std::string& name)
 {
     if (name == "MuMinus")
     {
@@ -29,6 +28,8 @@ ParticleDef getParticleDef(const string& name)
         return EMinusDef::Get();
     }
 }
+
+const std::string testfile_dir = "bin/TestFiles/";
 
 TEST(Comparison, Comparison_equal)
 {
@@ -241,8 +242,8 @@ TEST(Assignment, Copyconstructor2)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dEdx)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dEdx.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dEdx.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -250,18 +251,18 @@ TEST(PhotoRealPhotonAssumption, Test_of_dEdx)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double dEdx_stored;
     double dEdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -290,8 +291,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dEdx)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dNdx)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dNdx.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dNdx.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -299,18 +300,18 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -339,8 +340,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dNdx_rnd.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dNdx_rnd.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -348,19 +349,19 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double rnd;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -389,8 +390,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd)
 
 TEST(PhotoRealPhotonAssumption, Test_of_e)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_e.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_e.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -398,19 +399,19 @@ TEST(PhotoRealPhotonAssumption, Test_of_e)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double rnd1, rnd2;
     double stochastic_loss_stored;
     double stochastic_loss_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -439,8 +440,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_e)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dEdx_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dEdx_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dEdx_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -448,18 +449,18 @@ TEST(PhotoRealPhotonAssumption, Test_of_dEdx_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double dEdx_stored;
     double dEdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -490,8 +491,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dEdx_Interpolant)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dNdx_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dNdx_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dNdx_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -499,18 +500,18 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -541,8 +542,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_Interpolant)
 
 TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Real_dNdx_rnd_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Real_dNdx_rnd_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -550,19 +551,19 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double rnd;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -593,8 +594,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_dNdx_rnd_Interpolant)
 
 TEST(PhotoRealPhotonAssumption, Test_of_e_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_e_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_e_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -602,19 +603,19 @@ TEST(PhotoRealPhotonAssumption, Test_of_e_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
+    std::string parametrization;
     bool hard_component;
     double energy;
     double rnd1, rnd2;
     double stochastic_loss_stored;
     double stochastic_loss_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -647,8 +648,8 @@ TEST(PhotoRealPhotonAssumption, Test_of_e_Interpolant)
 
 TEST(PhotoQ2Integration, Test_of_dEdx)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dEdx.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dEdx.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -656,18 +657,18 @@ TEST(PhotoQ2Integration, Test_of_dEdx)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double dEdx_stored;
     double dEdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -696,8 +697,8 @@ TEST(PhotoQ2Integration, Test_of_dEdx)
 
 TEST(PhotoQ2Integration, Test_of_dNdx)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dNdx.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dNdx.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -705,18 +706,18 @@ TEST(PhotoQ2Integration, Test_of_dNdx)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -745,8 +746,8 @@ TEST(PhotoQ2Integration, Test_of_dNdx)
 
 TEST(PhotoQ2Integration, Test_of_dNdx_rnd)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dNdx_rnd.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dNdx_rnd.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -754,19 +755,19 @@ TEST(PhotoQ2Integration, Test_of_dNdx_rnd)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double rnd;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -795,8 +796,8 @@ TEST(PhotoQ2Integration, Test_of_dNdx_rnd)
 
 TEST(PhotoQ2Integration, Test_of_e)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_e.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_e.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -804,19 +805,19 @@ TEST(PhotoQ2Integration, Test_of_e)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double rnd1, rnd2;
     double stochastic_loss_stored;
     double stochastic_loss_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
 
     while (in.good())
     {
@@ -845,8 +846,8 @@ TEST(PhotoQ2Integration, Test_of_e)
 
 TEST(PhotoQ2Integration, Test_of_dEdx_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dEdx_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dEdx_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -854,18 +855,18 @@ TEST(PhotoQ2Integration, Test_of_dEdx_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double dEdx_stored;
     double dEdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -896,8 +897,8 @@ TEST(PhotoQ2Integration, Test_of_dEdx_Interpolant)
 
 TEST(PhotoQ2Integration, Test_of_dNdx_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dNdx_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dNdx_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -905,18 +906,18 @@ TEST(PhotoQ2Integration, Test_of_dNdx_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -947,8 +948,8 @@ TEST(PhotoQ2Integration, Test_of_dNdx_Interpolant)
 
 TEST(PhotoQ2Integration, Test_of_dNdx_rnd_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_dNdx_rnd_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_dNdx_rnd_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -956,19 +957,19 @@ TEST(PhotoQ2Integration, Test_of_dNdx_rnd_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double rnd;
     double dNdx_stored;
     double dNdx_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())
@@ -999,8 +1000,8 @@ TEST(PhotoQ2Integration, Test_of_dNdx_rnd_Interpolant)
 
 TEST(PhotoQ2Integration, Test_of_e_Interpolant)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Photo_Q2_e_interpol.txt";
+    std::ifstream in;
+    std::string filename = testfile_dir + "Photo_Q2_e_interpol.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -1008,19 +1009,19 @@ TEST(PhotoQ2Integration, Test_of_e_Interpolant)
         std::cerr << "File \"" << filename << "\" not found" << std::endl;
     }
 
-    string particleName;
-    string mediumName;
+    std::string particleName;
+    std::string mediumName;
     double ecut;
     double vcut;
     double multiplier;
-    string parametrization;
-    string shadowing;
+    std::string parametrization;
+    std::string shadowing;
     double energy;
     double rnd1, rnd2;
     double stochastic_loss_stored;
     double stochastic_loss_new;
 
-    cout.precision(16);
+    std::cout.precision(16);
     InterpolationDef InterpolDef;
 
     while (in.good())

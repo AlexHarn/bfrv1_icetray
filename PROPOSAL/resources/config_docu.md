@@ -15,10 +15,13 @@ The seed has no effect, if you use an external random number generator.
 
 If the Output of the Secondaries should not only include the Stochastic energy losses (and the Particles produced in a decay), but also the continuous energy losses, this can be set.
 
-| Keyword                 | Type    | Default   | Description |
-| ----------------------- | ------- | --------- | ----------- |
-| `seed`                  | Integer | `0`       | seed for the internal random number generator|
-| `continous_loss_output` | Bool    | `False`   | Decides, whether continuous losses should be emitted in the Output of Secondaries|
+When the Output should just contain the secondaries (energy losses or decay products), that accured inside the detector volume, and not the ones outside of the detector, this can also be set.
+
+| Keyword                     | Type    | Default   | Description |
+| --------------------------- | ------- | --------- | ----------- |
+| `seed`                      | Integer | `0`       | seed for the internal random number generator|
+| `continous_loss_output`     | Bool    | `False`   | Decides, whether continuous losses should be emitted in the Output of Secondaries|
+| `only_loss_inside_detector` | Bool    | `False`   | Decides, whether the secondaries outside of the detector should be included in the output, or not.|
 
 ### Interpolation parameters ###
 The `interpolation` parameter is an own json-object.
@@ -37,14 +40,26 @@ If there are no tables (or at least not ones with the desired particle or medium
 If the String is empty, the Folder doesn't exists or PROPOSAL has no permission, the tables are stored in the cache.
 Note: The tables differ in the parameters given below, that are stored in the file name. For not too long file names, these values are hashed.
 
-It's also possible to do the calculations with integrations, but that increases the amount of time by around 4 orders of magnitude !!! This should just be used for tests and comparisons.The Interpolations are accurate enough. Note: The reason why integration is that much slower is that the interpolation used for propagation is near the surface, using already calculated numbers from 'lower' interpolations. When integrating, these integrals going 'deep' (up to 4 layers).
+It's also possible to do the calculations with integrations, but that increases the amount of time by around 4 orders of magnitude !!! This should just be used for tests and comparisons. The Interpolations are accurate enough. Note: The reason why integration is that much slower is that the interpolation used for propagation is near the surface, using already calculated numbers from 'lower' interpolations. When integrating, these integrals going 'deep' (up to 4 layers).
+
+The upper energy limit can be modified up to the maximum possible primary particle energy, 
+to prevent energies greater than the maximum energy from being extrapolated.
+If particles are propagated whose primary energy is greater than the energy of the maximum node, the error increases rapidly. 
+This should be avoided.
+
+If the error of the interpolation becomes too large, the number of sampling points can be increased. 
+This increases the runtime of the program.
 
 | Keyword                   | Type   | Default | Description |
 | ------------------------- | ------ | ------- | ----------- |
-| `do_interpolation`        | Bool   | `True`  | Decides, whether to calculate with interpolations or integrations |
-| `path_to_tables`          | String | `""`    | path pointing to the folder with the interpolation tables |
-| `path_to_tables_readonly` | String | `""`    | path pointing to the folder with the interpolation tables |
-| `do_binary_tables`        | Bool   | `True`  | Decides, whether the tables are stored in binary format or in human readable text format |
+| `do_interpolation`              | Bool   | `True`  | Decides, whether to calculate with interpolations or integrations |
+| `path_to_tables`                | String | `""`    | path pointing to the folder with the interpolation tables |
+| `path_to_tables_readonly`       | String | `""`    | path pointing to the folder with the interpolation tables |
+| `do_binary_tables`              | Bool   | `True`  | Decides, whether the tables are stored in binary format or in human readable text format |
+| `max_node_energy`               | Double | `1.e14` | Energy in MeV up to which the interpolation tables are built |
+| `nodes_cross_section`           | Integer| `100`   | Number of interpolation points for the interpolation of the cross section integral |
+| `nodes_continous_randomization` | Integer| `200`   | Number of interpolation points for the interpolation of the continous randomization integral |
+| `nodes_propagate`               | Integer| `1000`  | Number of interpolation points for the interpolation of the propagation integral |
 
 ### Accuracy parameters ###
 There are several parameters with which the precision or speed for advancing the particles can be adjusted.
@@ -71,20 +86,20 @@ There are several parametrizations defining the cross sections and further optio
 
 The cross section multiplier, available for each cross section, scales this cross section by its factor.
 
-For Ionization, there is just one parametrization, but for pair production, bremsstrahlung and nuclear interaction, it's possible to choose between multiple parametrizations.
+For **Ionization**, there is just one parametrization, but for pair production, bremsstrahlung and nuclear interaction, it's possible to choose between multiple parametrizations.
 
-The pair production parametrizations are:
+The **electron pair production** parametrizations are:
   - `"EpairKelnerKokoulinPetrukhin"` (Proc. 12th ICCR (1971), 2436) with corrections for the interaction with atomic electrons (Phys. Atom. Nucl. 61 (1998), 448)
   - `"EpairSandrockSoedingreksoRhode"` 
 
-The bremsstrahlung parametrizations are:
+The **bremsstrahlung** parametrizations are:
   - `"BremsKelnerKokoulinPetrukhin"` ([Preprint MEPhI (1995) no. 024-95](http://cds.cern.ch/record/288828)) and (Phys. Atom. Nucl. 62 (1999), 272)
   - `"BremsAndreevBezrukovBugaev"` (Phys. Atom. Nucl. 57 (1994), 2066)
   - `"BremsPetrukhinShestakov"` (Canad. J. Phys. 46 (1968), 377)
   - `"BremsCompleteScreening"` taken from Tsai [Rev. Mod. Phys. 46 (1974), 815](https://doi.org/10.1103/RevModPhys.46.815)
   - `"BremsSandrockSoedingreksoRhode"`
 
-There are two different approaches to parametrise the nuclear interaction:
+There are two different approaches to parametrise the **nuclear interaction**:
 
 Either with the approximation where a real photon scatters inelastically with a nucleus with an additional factor to make the photon virtual.
 The available parametrizations using this approach are:
@@ -107,20 +122,28 @@ For these parametrizations the parametrization of the shadowing factor can be ch
 - `"ShadowButkevichMikhailov"` from their calculation of nuclear interaction
 - `"ShadowDuttaRenoSarcevicSeckel"` by Dutta, Reno, Sarcevic, Seckel [Phys. Rev. D63 (2001), 094020](https://doi.org/10.1103/PhysRevD.63.094020)
 
-The LPM effect (Landau-Pomeranschuk-Migdal), suppressing the bremsstrahlung and the pair production at high energies and the Ter-Mikaelian effect, suppress low bremsstrahlung energy losses, can also be incorporated.
+The **LPM effect** (Landau-Pomeranschuk-Migdal), suppressing the bremsstrahlung and the pair production at high energies and the Ter-Mikaelian effect, suppress low bremsstrahlung energy losses, can also be incorporated.
 
-| Keyword                | Type   | Default    | Description |
-| ---------------------- | ------ | ---------- | ----------- |
-| `brems_multiplier`     | Double | `1.0`        | scales the bremsstrahlung |
-| `epair_multiplier`     | Double | `1.0`        | scales the pair production |
-| `ioniz_multiplier`     | Double | `1.0`        | scales the ionization |
-| `photo_multiplier`     | Double | `1.0`        | scales the nuclear interaction |
-| `epair`                | String | `"EpairKelnerKokoulinPetrukhin"` | Pair production parametrization |
-| `brems`                | String | `"BremsKelnerKokoulinPetrukhin"` | Bremsstrahlung parametrization |
-| `photo`                | String | `"PhotoAbramowiczLevinLevyMaor97"` | nuclear interaction parametrization |
-| `photo_hard_component` | Bool   | `True`     | including the hard components |
-| `photo_shadow`         | String | `"ShadowButkevichMikhailov"` | shadowing parametrization |
-| `lpm`                  | Bool   | `True`     | Incorporate the LPM-effect and TM-effect |
+The **muon pair production** (which is an optional process and per default disabled) parametrizations are:
+  - `"MupairKelnerKokoulinPetrukhin"` (Phys. Atom. Nucl. Vol. 63, No.9 (2000),  pp. 1603-1611, DOI: 10.1134/1.1312894)
+
+| Keyword                 | Type   | Default    | Description |
+| ----------------------  | ------ | ---------- | ----------- |
+| `brems_multiplier`      | Double | `1.0`        | scales the bremsstrahlung |
+| `epair_multiplier`      | Double | `1.0`        | scales the electron pair production |
+| `ioniz_multiplier`      | Double | `1.0`        | scales the ionization |
+| `photo_multiplier`      | Double | `1.0`        | scales the nuclear interaction |
+| `mupair_multiplier`     | Double | `1.0`        | scales the muon pair production |
+| `epair`                 | String | `"EpairKelnerKokoulinPetrukhin"` | electron pair production parametrization |
+| `epair`                 | String | `"MupairKelnerKokoulinPetrukhin"` | muon pair production parametrization |
+| `brems`                 | String | `"BremsKelnerKokoulinPetrukhin"` | Bremsstrahlung parametrization |
+| `photo`                 | String | `"PhotoAbramowiczLevinLevyMaor97"` | nuclear interaction parametrization |
+| `photo_hard_component`  | Bool   | `True`     | including the hard components |
+| `photo_shadow`          | String | `"ShadowButkevichMikhailov"` | shadowing parametrization |
+| `lpm`                   | Bool   | `True`     | Incorporate the LPM-effect and TM-effect |
+| `mupair_enable`         | Bool   | `False`     | Include production of muon pairs in the calculation of energy losses |
+| `mupair_particle_output`| Bool   | `True`     | Produced muon pairs are treated as Particles with corresponding energies in the Output of Secondaries (and not as DynamicData objects) |
+
 
 ### Energy-cut parameters ###
 The energy cut settings and the continuous randomization option are separated between `cuts_inside`, `cuts_infront` and `cuts_behind` the detector, which are again own json-objects.
@@ -137,6 +160,7 @@ Note: The energy cuts and the continuous randomization settings can also be spec
 Then the global settings will be overwritten.
 
 For the `cuts_inside` option, the default values are
+
 | Keyword     | Type   | Default   | Description |
 | ----------- | ------ | --------- | ----------- |
 | `e_cut`     | Double | `500.0`   | total energy loss cut inside the detector |
@@ -144,6 +168,7 @@ For the `cuts_inside` option, the default values are
 | `cont_rand` | Bool   | `True`    | includes the continuous randomization inside the detector |
 
 For the `cuts_infront` option, the default values are
+
 | Keyword     | Type   | Default   | Description |
 | ----------- | ------ | --------- | ----------- |
 | `e_cut`     | Double | `-1.0`    | total energy loss cut in front the detector |
@@ -151,6 +176,7 @@ For the `cuts_infront` option, the default values are
 | `cont_rand` | Bool   | `True`    | includes the continuous randomization in front the detector |
 
 For the `cuts_behind` option, the default values are
+
 | Keyword     | Type   | Default   | Description |
 | ----------- | ------ | --------- | ----------- |
 | `e_cut`     | Double | `-1.0`    | total energy loss cut behind the detector |
@@ -161,7 +187,7 @@ For the `cuts_behind` option, the default values are
 ## The `sectors` configurations ##
 
 Every sector needs a medium and a geometry, while it's priority, compared to other sectors, can be scaled with the hierarchy option.
-If multiple sectors are defined and if these sectors overlap, the decision which sector should be preferred is made with the hierarchy option.
+If multiple sectors are defined and if these sectors overlap, the decision which sector should be preferred is made with the hierarchy option. The bigger hierarchy is preferred. If the overlapping sectors have the same hierarchy, then the one with the more dense medium is chosen. If both hierarchy and Massdensity is equal, then the first in the sector list is chosen.
 
 | Keyword     | Type    | Default | Description |
 | ----------- | ------- | ------- | ----------- |

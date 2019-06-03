@@ -6,7 +6,6 @@
 
 #include "PROPOSAL/PROPOSAL.h"
 
-using namespace std;
 using namespace PROPOSAL;
 
 TEST(Comparison, Comparison_equal)
@@ -142,12 +141,12 @@ TEST(Propagation, Test_nan)
         // ----------------------------------------------------------------- //
 
         // Set particle properties
-        mu.SetEnergy(pow(10, EmaxLog10));
+        mu.SetEnergy(std::pow(10, EmaxLog10));
         mu.SetPropagatedDistance(0);
         mu.SetPosition(Vector3D(0, 0, 0));
         mu.SetDirection(Vector3D(0, 0, -1));
 
-        tau.SetEnergy(pow(10, EmaxLog10));
+        tau.SetEnergy(std::pow(10, EmaxLog10));
         tau.SetPropagatedDistance(0);
         tau.SetPosition(Vector3D(0, 0, 0));
         tau.SetDirection(Vector3D(0, 0, -1));
@@ -163,7 +162,7 @@ TEST(Propagation, Test_nan)
         // Therefor its needed to get the internal created particle first
         Particle& particle = prop_mu.GetParticle();
 
-        particle.SetEnergy(pow(10, EmaxLog10));
+        particle.SetEnergy(std::pow(10, EmaxLog10));
         particle.SetPropagatedDistance(0);
         particle.SetPosition(Vector3D(0, 0, 0));
         particle.SetDirection(Vector3D(0, 0, -1));
@@ -174,8 +173,8 @@ TEST(Propagation, Test_nan)
 
 TEST(Propagation, particle_type)
 {
-    ifstream in;
-    string filename = "bin/TestFiles/Propagator_propagation.txt";
+    std::ifstream in;
+    std::string filename = "bin/TestFiles/Propagator_propagation.txt";
     in.open(filename.c_str());
 
     if (!in.good())
@@ -213,11 +212,11 @@ TEST(Propagation, particle_type)
     double length     = 0.0;
     double sec_energy = 0.0, x = 0.0, y = 0.0, z = 0.0, dx = 0.0, dy = 0.0, dz = 0.0;
 
-    double error = 1e-4;
+    double error = 1e-2;
 
     // Read
 
-    cout.precision(16);
+    std::cout.precision(16);
     RandomGenerator::Get().SetSeed(1234);
 
     for (int i = 0; i < statistic; ++i)
