@@ -111,7 +111,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         self.AddParameter("PhotonSeriesName","Photon Series Name","I3MCPESeriesMap") 
         self.AddParameter("RawPhotonSeriesName","Raw Photon Series Name",None) 
         self.AddParameter('KeepMCTree','Delete propagated MCTree otherwise',True)
-
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
 
     def Execute(self, stats):
@@ -142,7 +142,8 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         tray.context['I3SummaryService'] = summary
 
         randomService = icecube.phys_services.I3SPRNGRandomService(
-            self.seed, self.nproc, self.procnum)
+            self.seed, self.nproc, self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
         tray.context["I3RandomService"] = randomService
 
         tray.AddModule("I3InfiniteSource","TheSource",

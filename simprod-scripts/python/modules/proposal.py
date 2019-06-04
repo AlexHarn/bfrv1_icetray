@@ -55,6 +55,7 @@ class MuonPropagator(ipmodule.ParsingModule):
 
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
     def Execute(self, stats):
         if not ipmodule.ParsingModule.Execute(self, stats):
@@ -79,7 +80,9 @@ class MuonPropagator(ipmodule.ParsingModule):
         tray.context['I3SummaryService'] = summary
 
         randomService = icecube.phys_services.I3SPRNGRandomService(
-            self.seed, self.nproc, self.procnum)
+            self.seed, self.nproc, self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+
         tray.context["I3RandomService"] = randomService
 
         tray.AddModule("I3Reader", "read",

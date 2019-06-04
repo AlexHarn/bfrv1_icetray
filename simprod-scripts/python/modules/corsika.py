@@ -293,6 +293,7 @@ class CorsikaGenerator(ipmodule.ParsingModule):
 
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Execute(self,stats):
         self.stats=stats
@@ -367,7 +368,8 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
         
-        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)
+        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
         tray.context["I3RandomService"] = randomService
 
 
@@ -472,7 +474,8 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
         self.AddParameter('SelectNeutrino','Randomly select CORSIKA neutrino and force interaction',False)
- 
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
+
    def Execute(self,stats):
         self.stats=stats
         if not ipmodule.ParsingModule.Execute(self,self.stats): return 0

@@ -33,6 +33,7 @@ class AirShowerGenerator(ipmodule.ParsingModule):
         self.AddParameter("radius","Cylinder radius",500)
         self.AddParameter("length","Cylinder length",1000)
         self.AddParameter("dump","Dump frame contentes to screen",False)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
         
 
    def Execute(self,stats):
@@ -51,13 +52,15 @@ class AirShowerGenerator(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService( 
         	seed = self.seed,
         	nstreams = self.nproc*2,
-        	streamnum = self.procnum*2)
+        	streamnum = self.procnum*2)\
+           if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
 
         # a special random service for muon propagation
         randomServiceForPropagators = phys_services.I3SPRNGRandomService(
         	seed = self.seed,
         	nstreams = self.nproc*2,
-        	streamnum = self.procnum*2+1)
+        	streamnum = self.procnum*2+1)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2*(self.seed*self.nproc+self.procnum))
 
         # re-use the same RNG for modules that need it on the context
         tray.context['I3RandomService'] = randomService
@@ -135,6 +138,7 @@ class IceTopShowerGenerator(ipmodule.ParsingModule):
         self.AddParameter("raise_observation_level",
                           "Tweak the altitude (in meters) where corsika particles are injected (just in case the corsika observation plane is below the top of the snow)",
                           0.)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Execute(self,stats):
         if not ipmodule.IPBaseClass.Execute(self,stats): return 0
@@ -173,13 +177,16 @@ class IceTopShowerGenerator(ipmodule.ParsingModule):
            self.logger.warn("no RNG state found. Using seed instead.")
     
         # If I create the service in python insteado of with AddService, the destructor never gets called and the state is not saved at the end of the run
-        tray.AddService("I3SPRNGRandomServiceFactory","random",
-                        Seed = self.seed,
-                        StreamNum = self.procnum,
-                        NStreams = self.nproc,
-                        instatefile = rngstate,
-                        outstatefile = 'rng.state',
+        if not self.usegslrng:
+           tray.AddService("I3SPRNGRandomServiceFactory","random",
+                           Seed = self.seed,
+                           StreamNum = self.procnum,
+                           NStreams = self.nproc,
+                           instatefile = rngstate,
+                           outstatefile = 'rng.state',
                         )
+        else:
+           tray.context['I3RandomService'] = phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
 
         # THE THING
         tray.AddSegment(segments.GenerateIceTopShowers, "GenerateIceTopShowers",
@@ -200,7 +207,8 @@ class IceTopShowerGenerator(ipmodule.ParsingModule):
            randomService = phys_services.I3SPRNGRandomService( 
               seed = self.seed,
               nstreams = self.nproc,
-              streamnum = self.procnum)
+              streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
            
            tray.Add('Rename', Keys=['I3MCTree', 'I3MCTree_preMuonProp'])
            tray.AddSegment(segments.PropagateMuons, "PropagateMuons",

@@ -137,6 +137,7 @@ class PPC(ipmodule.ParsingModule):
         self.AddParameter('PropagateMuons', 'Run PROPOSAL to do in-ice propagation', True)
         self.AddParameter('PROPOSALParams','any other parameters for proposal',dict())
         self.AddParameter('TempDir', 'Temporary working directory with the ice model', None)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
         self.configured = False
 
    def Configure(self,tray):
@@ -150,7 +151,9 @@ class PPC(ipmodule.ParsingModule):
         	randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc*2,
-             		streamnum = self.nproc + self.procnum)
+             		streamnum = self.nproc + self.procnum)\
+                if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+
         	tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
 
         	tray.AddModule("Rename","rename_corsika_mctree",Keys=['I3MCTree','I3MCTree_preMuonProp'])
@@ -269,7 +272,9 @@ class PPCResampleCorsika(PPC):
         randomService = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc,
-             		streamnum = self.procnum)
+             		streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+
         tray.context['I3RandomService'] = randomService
 
 

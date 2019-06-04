@@ -68,6 +68,7 @@ class Genie(ipmodule.ParsingModule):
         self.AddParameter("x", "cylinder x-position in m", 0.)
         self.AddParameter("y", "cylinder y-position in m", 0.)
         self.AddParameter("z", "cylinder z-position in m", 0.)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Execute(self,stats):
         if not ipmodule.ParsingModule.Execute(self,stats): return 0
@@ -88,17 +89,17 @@ class Genie(ipmodule.ParsingModule):
         summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
 
-
-
         randomService = phys_services.I3SPRNGRandomService(
              seed = self.seed, 
              nstreams = self.nproc, 
-             streamnum = self.procnum)
+             streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
 
         randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              seed = self.seed,
              nstreams = self.nproc*2,
-             streamnum = self.nproc+ self.procnum)
+             streamnum = self.nproc+ self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2*(self.seed*self.nproc+self.procnum))
 
         tray.context['I3RandomService'] = randomService
         tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
@@ -201,6 +202,7 @@ class GeniePlusClSim(ipmodule.ParsingModule):
         self.AddParameter("RawPhotonSeriesName","Raw Photon Series Name",None)
         self.AddParameter('Polyplopia','Produce coincident showers',False)
         self.AddParameter('BackgroundFile','pre-generated coincident showers file',"")
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Execute(self,stats):
         if not ipmodule.ParsingModule.Execute(self,stats): return 0
@@ -222,11 +224,14 @@ class GeniePlusClSim(ipmodule.ParsingModule):
         # Instantiate a tray 
         tray = I3Tray()
 
-        randomService = phys_services.I3SPRNGRandomService(self.rngseed, self.rngnumberofstreams, self.rngstream)
+        randomService = phys_services.I3SPRNGRandomService(self.rngseed, self.rngnumberofstreams, self.rngstream)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.rngseed*self.rngnumberofstreams+self.rngstream)
+
         randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              seed = self.rngseed,
              nstreams = self.rngnumberofstreams*2,
-             streamnum = self.rngnumberofstreams + self.rngstream)
+             streamnum = self.rngnumberofstreams + self.rngstream)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2*(self.rngseed*self.rngnumberofstreams+self.rngstream))
 
         tray.context['I3RandomService'] = randomService
         tray.context['I3PropagatorRandomService'] = randomServiceForPropagators

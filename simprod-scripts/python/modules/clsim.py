@@ -98,6 +98,7 @@ class ClSim(ipmodule.ParsingModule):
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
         self.AddParameter('KeepMCTree','Delete propagated MCTree otherwise',True)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Configure(self,tray):
 
@@ -317,6 +318,7 @@ class HybridPhotons(ipmodule.ParsingModule):
         self.AddParameter("usecvmfs","Use CVMFS for spline tables (if possible)",
                           '/cvmfs/icecube.opensciencegrid.org')
         self.AddParameter("ConvertToMCHits", "Convert MCPEs to MCHits for backwards compatibility", False)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Execute(self,stats):
         if not ipmodule.ParsingModule.Execute(self,stats): return 0
@@ -348,7 +350,8 @@ class HybridPhotons(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc,
-             		streamnum = self.procnum)
+             		streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
 
         tray.context['I3RandomService'] = randomService
 

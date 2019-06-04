@@ -44,6 +44,7 @@ class IceCube(ipmodule.ParsingModule):
         self.AddParameter('outputfile', 'Output filename', 'output.i3.gz')
         self.AddParameter('DetectorName', 'Name of detector', 'IC86')
         self.AddParameter('SkipKeys', 'Skip keys for the writer', [])
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
 
 
@@ -64,14 +65,12 @@ class IceCube(ipmodule.ParsingModule):
         # Instantiate a tray
         tray = I3Tray()
 
-        try:
-        	randomService = phys_services.I3SPRNGRandomService(
-             		seed = self.seed,
-             		nstreams = self.nproc,
-             		streamnum = self.procnum)
-        except AttributeError:
-        	self.logger.warn("SPRNG not available. Using GSL with seed 'nproc*seed + procnum'")
-        	randomService = phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+        randomService = phys_services.I3SPRNGRandomService(
+            seed = self.seed,
+            nstreams = self.nproc,
+            streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+
         tray.context['I3RandomService'] = randomService
 
         # Configure IceTray modules
@@ -170,6 +169,7 @@ class IceTop(ipmodule.ParsingModule):
     self.AddParameter('DOMLauncher', 'Simulate with DOMLauncher', True)
     self.AddParameter('sim_trigger', 'Simulate trigger', False)
     self.AddParameter('calibrate', 'Calibrate and extract pulses (requires tpx module, which is in IceRec usually)', False)
+    self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
   def Execute(self,stats):
     if not ipmodule.ParsingModule.Execute(self,stats):
@@ -193,13 +193,17 @@ class IceTop(ipmodule.ParsingModule):
       rngstate = ''
       self.logger.warning("no RNG state found. Using seed instead.")
 
-    tray.AddService("I3SPRNGRandomServiceFactory","random",
-                    Seed = self.seed,
-                    StreamNum = self.procnum,
-                    NStreams = self.nproc,
-                    instatefile = rngstate,
-                    outstatefile = 'rng.state',
+    if not self.usegslrng:
+        tray.AddService("I3SPRNGRandomServiceFactory","random",
+                        Seed = self.seed,
+                        StreamNum = self.procnum,
+                        NStreams = self.nproc,
+                        instatefile = rngstate,
+                        outstatefile = 'rng.state'
                     )
+    else:    
+        tray.context["I3RandomService"] = phys_services.I3GSLRandomService(seed)
+
 
     tray.AddModule("I3Reader","reader",
                    filenamelist = [self.gcdfile, self.inputfile],

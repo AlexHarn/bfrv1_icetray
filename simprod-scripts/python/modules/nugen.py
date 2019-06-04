@@ -54,6 +54,7 @@ class NuGen(ipmodule.ParsingModule):
         self.AddParameter('BackgroundFile','pre-generated coincident showers file',"")
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
 
    def Execute(self,stats):
@@ -89,12 +90,14 @@ class NuGen(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService(
              seed = self.seed, 
              nstreams = self.nproc, 
-             streamnum = self.procnum)
+             streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
 
         randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              seed = self.seed,
              nstreams = self.nproc*2,
-             streamnum = self.nproc + self.procnum)
+             streamnum = self.nproc + self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2*(self.seed*self.nproc+self.procnum))
 
         tray.context['I3RandomService'] = randomService
 

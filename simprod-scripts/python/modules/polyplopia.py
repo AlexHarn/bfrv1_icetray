@@ -54,8 +54,8 @@ class PolyplopiaModule(ipmodule.ParsingModule):
         self.AddParameter("UseGeant4","Enable Geant4 propagation",False) 
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('TimeWindow', 'Coincidence time window', 40.*I3Units.microsecond)
-
-
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
+        
     def Execute(self, stats):
         'Runs the tray, but the important stuff happens in segment_X(...)'
 
@@ -78,7 +78,9 @@ class PolyplopiaModule(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService(
              seed = self.seed, 
              nstreams = self.nproc, 
-             streamnum = self.procnum)
+             streamnum = self.procnum) \
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
+
         tray.context['I3RandomService'] = randomService
 
         # Configure IceTray modules
@@ -125,8 +127,7 @@ class PolyplopiaModule(ipmodule.ParsingModule):
          
 
         # Execute the Tray
-        tray.Execute()
-        
+        tray.Execute()        
 
         # Free memory
         del tray
@@ -151,7 +152,7 @@ class PolyplopiaMCPEMerge(ipmodule.ParsingModule):
         self.AddParameter('nproc', 'RNG number of streams', 1)
         self.AddParameter('TimeWindow', 'Coincidence time window', 40.*I3Units.microsecond)
         self.AddParameter("MCTreeName","Name of MCTree frame object", "I3MCTree") 
-
+        self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
     def Execute(self, stats):
         'Runs the tray, but the important stuff happens in segment_X(...)'
@@ -175,7 +176,9 @@ class PolyplopiaMCPEMerge(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService(
              seed = self.seed, 
              nstreams = self.nproc, 
-             streamnum = self.procnum)
+             streamnum = self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
+
         tray.context['I3RandomService'] = randomService
 
         # Configure IceTray modules
