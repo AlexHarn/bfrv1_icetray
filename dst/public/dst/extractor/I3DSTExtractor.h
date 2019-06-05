@@ -16,7 +16,6 @@
 
 #include "dataclasses/physics/I3Trigger.h"
 #include "dataclasses/physics/I3TriggerHierarchy.h"
-#include "dst/DSTCoordinates.h"
 
 #ifndef DST_I3DSTMODULE_H_INCLUDED
 #define DST_I3DSTMODULE_H_INLCUDED

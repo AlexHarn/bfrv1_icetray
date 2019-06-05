@@ -5,7 +5,6 @@
 #include "dataclasses/physics/I3Particle.h"
 #include <dataclasses/I3Constants.h>
 #include <dataclasses/I3Position.h>
-#include <dst/DSTCoordinates.h>
 #include <icetray/I3Units.h>
 #include <icetray/I3Frame.h>
 #include <phys-services/I3RandomService.h>
@@ -25,7 +24,6 @@ DSTTestGenerator::DSTTestGenerator(const I3Context& context) :
         I3ConditionalModule(context), I3Splitter(configuration_),
         dtheta0_(1.0*I3Units::deg),
         dphi0_(1.0*I3Units::deg),
-        coordDigits_(2),
         currentTime_(0),
         timesum_(0),
         starttime_(0),
@@ -56,7 +54,6 @@ DSTTestGenerator::DSTTestGenerator(const I3Context& context) :
                 AddParameter("InIceRawDataName","The InIce DOMLaunch Series Map Name", inicerawdata_name_);
                 AddParameter("RecoSeriesName","The Reco Hit Series Name", icrecoseries_name_);
                 AddParameter("TriggerName","The Trigger Name", trigger_name_);
-                AddParameter("CoordDigits", "Prescision of coordinates", coordDigits_);
                 AddOutBox("OutBox"); 
         } 
 
@@ -71,7 +68,6 @@ DSTTestGenerator::DSTTestGenerator(const I3Context& context) :
           GetParameter("I3Reco2Params", i3reco_2params_); 
           GetParameter("RecoSeriesName", icrecoseries_name_); 
           GetParameter("TriggerName", trigger_name_); 
-          GetParameter("CoordDigits", coordDigits_); 
 
           detectorCenter_ = I3PositionPtr(new I3Position(centerX_,centerY_,centerZ_));
           rand_  = context_.Get<I3RandomServicePtr>("I3RandomService");
@@ -184,83 +180,3 @@ DSTTestGenerator::DSTTestGenerator(const I3Context& context) :
     }
   
 
-  /*
-  TEST(DSTModule)
-  { 
-    std::vector<std::string> recos;
-
-    I3Tray tray;
-    tray.AddService("I3GSLRandomServiceFactory", "rand");
-    tray.SetParameter("rand","seed",1234);
-    
-    // Pull in a random GCD file 
-    ENSURE(getenv("I3_TESTDATA"));
-    const std::string i3_ports(getenv("I3_TESTDATA"));
-    boost::filesystem::path gcdfile(i3_ports + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz");
-    ENSURE(boost::filesystem::exists(gcdfile));
-
-    tray.AddModule("I3InfiniteSource", "TMA-2")
-        ("Stream", I3Frame::Physics)
-        ("Prefix", gcdfile.string())
-        ;
-    tray.AddModule("EventMaker", "streams");
-    tray.SetParameter("streams","EventRunNumber",1); 
-    tray.SetParameter("streams","EventTimeNnanosec",1); 
-    tray.SetParameter("streams","EventTimeYear",2007); 
-
-    tray.AddModule("DSTTestModule", "test");
-    tray.AddModule("I3DSTModule16", "dst");
-    tray.SetParameter("dst","IgnoreDirectHits",true); 
-    
-
-    try
-      {
-	    tray.Execute(1000);
-      }
-    catch(exception& e)
-      {
-	    FAIL(e.what());
-      }
-  }
-
-  TEST(DSTModule13)
-  { 
-    std::vector<std::string> recos;
-
-    I3Tray tray;
-    tray.AddService("I3GSLRandomServiceFactory", "rand");
-    tray.SetParameter("rand","seed",1234);
-    
-    // Pull in a random GCD file 
-    ENSURE(getenv("I3_TESTDATA"));
-    const std::string i3_ports(getenv("I3_TESTDATA"));
-    boost::filesystem::path gcdfile(i3_ports + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz");
-    ENSURE(boost::filesystem::exists(gcdfile));
-
-    tray.AddModule("I3InfiniteSource", "TMA-2")
-        ("Stream", I3Frame::Physics)
-        ("Prefix", gcdfile.string())
-        ;
-    tray.AddModule("EventMaker", "streams");
-    tray.SetParameter("streams","EventRunNumber",1); 
-    tray.SetParameter("streams","EventTimeNnanosec",1); 
-    tray.SetParameter("streams","EventTimeYear",2007); 
-
-    tray.AddModule("DSTTestModule", "test");
-    tray.AddModule("I3DSTDAQModule13", "dstdaq_13");
-    tray.AddModule("I3DSTModule13", "dst13");
-
-    tray.SetParameter("dst13","IgnoreDirectHits",true); 
-    
-
-    try
-      {
-	    tray.Execute(1000);
-      }
-    catch(exception& e)
-      {
-	    FAIL(e.what());
-      }
-  }
-
-*/

@@ -1,5 +1,4 @@
 
-#include<dst/DSTCoordinates.h>
 #include<dst/HealPixCoordinates.h>
 
 using namespace boost::python;

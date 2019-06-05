@@ -19,7 +19,6 @@ if (HEALPIX-CXX_FOUND)
       )
 
    SET(DST_FILES	
-       private/dst/DSTCoordinates.cxx  
        private/dst/HealPixCoordinates.cxx  
        private/dst13/I3DSTDAQModule13.cxx
        private/dst13/I3DSTModule13.cxx
@@ -48,7 +47,6 @@ if (HEALPIX-CXX_FOUND)
 
    i3_add_pybindings(dst
       private/pybindings/module.cxx
-      private/pybindings/DSTCoordinate.cxx
       private/pybindings/TDST.cxx
       private/pybindings/HealPixCoordinate.cxx
       USE_TOOLS ${DST_TOOLS}
