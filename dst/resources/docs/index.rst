@@ -1,7 +1,20 @@
 .. _dst:
 
+
+
 DST
 ===
+
+.. toctree::
+   :maxdepth: 1
+   
+   module
+   extractor
+   scripts
+   /python/icecube.dst
+   /doxygen/dst/index
+   /inspect/dst
+   release_notes
 
 Introduction
 ^^^^^^^^^^^^
@@ -204,13 +217,3 @@ reconstructed (theta, phi) pair is mapped to an integer which uniquely
 identify each bin in the grid.
 
 
-.. toctree::
-   :maxdepth: 1
-   
-   module
-   extractor
-   scripts
-   release_notes
-   /python/icecube.dst
-   /doxygen/dst/index
-   /inspect/dst

@@ -1,7 +1,7 @@
 I3DSTExtractor
 ==============
 
-:cpp:class:`I3DSTExtractor` is meant to be used in the norther hemisphere in order to
+:cpp:class:`I3DSTExtractor` is meant to be used in the northern hemisphere in order to
 decode or extract the dst information from the .i3 files arriving from the PF
 filter. The purpose of this module is to extract inforation from the DST and
 encode it in a different format or expand it within the I3Frame depending on
