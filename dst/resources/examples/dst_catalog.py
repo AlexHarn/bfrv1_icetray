@@ -79,7 +79,7 @@ def getdirs(run):
 
 
 if __name__ == "__main__":
-    usage = "usage: %prog [options] inputfile"
+    usage = "usage: %prog [options]"
     parser = OptionParser(usage)
 
     parser.add_option("-p", "--procnum",default=0,type=int,

@@ -28,14 +28,13 @@ and data transmission bandwidth.
 
 IceTray Modules
 ^^^^^^^^^^^^^^^
-The dst project contains a Module (*I3DSTModule*) that can write the DST
+The dst project contains a Module (:ref:`I3DSTModule`) that can write the DST
 filtering information directly in the frame, thus avoiding the introduction of
 an extra file. In this case the DST event information is written in each
-Physics frame as *I3DST*, an I3FrameObject. The *I3DSTExtractor* module can take
+Physics frame as :cpp:class:`I3DST`, an I3FrameObject. The :ref:`dst/I3DSTExtractor` module can take
 the DST information from the frame and write DST information according to the
-structure described above in a binary format (gzip or zlib compressed), that
-we call dst format. I3DSTExtractor can optionally also write ROOT files or even
-partially reconstruct the I3 dataclasses from which I3DSTModule extracted the
+structure described above in a ROOT or HDF5 file. It can also
+partially reconstruct the I3 dataclasses from which :cpp:class:`I3DSTModule` extracted the
 DST information. 
 
 The size of the DST filtering information depends on the writing mode and the
@@ -210,4 +209,8 @@ identify each bin in the grid.
    
    module
    extractor
+   scripts
    release_notes
+   /python/icecube.dst
+   /doxygen/dst/index
+   /inspect/dst
