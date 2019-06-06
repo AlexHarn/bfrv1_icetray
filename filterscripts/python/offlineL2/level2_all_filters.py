@@ -112,12 +112,13 @@ def OfflineFilter(tray, name,
     )
 
     # wimp & FSS hitcleaning #
-    tray.AddSegment(WimpHitCleaning, "WIMPstuff",
-        seededRTConfig = seededRTConfig,
-        If=which_split(split_name='InIceSplit') & (lambda f: (
-                       wimp_wg(f) or fss_wg_finiteReco(f))),
-        suffix='_WIMP', 
-    )
+    # commented at request of BSM WG for 2019 runstart
+    # tray.AddSegment(WimpHitCleaning, "WIMPstuff",
+    #     seededRTConfig = seededRTConfig,
+    #     If=which_split(split_name='InIceSplit') & (lambda f: (
+    #                    wimp_wg(f) or fss_wg_finiteReco(f))),
+    #     suffix='_WIMP', 
+    # )
 
     # cascade hit cleaning #
     tray.AddSegment(CascadeHitCleaning,'CascadeHitCleaning', 
@@ -158,11 +159,12 @@ def OfflineFilter(tray, name,
     )
 
     # wimp, fss #
-    tray.AddSegment(WimpReco, "WIMPreco",
-        If=which_split(split_name='InIceSplit') & (lambda f: (
-                       wimp_wg(f) or fss_wg_finiteReco(f))),
-        suffix='_WIMP',
-    )
+    # commented at request of BSM WG for 2019 runstart
+    # tray.AddSegment(WimpReco, "WIMPreco",
+    #     If=which_split(split_name='InIceSplit') & (lambda f: (
+    #                    wimp_wg(f) or fss_wg_finiteReco(f))),
+    #     suffix='_WIMP',
+    # )
 
     # cascade #
     tray.AddSegment(OfflineCascadeReco,'CascadeL2Reco',

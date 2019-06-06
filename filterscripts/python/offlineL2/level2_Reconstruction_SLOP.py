@@ -14,10 +14,11 @@ def SLOPLevel2(tray, name, If = lambda f: True):
             )
 
         # this is the rest of the offline SLOP processing:
-        tray.AddModule(MPCleaner, name+"Tide",
-            PulseMapName="SLOPPulseMask",
-            If=If,
-            )
+        # commented at request of BSM WG for 2019 runstart
+        # tray.AddModule(MPCleaner, name+"Tide",
+        #     PulseMapName="SLOPPulseMask",
+        #     If=If,
+        #     )
 
         # this should run if there are lunchTuples in the frame
         tray.AddModule(MyKalmanSeed, name+"Seed_launches",
@@ -44,15 +45,16 @@ def SLOPLevel2(tray, name, If = lambda f: True):
             If=lambda frame: If(frame) and ("SLOPLaunchMapTuples" not in frame) and ("SLOPPulseMaskTuples" not in frame),
             )
         
-        tray.AddModule(MyKalman, name+"MyKalman",
-            InputTrack="SLOPTuples_LineFit",
-            OutputTrack="SLOPKalman",
-            InputMapName="SLOPPulseMaskHyperClean",
-            IgnoreDC=True,
-            IterationMethod=2,
-            CutRadius=200,
-            Iterations=3,
-            NoiseQ=1e-10,
-            NoiseR=60**2,
-            If=If,
-            )
+        # commented at request of BSM WG for 2019 runstart
+        # tray.AddModule(MyKalman, name+"MyKalman",
+        #     InputTrack="SLOPTuples_LineFit",
+        #     OutputTrack="SLOPKalman",
+        #     InputMapName="SLOPPulseMaskHyperClean",
+        #     IgnoreDC=True,
+        #     IterationMethod=2,
+        #     CutRadius=200,
+        #     Iterations=3,
+        #     NoiseQ=1e-10,
+        #     NoiseR=60**2,
+        #     If=If,
+        #     )
