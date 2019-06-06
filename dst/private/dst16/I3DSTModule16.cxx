@@ -30,7 +30,7 @@ I3DSTModule16::I3DSTModule16(const I3Context& ctx) :
   I3ConditionalModule(ctx),
   init_(false),
   dstName_("I3DST16"),
-  dstHeaderName_("I3DSTHeader16"),
+  dstHeaderName_("I3DS16THeader"),
   eventIndex_(0),
   dstHeaderPrescale_(1000),
   mjd_(MJD16),  
