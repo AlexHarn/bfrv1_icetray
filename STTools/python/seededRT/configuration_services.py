@@ -25,6 +25,9 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
         useDustlayerCorrection       = True,
         dustlayerUpperZBoundary      = 0*I3Units.m,
         dustlayerLowerZBoundary      = -150*I3Units.m,
+        it_it_RTRadius               = None,
+        it_it_RTTime                 = None,
+        it_it_RTCylinderHeight       = None,
         ic_ic_RTRadius               = 150.*I3Units.m,
         ic_ic_RTTime                 = 1000.*I3Units.ns,
         ic_ic_RTCylinderHeight       = None,
@@ -43,6 +46,8 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
         dc_pingu_RTRadius            = None,
         dc_pingu_RTTime              = None,
         dc_pingu_RTCylinderHeight    = None,
+        it_strings                   = None,
+        it_oms                       = None,
         ic_strings                   = None,
         ic_oms                       = None,
         dc_strings                   = None,
@@ -71,6 +76,21 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
         :param dustlayerLowerZBoundary: The lower bound of the z-coordinate of
             the dust layer. This is only used when the dust layer correction has
             been enabled.
+
+        :type  it_it_RTRadius: float | None
+        :param it_it_RTRadius: The RT radius for IceTop-IceTop DOM links. If set
+            to ``None``, the value will be set to zero.
+
+        :type  it_it_RTTime: float | None
+        :param it_it_RTTime: The value of the RT time for IceTop-IceTop DOM 
+            links. If set to ``None``, the value will be set to zero.
+
+        :type  it_it_RTCylinderHeight: float | None
+        :param it_it_RTCylinderHeight: If set to a non-None value, the RT
+            coordinate system for IceTop-IceTop DOM link RT hit condition
+            calculations is set to a cylindrical coordinate system instead of a
+            spherical one. Then, this value specifies the height of the RT
+            cylinder for IceTop-IceTop DOM links.
 
         :type  ic_ic_RTRadius: float
         :param ic_ic_RTRadius: The RT radius for IceCube-IceCube DOM links.
@@ -180,6 +200,37 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
             If ``dc_pingu_RTTime`` is set to ``None``, this value will be set
             to the value of ``pingu_pingu_RTCylinderHeight``.
 
+        :type  it_strings: list of str | None
+        :param it_strings: The list of str objects defining the IceTop
+            string/station numbers. Together with the ``it_oms`` option, it defines the
+            set of OMKeys for IceTope OMs.
+            Each str element can contain a single number, e.g.
+            ``"12"`` or a range of numbers, e.g. ``"2-6"``. If ``it_strings``
+            and ``it_oms`` is set to ``None``, it will be set to 
+            ``["0", "1-11",  "12",    "13-61", "62",    "63-86"]``. (OMs 65 and 
+            66 for string 12 and 62 are required for scintillators. String 0, 
+            OM 1 is IceAct. To use only IceTop tanks, set it_strings to ["1-81"],
+            it_oms to ["61-64"].)
+
+            .. note::
+
+                The ``it_strings`` and ``it_oms`` lists must be of the same
+                length.
+
+        :type  it_oms: list of str | None
+        :param it_oms: The list of str objects defining the IceTop OM
+            numbers. Together with the ``it_strings`` option, it defines the
+            set of OMKeys for IceCube OMs.
+            Each str element can contain a single number, e.g.
+            ``"12"`` or a range of numbers, e.g. ``"2-6"``. If ``it_oms`` and
+            ``it_strings`` is set to ``None``, it will be set to 
+            ``["1", "61-64", "61-66", "61-64", "61-66", "61-64"]``.
+
+            .. note::
+
+                The ``it_oms`` and ``it_strings`` lists must be of the same
+                length.
+
         :type  ic_strings: list of str | None
         :param ic_strings: The list of str objects defining the IceCube
             string numbers. Together with the ``ic_oms`` option, it defines the
@@ -282,6 +333,18 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
 
         #-----------------------------------------------------------------------
         # Generate the IC OMKeySet object defining all IC OMKeys.
+        # Generate the IceTop OMKeySet object defining all IceTop OMKeys.
+        if(it_strings is None and it_oms is None):
+            it_strings = ["0", "1-11",  "12",    "13-61", "62",    "63-86"]
+            it_oms     = ["1", "61-64", "61-66", "61-64", "61-66", "61-64"]
+        elif(it_strings is None or it_oms is None):
+            raise ValueError("If it_strings or it_oms is specified, both "
+                             "must be specified!")
+        elif(len(it_strings) != len(it_oms)):
+            raise ValueError("The lists of it_strings and it_oms must be "
+                             "of equal length!")
+        it_OMKeySet = OMKeySet(it_strings,it_oms)
+
         if(ic_strings is None and ic_oms is None):
             if(treat_string_36_as_deepcore):
                 ic_strings = ["1-35", "36",   "36",    "37-78"]
@@ -320,13 +383,23 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
         elif(pingu_strings is None or pingu_oms is None):
             raise ValueError("If pingu_strings or pingu_oms is specified, both "
                              "must be specified!")
-        elif(len(dc_strings) != len(dc_oms)):
+        elif(len(pingu_strings) != len(pingu_oms)):
             raise ValueError("The lists of pingu_strings and pingu_oms must be "
                              "of equal length!")
         pingu_OMKeySet = OMKeySet(pingu_strings,pingu_oms)
 
         #-----------------------------------------------------------------------
         # Determine all the (default) ST settings.
+        if(it_it_RTCylinderHeight is not None):
+            it_it_RTCoordSys = I3SeededRTConfiguration.SeededRTCoordSys.Cyl
+        else:
+            it_it_RTCoordSys = I3SeededRTConfiguration.SeededRTCoordSys.Sph
+            it_it_RTCylinderHeight = float('nan')
+
+        if(it_it_RTTime is None):
+            it_it_RTTime   = 0 
+            it_it_RTRadius = 0
+
         if(ic_ic_RTCylinderHeight is not None):
             ic_ic_RTCoordSys = I3SeededRTConfiguration.SeededRTCoordSys.Cyl
         else:
@@ -392,22 +465,14 @@ class I3DOMLinkSeededRTConfigurationService(I3SeededRTConfigurationService):
         # Now we create ST DOM link configurations for the sub-detectors.
 
         # ... for the IceTop OMs.
-        # The IceTop OMs are needed here, because if they are not present in the
-        # ST configuration but are present in the I3Geometry, the completeness
-        # check of the ST configuration service will fail.
-        # Note: The completeness check requires only, that each DOM is present
-        #       in at least one DOM link. So we do not need to create all IceTop
-        #       link combinations.
-        it_OMKeySet = OMKeySet(["0", "1-11",  "12",    "13-61", "62",    "63-86"], # OMs 65 and 66 for string 12 and 62 are required for scintillators.
-                               ["1", "61-64", "61-66", "61-64", "61-66", "61-64"]) # OM 0, 1 is IceAct
         it_it_OMKeyLinkSets = I3VectorOMKeyLinkSet([OMKeyLinkSet(it_OMKeySet, it_OMKeySet)])
         self.st_config_vec.append(I3SeededRTConfiguration(
             name          = "IT-IT",
             omKeyLinkSets = it_it_OMKeyLinkSets,
-            rtCoordSys    = I3SeededRTConfiguration.SeededRTCoordSys.Sph,
-            rtTime        = 0,
-            rtRadius      = 0,
-            rtHeight      = float('nan')
+            rtCoordSys    = it_it_RTCoordSys,
+            rtTime        = it_it_RTTime,
+            rtRadius      = it_it_RTRadius,
+            rtHeight      = it_it_RTCylinderHeight
         ))
 
         # ... for the IceCube - IceCube OM links.
