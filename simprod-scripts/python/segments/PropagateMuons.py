@@ -99,6 +99,7 @@ def PropagateMuons(tray, name,
 
 def make_standard_propagators(SplitSubPeVCascades=True,
                               MaxMuons=10,
+                              PROPOSAL_config_file=default_media_definition,
                               **kwargs):
     """
     Set up standard propagators (PROPOSAL for muons and taus, CMC for cascades)
@@ -116,7 +117,7 @@ def make_standard_propagators(SplitSubPeVCascades=True,
         cascade_propagator.SetThresholdSplit(1*I3Units.PeV)
     cascade_propagator.SetMaxMuons(MaxMuons)
     muon_propagator = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
-            config_file=default_media_definition)
+            config_file=PROPOSAL_config_file)
     propagator_map =\
         icecube.sim_services.I3ParticleTypePropagatorServiceMap()
 

@@ -1,3 +1,4 @@
+from os.path import expandvars
 from icecube.simprod import ipmodule
 
 
@@ -19,15 +20,17 @@ class MuonPropagator(ipmodule.ParsingModule):
         :attr:`seed`
             RNG seed
         :attr:`length`
-            Cylinder length in m
+            Cylinder length in m (now depricated, use config_file)
         :attr:`radius`
-            Cylinder radius in m
+            Cylinder radius in m (now depricated, use config_file)
         :attr:`x`
-            Cylinder x-position in m
+            Cylinder x-position in m (now depricated, use config_file)
         :attr:`y`
-            Cylinder y-position in m
+            Cylinder y-position in m (now depricated, use config_file)
         :attr:`z`
-            Cylinder z-position in m
+            Cylinder z-position in m (now depricated, use config_file)
+        :attr:`proposalconfigfile`
+            path to configuration file for PROPOSAL
         :attr:`outputfile`
             Output filename
         :attr:`summaryfile`
@@ -41,11 +44,15 @@ class MuonPropagator(ipmodule.ParsingModule):
         self.AddParameter("procnum", "process number", 0)
         self.AddParameter("seed", "RNG seed", 1)
 
-        self.AddParameter("length", "cylinder length in m", 1600.)
-        self.AddParameter("radius", "cylinder radius in m", 800.)
-        self.AddParameter("x", "cylinder x-position in m", 0.)
-        self.AddParameter("y", "cylinder y-position in m", 0.)
-        self.AddParameter("z", "cylinder z-position in m", 0.)
+        self.AddParameter("length", "cylinder length in m (now depricated, use config_file)", 1600.)
+        self.AddParameter("radius", "cylinder radius in m (now depricated, use config_file)", 800.)
+        self.AddParameter("x", "cylinder x-position in m (now depricated, use config_file)", 0.)
+        self.AddParameter("y", "cylinder y-position in m (now depricated, use config_file)", 0.)
+        self.AddParameter("z", "cylinder z-position in m (now depricated, use config_file)", 0.)
+        self.AddParameter("z", "cylinder z-position in m (now depricated, use config_file)", 0.)
+        self.AddParameter("proposalconfigfile",
+                          "path to configuration file for PROPOSAL",
+                          expandvars("$I3_BUILD/PROPOSAL/resources/config_icesim.json"))
 
         self.AddParameter('inputfilelist','list of input filenames',[])
         self.AddParameter('InputMCTreeName','name of MCTree object in frame',"I3MCTree_no_propagation",)
@@ -93,7 +100,8 @@ class MuonPropagator(ipmodule.ParsingModule):
                         CylinderLength=self.length,
                         CylinderRadius=self.radius,
                         InputMCTreeName=self.inputmctreename,
-                        OutputMCTreeName=self.outputmctreename)
+                        OutputMCTreeName=self.outputmctreename,
+                        PROPOSAL_config_file=self.proposalconfigfile)
 
         tray.AddModule(BasicCounter, "count_events",
                        Streams=[icecube.icetray.I3Frame.DAQ],
