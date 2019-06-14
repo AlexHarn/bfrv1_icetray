@@ -56,6 +56,8 @@ def OnlineFilter(tray, name, simulation=False, decode = False, If=lambda f: True
     from icecube.filterscripts.estresfilter import ESTReSFilter
     from icecube.filterscripts.iceactsmtfilter import IceActTrigFilter
     from icecube.filterscripts.alerteventfollowup import AlertEventFollowup
+    from icecube.filterscripts.grecofilter import GRECOOnlineFilter
+
     
     # Get the spline paths sorted.
     # This is used by Online L2 and ESTReS
@@ -203,6 +205,11 @@ def OnlineFilter(tray, name, simulation=False, decode = False, If=lambda f: True
                     If = which_split(split_name=filter_globals.InIceSplitter)
                     )
 
+    tray.AddSegment(GRECOOnlineFilter, "GRECOOnlineFilter",
+                    uncleaned_pulses = filter_globals.SplitUncleanedInIcePulses,
+                    If = which_split(split_name=filter_globals.InIceSplitter)
+                    )
+                    
     #EHE, now on the InIce!
     tray.AddSegment(EHEFilter, "EHEFilter",
                     If = which_split(split_name=filter_globals.InIceSplitter)

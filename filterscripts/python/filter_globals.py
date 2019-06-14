@@ -142,19 +142,8 @@ alert_candidate_list = 'AlertNamesPassed'
 alert_candidate_short_message = 'AlertShortFollowupMsg'
 alert_candidate_full_message = 'AlertFullFollowupMsg'
 
-#hese_short_followup_message = 'HESEShortFollowupMsg'
-#hese_full_followup_message = 'HESEFullFollowupMsg'
-#hese_full_followup_message_low_prio = 'HESEFullFollowupLowPrioMsg'
-
-#ehealert_short_followup_message = 'EHEAlertShortFollowupMsg'
-#ehealert_short_followup_message_hb = 'EHEAlertShortFollowupMsgHB'
-#ehealert_full_followup_message = "EHEFullFollowupMsg"
-
-#gfu_short_followup_message = 'GFU_valuesdict'
-#gfu_full_followup_message = 'GFUFullFollowupMsg'
-
-#estres_short_followup_message = 'Estres_valuesdict'
-#estres_full_followup_message = 'EstresFullFollowupMsg'
+greco_short_followup_message = 'GRECO_valuesdict'
+greco_full_followup_message = 'GRECOFullFollowupMsg'
 
 ## Moni Frame items from other modules
 flaring_dom_message = 'FlaringDOMs'
@@ -189,6 +178,7 @@ ScintMinBiasFilter = 'ScintMinBias_16'
 IceTopTwoStationFilter = 'IceTop_InFill_STA2_17'
 EstresAlertFilter = 'EstresAlertFilter_18'
 IceActFilter = 'IceActTrigFilter_18'
+GRECO_OnlineFilter = 'GRECOOnlineFilter_19'
 
 filter_pairs = [(FilterMinBias,1000),
                 (MuonFilter,1),
@@ -203,6 +193,7 @@ filter_pairs = [(FilterMinBias,1000),
                 ('InIceSMT_IceTopCoincidence_13',100),
                 (DeepCoreFilter,1),
                 (EstresAlertFilter,1),
+                (GRECO_OnlineFilter,1),
                 (FSSFilter,1),
                 (FSSCandidate,0),
                 (VEFFilter,1),
@@ -294,6 +285,11 @@ estres_reco_keeps = [
 ehe_reco_keeps = ["PoleEHEOpheliaParticle_ImpLF",
                   "PoleEHEOphelia_ImpLF"]
 
+greco_reco_keeps = ['GRECO_SPEFit11',
+                    'GRECO_Variables',
+                    'GRECO_bdt_2019',
+                    'IC2018_LE_L3_bools']
+
 inice_split_keeps = [filter_mask,
         muon_linefit,
         muon_llhfit,
@@ -309,7 +305,7 @@ inice_split_keeps = [filter_mask,
         'PoleEHESummaryPulseInfo', # EHE info
         homogenized_qtot,  # high Qtot filter info
         'MPInfoDict', #Monopole keeps             
-    ] + hese_reco_keeps + ehe_reco_keeps + estres_reco_keeps
+    ] + hese_reco_keeps + ehe_reco_keeps + estres_reco_keeps + greco_reco_keeps
 
 icetop_split_keeps = [filter_mask,
                       #IceTopRecoStandard,
@@ -340,18 +336,10 @@ keep_dst_only = ['JEBClientInfo',
                  icetop_vemcal]
 
 alert_followup_keeps = [alert_candidate_list,
-                       alert_candidate_short_message,
-                       alert_candidate_full_message]
-#hese_followup_keeps = [hese_short_followup_message,
-#                       hese_full_followup_message,
-#                       hese_full_followup_message_low_prio]
-
-#ehe_followup_keeps = [ehealert_short_followup_message,
-#                      ehealert_short_followup_message_hb,
-#                      ehealert_full_followup_message]
-
-#estres_followup_keeps = [estres_short_followup_message,
-#                         estres_full_followup_message]
+                        alert_candidate_short_message,
+                        alert_candidate_full_message,
+                        greco_short_followup_message,
+                        greco_full_followup_message]
 
 onlinel2filter_keeps = []  ## added to in l2
 ofufilter_keeps = []  ## not used, but kept for compat..
