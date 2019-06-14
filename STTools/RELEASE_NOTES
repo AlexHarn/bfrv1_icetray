@@ -5,6 +5,14 @@
 Release Notes
 =============
 
+June 7, 2019 Stef Verpoest (stef.verpoest@ugent.be)
+--------------------------------------------------------------------
+
+- Update configuration_services.py so IceTop DOMs can be configured
+  correctly
+
+  -- Stef Verpoest
+
 November 20, 2017 Kevin Meagher
 --------------------------------------------------------------------
 Release V00-04-03
