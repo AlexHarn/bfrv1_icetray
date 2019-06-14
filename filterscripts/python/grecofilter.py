@@ -182,7 +182,7 @@ def GRECOOnlineFilter(tray, name,
         
     tray.AddModule(FirstHit, name+"GRECO_FirstHit",
                    hitmap = cleaned_srttw_ps,
-                   If = lambda frame: TestForFilter(frame) & If(frame),
+                   If = cleaning_if,
                )
     
     tray.AddModule("I3FillRatioModule", name+"GRECO_FillRatio_precut",
@@ -190,7 +190,7 @@ def GRECOOnlineFilter(tray, name,
                    ResultName     = name + "GRECO_FillRatio",
                    SphericalRadiusMean = 1.6,
                    VertexName          = name + "GRECO_FirstHit",
-                   If = lambda frame: TestForFilter(frame) & If(frame),
+                   If = cleaning_if,
                )
 
     # #############################
@@ -216,8 +216,8 @@ def GRECOOnlineFilter(tray, name,
                      pulses    = cleaned_srttw_ps + "_DC",
                      n_iterations = 11,
                      seeds        = ['PoleMuonLlhFit', name + 'GRECO_iLineFit'],
-                    If = lambda frame: TestForLevel3(frame, name),
-                     )
+                     If = lambda frame: TestForLevel3(frame, name),
+                 )
 
     # #############################
     # Variables for the BDT
