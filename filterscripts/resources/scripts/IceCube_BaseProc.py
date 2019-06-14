@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from I3Tray import *
-from icecube import icetray, dataclasses, dataio, filterscripts, filter_tools, trigger_sim
+from icecube import icetray, dataclasses, dataio, filterscripts, filter_tools
 from icecube import phys_services
 from icecube.filterscripts import filter_globals
 from icecube.filterscripts.all_filters import OnlineFilter
@@ -13,7 +13,8 @@ from icecube.phys_services.spe_fit_injector import I3SPEFitInjector
 
 start_time = time.asctime()
 
-spe_file = os.path.expandvars("/data/ana/SterileNeutrino/IC86/HighEnergy/SPE_Templates/SPE_harvesting/SPE_fits/Fits_923_NewWaveDeform/IC86.2016_923_NewWaveDeform.json")
+#spe_file = os.path.expandvars("/data/ana/SterileNeutrino/IC86/HighEnergy/SPE_Templates/SPE_harvesting/SPE_fits/Fits_923_NewWaveDeform/IC86.2016_923_NewWaveDeform.json")
+spe_file = os.path.expandvars("$I3_BUILD/filterscripts/resources/data/final-spe-fits-pole-run2016_MAY.json.bz2")
 
 print 'Started:', start_time
  
@@ -230,7 +231,8 @@ prekeeps = filter_globals.q_frame_keeps + \
     filter_globals.onlinel2filter_keeps + \
     filter_globals.ofufilter_keeps + \
     filter_globals.gfufilter_keeps + \
-    filter_globals.alert_followup_keeps 
+    filter_globals.alert_followup_keeps + \
+    filter_globals.greco_reco_keeps
   
 if (options.SIMKEEP):
     prekeeps += simulation_keeps
