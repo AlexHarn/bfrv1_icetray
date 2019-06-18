@@ -38,7 +38,7 @@ else:
     raise IOError("Cannot find test data file, please define I3_TESTDATA")                  
 
 gcd = os.path.join(
-    testdata, "sim", "GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
+    testdata, "GCD", "GeoCalibDetectorStatus_2012.56063_V0.i3.gz")
 qpqpqpqp = os.path.join(
     testdata, "sim", "Level2_IC86.2011_corsika.010281.001664.00.i3.bz2")
 icefile_mie = os.path.join(
