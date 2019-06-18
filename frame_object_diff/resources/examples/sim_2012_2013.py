@@ -11,8 +11,8 @@ from icecube.frame_object_diff.segments import compress
 
 test_data = os.path.expandvars('$I3_TESTDATA')
 
-base = os.path.join(test_data,'sim','GeoCalibDetectorStatus_2012.56063_V0.i3.gz')
-infile = os.path.join(test_data,'sim','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
+base = os.path.join(test_data,'GCD','GeoCalibDetectorStatus_2012.56063_V0.i3.gz')
+infile = os.path.join(test_data,'GCD','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
 outfile = 'out.i3.gz'
 
 tray = I3Tray()
