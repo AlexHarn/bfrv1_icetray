@@ -13,9 +13,8 @@ if not os.path.exists(tabledir):
     sys.exit()
 
 testdir = os.environ["I3_TESTDATA"]
-files = ["GeoCalibDetectorStatus_2012.56063_V0.i3.gz",
-         "Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2"]
-filelist = [ os.path.join(testdir,"sim",f) for f in files]
+filelist = [ os.path.join(testdir, 'GCD', 'GeoCalibDetectorStatus_2012.56063_V0.i3.gz'),
+             os.path.join(testdir, 'sim', "Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2")]
 
 driverdir = os.path.join(tabledir,driverdir)
 
