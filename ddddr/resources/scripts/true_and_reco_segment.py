@@ -10,7 +10,7 @@ from icecube.ddddr import TrueAndRecoMuonEnergy
 
 # take some test data that is already there
 testdata = expandvars("$I3_TESTDATA")
-GCD = os.path.join(testdata, 'sim', 'GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
+GCD = os.path.join(testdata,  'GCD','GeoCalibDetectorStatus_2012.56063_V0.i3.gz')
 L2FILE = os.path.join(testdata, 'sim', 'Level2_IC86.2011_corsika.010281.001664.00.i3.bz2')
 
 ########### Options ############

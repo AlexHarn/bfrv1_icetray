@@ -9,7 +9,7 @@ from icecube import icetray, dataclasses, dataio, ddddr
 
 # take some test data that is already there
 testdata = os.path.join(expandvars("$I3_TESTDATA"), 'icetop')
-GCD = os.path.join(expandvars("$I3_TESTDATA"), 'sim', 'GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
+GCD = os.path.join(expandvars("$I3_TESTDATA"), 'GCD', 'GeoCalibDetectorStatus_2012.56063_V0.i3.gz')
 L2FILE = os.path.join(testdata, 'Level3_IC86.2012_data_Run00120244_Part00_IT73_IT_coinc.i3.tgz')
 
 ########### Options ############
