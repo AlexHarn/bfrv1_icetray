@@ -21,7 +21,7 @@ i3file = dataio.I3File(
                  "Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2"))
 
 frame=True
-while frame:
+while i3file.more():
     frame = i3file.pop_physics()
     pulsemap = dataclasses.I3RecoPulseSeriesMap.from_frame(frame, 'InIcePulses')
     pdf.set_pulses(pulsemap)
