@@ -11,7 +11,7 @@ import os
 import sys
 
 workspace = expandvars("$I3_BUILD")
-gcdfile = expandvars("$I3_TESTDATA") + "/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz"
+gcdfile = expandvars("$I3_TESTDATA") + "/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz"
 dataf = expandvars("$I3_TESTDATA") + "/sim/Level2_IC86.2011_corsika.010281.001664.00.i3.bz2"
 
 tray = I3Tray()
