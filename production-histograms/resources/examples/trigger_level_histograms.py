@@ -2,7 +2,7 @@
 
 from os.path import expandvars
 
-DEFAULT_GCD = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
+DEFAULT_GCD = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
 
 from optparse import OptionParser
 
