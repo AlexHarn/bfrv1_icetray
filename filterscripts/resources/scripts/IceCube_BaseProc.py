@@ -16,7 +16,7 @@ start_time = time.asctime()
 #spe_file = os.path.expandvars("/data/ana/SterileNeutrino/IC86/HighEnergy/SPE_Templates/SPE_harvesting/SPE_fits/Fits_923_NewWaveDeform/IC86.2016_923_NewWaveDeform.json")
 spe_file = os.path.expandvars("$I3_BUILD/filterscripts/resources/data/final-spe-fits-pole-run2016_MAY.json.bz2")
 
-print 'Started:', start_time
+print('Started:', start_time)
  
 # handling of command line arguments  
 parser = OptionParser()
@@ -78,9 +78,9 @@ alert_followup_base_GCD_filename = options.alert_followup_base_GCD_filename
 alert_followup_omit_GCD_diff = options.alert_followup_omit_GCD_diff
 spe_file = options.spe_file
 
-print 'Opening file %s' % inputfile
+print('Opening file %s' % inputfile)
  
-print 'Preparing to write i3 file  %s' % outputfile 
+print('Preparing to write i3 file  %s' % outputfile )
 
 ## Prep the logging hounds.
 icetray.logging.console()   #Make python logging work
@@ -138,7 +138,7 @@ if options.QIFY:
 
 #def print_now(frame):
 #    eh = frame["I3EventHeader"]
-#    print eh.run_id,eh.event_id
+#    print(eh.run_id,eh.event_id)
 
 #tray.Add(print_now,"pn",Streams = [icetray.I3Frame.DAQ])
 
@@ -168,7 +168,7 @@ tray.AddSegment(OnlineFilter, "Run",
 
 # Generate filter Masks for all P frames
 filter_mask_randoms = phys_services.I3GSLRandomService(9999)
-print filter_globals.filter_pairs + filter_globals.sdst_pairs
+print(filter_globals.filter_pairs + filter_globals.sdst_pairs)
 ## filter_tools.FilterMaskMaker runs on the Physics stream
 tray.AddModule(filter_tools.FilterMaskMaker, "MakeFilterMasks",
                OutputMaskName = filter_globals.filter_mask,
@@ -247,7 +247,7 @@ tray.AddModule( "I3Writer", "EventWriter", filename=outputfile,
 
 
 if prettyprint:
-    print tray
+    print(tray)
     exit(0)
 
 
@@ -255,10 +255,10 @@ tray.Execute()
 
 tray.PrintUsage(fraction=1.0) 
 for entry in tray.Usage():
-    print entry.key(),':',entry.data().usertime
+    print(entry.key(),':',entry.data().usertime)
 
 
 stop_time = time.asctime()
 
-print 'Started:', start_time
-print 'Ended:', stop_time
+print('Started:', start_time)
+print('Ended:', stop_time)
