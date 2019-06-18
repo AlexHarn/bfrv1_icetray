@@ -6,58 +6,16 @@ from I3Tray import *
 from icecube import icetray, dataclasses, dataio, phys_services, linefit, DomTools
 #Get name of data file
 i3testdata = expandvars("$I3_TESTDATA")
-infile = [i3testdata+"/2007data/2007_I3Only_Run109732_Nch20.i3.gz"]
-##################################################################
-# BOOT INTO THE TRAY
-##################################################################
 
-load("libNFE")
+infile = [
+    i3testdata+'/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz',
+    i3testdata+'/sim/Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2']
 
 tray = I3Tray()
 tray.AddModule("I3Reader", "reader")(
     ("filenamelist", infile),
 )
 
-#Handle the Q frame transition
-tray.AddModule("QConverter","myQ",WritePFrame = True)
-
-#Stop after 10 frames
-tray.AddModule("I3EventCounter","nprocessed")(
-    ("NEvents",5),
-    ("CounterStep",1),
-)
-##################################################################
-# Run Generic Feature Extraction
-##################################################################
-'''
-tray.AddModule("I3DOMcalibrator", "calibrator")(
-   ("InputRawDataName",          "InIceRawData"),
-   ("subtractTransitTime",                 True),   # default
-   ("OutputATWDDataName", "InIceCalibratedATWD"),
-   ("OutputFADCDataName", "InIceCalibratedFADC"),
-   ("FADCTimeOffset",                     -15.0),
-   ("CalibrateDataWithSLC",                True),   # altough there is no SLC in runfile
-   ("ATWDSaturationLevel",                  900),   # default since May 2010
-   )
-'''
-
-tray.AddModule("I3NFE", "atwd_extractor")(
-   ("InputWaveformName",   "CalibratedATWD"),
-   ("OutputPulseMapName",       "NFE_ATWDPulses"),
-   )
-
-tray.AddModule("I3NFE", "fadc_extractor")(
-   ("InputWaveformName",   "CalibratedFADC"),
-   ("OutputPulseMapName",       "NFE_FADCPulses"),
-   )
-
-tray.AddModule("I3NFEPulseMerger", "merger")(
-   ("ATWDPulseMapName",         "NFE_ATWDPulses"),
-   ("FADCPulseMapName",         "NFE_FADCPulses"),
-   ("MergedPulseMapName", "NFEMergedPulses"),   # default
-   ("AlreadySorted",                        True),
-)
-				
 ##################################################################
 # Run improved Linefit
 ##################################################################
@@ -65,11 +23,11 @@ tray.AddModule("I3NFEPulseMerger", "merger")(
 #code as tray segment, or as 4 modules.  
 
 #Run as a tray segment 
-tray.AddSegment(linefit.simple,"example", inputResponse = "NFEMergedPulses", fitName = "linefit_improved")
+tray.AddSegment(linefit.simple,"example", inputResponse = "HVInIcePulses", fitName = "linefit_improved")
 # 
 # #Run as separate modules
 tray.AddModule("DelayCleaning", "DelayCleaning", InputResponse =
-"NFEMergedPulses", OutputResponse="Pulses_delay_cleaned")
+"HVInIcePulses", OutputResponse="Pulses_delay_cleaned")
 
 tray.AddModule("HuberFit", "HuberFit", Name = "HuberFit", InputRecoPulses =
 "Pulses_delay_cleaned")
@@ -92,6 +50,5 @@ tray.AddModule("I3Writer","writer")(
 	("CompressionLevel",0),
 )
 
-    
 tray.Execute()
 

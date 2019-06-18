@@ -217,8 +217,8 @@ feed(I3Tray &tray)
 	std::vector<std::string> filenames;
 	std::string i3testdata = getenv("I3_TESTDATA");
 	
-	std::string GCDfile = i3testdata + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz";
-	std::string datafile = i3testdata + "/nugen_numu_ic80_dc6.002488.000000.processed.i3.gz";
+	std::string GCDfile = i3testdata + "/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz";
+	std::string datafile = i3testdata + "/sim/nugen_numu_ic80_dc6.002488.000000.processed.i3.gz";
 	filenames.push_back(GCDfile);
 	filenames.push_back(datafile);
 	
