@@ -55,10 +55,10 @@ class SegmentTests(unittest.TestCase):
 
     def test_std(self):
         base = os.path.join(os.path.expandvars('$I3_TESTDATA'),
-                            'sim','GeoCalibDetectorStatus_2013.56429_V0.i3.gz')
+                            'GCD','GeoCalibDetectorStatus_2013.56429_V0.i3.gz')
 
         infile = os.path.join(os.path.expandvars('$I3_TESTDATA'),
-                            'sim','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
+                            'GCD','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
 
         outfile = os.path.join(self.tmpdir,'out.i3.gz')
         outfile2 = os.path.join(self.tmpdir,'out2.i3.gz')
@@ -100,7 +100,7 @@ class SegmentTests(unittest.TestCase):
 
     def test_inline(self):
         infile = os.path.join(os.path.expandvars('$I3_TESTDATA'),
-                            'sim','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
+                            'GCD','GeoCalibDetectorStatus_2013.56429_V1.i3.gz')
         #infile = os.path.join(os.path.expandvars('$I3_BUILD'),
         #                      'GCD_3.i3.bz2')
 
