@@ -6,8 +6,8 @@ from icecube import icetray,dataclasses,dataio,ipdf
 
 #get geometry from test data
 i3file = dataio.I3File(
-    os.path.join(os.environ["I3_TESTDATA"],"sim",
-                 "GeoCalibDetectorStatus_2013.56429_V1.i3.gz"))
+    os.path.join(os.environ["I3_TESTDATA"],"GCD",
+                 "GeoCalibDetectorStatus_2012.56063_V0.i3.gz"))
 while True:
     frame = i3file.pop_frame()
     if frame.Stop == icetray.I3Frame.Geometry:
