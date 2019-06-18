@@ -1,12 +1,13 @@
 #!/usr/bin/env python                                                                                                              
 import os
+from os.path import expandvars
 from I3Tray import I3Tray
 from icecube import dataio, icetray
 from icecube.BadDomList.BadDomListTraySegment import BadDomList
 
 # Configs for input/output parameters
 runId = 127797
-gcd = '/data/exp/IceCube/2016/filtered/level2/OfflinePreChecks/DataFiles/0411/Level2_IC86.2015_data_Run00127797_21_242_GCD.i3.gz'
+gcd = expandvars("$I3_TESTDATA" + "/GCD/Level2_IC86.2015_data_Run00127797_21_242_GCD.i3.gz")
 outFile = os.path.join(os.path.expandvars("$I3_BUILD"), "BDLTEST_%s" % os.path.basename(gcd))
 
 # ---------------------- SIMULATED DATA --------------------------------------------

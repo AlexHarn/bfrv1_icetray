@@ -16,7 +16,7 @@ try:
 
     # Configs for input/output parameters
     runId = 127797
-    gcd = expandvars('$I3_TESTDATA/exp/IceCube/2016/Level2_IC86.2015_data_Run00127797_21_242_GCD.i3.gz')
+    gcd = expandvars('$I3_TESTDATA/GCD/Level2_IC86.2015_data_Run00127797_21_242_GCD.i3.gz')
     outFile = os.path.join('./', "BDLTEST_%s_" + os.path.basename(gcd))
 
     i3live_response = {
