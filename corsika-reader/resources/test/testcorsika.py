@@ -4,9 +4,9 @@ from I3Tray import *
 from icecube import icetray, dataio, dataclasses, phys_services, corsika_reader
 import math
 
-i3_testdata = os.path.expandvars("$I3_TESTDATA") \
+i3_testdata = os.path.expandvars("$I3_TESTDATA/corsika-reader") \
     if os.environ.get('I3_TESTDATA') \
-    else os.path.expandvars("$I3_TESTDATA")
+    else os.path.expandvars("$I3_TESTDATA/corsika-reader")
                 
 
 tray = I3Tray()
