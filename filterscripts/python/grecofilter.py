@@ -383,12 +383,12 @@ def GRECOOnlineFilter(tray, name,
         If = lambda f: If(f) and followup_condition(f))
 
     # add a dummy list of "alerts" to help I3Live indexing, like std alerts
-    def add_greco_list(frame, Listname='GRECONames'):
+    def add_greco_list(frame, listname='GRECONames'):
         alertsPassed = []
         alertsPassed.append('GRECO')
-        frame[ListName] = dataclasses.I3VectorString(alertsPassed)
-    tray.Add(greco_pass_lister, name + '_alertlister',
-             ListName = filter_globals.greco_candidate_list,
+        frame[listname] = dataclasses.I3VectorString(alertsPassed)
+    tray.Add(add_greco_list, name + '_alertlister',
+             listname = filter_globals.greco_candidate_list,
              If = lambda f: If(f) and followup_condition(f))
 
 
