@@ -10,7 +10,7 @@ from icecube.trigger_sim.inice_test_modules import TestSource, TestModule
 
 tray = I3Tray()
 
-gcd_file = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
+gcd_file = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
 tray.AddModule("I3InfiniteSource", prefix=gcd_file, stream=icetray.I3Frame.DAQ)
 
 tray.AddModule(TestSource, NDOMs = 8)               

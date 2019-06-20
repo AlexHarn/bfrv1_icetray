@@ -19,7 +19,7 @@ def dummy_trig( frame ):
 tray = I3Tray()
 
 tray.AddModule("I3InfiniteSource", "source", 
-               prefix = i3_testdata + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected.i3.gz")
+               prefix = i3_testdata + "/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz")
 tray.AddModule(dummy_trig, "trigger", Streams = [icetray.I3Frame.DAQ])
 tray.AddModule("I3Pruner","prune")
 

@@ -74,7 +74,7 @@ roc.readout_time_offset = 0
 # add the readout config to the trigger status
 tstat.readout_settings[dataclasses.I3TriggerStatus.ALL] = roc
 
-f = dataio.I3File(expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC59.55000_candidate.i3.gz"))
+f = dataio.I3File(expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz"))
 
 ts = get_triggerstatus(f)
 ts[tkey] = tstat
@@ -82,7 +82,7 @@ ts[tkey] = tstat
 # it's important that you reopen the file
 # because it seems the I3File.rewind doesn't
 # do what I thought it should do
-f = dataio.I3File(expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC59.55000_candidate.i3.gz"))
+f = dataio.I3File(expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz"))
 newgcd = put_triggerstatus(ts,f,"./newGCD.i3.gz")
 
 newgcd.close()

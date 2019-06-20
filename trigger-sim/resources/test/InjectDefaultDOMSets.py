@@ -7,7 +7,7 @@ from I3Tray import I3Tray
 
 tray = I3Tray()
 
-gcd_file = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
+gcd_file = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
 tray.AddModule("I3Reader", Filename=gcd_file)               
 
 tray.AddModule(trigger_sim.InjectDefaultDOMSets)

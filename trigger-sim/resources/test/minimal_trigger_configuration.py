@@ -13,7 +13,7 @@ if os.environ.get("I3_TESTDATA") :
 else :
     i3_testdata = expandvars("$I3_TESTDATA")
   
-gcd_file = i3_testdata + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
+gcd_file = i3_testdata + "/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz"
 
 tray.AddModule("I3InfiniteSource", "source", 
                prefix = gcd_file)
@@ -28,7 +28,7 @@ tray.AddModule("SimpleMajorityTrigger","DCSMT3")(
 
 tray.AddModule("ClusterTrigger","string")    
 
-tray.AddModule("CylinderTrigger","cyl")
+#tray.AddModule("CylinderTrigger","cyl")
 
 tray.AddModule("SlowMonopoleTrigger","slop")
 

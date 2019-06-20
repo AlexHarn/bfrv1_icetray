@@ -17,7 +17,7 @@ class TestSimpleExample(I3Test.TestExampleScripts):
         
     def test_add_slop_params_to_gcd(self):
 
-        fn = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
+        fn = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
         self.run_example('add_slop_params_to_gcd.py',
                             '--gcd', fn,
                             '--output', './new_slop_GCD.i3.gz',
