@@ -382,6 +382,16 @@ def GRECOOnlineFilter(tray, name,
         Name=filter_globals.greco_short_followup_message, 
         If = lambda f: If(f) and followup_condition(f))
 
+    # add a dummy list of "alerts" to help I3Live indexing, like std alerts
+    def add_greco_list(frame, Listname='GRECONames'):
+        alertsPassed = []
+        alertsPassed.append('GRECO')
+        frame[ListName] = dataclasses.I3VectorString(alertsPassed)
+    tray.Add(greco_pass_lister, name + '_alertlister',
+             ListName = filter_globals.greco_candidate_list,
+             If = lambda f: If(f) and followup_condition(f))
+
+
     # I3FullEventFollowupWriter cannot handle Q-frame objects shadowed
     # by P-frame objects of the same name (i.e. I3EventHeader) - 
     # make a copy and send that instead

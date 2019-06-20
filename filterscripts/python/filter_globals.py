@@ -142,6 +142,7 @@ alert_candidate_list = 'AlertNamesPassed'
 alert_candidate_short_message = 'AlertShortFollowupMsg'
 alert_candidate_full_message = 'AlertFullFollowupMsg'
 
+greco_candidate_list = 'GRECONames'
 greco_short_followup_message = 'GRECO_valuesdict'
 greco_full_followup_message = 'GRECOFullFollowupMsg'
 
@@ -338,6 +339,7 @@ keep_dst_only = ['JEBClientInfo',
 alert_followup_keeps = [alert_candidate_list,
                         alert_candidate_short_message,
                         alert_candidate_full_message,
+                        greco_candidate_list,
                         greco_short_followup_message,
                         greco_full_followup_message]
 
