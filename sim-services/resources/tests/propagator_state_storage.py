@@ -18,7 +18,7 @@ from os import unlink
 if not hasattr(phys_services,"I3SPRNGRandomService"):
         exit(0)
 
-gcd = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz")
+gcd = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz")
 
 def make_propagators():
 	"""

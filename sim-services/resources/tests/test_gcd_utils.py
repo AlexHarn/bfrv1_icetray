@@ -10,7 +10,7 @@ from icecube.sim_services.sim_utils import gcd_utils
 class TestGCDUtils(unittest.TestCase):
 
     def setUp(self):
-        filename = os.path.expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
+        filename = os.path.expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz")
         self.gcd_file = dataio.I3File(filename)
     
     def test_get_time(self):
