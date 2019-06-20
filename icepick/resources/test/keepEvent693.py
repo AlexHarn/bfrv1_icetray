@@ -28,21 +28,12 @@ tray = I3Tray()
 
 tray.AddModule("I3Reader", "reader", Filename=infile)
 
-tray.AddModule("I3IcePickModule<I3EventIdFilter>","filter")(
-    ("DiscardEvents",True),
-    ("NEventsToPick", 1), ##Just stop after you get the event
-    ("EventIDs",[693]),
-    )
+tray.AddModule("I3IcePickModule<I3EventIdFilter>",
+    DiscardEvents=True,
+    NEventsToPick=1, ##Just stop after you get the event
+    EventIDs=[693])
 
-tray.AddModule("Dump","dump")
-
-#
-# And this is the magic writer.  We will make it work harder later.
-#
-tray.AddModule("I3Writer","writer")(
-    ("filename", outfile)
-    )
-
+tray.AddModule("I3Writer", filename=outfile)
 tray.Execute()
 
 import os

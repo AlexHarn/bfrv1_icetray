@@ -12,22 +12,23 @@ from icecube import icepick
 
 tray = I3Tray()
 
-tray.AddModule("I3Reader","reader",Filename=expandvars("$I3_TESTDATA")+"/dataio/olddata/string-21/Linux-i386.i3.gz")
+tray.AddModule("I3Reader",
+               Filename=expandvars("$I3_TESTDATA")+"/dataio/olddata/string-21/Linux-i386.i3.gz")
 
-tray.AddModule("I3IcePickModule<I3EventIdFilter>","id1")(
-    ("EventIDs",[3]),
-    ("DiscardEvents",False),
-    ("DecisionName","id1"))
+tray.AddModule("I3IcePickModule<I3EventIdFilter>","id1",
+    EventIDs=[3],
+    DiscardEvents=False,
+    DecisionName="id1")
 
-tray.AddModule("I3IcePickModule<I3EventIdFilter>","id2")(
-    ("EventIDs",[5]),
-    ("DiscardEvents",False),
-    ("DecisionName","id2"))
+tray.AddModule("I3IcePickModule<I3EventIdFilter>","id2",
+    EventIDs=[5],
+    DiscardEvents=False,
+    DecisionName="id2")
 
-tray.AddModule("I3IcePickModule<I3LogicalOrFilter>","or")(
-    ("DiscardEvents",True),
-    ("FirstDecisionName","id1"),
-    ("SecondDecisionName","id2"))
+tray.AddModule("I3IcePickModule<I3LogicalOrFilter>","or",
+    DiscardEvents=True,
+    FirstDecisionName="id1",
+    SecondDecisionName="id2")
 
 tray.AddModule(I3LogicalOrTestModule,"ortest",
     FirstEventID = 3,

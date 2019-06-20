@@ -15,38 +15,23 @@ workspace = expandvars("$I3_SRC")
 mbids = workspace + "/phys-services/resources/doms.txt"
 amageofile = workspace + "/phys-services/resources/amanda.geo"
 icegeofile = workspace + "/phys-services/resources/icecube.geo"
-
-## Define my own parameter values
-#allEvents = "false"
-allEvents = "true"
 numEvents = 90
 #-------------------------------------------------------------
 ## creating an instance of icetray
 tray = I3Tray()
 
-tray.AddModule("I3Reader", "reader", Filename=infile)
+tray.AddModule("I3Reader", Filename=infile)
 
-tray.AddModule("Dump","dump")
-
-tray.AddModule("I3IcePickModule<I3EventIdFilter>", "eventId")(
-    ("discardEvents", True),
-    ("NEventsToPick", 3),
-    ("EventIds", [54,578,178,586]) # Event Order noes not affect selecting events.
-)
+tray.AddModule("I3IcePickModule<I3EventIdFilter>",
+    discardEvents=True,
+    NEventsToPick=3,
+    EventIds=[54,578,178,586]) # Event Order noes not affect selecting events.
 
 # Chose the following module to get a certain Range of EventIDs. Theres an Outbox problem
 # if both filters are active though - but when would you want that?
 
-tray.AddModule("I3Writer","writer")(
-    ("filename", outfile)
-    )
-
-
-
-if allEvents != "true":
-    tray.Execute(numEvents)
-else:
-    tray.Execute()
+tray.AddModule("I3Writer", filename=outfile)
+tray.Execute(numEvents)
 
 import os
 os.unlink(outfile)

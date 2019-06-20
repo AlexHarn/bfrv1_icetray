@@ -19,30 +19,21 @@ icegeofile = workspace + "/phys-services/resources/icecube.geo"
 ## Define my own parameter values
 hitThresholdLow = 50
 hitThresholdHigh = 100
-allEvents = "false"
 numEvents = 10000
 
 tray = I3Tray()
 
-tray.AddModule("I3Reader", "reader", Filename=infile)
+tray.AddModule("I3Reader", Filename=infile)
 
-tray.AddModule("I3IcePickModule<I3PickRawNHitEventFilter>","filter")(
-    ("DiscardEvents",True),
-    ("HitthresholdType", 1),
-    ("HitthresholdHigh", hitThresholdHigh),
-    ("HitthresholdLow", hitThresholdLow),
-    )
+tray.AddModule("I3IcePickModule<I3PickRawNHitEventFilter>",
+    DiscardEvents=True,
+    HitthresholdType=1,
+    HitthresholdHigh=hitThresholdHigh,
+    HitthresholdLow=hitThresholdLow)
 
-tray.AddModule("Dump","dump")
+tray.AddModule("I3Writer", filename=outfile)
 
-tray.AddModule("I3Writer","writer")(
-    ("filename", outfile)
-    )
-
-if allEvents != "true":
-    tray.Execute(numEvents)
-else:
-    tray.Execute()
+tray.Execute(numEvents)
 
 import os
 os.unlink(outfile)

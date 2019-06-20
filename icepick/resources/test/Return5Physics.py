@@ -30,23 +30,12 @@ outfile = "5_Physics_events.i3"
 tray = I3Tray()
 
 tray.AddModule("I3Reader", "reader", Filename=infile)
-
-tray.AddModule("I3IcePickModule<I3UnFilter>","nofilter")(
-    ("DiscardEvents",False),
-    ("NEventsToPick", 5), ##Just stop after you get the 5 event
+tray.AddModule("I3IcePickModule<I3UnFilter>",
+    DiscardEvents=False,
+    NEventsToPick=5, ##Just stop after you get the 5 event
     )
 
-
-tray.AddModule("Dump","dump")
-
-#
-# And this is the magic writer.  We will make it work harder later.
-#
-tray.AddModule("I3Writer","writer")(
-    ("filename", outfile)
-    )
-
+tray.AddModule("I3Writer", filename=outfile)
 tray.Execute()
-
 os.unlink(outfile)
 
