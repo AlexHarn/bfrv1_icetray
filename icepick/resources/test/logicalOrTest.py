@@ -12,7 +12,7 @@ from icecube import icepick
 
 tray = I3Tray()
 
-tray.AddModule("I3Reader","reader",Filename=expandvars("$I3_TESTDATA")+"/string-21/Linux-i386.i3.gz")
+tray.AddModule("I3Reader","reader",Filename=expandvars("$I3_TESTDATA")+"/dataio/olddata/string-21/Linux-i386.i3.gz")
 
 tray.AddModule("I3IcePickModule<I3EventIdFilter>","id1")(
     ("EventIDs",[3]),
