@@ -73,8 +73,7 @@ def TestForLevel3(frame, name):
 def GRECOOnlineFilter(tray, name,
                       uncleaned_pulses = filter_globals.SplitUncleanedInIcePulses,
                       bdt = os.path.expandvars("$I3_SRC/filterscripts/resources/data/bdt_greco_online.bdt"),
-                      #bdt_cut = 0.13,
-                      bdt_cut = 0.0,
+                      bdt_cut = 0.13,
                       If = lambda frame: True):
 
     # #############################
