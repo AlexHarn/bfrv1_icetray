@@ -29,7 +29,7 @@ try:
 
     tray.Add("I3InfiniteSource","source",
         Stream=icetray.I3Frame.Physics,
-        Prefix=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
+        Prefix=expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz")
         )
 
     def inject_header(frame):
