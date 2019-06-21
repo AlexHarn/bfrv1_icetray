@@ -21,7 +21,7 @@ if "I3_TESTDATA" not in os.environ:
     raise IOError("Cannot find test data. Please define I3_TESTDATA.")
 
 gcdfile = os.path.join(
-    os.environ["I3_TESTDATA"], "sim",
+    os.environ["I3_TESTDATA"], "GCD",
     "GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 
 inputfile = os.path.join(
