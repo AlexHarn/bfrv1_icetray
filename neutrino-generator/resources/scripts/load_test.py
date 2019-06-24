@@ -71,10 +71,7 @@ assert(neutrino_generator.PropagationMode.autodetect == neutrino_generator.to_pr
 assert(neutrino_generator.PropagationMode.nopropweight == neutrino_generator.to_propagation_mode("NoPropWeight"))
 
 from os.path import expandvars
-if os.environ.get("I3_TESTDATA") :
-    i3_testdata = expandvars("$I3_TESTDATA") 
-else :
-    i3_testdata = expandvars("$I3_TESTDATA")
+i3_testdata = expandvars("$I3_TESTDATA")
 
 
 print("load test 1 end")
@@ -85,7 +82,7 @@ tray = I3Tray()
 tray.context['I3RandomService'] = random
 
 tray.AddModule("I3InfiniteSource", "source",
-               prefix = i3_testdata + "/sim/GeoCalibDetectorStatus_IC86.55380_corrected.i3.gz")
+               prefix = i3_testdata + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 
 tray.AddModule("I3MCEventHeaderGenerator","ev")
 tray.AddService("I3EarthModelServiceFactory", "EarthModelService")

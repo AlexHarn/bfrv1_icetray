@@ -38,7 +38,7 @@ void test_module(std::string injtype,
    }else{
      ENSURE( false, "Neither I3_TESTDATA is defined!");
    }
-   std::string prefix = I3_TESTDATA + "/sim/GeoCalibDetectorStatus_IC86.55380_corrected.i3.gz";
+   std::string prefix = I3_TESTDATA + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz";
    tray.AddModule("I3InfiniteSource","source")
      ("prefix", prefix);
 		 
