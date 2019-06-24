@@ -127,7 +127,7 @@ TEST(ChangeIsTheEnemy){
 	boost::python::import("icecube.dataio");
 	tray.AddModule("I3Reader","Reader")
 	("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-	            +"/Topological_Splitter_testcase.i3.bz2");
+	            +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 	
 	tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 	("Multiplicity", 4)
@@ -155,7 +155,7 @@ TEST(BadSettings){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 0)
@@ -175,7 +175,7 @@ TEST(BadSettings){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -195,7 +195,7 @@ TEST(BadSettings){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -215,7 +215,7 @@ TEST(BadSettings){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -279,7 +279,7 @@ TEST(BadInput){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("StreamEater","Ammit")("Stream",I3Frame::Geometry);
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
@@ -300,7 +300,7 @@ TEST(BadInput){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		//eliminate existing P frames so it's easy to tell that no more are emitted
 		tray.AddModule("StreamEater","Ammit")("Stream",I3Frame::Physics);
@@ -329,7 +329,7 @@ TEST(BadInput){
 		I3Tray tray;
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("PulseTweak")("Pulses","SRTOfflinePulses");
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
@@ -356,7 +356,7 @@ TEST(DeprecatedInterface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("TTriggerSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -383,7 +383,7 @@ TEST(DeprecatedInterface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("TTriggerSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -409,7 +409,7 @@ TEST(DeprecatedInterface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("TTriggerSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -435,7 +435,7 @@ TEST(DeprecatedInterface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("TTriggerSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -461,7 +461,7 @@ TEST(DeprecatedInterface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("TTriggerSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -523,7 +523,7 @@ TEST(Deprecated_NonSplitter_Interface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -562,7 +562,7 @@ TEST(Deprecated_NonSplitter_Interface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		tray.AddModule("I3TopologicalSplitter","TopologicalSplitter")
 		("Multiplicity", 4)
@@ -601,7 +601,7 @@ TEST(Deprecated_NonSplitter_Interface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		//eliminate existing P frames so it's easy to tell what changes
 		tray.AddModule("StreamEater","Ammit")("Stream",I3Frame::Physics);
@@ -629,7 +629,7 @@ TEST(Deprecated_NonSplitter_Interface){
 		
 		tray.AddModule("I3Reader","Reader")
 		("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-		 +"/Topological_Splitter_testcase.i3.bz2");
+		 +"/topological-splitter/Topological_Splitter_testcase.i3.bz2");
 		
 		//eliminate existing P frames so it's easy to tell what changes
 		tray.AddModule("StreamEater","Ammit")("Stream",I3Frame::Physics);
