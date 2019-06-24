@@ -16,7 +16,7 @@ tray = I3Tray()
 
 i3_testdata = os.path.expandvars("$I3_TESTDATA")    
 
-GCD_FN = i3_testdata + '/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
+GCD_FN = i3_testdata + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
 tray.AddModule("I3InfiniteSource","FrameMaker", Prefix= GCD_FN)
 
 icetray.set_log_level(icetray.I3LogLevel.LOG_DEBUG)

@@ -6,7 +6,7 @@ import unittest
 
 tray = I3Tray()
 i3_testdata = os.path.expandvars("$I3_TESTDATA")
-tray.AddModule("I3InfiniteSource","FrameMaker",Prefix = i3_testdata + '/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
+tray.AddModule("I3InfiniteSource","FrameMaker",Prefix = i3_testdata + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
 
 nLaunches=0
 nBig=0

@@ -120,7 +120,7 @@ TEST(PulseTemplateTest){
           ("Seed",5);
         tray.AddModule("I3InfiniteSource","FrameMaker")
           ("Stream",I3Frame::DAQ)
-          ("Prefix", I3_TESTDATA + std::string("/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"));
+          ("Prefix", I3_TESTDATA + std::string("/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"));
         tray.AddModule("HitGenerator2","Hitter");
         
         tray.AddModule("DOMLauncher", "Untabulated")

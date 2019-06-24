@@ -15,7 +15,7 @@ from icecube.icetray import OMKey
 
 i3_testdata = os.path.expandvars("$I3_TESTDATA")    
 
-GCD_FN = i3_testdata + '/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
+GCD_FN = i3_testdata + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
 
 def generatePulses(frame):
 	# this dom is the one which should launch while its only LC partner (dom 2) is
