@@ -14,7 +14,7 @@ import unittest
 #=== Some Globals ===
 from icecube.icetray import I3Units
 from icecube.dataclasses import I3Constants
-GCDfile = os.path.expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
+GCDfile = os.path.expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 CriticalAngle = 25.*I3Units.deg
 CriticalDistance = 20.*I3Units.m
 SplitName = "split"

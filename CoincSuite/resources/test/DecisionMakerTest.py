@@ -13,7 +13,7 @@ import unittest
 
 #=== Some Globals ===
 from icecube.icetray import I3Units
-GCDfile = os.path.expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
+GCDfile = os.path.expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 SplitName = "split"
 HypoName = "hypoframe"
 OrgPulses = "OfflinePulses"
