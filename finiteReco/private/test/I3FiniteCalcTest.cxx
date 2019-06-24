@@ -17,7 +17,7 @@ TEST(I3FiniteCalc)
   std::vector<std::string> skip;
   boost::iostreams::filtering_istream ifs;
   std::string i3testdata(getenv("I3_TESTDATA"));
-  I3::dataio::open(ifs, i3testdata+"/sim/GeoCalibDetectorStatus_2012.56062_V0.i3.gz");
+  I3::dataio::open(ifs, i3testdata+"/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz");
   
   I3Frame frame;
   I3Frame::Stream s;;
