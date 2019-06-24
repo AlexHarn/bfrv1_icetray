@@ -134,7 +134,7 @@ TEST(ChangeIsTheEnemy){
   boost::python::import("icecube.dataio");
   tray.AddModule("I3Reader","Reader")
           ("Filename",boost::lexical_cast<std::string>(getenv("I3_TESTDATA"))
-          +"/HiveSplitter_testcase.i3.bz2");
+          +"/HiveSplitter/HiveSplitter_testcase.i3.bz2");
 
   double _icringlimits_[6] = {300., 300., 272.7, 272.7, 165.8, 165.8};
   std::vector<double> icringlimits(_icringlimits_, _icringlimits_+6);
