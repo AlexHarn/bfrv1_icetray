@@ -12,14 +12,14 @@ class TestSimpleExample(I3Test.TestExampleScripts):
         '''
         Test that runs the example script dump-i3-online-data.py
         '''
-        input_file = self.I3_TESTDATA + "/exp/IceCube/2015/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"
+        input_file = self.I3_TESTDATA + "/daq-decode/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"
         self.run_example('dump-i3-online-data.py', input_file)
 
     def test_i3_to_ddd(self):
         '''
         Test that runs the example script i3-to-ddd
         '''
-        input_file = self.I3_TESTDATA + "/exp/IceCube/2015/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"
+        input_file = self.I3_TESTDATA + "/daq-decode/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"
         self.run_example('i3-to-ddd',
                          '-i',input_file,
                          '-o','output.i3.gz',
