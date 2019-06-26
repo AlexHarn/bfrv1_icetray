@@ -28,7 +28,7 @@ GetDataDir()
 
 I3GeometryConstPtr GetGeometry()
 {
-	fs::path gcdpath(GetDataDir() / "sim/GCD.i3.gz");
+	fs::path gcdpath(GetDataDir() / "GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
 	boost::iostreams::filtering_istream ifs;
 	I3::dataio::open(ifs, gcdpath.string());
 	I3Frame frame;
