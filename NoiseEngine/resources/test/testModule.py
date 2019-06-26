@@ -28,7 +28,7 @@ tray = I3Tray()
 parser = OptionParser()
 
 parser.add_option( "-g", "--geo", action="store", type="string", dest="geoFile",
-                   metavar="<geo file>", default=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz"),
+                   metavar="<geo file>", default=expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz"),
                    help="Name of GCD file")
 
 parser.add_option( "-d", "--data_file",
