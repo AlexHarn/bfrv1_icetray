@@ -19,7 +19,7 @@ millipede_param_attrs = [
 ]
 Suffix="HV"
 testdir = os.environ["I3_TESTDATA"]
-files = ["sim/GeoCalibDetectorStatus_2012.56063_V0.i3.gz",
+files = ["GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz",
          "sim/Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2"]
 filelist = [os.path.join(testdir, f) for f in files]
 

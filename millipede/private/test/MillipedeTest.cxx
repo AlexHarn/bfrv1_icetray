@@ -31,7 +31,7 @@ TEST(MatrixTest) {
 
 	boost::python::import("icecube.dataio");
 	tray.AddModule("I3Reader", "reader")("Filename",
-	    std::string(getenv("I3_TESTDATA")) + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
+	    std::string(getenv("I3_TESTDATA")) + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
 	tray.AddModule("MillipedeTestModule", "millipede_amps");
 	
 	tray.Execute();

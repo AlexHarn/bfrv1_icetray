@@ -50,7 +50,7 @@ def InjectSource(tray, name, pxs, energy=1e2*I3Units.TeV):
 	
 	tray.context['I3RandomService'] = phys_services.I3GSLRandomService(42)
 	
-	tray.AddModule('I3InfiniteSource', 'reader', Prefix=os.getenv('I3_TESTDATA') + '/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
+	tray.AddModule('I3InfiniteSource', 'reader', Prefix=os.getenv('I3_TESTDATA') + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')
 	def set_sane_noise_rate(frame):
 		for k, domcal in frame['I3Calibration'].dom_cal.items():
 			if not domcal.dom_noise_rate > 0:
