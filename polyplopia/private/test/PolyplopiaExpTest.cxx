@@ -34,7 +34,7 @@ TEST(IceCubeOnlyTest)
 
   string I3_BUILD(getenv("I3_BUILD"));
   string I3_TESTDATA(getenv("I3_TESTDATA"));
-  string gcdfile(I3_TESTDATA+"/sim/GeoCalibDetectorStatus_IC86.55697_corrected.i3.gz");
+  string gcdfile(I3_TESTDATA+"/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
   
 
   I3Context &context = tray.GetContext();
