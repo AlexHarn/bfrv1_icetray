@@ -7,13 +7,10 @@ from icecube import phys_services, wavedeform
 from os.path import expandvars
 from wavedeform_random_waveform_generator import RandomWaveforms
 
-if os.environ.get("I3_TESTDATA") :
-    i3_testdata = expandvars("$I3_TESTDATA") 
-else :
-    i3_testdata = expandvars("$I3_TESTDATA")
+i3_testdata = expandvars("$I3_TESTDATA")
 
 tray = I3Tray()
-tray.AddModule('I3InfiniteSource', 'reader', Prefix = i3_testdata + '/sim/GCD_String21.i3.gz')				
+tray.AddModule('I3InfiniteSource', 'reader', Prefix = i3_testdata + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz')				
 tray.AddModule(RandomWaveforms, 'random', Streams=[icetray.I3Frame.DAQ])
 tray.AddModule('I3Wavedeform', 'deform')
 
