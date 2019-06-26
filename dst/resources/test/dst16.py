@@ -16,7 +16,7 @@ from icecube import filter_tools
 dstfile = "dsttest.root"
 
 i3_ports = expandvars("$I3_TESTDATA")
-gcdfile = i3_ports + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz"
+gcdfile = i3_ports + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
 
 if not os.path.exists(gcdfile):
    raise Exception("No GCD file found in %s!" % gcdfile)

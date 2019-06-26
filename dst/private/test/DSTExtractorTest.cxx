@@ -34,7 +34,7 @@ namespace DSTExtractorTest
     /* Pull in a random GCD file */
     ENSURE(getenv("I3_TESTDATA"));
     const std::string i3_ports(getenv("I3_TESTDATA"));
-    boost::filesystem::path gcdfile(i3_ports + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz");
+    boost::filesystem::path gcdfile(i3_ports + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
     ENSURE(boost::filesystem::exists(gcdfile));
 
     tray.AddModule("I3InfiniteSource", "TMA-2")
@@ -81,7 +81,7 @@ namespace DSTExtractorTest
     // Pull in a random GCD file 
     ENSURE(getenv("I3_TESTDATA"));
     const std::string i3_ports(getenv("I3_TESTDATA"));
-    boost::filesystem::path gcdfile(i3_ports + "/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz");
+    boost::filesystem::path gcdfile(i3_ports + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz");
     ENSURE(boost::filesystem::exists(gcdfile));
 
     tray.AddModule("I3InfiniteSource", "TMA-2")
