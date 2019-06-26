@@ -11,8 +11,8 @@ from util import have_g4tankresponse
 
 i3_testdata = os.path.expandvars("$I3_TESTDATA")
 
-gcd = i3_testdata + "/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz"
-inFile = i3_testdata + "/DAT010000"
+gcd = i3_testdata + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
+inFile = i3_testdata + "corsika-reader/DAT010000"
 
 # generate test files for both tank responses
 filesToCompareList = []

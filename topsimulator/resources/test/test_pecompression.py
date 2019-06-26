@@ -6,8 +6,8 @@ import time
 import subprocess as subp
 
 i3_testdata = os.path.expandvars("$I3_TESTDATA") 
-gcd = i3_testdata + "/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz"
-inFile = i3_testdata + "/DAT010000"
+gcd = i3_testdata + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
+inFile = i3_testdata + "/corsika-reader/DAT010000"
 
 base = os.path.basename(sys.argv[0])[:-3]
 
