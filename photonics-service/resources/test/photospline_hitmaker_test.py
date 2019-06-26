@@ -17,7 +17,7 @@ ZenithMax = 180*I3Units.degree
 MuonEnergy = 100 * I3Units.TeV
 mu_type =dataclasses.I3Particle.MuPlus
 
-gcdfile = os.path.join(os.environ['I3_TESTDATA'],"sim",
+gcdfile = os.path.join(os.environ['I3_TESTDATA'],"GCD",
                        "GeoCalibDetectorStatus_2012.56063_V0.i3.gz")
 TablePath = "/cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines"
 amplitudetable = TablePath+'/ems_mie_z20_a10.abs.fits'

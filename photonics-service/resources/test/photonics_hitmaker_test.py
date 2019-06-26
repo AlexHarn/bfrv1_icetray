@@ -20,7 +20,7 @@ HeightMax = 40*I3Units.m
 MuonEnergy = 100 * I3Units.TeV
 mu_type =dataclasses.I3Particle.MuPlus
 
-gcdfile = os.path.join(os.environ['I3_TESTDATA'],"sim",
+gcdfile = os.path.join(os.environ['I3_TESTDATA'],"GCD",
                        "GeoCalibDetectorStatus_2012.56063_V0.i3.gz")
 tablesdir  = os.path.join(os.environ["I3_TESTDATA"],
                           "photonics-tables","SPICEMie_i3coords")
