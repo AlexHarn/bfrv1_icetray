@@ -9,8 +9,8 @@ and then applies TupleTagger and MPCleaner to those events.
 
 from os.path import expandvars
 
-i3testdata=expandvars("$I3_TESTDATA/SLOPtools")
-gcd=i3testdata + "/GeoCalibDetectorStatus_2012.56063_V0.i3.gz"
+i3testdata=expandvars("$I3_TESTDATA")
+gcd=i3testdata + "/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz"
 
 
 from I3Tray import I3Tray
