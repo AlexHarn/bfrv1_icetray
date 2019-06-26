@@ -17,7 +17,7 @@ from icecube.icetray import I3Units
 from icecube import topsimulator, g4_tankresponse
 
 gcd_file = expandvars(
-    "$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz")
+    "$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", dest="particle", default="mu-",
