@@ -107,7 +107,7 @@ TEST(FakeFill)
 {
   printf("Init! \n");
   std::string gcd(getenv("I3_TESTDATA"));
-  gcd = gcd+"/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
+  gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
   // Create a fake frame, and put some stuff in it
   I3FramePtr frame(new I3Frame(I3Frame::Physics));
   I3Time time1(2010,171195332233603703ULL ); // first event in my test file
@@ -224,7 +224,7 @@ TEST(BadStationBadTank)
   // of the two tanks is in a "Bad Tank List" and the other is not hit?
   printf("Init Bad Station/Tank test! \n");
   std::string gcd(getenv("I3_TESTDATA"));
-  gcd = gcd+"/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
+  gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
   // Create a fake frame, and put some stuff in it
   I3FramePtr frame(new I3Frame(I3Frame::Physics));
   I3Time time1(2010,171195332233603703ULL ); // first event in my test file

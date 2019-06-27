@@ -529,7 +529,7 @@ TEST(StationwiseLikelihood)
 {
   printf("Init! \n");
   std::string gcd(getenv("I3_TESTDATA"));
-  gcd = gcd+"/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz";
+  gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz";
   // Create a fake frame, and put some stuff in it
   I3FramePtr frame(new I3Frame(I3Frame::Physics));
   I3Time time1(2012,290881078948110 ); // first event in my test file

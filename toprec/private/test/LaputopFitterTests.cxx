@@ -147,7 +147,7 @@ TEST(run_it)
 {
   I3Tray tray;
   std::string gcd(getenv("I3_TESTDATA"));
-  gcd = gcd+"/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
+  gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
   tray.AddModule("I3InfiniteSource", "source");
   tray.SetParameter("source","Stream",I3Frame::Physics);
   tray.SetParameter("source","Prefix",gcd);
