@@ -14,7 +14,7 @@ try:
     tmpdir = tempfile.mkdtemp(dir=os.getcwd())
     tmpfile = os.path.join(tmpdir,'test.i3')
     summaryfile = os.path.join(tmpdir,'summary.xml')
-    gcdfile = os.path.expandvars('$I3_TESTDATA/sim/GCD.i3.gz')
+    gcdfile = os.path.expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz')
     
     # make a very small muon gun file
     n = MuonGunGenerator()
