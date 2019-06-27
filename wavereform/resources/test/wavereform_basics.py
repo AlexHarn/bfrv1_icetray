@@ -10,7 +10,7 @@ from copy import deepcopy
 i3_testdata = expandvars("$I3_TESTDATA") 
 
 tray = I3Tray()
-tray.AddModule('I3InfiniteSource', 'reader', Prefix = i3_testdata + '/sim/GCD_String21.i3.gz')
+tray.AddModule('I3InfiniteSource', 'reader', Prefix = i3_testdata + '/GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz')
 
 if sys.version_info[0] >= 3:
     random.seed(0)
