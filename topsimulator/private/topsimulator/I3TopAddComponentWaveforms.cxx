@@ -80,12 +80,12 @@ public:
     I3MCPESeriesMapConstPtr pe_series_map = frame->Get<I3MCPESeriesMapConstPtr>(pe_series_map_);
 
     if (!launches && !waveforms_in) {
-      log_info("No raw data and no launches in frame. Not adding component waveforms.");
+      log_debug("No raw data and no launches in frame. Not adding component waveforms.");
       PushFrame(frame);
       return;
     }
     if (!components || !pe_series_map) {
-      log_info("Either no components or no PEs in frame. Not adding component waveforms.");
+      log_debug("Either no components or no PEs in frame. Not adding component waveforms.");
       PushFrame(frame);
       return;
     }
