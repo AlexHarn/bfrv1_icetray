@@ -414,8 +414,7 @@ def GammaFollowUp(tray, name,
             BinWidth       = 50.,
             InputPulses    = pulses,
             MaxImpact      = 150.,
-	    ## EKB 14Jun19- commented out for older DDDR version at pole. roll back after 2019 pole fixed
-            #Method         = -1, # fit not required
+            Method         = -1, # fit not required
             Seed           = splineMPE_name,
             Prefix         = splineMPE_name+'_DDDDR_150_',
             SaveDomResults = True,

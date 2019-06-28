@@ -112,10 +112,10 @@ def MeseFilter(tray,name, pulses='RecoPulses',If = lambda f: True):
         kwargs['VetoLayers'] = IC79OuterVeto
         tray.AddModule("LayerVeto", name, **kwargs)
 
-    ### Renamed instance name back to "L4VetoLayer" from name+"_L4VetoLayer" 
-    ### to work with old VHESelfVeto and removed:  Output="L4VetoLayer" option
-    ### This can be reverted after 2019 run start - EKB 14June2019  
-    tray.AddSegment(DefineLayers, "L4VetoLayer", Pulses=pulses+'HLC'+name, If=If_with_triggers) 
+    tray.AddSegment(DefineLayers, name + "L4VetoLayer",
+                    Pulses=pulses+'HLC'+name,
+                    Output="L4VetoLayer",
+                    If=If_with_triggers) 
 
     # apply the veto 
     tray.AddModule('HomogenizedQTot', name+'_qtot_causal', 
