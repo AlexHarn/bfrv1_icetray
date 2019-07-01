@@ -17,6 +17,8 @@ StartingTrackVeto
    code_review
    release_notes
 
+Maintainer: Sarah Mancina
+
 This is an Icetray Module designed to preform a look-back veto using the photon tables. An overview of the veto can be found in Note 1.  Basically, this module is designed to preform the following
 
 * Find the first hit associated with the track you provided.
