@@ -9,6 +9,9 @@ Cramer-Rao
    
    release_notes
 
+Maintainer: Chujie Chen
+
+
 Introduction
 ============
 CramerRao is a module to calculate an estimator for the angular resolution of a reconstructed track. 
