@@ -9,5 +9,6 @@ void register_I3MinimizerResult()
         .def_readwrite("minval", &I3MinimizerResult::minval_)
         .def_readwrite("par", &I3MinimizerResult::par_)
         .def_readwrite("err", &I3MinimizerResult::err_)
+        .def_readwrite("diagnostics", &I3MinimizerResult::diagnostics_)
     ;
 }
