@@ -78,6 +78,6 @@ def WithCleaners(tray, name,
 	
 	tray.AddModule("Delete", name+"NoiseEngineCleanup", 
 		keys = [HitSeriesName+"_STW_"+name,HitSeriesName+"_STW_ClassicRT_"+name],
-		If= lambda frame: If and not writePulses
+		If= lambda frame: If(frame) and not writePulses
 	)
 

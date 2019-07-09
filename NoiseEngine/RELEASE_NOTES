@@ -4,6 +4,10 @@
 Release Notes
 =============
 
+July 9, 2019 Michael Larson
+---------------------------
+-  Fix the tray segment's If option, which apparently has been broken for a long time.
+
 June 12, 2018 Kevin Meagher
 ---------------------------
 Release V01-02-08
