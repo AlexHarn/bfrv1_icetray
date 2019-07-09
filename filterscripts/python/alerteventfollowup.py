@@ -120,6 +120,7 @@ def AlertEventFollowup(tray,name,
         "OnlineL2_SplineMPE_Characteristics",
         "OnlineL2_SplineMPE_Bootstrap_Angular",
         "OnlineL2_SplineMPE_ParaboloidFitParams",
+        filter_globals.alert_candidate_short_message,
         ] + filter_globals.hese_reco_keeps + filter_globals.estres_reco_keeps
 
     gcd_send_keys = [
