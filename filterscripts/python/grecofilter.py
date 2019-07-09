@@ -21,6 +21,7 @@ from . import grecovariables, filter_globals
 def TestForFilter(frame, 
                   PassedFilterNames = [filter_globals.DeepCoreFilter,],
                   FailedFilterNames = [filter_globals.SlopFilter,
+                                       filter_globals.HighQFilter,
                                        filter_globals.FixedRateFilterName],):    
     if not frame['I3EventHeader'].sub_event_stream == filter_globals.InIceSplitter:
         return False
