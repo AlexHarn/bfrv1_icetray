@@ -36,7 +36,7 @@ using namespace boost::python;
 
 #define REGISTER_THESE_THINGS \
 	(I3PhotonicsServiceCommons)(I3PhotonicsService)(I3PhotoSplineService) \
-	(I3PhotonicsTableService)(I3DummyPhotonicsService)
+	(I3PhotonicsServiceCollection)(I3PhotonicsTableService)(I3DummyPhotonicsService)
 	
 #define I3_REGISTRATION_FN_DECL(r, data, t) void BOOST_PP_CAT(register_,t)();
 #define I3_REGISTER(r, data, t) BOOST_PP_CAT(register_,t)();

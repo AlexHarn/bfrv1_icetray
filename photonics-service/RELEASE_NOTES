@@ -4,6 +4,10 @@ Release Notes
 =============
 
 Trunk 
+--------------------------------------------------------------------
+* Copy over the I3PhotonicsServiceCollection from a branch so that we can
+use the trunk of photonics-service with the upgrade and Gen2 recos.
+    - Michael Larson
 
 
 June 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu=

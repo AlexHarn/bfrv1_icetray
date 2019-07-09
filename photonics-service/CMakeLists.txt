@@ -10,6 +10,7 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/photonics-service/I3PhotonicsService.cxx
   private/photonics-service/I3PhotonicsServiceFactory.cxx
   private/photonics-service/I3PhotonicsServiceCommons.cxx
+  private/photonics-service/I3PhotonicsServiceCollection.cxx
   private/photonics-service/I3DummyPhotonicsService.cxx
   private/photonics-service/I3PhotonicsTableService.cxx	
   private/photonics-service/I3PhotonicsReader.cxx
@@ -58,12 +59,14 @@ i3_test_executable(test
 
 i3_test_scripts(resources/test/photonics_hitmaker_test.py
   resources/test/photospline_hitmaker_test.py
+  resources/test/photospline_collection_test.py
   resources/test/test_jacobian.py)
 
 i3_add_pybindings(photonics_service
 	private/pybindings/wrappers.cxx
 	private/pybindings/I3DummyPhotonicsService.cxx
 	private/pybindings/I3PhotonicsServiceCommons.cxx
+	private/pybindings/I3PhotonicsServiceCollection.cxx
 	private/pybindings/I3PhotonicsTableService.cxx
 	private/pybindings/I3PhotonicsService.cxx
 	private/pybindings/I3PhotoSplineService.cxx
