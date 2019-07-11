@@ -22,22 +22,18 @@ filelist = [options.GCDFN]
 filelist.extend(glob.glob(options.INFILES))
 
 from I3Tray import I3Tray
-from icecube import icetray, dataio
+from icecube import icetray
+from icecube import dataio
 from icecube.production_histograms import ProductionHistogramModule
-from icecube.production_histograms.histogram_modules.simulation.dom_mainboard_response import InIceResponseModule, IceTopResponseModule
-from icecube.production_histograms.histogram_modules.simulation.trigger import TriggerModule
-from icecube.production_histograms.histograms.filtering.particles import l1_particle_histograms
-from icecube.production_histograms.histograms.L2.particles import l2_particle_histograms
+from icecube.production_histograms.configuration_tool import generate_histogram_configuration_list
+
+histograms, good_filelist, corrupt_filelist  = generate_histogram_configuration_list(filelist)
 
 tray = I3Tray()
 
 tray.Add("I3Reader", FilenameList = filelist)
 tray.Add(ProductionHistogramModule, 
-         Histograms = [InIceResponseModule,
-                       IceTopResponseModule,
-                       TriggerModule,
-                       l1_particle_histograms,
-                       l2_particle_histograms],         
+         Histograms = histograms,                                                                                    
          OutputFilename = options.OUTPUT_FN
         )
 tray.Execute()
