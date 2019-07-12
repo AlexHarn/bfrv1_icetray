@@ -91,12 +91,8 @@ class ProductionHistogramModule(I3Module) :
         self.collection_name = self.GetParameter("CollectionName")
         self.filenamelist = self.GetParameter("FilenameList")
         self.prescales = self.GetParameter("Prescales")        
-        self.histograms = parameter_conversion(self.GetParameter("Histograms"))
-        
-        _password_path = self.GetParameter("PasswordPath")
-        self.password_path = _password_path \
-                             if _password_path \
-                                else os.path.join(os.environ["HOME"], '.mongo')
+        self.histograms = parameter_conversion(self.GetParameter("Histograms"))        
+        self.password_path = self.GetParameter("PasswordPath")
         
         # initialize the frame counters
         self._frame_counters = dict()
