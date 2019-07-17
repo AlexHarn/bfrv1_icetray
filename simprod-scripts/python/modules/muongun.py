@@ -195,35 +195,35 @@ class MuonGunGenerator(ipmodule.ParsingModule):
 
 
         if self.propagate_photons:
-		if not self.propagate_muons: 
-			raise BaseException("You have to propagate muons if you want to propagate photons")
-	
-		if type(self.efficiency) == list or type(self.efficiency) == tuple:
-		   if len(self.efficiency) == 1:
-		      efficiency=float(self.efficiency[0])
-		   elif len(self.efficiency) > 1:
-		      efficiency=map(float,self.efficiency)
-		   elif len(self.efficiency) > 1:
-		      raise Exception("Configured empty efficiency list")
-		else:
-		    efficiency = choose_max_efficiency(self.efficiency)
-	 
-		from icecube import clsim
-		tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
-		    GCDFile = self.gcdfile,
-		    RandomService = randomService,
-		    UseGPUs = self.usegpus,
-		    UseCPUs= not self.usegpus,
-		    IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
-		    UnshadowedFraction = efficiency,
-		    UseGeant4 = False,
-		    DOMOversizeFactor = self.oversize,
-		    MCTreeName = "I3MCTree", 
-		    MMCTrackListName="MMCTrackList",
-		    MCPESeriesName = self.photonseriesname,
-		    PhotonSeriesName = self.rawphotonseriesname,
-		    HoleIceParameterization = self.holeiceparametrization
-		)
+            if not self.propagate_muons: 
+                raise BaseException("You have to propagate muons if you want to propagate photons")
+
+            if type(self.efficiency) == list or type(self.efficiency) == tuple:
+                if len(self.efficiency) == 1:
+                    efficiency=float(self.efficiency[0])
+                elif len(self.efficiency) > 1:
+                    efficiency=map(float,self.efficiency)
+                elif len(self.efficiency) > 1:
+                    raise Exception("Configured empty efficiency list")
+            else:
+                efficiency = choose_max_efficiency(self.efficiency)
+ 
+            from icecube import clsim
+            tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
+                            GCDFile = self.gcdfile,
+                            RandomService = randomService,
+                            UseGPUs = self.usegpus,
+                            UseCPUs= not self.usegpus,
+                            IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
+                            UnshadowedFraction = efficiency,
+                            UseGeant4 = False,
+                            DOMOversizeFactor = self.oversize,
+                            MCTreeName = "I3MCTree", 
+                            MMCTrackListName="MMCTrackList",
+                            MCPESeriesName = self.photonseriesname,
+                            PhotonSeriesName = self.rawphotonseriesname,
+                            HoleIceParameterization = self.holeiceparametrization
+            )
 
 
         from icecube import polyplopia
@@ -236,7 +236,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         if not self.keepmctree:
             self.logger.info("discarding %s" % (self.photonseriesname))
             tray.Add("Delete","clean_mctruth",
-        	           Keys=["I3MCTree",'I3MCTree_preSampling'])
+                     Keys=["I3MCTree",'I3MCTree_preSampling'])
 
 
 
