@@ -20,7 +20,7 @@
 		},
 
 		"exact_time" : true,
-		"scattering" : "HighlandIntegral",
+		"scattering" : "NoScattering",
 		"stopping_decay" : true,
 
 		"brems_multiplier" : 1,

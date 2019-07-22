@@ -20,7 +20,7 @@
 		},
 
 		"exact_time" : true,
-		"scattering" : "HighlandIntegral",
+		"scattering" : "NoScattering",
 
 		"brems" : "BremsKelnerKokoulinPetrukhin",
 		"photo" : "PhotoAbramowiczLevinLevyMaor97",
