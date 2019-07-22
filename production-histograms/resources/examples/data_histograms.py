@@ -31,9 +31,20 @@ histograms, good_filelist, corrupt_filelist  = generate_histogram_configuration_
 
 tray = I3Tray()
 
+def frame_select(frame):
+    '''
+    I don't want any frames that pass the moon or sun filter.
+    '''
+    if 'QFilterMask' in frame and\
+       (frame['QFilterMask']['MoonFilter_13'].condition_passed or\
+        frame['QFilterMask']['SunFilter_13'].condition_passed):
+        return False
+    return True
+
 tray.Add("I3Reader", FilenameList = filelist)
 tray.Add(ProductionHistogramModule, 
-         Histograms = histograms,                                                                                    
+         Histograms = histograms,
+         If = frame_select,
          OutputFilename = options.OUTPUT_FN
         )
 tray.Execute()

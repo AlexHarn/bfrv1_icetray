@@ -75,7 +75,8 @@ class ProductionHistogramModule(I3Module) :
         self.AddParameter("OutputFilename", "Name of output pickle file.", None )
         self.AddParameter("CollectionName", "Name of the MongoDB collection.", None )
         self.AddParameter("FilenameList", "List of I3Files passed to I3Reader", None) 
-        self.AddParameter("PasswordPath", "Path to plain text password file for the DB.", None) 
+        self.AddParameter("PasswordPath", "Path to plain text password file for the DB.", None)
+        self.AddParameter("If", "Function that selects frames.", lambda _ : True)
         self.AddParameter("Prescales", "Dictionary of frame type to prescale",  
                           {"Geometry" : 1,
                            "Calibration": 1,
@@ -93,6 +94,7 @@ class ProductionHistogramModule(I3Module) :
         self.prescales = self.GetParameter("Prescales")        
         self.histograms = parameter_conversion(self.GetParameter("Histograms"))        
         self.password_path = self.GetParameter("PasswordPath")
+        self.frame_select = self.GetParameter("If")
         
         # initialize the frame counters
         self._frame_counters = dict()
@@ -139,6 +141,9 @@ class ProductionHistogramModule(I3Module) :
         This method is called by all IceTray methods and only need one, 
         and I don't want to repeat a bunch of code.  DRY.
         '''
+        if not self.frame_select(frame):
+            return # without pushing
+        
         stream_key = str(frame.Stop)
         self._frame_counters[stream_key] += 1
         if self._frame_counters[stream_key] % self.prescales[stream_key] != 0 :
