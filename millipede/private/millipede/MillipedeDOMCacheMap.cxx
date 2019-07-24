@@ -341,9 +341,9 @@ MillipedeDOMCacheMap::UpdateData(const I3TimeWindow &readout_window,
 	for (I3RecoPulseSeriesMap::const_iterator ps = pulses.begin();
 	    ps != pulses.end(); ps++) {
 		if (this->find(ps->first) == this->end())
-			log_fatal("Pulse on OM(%d,%d) that is not part of the "
+			log_fatal("Pulse on OM(%d,%d,%d) that is not part of the "
 			    "detector configuration", ps->first.GetString(),
-			    ps->first.GetOM());
+				  ps->first.GetOM(), ps->first.GetPMT());
 		
 		for (auto p = ps->second.begin(); p != ps->second.end(); p++) {
 			// Sanity checks: pulses must be ordered,
