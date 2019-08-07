@@ -45,6 +45,9 @@ def make_parser():
     parser.add_option("--log-level",
         default="WARN", dest="LOG_LEVEL",
         help="Sets the logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
+    parser.add_option("--log-filename",
+        default=None, dest="logfn",
+        help="If set logging is redirected to the specified file.")
 
     return parser
 
@@ -75,7 +78,12 @@ def main(options, stats={}):
         logging.warning("Options are ERROR, WARN, INFO, DEBUG, and TRACE.")
         logging.warning("Sticking with default of WARN.")
         icetray.set_log_level(icetray.I3LogLevel.LOG_WARN)
-    
+
+    if options['logfn']:
+        import os
+        pid = os.getpid()
+        icetray.logging.rotating_files("%s.%d" % (options['logfn'], pid))
+        
     # make list of input files from GCD and infile
     if isinstance(options['infile'],list):
         infiles = [options['gcdfile']]
