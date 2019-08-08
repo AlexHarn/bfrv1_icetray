@@ -141,13 +141,15 @@ DecayChannel::DecayProducts LeptonicDecayChannelApprox::Decay(const Particle& pa
     products[1]->SetDirection(direction);
     products[1]->SetMomentum(momentum_neutrinos);
 
-    products[2]->SetDirection(-direction);
+    Vector3D opposite_direction = -direction;
+    opposite_direction.CalculateSphericalCoordinates();
+    products[2]->SetDirection(opposite_direction);
     products[2]->SetMomentum(momentum_neutrinos);
 
     // Boost neutrinos to lepton frame
     // double beta = lepton_momentum / energy_neutrinos;
     double gamma = energy_neutrinos / virtual_mass;
-    double betagamma = -lepton_momentum / virtual_mass;
+    double betagamma = lepton_momentum / virtual_mass;
     Boost(*products[1], products[0]->GetDirection(), gamma, betagamma);
     Boost(*products[2], products[0]->GetDirection(), gamma, betagamma);
 
