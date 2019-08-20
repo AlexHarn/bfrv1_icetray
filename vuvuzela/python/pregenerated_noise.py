@@ -2,7 +2,9 @@ import glob, numpy as np
 
 import icecube
 from icecube import icetray, dataclasses, simclasses
-from icecube.icetray import I3Units
+from icecube.dataclasses import I3ModuleGeo, ModuleKey
+from icecube.simclasses import I3MCPE, I3MCPESeries, I3MCPESeriesMap 
+from icecube.icetray import I3Units, OMKey
 
 class PregeneratedSampler(icetray.I3Module):
     r""" A sampler used to include pre-defined noise behavior in simulation files.
@@ -95,6 +97,7 @@ class PregeneratedSampler(icetray.I3Module):
             self.random = phys_services.I3SPRNGRandomService(seed = np.random.randint(10000000),
                                                              nstreams = 10000,
                                                              streamnum = np.random.randint(10000))
+        self.random = self.random.integer
 
         if self.output_map_name == None and self.physics_map_name == None:
             icetray.logging.log_fatal("Cannot be missing both PhysicsHitMap and OutputHitMap. Define at least one!",
@@ -114,7 +117,7 @@ class PregeneratedSampler(icetray.I3Module):
         
         # Pick one of the files
         files.sort()
-        i = self.random.integer(len(files))
+        i = self.random(len(files))
 
         icetray.logging.log_info("Loading {}".format(files[i]))
         self.input_path = files[i]
@@ -123,6 +126,8 @@ class PregeneratedSampler(icetray.I3Module):
 
         # Convert the times to I3Units
         self.input_data[:,0] *= icetray.I3Units.second
+        self.dt = self.input_data[:,0]
+        self.pmts = self.input_data[:,1].astype(int)
 
         return
 
@@ -177,7 +182,6 @@ class PregeneratedSampler(icetray.I3Module):
         else:
             physics_map = frame[self.physics_map_name]
 
-
         # Find the first and last hit in the physics PEs
         times = []
         for pulses in physics_map.values():
@@ -187,32 +191,31 @@ class PregeneratedSampler(icetray.I3Module):
         tf = times.max() + self.end_time
 
         # We now have the hits. Time to start producing MCPEs
-        
         for module in self.modules_to_run:
-            omk = icetray.OMKey(module.string, module.om)
+            omk = OMKey(module.string, module.om)
             
             # Pick a starting index
-            i = self.random.integer(self.input_data.shape[0])
+            i = self.random(self.input_data.shape[0])
 
             # Begin pushing pulses
             current_time = t0
             while current_time < tf:
-                current_time += self.input_data[i,0]
-                omk.pmt = int(self.input_data[i,1])
-                mcpe = simclasses.I3MCPE(1, current_time)
-                
-                if not omk in physics_map.keys():
-                    physics_map[omk] = simclasses.I3MCPESeries()
-                physics_map[omk].append(mcpe)
+                current_time += self.dt[i]
+                omk.pmt = self.pmts[i]
+                mcpe = I3MCPE(1, current_time)
+
+                # Try to put this into the map
+                try: physics_map[omk].append(mcpe)
+                except: physics_map[omk] = [mcpe,]
                 
                 # Increment my counter, wrapping if necessary
                 i += 1
-                if i > self.input_data.shape[0]: i = 0
-                
+                if i >= self.input_data.shape[0]: i = 0
+
             # We're done. I probably should sort these.
-            physics_map[omk] = simclasses.I3MCPESeries( sorted(physics_map[omk], 
-                                                               key = lambda a: a.time) )
-            
+            physics_map[omk] = sorted(physics_map[omk], key = lambda a: a.time)
+
+
         # Now all that's left is to write it out
         if frame.Has(self.output_map_name):
             del frame[self.output_map_name]
