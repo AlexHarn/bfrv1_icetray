@@ -82,18 +82,19 @@ class PregeneratedSampler(icetray.I3Module):
     # 
     ##################################
     def Configure(self):
-        self.GetParameter("InputPath", self.input_path)
-        self.GetParameter("StarWindow", self.start_time)
-        self.GetParameter("EndWindow", self.end_time)
-        self.GetParameter("ModuleType", self.module_type)
-        self.GetParameter("PhysicsHitMap", self.physics_map_name)
-        self.GetParameter("OutputHitMap", self.output_map_name)
-        self.GetParameter("RandomService", self.random)
+        self.input_path = self.GetParameter("InputPath")
+        self.start_time = self.GetParameter("StartWindow")
+        self.end_time = self.GetParameter("EndWindow")
+        self.module_type = self.GetParameter("ModuleType")
+        self.physics_map_name = self.GetParameter("PhysicsHitMap")
+        self.output_map_name = self.GetParameter("OutputHitMap")
+        self.random = self.GetParameter("RandomService")
 
         if self.random == None:
-            icetray.logging.log_warn("No RandomService given. Falling back to numpy.random", "PregeneratedSampler")
-            self.random = np.random
-            self.random.integer = np.random.randint
+            icetray.logging.log_warn("No RandomService given. Creating my own", "PregeneratedSampler")
+            self.random = phys_services.I3SPRNGRandomService(seed = np.random.randint(10000000),
+                                                             nstreams = 10000,
+                                                             streamnum = np.random.randint(10000))
 
         if self.output_map_name == None and self.physics_map_name == None:
             icetray.logging.log_fatal("Cannot be missing both PhysicsHitMap and OutputHitMap. Define at least one!",
@@ -129,7 +130,7 @@ class PregeneratedSampler(icetray.I3Module):
     ##################################
     # 
     ##################################
-    def Geometry(self):
+    def Geometry(self, frame):
         self.modules_to_run = []
 
         # This exists in the upgrade GCD files
@@ -154,7 +155,6 @@ class PregeneratedSampler(icetray.I3Module):
     # 
     ##################################
     def DAQ(self, frame):
-
         # Check to make sure we've read in the stuff from the geometry
         if self.modules_to_run == None:
             log_fatal("Entered a DAQ frame, but I haven't seen a Geometry frame. Refusing to produce anything!",
@@ -179,16 +179,20 @@ class PregeneratedSampler(icetray.I3Module):
 
 
         # Find the first and last hit in the physics PEs
-        times = np.array([ [p.time for p in pulses] for pulses in physics_map.values]).flatten()
+        times = []
+        for pulses in physics_map.values():
+            times.extend([p.time for p in pulses])
+        times = np.array(times)
         t0 = times.min() + self.start_time
         tf = times.max() + self.end_time
 
         # We now have the hits. Time to start producing MCPEs
+        
         for module in self.modules_to_run:
             omk = icetray.OMKey(module.string, module.om)
             
             # Pick a starting index
-            i = self.random.integer(self.input_data.shape[0]-pad)
+            i = self.random.integer(self.input_data.shape[0])
 
             # Begin pushing pulses
             current_time = t0
@@ -206,7 +210,7 @@ class PregeneratedSampler(icetray.I3Module):
                 if i > self.input_data.shape[0]: i = 0
                 
             # We're done. I probably should sort these.
-            physics_map[omk] = simclasses.I3MCPESeries( sorted(physics_map, 
+            physics_map[omk] = simclasses.I3MCPESeries( sorted(physics_map[omk], 
                                                                key = lambda a: a.time) )
             
         # Now all that's left is to write it out
@@ -215,4 +219,4 @@ class PregeneratedSampler(icetray.I3Module):
         frame[self.output_map_name] = physics_map
         
         self.PushFrame(frame)
-        return
+        return True
