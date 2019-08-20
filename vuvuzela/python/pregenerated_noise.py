@@ -186,9 +186,11 @@ class PregeneratedSampler(icetray.I3Module):
         times = []
         for pulses in physics_map.values():
             times.extend([p.time for p in pulses])
-        times = np.array(times)
-        t0 = times.min() + self.start_time
-        tf = times.max() + self.end_time
+
+        t0, tf = self.start_time, self.end_time
+        if len(times) > 0:
+            t0 += min(times)
+            tf += max(times)
 
         # We now have the hits. Time to start producing MCPEs
         for module in self.modules_to_run:
