@@ -7,6 +7,9 @@ Release Notes
 
 On the trunk
 ------------
+* Add in a pythonic module to handle multi-pmt simulation using pre-generated
+  GEANT4 noise. It's slow enough that it can only be a temporary solution, but
+  it should work in pinch.
 
 June 22, 2018 Juan Carlos Diaz-Velez (juancarlso@icecube.wisc.edu)
 ------------------------------------------------------------------
