@@ -7,6 +7,8 @@ from icecube import icetray
 from icecube.icetray import I3Units
 from icecube.dataclasses import I3OMGeo
 
+from .pregenerated_noise import PregeneratedSampler
+
 @icetray.traysegment
 def AddNoise(tray, name,
 	     InputName ="I3MCPESeriesMap",
