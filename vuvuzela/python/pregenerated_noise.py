@@ -212,13 +212,13 @@ class PregeneratedSampler(icetray.I3Module):
                 i += 1
                 if i >= self.input_data.shape[0]: i = 0
 
-            # We're done. I probably should sort these.
+        # We're done. I probably should sort these.
+        # This currently takes up ~1/4 of the total time.
+        for omk in physics_map.keys():
             physics_map[omk] = sorted(physics_map[omk], key = lambda a: a.time)
 
-
         # Now all that's left is to write it out
-        if frame.Has(self.output_map_name):
-            del frame[self.output_map_name]
+        if frame.Has(self.output_map_name): del frame[self.output_map_name]
         frame[self.output_map_name] = physics_map
         
         self.PushFrame(frame)
