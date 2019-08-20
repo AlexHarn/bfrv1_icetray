@@ -140,6 +140,9 @@ class ValidationReport(ValidationSection):
 
     def __nonzero__(self):
         return bool(self.fail)
+    
+    def __bool__(self):
+        return bool(self.fail)    
 
     def info(self, msg):
         self.cur.append("I" + msg)
