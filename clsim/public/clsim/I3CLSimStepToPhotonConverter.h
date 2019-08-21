@@ -187,6 +187,8 @@ public:
     virtual ConversionResult_t GetConversionResult() = 0;
     
     virtual std::map<std::string, double> GetStatistics() const { return std::map<std::string, double>(); };
+
+    virtual ~I3CLSimStepToPhotonConverter(){;}
     
 protected:
 };

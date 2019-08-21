@@ -10,6 +10,7 @@ public:
     virtual void StartShower(I3Particle &primary, const I3Frame &frame) = 0;
     virtual bool NextParticle(I3Particle &particle) = 0;
     virtual void EndEvent(I3Frame &);
+    virtual ~I3IncrementalEventGeneratorService(){;}
 };
 
 I3_POINTER_TYPEDEFS(I3IncrementalEventGeneratorService);
@@ -17,6 +18,7 @@ I3_POINTER_TYPEDEFS(I3IncrementalEventGeneratorService);
 class NeutrinoSelector {
 public:
     virtual std::vector<I3Particle>::const_iterator Select(const std::vector<I3Particle> &neutrinos, I3Frame &frame) = 0;
+    virtual ~NeutrinoSelector(){;}
 };
 
 I3_POINTER_TYPEDEFS(NeutrinoSelector);
