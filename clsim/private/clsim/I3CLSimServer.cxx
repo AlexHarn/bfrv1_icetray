@@ -191,9 +191,16 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     }
     
     zmq::pollitem_t items[] = {
-      { static_cast<void *>(frontend), 0, ZMQ_POLLIN|ZMQ_POLLOUT, 0 },
+      { static_cast<void *>(frontend), 0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(backend),  0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(control),   0, ZMQ_POLLIN, 0 },
+    };
+    zmq::pollitem_t outitems[] = {
+      { static_cast<void *>(frontend), 0, ZMQ_POLLOUT, 0 }
+    };
+    auto pollout = [](zmq::pollitem_t *item, long timeout=0) {
+        zmq::poll(item, 1, timeout);
+        return item->revents & ZMQ_POLLOUT;
     };
     
     /// Addresses of idle workers
@@ -204,14 +211,12 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     log_trace_stream("Server thread started on "<<bindAddress);
     while (true) {
         
-        if (int rc = zmq::poll(&items[0], 3, -1) < -1) {
-            log_error_stream("ZMQ polling error " << rc);
-            break;
-        }
+        // only poll for client messages if a worker is available
+        zmq::poll(&items[workers.empty() ? 1 : 0], workers.empty() ? 2 : 3, -1);
 
         // Message from client
         // Process only if there are available workers
-        if ((items[0].revents & ZMQ_POLLIN) && workers.size() > 0) {
+        if (!workers.empty() && (items[0].revents & ZMQ_POLLIN)) {
             
             zmq::message_t address;
             std::list<zmq::message_t> body;
@@ -264,7 +269,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
         }
         
         // Message from worker
-        if ((items[1].revents & ZMQ_POLLIN) && (items[0].revents & ZMQ_POLLOUT)) {
+        if ((items[1].revents & ZMQ_POLLIN) && pollout(&outitems[0], 1)) {
             
             zmq::message_t address;
             std::list<zmq::message_t> body;
@@ -561,9 +566,18 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
     }
 
     zmq::pollitem_t items[] = {
-      { static_cast<void *>(server), 0, ZMQ_POLLIN|ZMQ_POLLOUT, 0 },
+      { static_cast<void *>(server), 0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(inbox),  0, ZMQ_POLLIN, 0 },
       { static_cast<void *>(control),  0, ZMQ_POLLIN, 0 }
+    };
+    // poll separately for output to avoid busy-waiting when only the output
+    // queue is empty
+    zmq::pollitem_t outitems[] = {
+      { static_cast<void *>(server), 0, ZMQ_POLLOUT, 0 }
+    };
+    auto pollout = [](zmq::pollitem_t *item, long timeout=0) {
+        zmq::poll(item, 1, timeout);
+        return item->revents & ZMQ_POLLOUT;
     };
     zmq::message_t lastIdentifier;
     bool barrierActive = false;
@@ -572,10 +586,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
 
     while (true) {
 
-        if (int rc = zmq::poll(&items[0], 3, -1) < -1) {
-            log_error_stream("ZMQ polling error " << rc);
-            break;
-        }
+        zmq::poll(&items[0], 3, -1);
 
         if (items[0].revents & ZMQ_POLLIN) {
             zmq::message_t address;
@@ -591,7 +602,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
         }
         
         // Forward a messages to the server only if they will not block
-        if ((items[1].revents & ZMQ_POLLIN) && (items[0].revents & ZMQ_POLLOUT)) {
+        if ((items[1].revents & ZMQ_POLLIN) && pollout(&outitems[0], 1)) {
             int count(0);
             int flags(0);
             do {
