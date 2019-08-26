@@ -70,7 +70,7 @@ SimplePropagator::SimplePropagator(I3Particle::ParticleType pt,
 
     // Init new propagator
 
-    propagator_ = new PROPOSAL::Propagator(I3PROPOSALParticleConverter::GeneratePROPOSALType(pt),
+    propagator_ = new PROPOSAL::Propagator(particle_converter_.GeneratePROPOSALType(pt),
                                            sec_def_vec,
                                            detector,
                                            interpolation_def);
@@ -161,12 +161,12 @@ I3Particle SimplePropagator::propagate(const I3Particle& p,
         // std::vector<PROPOSAL::DynamicData*> history = Output::getInstance().GetSecondarys();
         for (unsigned int i = 0; i < history.size(); i++)
         {
-            losses->push_back(I3PROPOSALParticleConverter::GenerateI3Particle(*history[i]));
+            losses->push_back(particle_converter_.GenerateI3Particle(*history[i]));
         }
 
         if (final_stochastic_loss_ != I3Particle::unknown)
         {
-            I3Particle i3_particle = I3PROPOSALParticleConverter::GenerateI3Particle(particle);
+            I3Particle i3_particle = particle_converter_.GenerateI3Particle(particle);
             i3_particle.SetType(final_stochastic_loss_);
             i3_particle.SetEnergy(particle.GetEnergy() - particle.GetParticleDef().mass);
 
