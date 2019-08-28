@@ -7,19 +7,30 @@ def muonReconstructions(tray, name,
                         If= lambda f: True):
     
     # Let's first do SeededRT cleaning on the pulses, since there is still a lot of noise remaining after coinc-twc, which only removes pulses outside the time window. 
-    # Taken all the settings from muon L2.
+    # these settings for cleaning with STTools reproduce the old SeededRTCleaning behaviour
+    from icecube import STTools
+    from icecube.STTools.seededRT.configuration_services import I3DOMLinkSeededRTConfigurationService
+    from icecube.icetray import I3Units
     srtPulses="SRT"+Pulses
-    tray.AddModule( "I3SeededRTHitCleaningModule<I3RecoPulse>", name+"_coinc_srt",
-                    InputResponse = Pulses ,    # ! Name of input                                                                                                                                        
-                    OutputResponse = srtPulses,        # ! Name of output                                                                                                                          
-                    #DiscardedHLCResponse = "SRTexcluded"+Pulses, # ! Name of HLC output that were cleaned out in SeededR. Let's see whether we need it.    
-                    RTRadius = 150 ,                            # ! Radius for RT cleaning                                                                                                                  
-                    RTTime = 1000 ,                              # ! Time for RT cleaning                                                                                                                   
-                    MaxIterations = 3 ,              # 3 iterations are enough.                                                                                                                           
-                    Seeds = "HLCcore" ,              # ! do not use all HLC hits as seed                                                                                                                    
-                    HLCCoreThreshold = 2 ,           # Default                                                                   
-                    If= If
-                    )            
+    stConfigService = I3DOMLinkSeededRTConfigurationService(
+                      allowSelfCoincidence = True, # old seededRT behaviour
+                      useDustlayerCorrection = False, # old seededRT behaviour
+                      treat_string_36_as_deepcore = False, # old seededRT behaviour
+                      dustlayerUpperZBoundary = 0*I3Units.m,
+                      dustlayerLowerZBoundary = -150*I3Units.m,
+                      ic_ic_RTRadius = 150*I3Units.m, # radius for RT cleaning
+                      ic_ic_RTTime = 1000*I3Units.ns # time for RT cleaning
+                      )
+    tray.AddModule("I3SeededRTCleaning_RecoPulse_Module", name+"_coinc_srt",
+                   STConfigService = stConfigService,
+                   InputHitSeriesMapName = Pulses,
+                   OutputHitSeriesMapName = srtPulses,
+                   #OutputDiscardedHLCHitSeriesMapName = "SRTexcluded"+Pulses, # name of HLC output that were cleaned out in SeededRT. Let's see whether we need it.    
+                   MaxNIterations = 3, # 3 iterations are enough
+                   SeedProcedure = "HLCCoreHits", # do not use all HLC hits as seed
+                   NHitsThreshold = 2,
+                   If = If
+                   )
 
     # Create RecoPulseSeriesMapMask instead of RecoPulseSeriesMap                                                                                                                                    
     from icecube import icetop_Level3_scripts
@@ -88,11 +99,11 @@ def SPE(tray, name, Pulses = '',
         If = lambda f: True,
         ):
 
-    from icecube import linefit, improvedLinefit, lilliput, cramer_rao
+    from icecube import linefit, lilliput, cramer_rao
     import icecube.lilliput.segments
 
     # Creates Linefit and Linefit+params
-    tray.AddSegment( improvedLinefit.simple, prefix+LineFit, inputResponse = Pulses, fitName = prefix+LineFit, If = If )
+    tray.AddSegment( linefit.simple, prefix+LineFit, inputResponse = Pulses, fitName = prefix+LineFit, If = If )
     
     # Creates SPEFitSingle + SPEFitSingleFitparams
     tray.AddSegment( lilliput.segments.I3SinglePandelFitter, prefix+SPEFitSingle, pulses = Pulses, seeds = [prefix+LineFit], If = If )

@@ -8,22 +8,31 @@ def CleanIceTop(tray, name,
                 extra_excluded_tanks='ExtraCleanedExcludedTanks'               
                 ):
     
-    from icecube import dataclasses, SeededRTCleaning, icetop_Level3_scripts
+    from icecube import dataclasses, STTools, icetop_Level3_scripts
+    from icecube.icetray import I3Units
+    from icecube.STTools.seededRT.configuration_services import I3DOMLinkSeededRTConfigurationService
     #apply SeededRTCleaning FOR ICETOP, because TopEventCleaning did not remove all bad pulses.
     ## for MC : DON't use thinbugfixed pulses yet, because could artificially create missing tanks/stations which is not good for SRT
-    tray.AddModule( "I3SeededRTHitCleaningModule<I3RecoPulse>", name+"_IsolatedStationCut",
-                    InputResponse = it_pulses ,    # ! Name of input 
-                    OutputResponse = 'IT_RT_180m_450ns',        # ! Name of output 
-                    DiscardedHLCResponse = "SRTExcludedPulses", # ! Name of HLC output that were cleaned out in SeededRT
-                    RTRadius = 180 ,                            # ! Radius for RT cleaning
-                    RTTime = 450 ,                              # ! Time for RT cleaning
-                    DeepCoreRTRadius = -1 ,          # Default
-                    DeepCoreRTTime = -1 ,            # Default
-                    MaxIterations = 3 ,              # Don't only keep HLCCore, but also all stations within RT of the core (3 is dangerous for large Radius, just 1 is ok, but for small 1-station radius, do 3 iter because is already a strong SRT!)
-                    Seeds = "HLCcore" ,              # ! do not use all HLC hits as seed
-                    HLCCoreAllowNoSeeds =  True,
-                    HLCCoreThreshold = 5 ,           # the core must be a cluster of 3 stations, thus 5 tanks surrounding one other in RT
-                    CylinderHeight = -1 )            # Default
+    # these settings for cleaning with STTools reproduce the old SeededRTCleaning behaviour
+    stConfigService_IT = I3DOMLinkSeededRTConfigurationService(
+                         allowSelfCoincidence = True, # CHECK THIS
+                         useDustlayerCorrection = False,
+                         it_it_RTTime = 450*I3Units.ns, # radius for RT cleaning
+                         it_it_RTRadius = 180*I3Units.m, # time for RT cleaning
+                         it_strings = ["1-81"],
+                         it_oms = ["61-64"]
+                         )
+    tray.AddModule("I3SeededRTCleaning_RecoPulse_Module", name+"_IsolatedStationCut",
+                   STConfigService = stConfigService_IT,
+                   InputHitSeriesMapName = it_pulses, # name of input
+                   OutputHitSeriesMapName = "IT_RT_180m_450ns", # name of output
+                   OutputDiscardedHLCHitSeriesMapName = "SRTExcludedPulses", # name of HLC output that were cleaned out in SeededRT
+                   SeedProcedure = "HLCCoreHits", # do not use all HLC hits as seed
+                   AllowNoSeedHits = True,
+                   NHitsThreshold = 5, # the core must be a cluster of 3 stations, thus 5 tanks surrounding one other in RT
+                   MaxNIterations = 3 # don't only keep HLCCore, but also all stations within RT of the core (3 is dangerous for large radius just 1 is ok, but for small 1-station radius, do 3 iter because is already a strong SRT!)
+                  )
+
 
     # New thingy. Create Badtanks (rejected by SRT) list.
     # If there is a tank which has both a pulse which is accepted by SRT and a pulse which is rejected by SRT, we want to keep the good pulse, so will not put this tank in the badtanks list! 
