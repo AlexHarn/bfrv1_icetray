@@ -8,7 +8,7 @@ TEST_GROUP(read_type_3);
 TEST(read_type_3_payloads){
   ENSURE(getenv("I3_TESTDATA"));
   std::string i3testdata = getenv("I3_TESTDATA");
-  std::string hitsFile = i3testdata + "/payloads-unpacker/HitPayloads_type3";
+  std::string hitsFile = i3testdata + "/payload-parser/payloads-unpacker/HitPayloads_type3";
 
   std::ifstream ifs(hitsFile.c_str());
   ENSURE(ifs.good());

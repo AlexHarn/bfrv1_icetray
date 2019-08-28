@@ -274,7 +274,7 @@ TEST(v5file)
 {
   ENSURE(getenv("I3_TESTDATA"));
   std::string i3testdata = getenv("I3_TESTDATA");
-  std::string eventFile = i3testdata + "/payload_testdata/physics-v5.dat";
+  std::string eventFile = i3testdata + "/payload-parser/payload_testdata/physics-v5.dat";
 
   std::ifstream ifs(eventFile.c_str());
 

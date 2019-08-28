@@ -349,7 +349,7 @@ TEST(Delta)
   ENSURE(getenv("I3_TESTDATA"));
   string i3testdata = getenv("I3_TESTDATA");
 
-  string eventFile = i3testdata + "/DeltaWaveforms/input/physics_912_0_0_914.dat";
+  string eventFile = i3testdata + "/payload-parser/DeltaWaveforms/input/physics_912_0_0_914.dat";
 
   vector<char> eventData;
 
@@ -359,7 +359,7 @@ TEST(Delta)
   vector<string> truewaveform_data;
 
   string waveforms = "./WAVEFORMDUMPFORDELTACOMPRESSIONTESTFOLDER";
-  string truewaveforms = i3testdata + "/DeltaWaveforms/true";
+  string truewaveforms = i3testdata + "/payload-parser/DeltaWaveforms/true";
 
   appendInputFiles(waveforms, waveform_data);
 
@@ -411,7 +411,7 @@ TEST(Version5Waveforms)
   ENSURE(getenv("I3_TESTDATA"));
   string i3testdata = getenv("I3_TESTDATA");
 
-  string eventFile = i3testdata + "/V5Waveforms/physics_22964_0_0_2053.dat";
+  string eventFile = i3testdata + "/payload-parser/V5Waveforms/physics_22964_0_0_2053.dat";
 
   vector<char> eventData;
 
@@ -421,7 +421,7 @@ TEST(Version5Waveforms)
   vector<string> truewaveform_data;
 
   string waveforms = "./WAVEFORMDUMPFORDELTACOMPRESSIONTESTFOLDER";
-  string truewaveforms = i3testdata + "/V5Waveforms/true";
+  string truewaveforms = i3testdata + "/payload-parser/V5Waveforms/true";
   appendInputFiles(waveforms, waveform_data);
 
   long long int value = 0;
