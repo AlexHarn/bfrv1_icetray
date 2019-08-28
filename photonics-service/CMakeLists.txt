@@ -59,7 +59,7 @@ i3_test_executable(test
 
 i3_test_scripts(resources/test/photonics_hitmaker_test.py
   resources/test/photospline_hitmaker_test.py
-  resources/test/photospline_collection_test.py
+  resources/test/photonics_collection_test.py
   resources/test/test_jacobian.py)
 
 i3_add_pybindings(photonics_service
