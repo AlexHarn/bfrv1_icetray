@@ -45,7 +45,7 @@ tray.Add('I3Reader', 'reader',
 
 from icecube.icetop_Level3_scripts.modules import ChangeSnowHeight_interpolated
 tray.Add(ChangeSnowHeight_interpolated, 'updateSnow',
-    Filename = os.path.expandvars('${I3_BUILD}/icetop_Level3_scripts/resources/data/IT81-MasterwithSnowMeasurements.csv'),
+    Filename = os.path.expandvars('${I3_BUILD}/icetop_Level3_scripts/resources/data/IT81-MasterwithSnowMeasurements-Mar2019.csv'),
     Day      = args.day,
     Month    = args.month,
     Year     = args.year
