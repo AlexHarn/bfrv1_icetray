@@ -1,10 +1,8 @@
 """
 IceProd Module for Simple Muon Production
 """
-
 import os,sys
 from os.path import expandvars
-import logging
 
 from I3Tray import I3Units, I3Tray
 from icecube import icetray, dataio, dataclasses
