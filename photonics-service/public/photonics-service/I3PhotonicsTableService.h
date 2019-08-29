@@ -157,6 +157,12 @@ public:
   virtual void SelectModuleCoordinates(double xOM,double yOM,double zOM);
 
 /** 
+ *@brief Select OM coordinates
+ *@param omgeo              I3OMGeo object from the I3Geometry
+ */
+  virtual void SelectModule(const I3OMGeo& omgeo);
+
+/** 
  *@brief Select light source
  * Set source properties, calculate geometrical quantities based on 
  * OM previously selected by SelectModuleCoordinates(), call photonics, and return result.

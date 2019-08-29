@@ -18,6 +18,7 @@
 
 // Local includes
 #include "icetray/I3Units.h"
+#include "dataclasses/geometry/I3OMGeo.h"
 #include "photonics-service/I3PhotonicsTableService.h"
 #include "photonics-service/I3PhotonicsServiceCommons.h"
 #include "boost/filesystem.hpp"
@@ -288,6 +289,13 @@ I3PhotonicsTableService::SelectModuleCoordinates(double const xOM,
 	xOM_ = xOM;
 	yOM_ = yOM;
 	zOM_ = zOM;
+}
+
+void
+I3PhotonicsTableService::SelectModule(const I3OMGeo& omgeo)
+{
+	I3Position pos = omgeo.position;
+	SelectModuleCoordinates(pos.GetX(), pos.GetY(), pos.GetZ());
 }
 
 void
