@@ -4,13 +4,13 @@
 import os
 import tempfile
 import shutil
-
-from icecube.simprod.modules import MuonGunGenerator
-
 from icecube import icetray, dataclasses, dataio
 from I3Tray import I3Tray
 
 try:
+
+    from icecube.simprod.modules import MuonGunGenerator
+    
     tmpdir = tempfile.mkdtemp(dir=os.getcwd())
     tmpfile = os.path.join(tmpdir,'test.i3')
     summaryfile = os.path.join(tmpdir,'summary.xml')
