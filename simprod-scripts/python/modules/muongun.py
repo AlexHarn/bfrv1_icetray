@@ -209,22 +209,24 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                 efficiency = choose_max_efficiency(self.efficiency)
  
             from icecube import clsim
-            tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
-                            GCDFile = self.gcdfile,
-                            RandomService = randomService,
-                            UseGPUs = self.usegpus,
-                            UseCPUs= not self.usegpus,
-                            IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
-                            UnshadowedFraction = efficiency,
-                            UseGeant4 = False,
-                            DOMOversizeFactor = self.oversize,
-                            MCTreeName = "I3MCTree", 
-                            MMCTrackListName="MMCTrackList",
-                            MCPESeriesName = self.photonseriesname,
-                            PhotonSeriesName = self.rawphotonseriesname,
-                            HoleIceParameterization = self.holeiceparametrization
-            )
-
+            try:
+                tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
+                                GCDFile = self.gcdfile,
+                                RandomService = randomService,
+                                UseGPUs = self.usegpus,
+                                UseCPUs= not self.usegpus,
+                                IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
+                                UnshadowedFraction = efficiency,
+                                UseGeant4 = False,
+                                DOMOversizeFactor = self.oversize,
+                                MCTreeName = "I3MCTree", 
+                                MMCTrackListName="MMCTrackList",
+                                MCPESeriesName = self.photonseriesname,
+                                PhotonSeriesName = self.rawphotonseriesname,
+                                HoleIceParameterization = self.holeiceparametrization)
+            except AttributeError as e:
+                print(e)
+                print("Nevermind...not propagating photons.")
 
         from icecube import polyplopia
         tray.AddModule("MPHitFilter","hitfilter",
