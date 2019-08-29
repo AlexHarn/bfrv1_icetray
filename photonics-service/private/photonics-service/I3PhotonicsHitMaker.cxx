@@ -231,12 +231,9 @@ I3PhotonicsHitMaker::DAQ(I3FramePtr frame)
 		}
 
 		if (trackp_)
-			trackp_->SelectModuleCoordinates(pos.GetX()/I3Units::m,
-			    pos.GetY()/I3Units::m, pos.GetZ()/I3Units::m);
+			trackp_->SelectModule(i->second);
 		if (cascadep_)
-			cascadep_->SelectModuleCoordinates(
-			    pos.GetX()/I3Units::m, pos.GetY()/I3Units::m,
-			    pos.GetZ()/I3Units::m);
+			cascadep_->SelectModule(i->second);
 
 		BOOST_FOREACH(struct photo_source src, photo_sources) {
 			double nphotons, emissiondist, geotime;
