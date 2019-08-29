@@ -224,15 +224,16 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                                 MCPESeriesName = self.photonseriesname,
                                 PhotonSeriesName = self.rawphotonseriesname,
                                 HoleIceParameterization = self.holeiceparametrization)
+
+                from icecube import polyplopia
+                tray.AddModule("MPHitFilter","hitfilter",
+                               HitOMThreshold=1,
+                               RemoveBackgroundOnly=False,
+                               I3MCPESeriesMapName=self.photonseriesname)
+                
             except AttributeError as e:
                 print(e)
                 print("Nevermind...not propagating photons.")
-
-        from icecube import polyplopia
-        tray.AddModule("MPHitFilter","hitfilter",
-                 HitOMThreshold=1,
-                 RemoveBackgroundOnly=False,
-                 I3MCPESeriesMapName=self.photonseriesname)
 
 
         if not self.keepmctree:
