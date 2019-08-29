@@ -54,8 +54,8 @@ class AddCylinders(icetray.I3Module):
         for i in DOMs:
             om_key = i[0]
             orientation = i[1] * (np.pi/180.0)
-            position_x = geometry.omgeo[ om_key ].position.x + self.dom_radius + self.radius * np.cos( orientation )
-            position_y = geometry.omgeo[ om_key ].position.y + self.dom_radius + self.radius * np.sin( orientation )
+            position_x = geometry.omgeo[ om_key ].position.x + (self.dom_radius + self.radius) * np.cos( orientation )
+            position_y = geometry.omgeo[ om_key ].position.y + (self.dom_radius + self.radius) * np.sin( orientation )
             position_z = geometry.omgeo[ om_key ].position.z
             self.cable_map[om_key] = simclasses.I3ExtraGeometryItemCylinder(dataclasses.I3Position( position_x , position_y , position_z + self.height/2.0),
                                                                        dataclasses.I3Position( position_x , position_y , position_z - self.height/2.0),
