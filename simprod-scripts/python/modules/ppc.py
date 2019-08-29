@@ -79,7 +79,7 @@ def PPCTraySegment(tray,
 
         tray.AddModule("i3ppc", "ppc", 
                   If = lambda f: f[InputMCTree].size() or keep_empty_events,
-                  #gpu=GPU, 
+                  gpu=GPU, 
                   efficiency_scaling_factor = UnshadowedFraction,
                   cyl=volumecyl,
                   keep=keep_empty_events,
