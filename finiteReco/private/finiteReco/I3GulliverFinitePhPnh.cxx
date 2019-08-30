@@ -125,7 +125,7 @@ void I3GulliverFinitePhPnh::SetEvent( const I3Frame &f ){
           hits_[igeo->first].t = NAN;
           hits_[igeo->first].a = NAN;
           hits_[igeo->first].n = 0;
-          hits_[igeo->first].pos = igeo->second.position;
+          hits_[igeo->first].omgeo = igeo->second;
         }
       }
     }
@@ -152,15 +152,16 @@ unsigned int I3GulliverFinitePhPnh::GetMultiplicity(){
   return multi_;
 }
 
-double I3GulliverFinitePhPnh::GetProbCylinder( const I3Particle& track, const I3Position& pos, const int& Nhit){
-  double distAlong = I3Calculator::DistanceAlongTrack(track,pos);
-  double dist      = (pos-track.GetPos()).Magnitude();
+//double I3GulliverFinitePhPnh::GetProbCylinder( const I3Particle& track, const I3Position& pos, const int& Nhit){
+double I3GulliverFinitePhPnh::GetProbCylinder( const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit){
+  double distAlong = I3Calculator::DistanceAlongTrack(track,omgeo.position);
+  double dist      = (omgeo.position-track.GetPos()).Magnitude();
   double distPerp  = dist*dist - distAlong*distAlong;
   if (distPerp > rCylinder_*rCylinder_){
     return minProb_;
   }
   
-  double physProb = prob_->GetHitProb(track,pos,Nhit);
+  double physProb = prob_->GetHitProb(track,omgeo,Nhit);
   double totProb  = minProb_ + physProb - minProb_*physProb;
   
   if (totProb<=0. || !isnormal(totProb)) {
@@ -190,11 +191,11 @@ double I3GulliverFinitePhPnh::GetLogLikelihoodString( const I3Particle& track ){
     
     double tot_prob;
     if(useOnlyFirstHit_){ 
-      tot_prob = GetProbCylinder(track,ihit->second.pos,-1);
+      tot_prob = GetProbCylinder(track,ihit->second.omgeo,-1);
       stringProb.AddOM(tot_prob,!std::isnan(ihit->second.t), false);
     }
     else{
-      tot_prob = GetProbCylinder(track,ihit->second.pos,ihit->second.n);
+      tot_prob = GetProbCylinder(track,ihit->second.omgeo,ihit->second.n);
       if(ihit->second.n == 0) stringProb.AddOM(1-tot_prob,!std::isnan(ihit->second.t), false);
       else stringProb.AddOM(tot_prob,!std::isnan(ihit->second.t), false);
     }
@@ -213,11 +214,11 @@ double I3GulliverFinitePhPnh::GetLogLikelihoodOM( const I3Particle& track ){
     double tot_prob;
     double log_pdf;
     if(useOnlyFirstHit_){
-      tot_prob = GetProbCylinder(track,ihit->second.pos,-1);
+      tot_prob = GetProbCylinder(track,ihit->second.omgeo,-1);
       log_pdf = ( std::isnan(ihit->second.t) ) ? log(1-tot_prob) : log(tot_prob) ;
     }
     else{
-      tot_prob = GetProbCylinder(track,ihit->second.pos,ihit->second.n);
+      tot_prob = GetProbCylinder(track,ihit->second.omgeo,ihit->second.n);
       log_pdf  = log(tot_prob);
     }
     

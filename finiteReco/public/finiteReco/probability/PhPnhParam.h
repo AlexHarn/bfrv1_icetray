@@ -25,7 +25,7 @@ class PhPnhParam : public PhPnhProbBase {
   PhPnhParam(double tau, const double& absorptionLength);
   virtual ~PhPnhParam();
   
-  double GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const;
+  double GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const;
  private:
   double GetHitProb(const double& chdist,const double& ori, const double& energy, const int& Nhit = 1) const;
   double tau_;

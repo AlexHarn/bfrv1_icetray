@@ -15,7 +15,7 @@
 
 #include <boost/math/distributions/poisson.hpp>
 
-double PhPnhPhotorec::GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{ 
+double PhPnhPhotorec::GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const{ 
   double length = track.GetLength()/I3Units::m;
   double energy = track.GetEnergy()/I3Units::GeV;
   double x = track.GetPos().GetX()/I3Units::m;
@@ -64,11 +64,9 @@ double PhPnhPhotorec::GetHitProb(const I3Particle& track, const I3Position& pos,
     }
   }
 
-  double meanPEs = -1;
-  double emissionPointDistance =-1;
-  double geoTime = -1;
+  double meanPEs, emissionPointDistance, geoTime;
 
-  PhotorecPtr_->SelectModuleCoordinates(pos.GetX()/I3Units::m,pos.GetY()/I3Units::m,pos.GetZ()/I3Units::m); 
+  PhotorecPtr_->SelectModule(omgeo);
   PhotorecPtr_->SelectSource(meanPEs,
                              emissionPointDistance,
                              geoTime,
@@ -77,10 +75,12 @@ double PhPnhPhotorec::GetHitProb(const I3Particle& track, const I3Position& pos,
                                              track.GetDir().GetAzimuth()/I3Units::degree,
                                              track.GetSpeed() / I3Constants::c,
                                              length, energy, 0));   // 0 means type is muon
-
-  if(meanPEs < 0 || (!std::isnormal(meanPEs) && meanPEs!=0)){
+  
+  if (meanPEs < 0) meanPEs = 0;
+  if(!std::isnormal(meanPEs) && meanPEs!=0){
+	log_warn("Got average PEs of %f from table! Setting this to 0 and hoping for the best.",
+			 meanPEs);
     meanPEs = 0.;
-    log_warn("Got no average PEs from table!");
   }
   
   double hitProb;

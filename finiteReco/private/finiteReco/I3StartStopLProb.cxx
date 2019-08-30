@@ -96,7 +96,7 @@ void I3StartStopLProb::Physics(I3FramePtr frame){
   double logStopProb = 0.;
   double logInfProb = 0.;
   if(partPtr->GetShape()==I3Particle::InfiniteTrack){
-    log_info("This module is for starting/stopping or contained tracks!");
+    log_warn("This module is for starting/stopping or contained tracks!");
     logInfProb = GetProbability(partPtr);
     logStartProb = NAN;
     logStopProb = NAN;

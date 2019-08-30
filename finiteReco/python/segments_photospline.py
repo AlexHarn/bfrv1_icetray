@@ -1,22 +1,18 @@
 from icecube import icetray, dataclasses
 
-
-defaultPhotonicsDir       = '/data/sim/scratch/test_pt/photonics-prod/tables/SPICEMie_i3coords/'
-defaultPhotonicsDriverDir = defaultPhotonicsDir+'driverfiles/'
-defaultPhotonicsListFile  = 'SPICEMie_i3coords_level2_muon_resampled.list'
-
-
 @icetray.traysegment
-def simpleLengthReco(tray, name,
-                     inputPulses, inputReco,
-                     cylinderRadius     = 200,
-                     doSimpleOnly       = True,
-                     geometry           = 'IC86',
-                     PhotonicsDir       = defaultPhotonicsDir,
-                     PhotonicsDriverDir = defaultPhotonicsDriverDir,
-                     PhotonicsListFile  = defaultPhotonicsListFile,
-                     If                 = lambda frame: True
-                     ):
+def simpleSplineLengthReco(tray, name,
+                           inputPulses, inputReco,
+                           cylinderRadius     = 200,
+                           doSimpleOnly       = True,
+                           geometry           = 'IC86',
+                           AmplitudeTable     = '',
+                           MaxRadius          = float('inf'),
+                           TiltTableDir       = '',
+                           TimingSigma        = 0.0,
+                           TimingTable        = '',
+                           If                 = lambda frame: True
+                       ):
 
     """
     Simple length reconstruction. The reconstructed vertex and
@@ -77,13 +73,12 @@ def simpleLengthReco(tray, name,
              81, 82, 83, 84, 85, 86,
              79, 80 ]
 
-    tray.AddService('I3PhotonicsServiceFactory', name+'_PhotonicsService',
-                    PhotonicsLevel2DriverFile  = PhotonicsListFile,
-                    PhotonicsTableSelection    = 2,
-                    PhotonicsTopLevelDirectory = PhotonicsDir,
-                    DriverFileDirectory        = PhotonicsDriverDir,
-                    UseDummyService            = False,
-                    ServiceName                = name+'_PhotonicsService'
+    tray.AddService('I3PhotoSplineServiceFactory', name+'_PhotoSplineService',
+                    AmplitudeTable     = AmplitudeTable,
+                    MaxRadius          = MaxRadius,
+                    TiltTableDir       = TiltTableDir,
+                    TimingSigma        = TimingSigma,
+                    TimingTable        = TimingTable,
                     )
 
     if geometry=='IC86':
@@ -93,7 +88,7 @@ def simpleLengthReco(tray, name,
                         SelectStrings = ic86,
                         RCylinder     = cylinderRadius,
                         ProbName      = 'PhPnhPhotorec',
-                        PhotorecName  = name+'_PhotonicsService'
+                        PhotorecName  = name+'_PhotoSplineService',
                         )
 
     elif geometry=='IC79':
@@ -103,7 +98,7 @@ def simpleLengthReco(tray, name,
                         SelectStrings = ic79,
                         RCylinder     = cylinderRadius,
                         ProbName      = 'PhPnhPhotorec',
-                        PhotorecName  = name+'_PhotonicsService'
+                        PhotorecName  = name+'_PhotoSplineService',
                         )
 
     if doSimpleOnly:
@@ -128,16 +123,18 @@ def simpleLengthReco(tray, name,
 
 
 @icetray.traysegment
-def advancedLengthReco(tray, name,
-                       inputPulses, inputReco,
-                       cylinderRadius     = 200,
-                       geometry           = 'IC86',
-                       PhotonicsDir       = defaultPhotonicsDir,
-                       PhotonicsDriverDir = defaultPhotonicsDriverDir,
-                       PhotonicsListFile  = defaultPhotonicsListFile,
-                       If                 = lambda frame: True
-                       ):
-
+def advancedSplineLengthReco(tray, name,
+                             inputPulses, inputReco,
+                             cylinderRadius     = 200,
+                             geometry           = 'IC86',
+                             AmplitudeTable     = '',
+                             MaxRadius          = float('inf'),
+                             TiltTableDir       = '',
+                             TimingSigma        = 0.0,
+                             TimingTable        = '',
+                             If                 = lambda frame: True
+                         ):
+    
     """
     Advanced length reconstruction. The reconstructed vertex and
     stopping point are found by a likelihood minimization using
@@ -171,26 +168,27 @@ def advancedLengthReco(tray, name,
     from icecube import lilliput
     from icecube.icetray import I3Units
 
-    tray.AddSegment(simpleLengthReco, name+'_simpleLengthReco',
+    tray.AddSegment(simpleSplineLengthReco, name+'_simpleLengthReco',
                     inputPulses        = inputPulses,
                     inputReco          = inputReco,
                     cylinderRadius     = cylinderRadius,
                     doSimpleOnly       = False,
                     geometry           = geometry,
-                    PhotonicsDir       = PhotonicsDir,
-                    PhotonicsDriverDir = PhotonicsDriverDir,
-                    PhotonicsListFile  = PhotonicsListFile,
+                    AmplitudeTable     = AmplitudeTable,
+                    MaxRadius          = MaxRadius,
+                    TiltTableDir       = TiltTableDir,
+                    TimingSigma        = TimingSigma,
+                    TimingTable        = TimingTable,
                     If                 = If
                     )
 
 
-    tray.AddService('I3GulliverMinuitFactory', name+'_FRminuit',
+    tray.AddService('I3GSLSimplexFactory', name+'_FRsimplex',
                     MaxIterations = 1000,
                     Tolerance     = 0.01,
-                    Algorithm     = 'SIMPLEX'
                     )
 
-    # keep the MC direction and only variate the vertex
+    # keep the MC direction and only vary the vertex
     # stop point reco : take start point and variate length
     tray.AddService('I3SimpleParametrizationFactory', name+'_simparStartVertex',
                     StepLinL   = 10.0*I3Units.m,
@@ -203,17 +201,17 @@ def advancedLengthReco(tray, name,
                     InputReadout  = inputPulses,
                     TimeShiftType = 'TNone'
                     )
+
     # reconstruct stop point
     tray.AddModule('I3SimpleFitter', name+'_'+inputReco+'_FiniteStop',
                    Parametrization = name+'_simparStartVertex',
                    SeedService     = name+'_seedserveStartVertex',
                    LogLikelihood   = name+'_simpleLengthReco_finitePhPnh',
-                   Minimizer       = name+'_FRminuit',
+                   Minimizer       = name+'_FRsimplex',
                    StoragePolicy   = 'OnlyBestFit',
                    OutputName      = name+'_'+inputReco+'_FiniteStop',
                    If              = If
                    )
-
 
     # start point reco : take stop point and variate length - this requires setting the vertex mode of the parametrization to "Stop"
     tray.AddService('I3SimpleParametrizationFactory', name+'_simparStopVertex',
@@ -232,7 +230,7 @@ def advancedLengthReco(tray, name,
                    Parametrization = name+'_simparStopVertex',
                    SeedService     = name+'_seedserveStopVertex',
                    LogLikelihood   = name+'_simpleLengthReco_finitePhPnh',
-                   Minimizer       = name+'_FRminuit',
+                   Minimizer       = name+'_FRsimplex',
                    StoragePolicy   = 'OnlyBestFit',
                    OutputName      = name+'_'+inputReco+'_Contained',
                    If              = If
@@ -245,7 +243,6 @@ def advancedLengthReco(tray, name,
                    ServiceName = name+'_simpleLengthReco_finitePhPnh',
                    If          = If
                    )
-
 
     # clean up
     tray.AddModule('Delete', name +'deleteFiniteRecoKeys',

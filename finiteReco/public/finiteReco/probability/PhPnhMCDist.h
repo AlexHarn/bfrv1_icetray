@@ -22,7 +22,7 @@ class PhPnhMCDist : public PhPnhProbBase {
  public:
   PhPnhMCDist(const std::string& inputProbFile_);
   virtual ~PhPnhMCDist();
-  double GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const;
+  double GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const;
  private:
   double GetHitProb(const double& chdist,const double& ori, const double& energy, const int& Nhit = 1) const;
   PhPnhMCDist();

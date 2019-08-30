@@ -14,8 +14,8 @@
 PhPnhProbBase::PhPnhProbBase(){}
 PhPnhProbBase::~PhPnhProbBase(){}
 
-double PhPnhProbBase::GetNoHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{
-  return (1 - this->GetHitProb(track,pos,Nhit));
+double PhPnhProbBase::GetNoHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const{
+  return (1 - this->GetHitProb(track,omgeo,Nhit));
 }
 
 bool PhPnhProbBase::CherenkovCalc(const I3Particle& track,

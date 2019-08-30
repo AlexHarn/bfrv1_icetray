@@ -26,13 +26,14 @@ PhPnhParam::PhPnhParam(double tau, const double& absorptionLength):
 
 PhPnhParam::~PhPnhParam(){}
 
-double PhPnhParam::GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{
+//double PhPnhParam::GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{
+double PhPnhParam::GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const{
   I3Position chPos;
   double chTime;
   double ori;
   double chDist;
   bool isOK = this->CherenkovCalc(track,
-                                  pos,
+                                  omgeo.position,
                                   chPos,
                                   chTime,
                                   chDist,

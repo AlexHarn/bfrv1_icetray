@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from os.path import expandvars
+from os.path import expandvars, join
 
 from I3Tray import *
 from icecube import icetray, dataclasses, dataio, gulliver, finiteReco
@@ -15,6 +15,7 @@ tray.AddModule('I3Reader', 'reader',
                Filename = infile
                )
 
+# Using old tables
 tray.AddSegment(finiteReco.advancedLengthReco, 'advancedLengthReco',
                 inputPulses        = 'OfflinePulses_FR_DCVeto',
                 inputReco          = 'MPEFit',
@@ -23,6 +24,16 @@ tray.AddSegment(finiteReco.advancedLengthReco, 'advancedLengthReco',
                 PhotonicsDriverDir = expandvars('$I3_TESTDATA/finiteReco/driverfiles/'),
                 PhotonicsListFile  = 'SPICEMie_i3coords_level2_muon_finiteRecoTestONLY.list'
                 )
+
+# Using splines instead of tables
+splinedir = '/cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/'
+tray.AddSegment(finiteReco.advancedSplineLengthReco, 'advancedSplineLengthReco',
+                inputPulses        = 'OfflinePulses_FR_DCVeto',
+                inputReco          = 'MPEFit',
+                geometry           = 'IC79',
+                AmplitudeTable     = join(splinedir, 'ems_mie_z20_a10.abs.fits'),
+                TimingTable        = join(splinedir, 'ems_mie_z20_a10.prob.fits'),
+)
 
 tray.AddModule('I3Writer', 'writer',
                Streams  = [icetray.I3Frame.DAQ, icetray.I3Frame.Physics],

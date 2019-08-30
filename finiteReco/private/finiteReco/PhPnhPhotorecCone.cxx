@@ -20,12 +20,13 @@ PhPnhPhotorecCone::PhPnhPhotorecCone(I3PhotonicsServicePtr photorecPtr, const do
 
 PhPnhPhotorecCone::~PhPnhPhotorecCone(){}
   
-double PhPnhPhotorecCone::GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{ 
+//double PhPnhPhotorecCone::GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit) const{ 
+double PhPnhPhotorecCone::GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit) const{ 
   // look if the position is within a possible light cone from the track
-  int factor = GetCone ( track, pos );
+  int factor = GetCone ( track, omgeo.position );
   if ( factor == 0 ) return 0.;
   PhPnhPhotorecPtr probPtr ( new PhPnhPhotorec ( PhotorecPtr_, finiteDefaultLength_, onlyInfiniteTables_ )  );
-  double hitProb = probPtr->GetHitProb ( track, pos, Nhit);
+  double hitProb = probPtr->GetHitProb ( track, omgeo, Nhit);
   return hitProb * factor;
 }
 

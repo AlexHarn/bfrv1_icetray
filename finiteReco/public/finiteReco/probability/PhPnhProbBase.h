@@ -23,8 +23,8 @@ class PhPnhProbBase {
  public:
   PhPnhProbBase();
   virtual ~PhPnhProbBase();
-  virtual double GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit = -1) const = 0;
-  double GetNoHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit = -1) const;
+  virtual double GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit = -1) const = 0;
+  double GetNoHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit = -1) const;
   bool CherenkovCalc(const I3Particle& track,
                      const I3Position& pos,
                      I3Position& chpos,

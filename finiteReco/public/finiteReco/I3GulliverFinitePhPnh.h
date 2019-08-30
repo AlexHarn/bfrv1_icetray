@@ -52,7 +52,8 @@ public:
       /// hit amplitude
       double a;
       /// geometrical hit position
-      I3Position pos;
+		//I3Position pos;
+	  I3OMGeo omgeo;
     };
 private:
     bool IsStringSelected(const int& stringNr);
@@ -73,7 +74,7 @@ private:
     double probMultiDet_;
     double minProb_;
     I3GulliverFinitePhPnh();
-    double GetProbCylinder( const I3Particle& track, const I3Position& pos, const int& Nhit);
+    double GetProbCylinder( const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit);
     double GetLogLikelihoodString( const I3Particle& track );
     double GetLogLikelihoodOM( const I3Particle& track );
     I3GulliverFinitePhPnh(const I3GulliverFinitePhPnh&);

@@ -28,7 +28,7 @@ class PhPnhPhotorec : public PhPnhProbBase {
     onlyInfiniteTables_(onlyInfiniteTables){}
   virtual ~PhPnhPhotorec(){}
   
-  double GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit =1) const;
+  double GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit =1) const;
  private:
   I3PhotonicsServicePtr PhotorecPtr_;
   double finiteDefaultLength_;

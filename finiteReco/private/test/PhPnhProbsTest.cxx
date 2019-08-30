@@ -6,6 +6,7 @@
 #include "finiteReco/probability/PhPnhPhotorec.h"
 #include "finiteReco/probability/PhPnhPhotorecCone.h"
 #include "dataclasses/physics/I3Particle.h"
+#include "dataclasses/geometry/I3OMGeo.h"
 #include "dataclasses/I3Position.h"
 #include "photonics-service/I3PhotonicsTableService.h"
 
@@ -16,19 +17,23 @@ TEST_GROUP(finiteRecoProbabilityTest);
 
 static void DoTest(PhPnhProbBase* probCalc){  
   I3Position omPos1(0,20,100);
+  I3OMGeo *omgeo1 = new I3OMGeo();
+  omgeo1->position = omPos1;
   I3Particle track;
   track.SetPos(0,0,0);
   track.SetDir(0,0,1);
   track.SetShape(I3Particle::ContainedTrack);
   track.SetLength(200);
-  double prob1 = probCalc->GetHitProb(track,omPos1);
+  double prob1 = probCalc->GetHitProb(track,*omgeo1);
   ENSURE(prob1 >= 0,"Probabilities must be greater equal 0");
   ENSURE(prob1 <= 1,"Probabilities must be smaller equal 1");
-  
+
+  I3OMGeo *omgeo = new I3OMGeo();
   double prob =  1;
   for(int i = 2;i<40;i++){
     I3Position omPos(0,10*i,200);
-    double prob2 = probCalc->GetHitProb(track,omPos);
+	omgeo->position = omPos;
+    double prob2 = probCalc->GetHitProb(track,*omgeo);
     ENSURE(prob2 <= prob,"Probability should decrease with distance from track");
     prob = prob2;
   }
@@ -36,7 +41,8 @@ static void DoTest(PhPnhProbBase* probCalc){
   prob =  1;
   for(int i = 2;i<40;i++){
     I3Position omPos(0,50,200 + i*10);
-    double prob2 = probCalc->GetHitProb(track,omPos);
+	omgeo->position = omPos;
+    double prob2 = probCalc->GetHitProb(track,*omgeo);
     ENSURE(prob2 <= prob,"Probability should decrease behind the end of the track");
     prob = prob2;
   }  
@@ -44,13 +50,16 @@ static void DoTest(PhPnhProbBase* probCalc){
   prob =  1;
   for(int i = 2;i<40;i++){
     I3Position omPos(0,50,-i*10);
-    double prob2 = probCalc->GetHitProb(track,omPos);
+	omgeo->position = omPos;
+    double prob2 = probCalc->GetHitProb(track,*omgeo);
     ENSURE(prob2 <= prob,"Probability should decrease before the start of the track");
     prob = prob2;
   }
   
   I3Position omPos2(0,20,300);
-  ENSURE(probCalc->GetHitProb(track,omPos1) > probCalc->GetHitProb(track,omPos2),"The probability before the end is lower then behind");
+  I3OMGeo *omgeo2 = new I3OMGeo();
+  omgeo2->position = omPos2;
+  ENSURE(probCalc->GetHitProb(track,*omgeo1) > probCalc->GetHitProb(track,*omgeo2),"The probability before the end is lower then behind");
 }
 
 

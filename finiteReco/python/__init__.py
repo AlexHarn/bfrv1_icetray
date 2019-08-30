@@ -10,3 +10,4 @@ except ImportError:
     pass
 
 from .segments import simpleLengthReco, advancedLengthReco
+from .segments_photospline import simpleSplineLengthReco, advancedSplineLengthReco

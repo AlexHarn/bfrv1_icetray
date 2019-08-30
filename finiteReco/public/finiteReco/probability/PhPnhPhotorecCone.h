@@ -27,7 +27,7 @@ class PhPnhPhotorecCone : public PhPnhProbBase {
  public:
   PhPnhPhotorecCone(I3PhotonicsServicePtr photorecPtr, const double& finiteDefaultLength = 2*I3Units::km, const bool& onlyInfiniteTables = false);
   virtual ~PhPnhPhotorecCone();
-  double GetHitProb(const I3Particle& track, const I3Position& pos, const int& Nhit =1) const;
+  double GetHitProb(const I3Particle& track, const I3OMGeo& omgeo, const int& Nhit =1) const;
   
  private:
   int GetCone (const I3Particle& track, const I3Position& pos ) const;
