@@ -31,8 +31,8 @@ tray.AddSegment(finiteReco.advancedSplineLengthReco, 'advancedSplineLengthReco',
                 inputPulses        = 'OfflinePulses_FR_DCVeto',
                 inputReco          = 'MPEFit',
                 geometry           = 'IC79',
-                AmplitudeTable     = join(splinedir, 'ems_mie_z20_a10.abs.fits'),
-                TimingTable        = join(splinedir, 'ems_mie_z20_a10.prob.fits'),
+                AmplitudeTable     = join(splinedir, 'InfBareMu_mie_abs_z20a10_V2.fits'),
+                TimingTable        = join(splinedir, 'InfBareMu_mie_prob_z20a10_V2.fits'),
 )
 
 tray.AddModule('I3Writer', 'writer',
