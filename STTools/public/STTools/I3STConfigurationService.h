@@ -354,8 +354,27 @@ IsSTConfigurationComplete(const I3OMGeoMap &omGeoMap) const
     BOOST_FOREACH(const I3OMGeoMap::value_type &om, omGeoMap)
     {
         const OMKey &omkey = om.first;
+	log_debug("In the IsSTConfigurationComplete loop, looking at: %s", omkey.str().c_str());
         if (omkey.GetPMT() != 0)
             continue;
+
+	// KR: The IceAct string/DOM (0,1,0) is in the geometry, but is
+	// not typically in the STConfiguration.  Similarly for scintillators
+	// (strings 12 and 62, DOM's 65 and 66).
+	// At the moment, we aren't doing ST analysis including these.
+	// So don't freak out if these particular things are not there.
+	if (omkey.GetString() == 0) {
+	  log_debug("I found the IceAct String (String 0), "
+		    "and I'm going to ignore it in the completeness check.");
+	  continue;
+	}
+	if ((omkey.GetString() == 12 || omkey.GetString() == 62) && omkey.GetOM() > 64) {
+	  log_debug("I found a scintillator (OM > 64 on string 12 or 62), "
+		    "and I'm going to ignore it in the completeness check.");
+	  continue;
+	}
+
+
         if(std::find(omKeys.begin(), omKeys.end(), omkey) == omKeys.end())
         {
             log_debug(
