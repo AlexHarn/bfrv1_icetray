@@ -56,7 +56,10 @@ def extract(frame, pulses, residual, window, outdir, subdir, ini):
             f.write(' '.join(map(str,
                                  [p.pos.x, p.pos.y, p.pos.z,
                                  p.dir.zenith/I3Units.deg, p.dir.azimuth/I3Units.deg,
-                                 energy, p.time])))
+                                 energy, p.time]))+'\n')
+            if p.is_track:
+                f.write('\n')
+                f.write('0 10 3 0')
 
     curr += 1
 
