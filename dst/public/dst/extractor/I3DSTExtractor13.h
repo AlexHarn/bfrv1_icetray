@@ -130,6 +130,7 @@ class I3DSTExtractor13: public I3ConditionalModule, public I3Splitter
     double centerZ_;
     double zenithHi_;
     double zenithLo_;
+    bool cut_data_;
     std::vector<unsigned int> keepTriggers_;
 
     I3DSTHeader13Ptr dstheader_;

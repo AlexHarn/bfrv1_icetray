@@ -51,8 +51,9 @@ I3DSTExtractor13::I3DSTExtractor13(const I3Context &ctx) :
     centerX_(0.),
     centerY_(0.),
     centerZ_(0.),
-    zenithHi_(M_PI),
-    zenithLo_(0.000)
+    zenithHi_(M_PI-0.02),
+    zenithLo_(0.02),
+    cut_data_(false)
 {
     i3recoList_.push_back("NULL");
     i3recoList_.push_back("PoleMuonLinefit");
@@ -60,6 +61,12 @@ I3DSTExtractor13::I3DSTExtractor13(const I3Context &ctx) :
     i3recoList_.push_back("ToI");
 
     keepTriggers_.push_back(1006);
+    keepTriggers_.push_back(1007);
+    keepTriggers_.push_back(1011);
+    keepTriggers_.push_back(102);
+    keepTriggers_.push_back(21001);
+    keepTriggers_.push_back(23050);
+    keepTriggers_.push_back(24002);
 
     AddOutBox("OutBox");
     AddParameter("SubEventStreamName", "The name of the SubEvent stream.",
@@ -77,6 +84,7 @@ I3DSTExtractor13::I3DSTExtractor13(const I3Context &ctx) :
     AddParameter("ZenithHighCut", "Max zenith angle", zenithHi_);
     AddParameter("ZenithLowCut", "Min zenith angle", zenithLo_);
     AddParameter("KeepTriggers", "Keep events for which given triggers have fired", keepTriggers_);
+    AddParameter("Cut", "Apply quality cuts", true);
     rand_ =  ctx.Get<I3RandomServicePtr>("I3RandomService");
 }
 
@@ -115,12 +123,14 @@ void I3DSTExtractor13::DAQ(I3FramePtr frame)
     // fill the DSTHeader.
     if (frame->Has(dstName_))
     {
+
         if (!startTimeSet_)
         {
             startTimeDST_ = frame->Get<I3DST13ConstPtr>(dstName_)->GetTime();
             startTimeSet_ = true;
         }
 
+        tdst->isGoodLLH = false;
         if (!headerWritten_)
         {
             // Buffer all frames until we see an EventHeader
@@ -328,6 +338,7 @@ bool I3DSTExtractor13::ProcessDSTReco(I3FramePtr frame, I3DST13Ptr dst, I3DSTRec
     //Determine zero bin
     unsigned zero_bin = dstcoord_.GetIndex(0,0); 
     zenith_cut = (dstreco->GetReco2() != zero_bin);
+    log_debug("reco in zero bin bin %u. Skipping", dstreco->GetReco2());
 
     // Decode first reconstruction
     reco1->SetFitStatus(I3Particle::OK);
@@ -369,8 +380,10 @@ bool I3DSTExtractor13::ProcessDSTReco(I3FramePtr frame, I3DST13Ptr dst, I3DSTRec
     }
     if (reco_index.size() > 1)
     {
-            if (reco_index[1] == 2)
+            if (reco_index[1] == 2) {
+                tdst->isGoodLLH = true;
                 reco2->SetFitStatus(I3Particle::OK);
+            }
             sprintf(strbuff, "DST_%s", i3recoList_[reco_index[1]].c_str());
 
             if (extractToFrame_ ) {
@@ -404,41 +417,56 @@ bool I3DSTExtractor13::ProcessDSTReco(I3FramePtr frame, I3DST13Ptr dst, I3DSTRec
     double nsInDay = (secsInDay - floor(secsInDay)) / I3Units::nanosecond;
 
 
-    // Place holders for when this is implemented in astro
     tdst->localMST = I3GetGMST(eventTime);
     tdst->mjdTime  = mjdTime/I3Units::day;
+
+    tdst->lfAzimuth = reco1->GetDir().GetAzimuth() / I3Units::degree;
+    tdst->lfZenith = reco1->GetDir().GetZenith() / I3Units::degree;
+
     tdst->llhAzimuth = reco2->GetDir().GetAzimuth() / I3Units::degree;
     tdst->llhZenith = reco2->GetDir().GetZenith() / I3Units::degree;
+
     tdst->linllhOpeningAngle = I3Calculator::Angle(*reco1, *reco2) / I3Units::degree;
 
     // Coordinate transformations
     I3Equatorial eq = I3GetEquatorialFromDirection(reco2->GetDir(), eventTime);
-    tdst->RA = eq.ra / I3Units::degree;
+    tdst->RA = fmod(eq.ra / I3Units::degree,360);
+    if (tdst->RA < 0) 
+	    tdst->RA += 360;
     tdst->Dec = eq.dec / I3Units::degree;
 
     I3Equatorial moonEq = I3GetEquatorialFromDirection(I3GetMoonDirection(eventTime), eventTime);
-    tdst->RAMoon = moonEq.ra / I3Units::degree;
+    tdst->RAMoon = fmod(moonEq.ra / I3Units::degree,360);
+    if (tdst->RAMoon < 0) 
+	    tdst->RAMoon += 360;
     tdst->DecMoon = moonEq.dec / I3Units::degree;
 
     I3Equatorial sunEq = I3GetEquatorialFromDirection(I3GetSunDirection(eventTime), eventTime);
-    tdst->RASun = sunEq.ra / I3Units::degree;
+    tdst->RASun = fmod(sunEq.ra / I3Units::degree,360);
+    if (tdst->RASun < 0) 
+	    tdst->RASun += 360;
     tdst->DecSun = sunEq.dec / I3Units::degree;
-
 
     // Antisid frame
     double lst = I3GetGMST(eventTime);
     tdst->localAntiS = I3GetGMAST(eventTime);
-    tdst->RAAntiS = (eq.ra - (lst + tdst->localAntiS)*I3Constants::pi/12)/ I3Units::degree;
+    tdst->RAAntiS = fmod( (eq.ra - (lst + tdst->localAntiS)*I3Constants::pi/12)/ I3Units::degree,360);
+    if (tdst->RAAntiS < 0) 
+	    tdst->RAAntiS += 360;
     tdst->DecAntiS = eq.dec / I3Units::degree;
 
     // Solar frame
-    double tod = tod = ( mjd - int(mjd)) * 24.;
-    tdst->RASolar = (eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree;
+    double tod = ( tdst->mjdTime - int(tdst->mjdTime) )* 24.;
+    tdst->RASolar = fmod((eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree,360);
+    if (tdst->RASolar < 0) 
+	    tdst->RASolar += 360;
     tdst->DecSolar = eq.dec / I3Units::degree;
 
     // Antisid frame
     tdst->localExtS = I3GetGMEST(eventTime);
-    tdst->RAExtS = (eq.ra - (lst + tdst->localExtS)*I3Constants::pi/12)/ I3Units::degree;
+    tdst->RAExtS = fmod( (eq.ra - (lst + tdst->localExtS)*I3Constants::pi/12)/ I3Units::degree,360);
+    if (tdst->RAExtS < 0) 
+	    tdst->RAExtS += 360;
 
 
     tdst->nchan      = dstreco->GetNDOM();
@@ -484,11 +512,16 @@ bool I3DSTExtractor13::ProcessDSTReco(I3FramePtr frame, I3DST13Ptr dst, I3DSTRec
     }
 
     zenith_cut = zenith_cut && reco2->GetZenith() > zenithLo_ && reco2->GetZenith() < zenithHi_ ;
-    tdst->isGoodLineFit = tdst->cut_nan() && zenith_cut;
+    log_debug("zenith %f < %f < %f", zenithLo_,reco2->GetZenith(), zenithHi_);
+    tdst->isGoodLineFit = tdst->cut_nan();
     if (tdst->isGoodLineFit && zenith_cut)
        frame->Put("CutDST", tdst); 
 
-    return tdst->isGoodLineFit && zenith_cut;
+
+    tdst->isGoodLLH = tdst->isGoodLLH && zenith_cut;
+
+
+    return ( tdst->isGoodLLH || !cut_data_);
 }
 
 

@@ -7,6 +7,9 @@ Release Notes
 
 trunk
 -----
+* Fixed missing linefit for DST2013
+* Fixed bug in calculation of Extended Siderial time
+* Now correctly sets RA in range 0..360 deg
 
 Dec 19, 2018 Juan Carlos
 ---------------------------

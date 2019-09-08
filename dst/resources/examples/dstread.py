@@ -45,6 +45,8 @@ parser.add_option("-x", "--extract-to-frame",action="store_true", default=False,
                   dest="X2FRAME", help="Extract DST to standar I3Reco objects in frame")
 parser.add_option("-c", "--cut",action="store_true", default=False,
                   dest="CUT", help="Apply cuts")
+parser.add_option("--noqify",action="store_true", default=False,
+                  dest="NOQIFY", help="Convert P-Frames to Q-Frames")
 
 (options,args) = parser.parse_args()
 
@@ -90,9 +92,10 @@ tray.AddModule("I3Reader","i3reader")(
 
 
 # You can write the dst to .root files
-tray.AddModule("QConverter","qify-dst")(
-    ("QKeys",["I3DST13","I3DST13Header","I3EventHeader"]),
-    ("WritePFrame", False)
+if not options.NOQIFY:
+    tray.AddModule("QConverter","qify-dst")(
+        ("QKeys",["I3DST13","I3DST13Header","I3EventHeader"]),
+        ("WritePFrame", False)
     )
 
 

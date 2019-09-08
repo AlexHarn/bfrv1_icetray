@@ -269,7 +269,7 @@ void I3DSTExtractor16::ProcessFrame(I3FramePtr frame)
 
             if (ProcessDST(pframe, dst,reco_counter++)) {
                 pbuffer.push_front(pframe); 
-		log_info("processed reco %s", frame_iter->first.c_str()); 
+		log_trace("processed reco %s", frame_iter->first.c_str()); 
 	    } else {
 		log_info("did not processed reco %s", frame_iter->first.c_str()); 
 	    }
@@ -361,6 +361,7 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
             if (reco_index[0] == 1)
                 reco1->SetFitStatus(I3Particle::OK);
             sprintf(strbuff, "DST_%s", i3recoList_[reco_index[0]].c_str());
+
             if (extractToFrame_ ) {
                 frame->Put(string(strbuff), reco1);
             }
@@ -403,8 +404,10 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
     double mjdTime = mjd + newtime;
     double secsInDay = (mjdTime - mjd) / I3Units::second;
     double nsInDay = (secsInDay - floor(secsInDay)) / I3Units::nanosecond;
+
+
     tdst->localMST = I3GetGMST(eventTime);
-    tdst->mjdTime    = mjdTime/I3Units::day;
+    tdst->mjdTime  = mjdTime/I3Units::day;
 
     tdst->lfAzimuth = reco1->GetDir().GetAzimuth() / I3Units::degree;
     tdst->lfZenith = reco1->GetDir().GetZenith() / I3Units::degree;
@@ -416,31 +419,43 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
 
     // Coordinate transformations
     I3Equatorial eq = I3GetEquatorialFromDirection(reco2->GetDir(), eventTime);
-    tdst->RA = eq.ra / I3Units::degree;
+    tdst->RA = fmod(eq.ra / I3Units::degree,360);
+    if (tdst->RA < 0) 
+	    tdst->RA += 360;
     tdst->Dec = eq.dec / I3Units::degree;
 
     I3Equatorial moonEq = I3GetEquatorialFromDirection(I3GetMoonDirection(eventTime), eventTime);
-    tdst->RAMoon = moonEq.ra / I3Units::degree;
+    tdst->RAMoon = fmod(moonEq.ra / I3Units::degree,360);
+    if (tdst->RAMoon < 0) 
+	    tdst->RAMoon += 360;
     tdst->DecMoon = moonEq.dec / I3Units::degree;
 
     I3Equatorial sunEq = I3GetEquatorialFromDirection(I3GetSunDirection(eventTime), eventTime);
-    tdst->RASun = sunEq.ra / I3Units::degree;
+    tdst->RASun = fmod(sunEq.ra / I3Units::degree,360);
+    if (tdst->RASun < 0) 
+	    tdst->RASun += 360;
     tdst->DecSun = sunEq.dec / I3Units::degree;
 
     // Antisid frame
     double lst = I3GetGMST(eventTime);
     tdst->localAntiS = I3GetGMAST(eventTime);
-    tdst->RAAntiS = (eq.ra - (lst + tdst->localAntiS)*I3Constants::pi/12)/ I3Units::degree;
+    tdst->RAAntiS = fmod( (eq.ra - (lst + tdst->localAntiS)*I3Constants::pi/12)/ I3Units::degree,360);
+    if (tdst->RAAntiS < 0) 
+	    tdst->RAAntiS += 360;
     tdst->DecAntiS = eq.dec / I3Units::degree;
 
     // Solar frame
-    double tod = tod = ( mjd - int(mjd)) * 24.;
-    tdst->RASolar = (eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree;
+    double tod = ( tdst->mjdTime - int(tdst->mjdTime) )* 24.;
+    tdst->RASolar = fmod((eq.ra - (lst + tod)*I3Constants::pi/12.)/ I3Units::degree,360);
+    if (tdst->RASolar < 0) 
+	    tdst->RASolar += 360;
     tdst->DecSolar = eq.dec / I3Units::degree;
 
     // Antisid frame
     tdst->localExtS = I3GetGMEST(eventTime);
-    tdst->RAExtS = (eq.ra - (lst + tdst->localExtS)*I3Constants::pi/12)/ I3Units::degree;
+    tdst->RAExtS = fmod( (eq.ra - (lst + tdst->localExtS)*I3Constants::pi/12)/ I3Units::degree,360);
+    if (tdst->RAExtS < 0) 
+	    tdst->RAExtS += 360;
 
 
     tdst->nchan      = dst->GetNDOM();
@@ -493,7 +508,7 @@ bool I3DSTExtractor16::ProcessDST(I3FramePtr frame, I3DST16Ptr dst, int reco_cou
 
     if (!tdst->isGoodLineFit) 
         log_info("Event Does not have a good line fit");
-    if (!zenith_cut) 
+    if (cut_data_ && !zenith_cut) 
         log_info("Event does not pass zenith cut.");
 
     tdst->isGoodLLH = tdst->isGoodLLH && zenith_cut;
