@@ -96,8 +96,6 @@ def PPCTraySegment(tray,
            tray.AddModule("Rename", keys=["MCPESeriesMap",MCPESeriesName])
 
 
-
-
 ###### IP Modules ###########
 
 class PPC(ipmodule.ParsingModule):
@@ -119,7 +117,7 @@ class PPC(ipmodule.ParsingModule):
         self.AddParameter("GPU", 
                           "Graphics Processing Unit number (shoud default to environment if None)",
                           -1)
-        self.AddParameter("UseGPUs", "Use Graphics Processing Unit",False)
+        self.AddParameter("UseGPUs", "Use Graphics Processing Unit",True)
         self.AddParameter('RunMPHitFilter',"Run polyplopia's mphitfilter",True)
         self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
         self.AddParameter("efficiency","overall DOM efficiency scaling factor (systematics)",1.00)
