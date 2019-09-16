@@ -374,7 +374,7 @@ def main(options, stats={}):
 ### iceprod stuff ###
 try:
     from iceprod.modules import ipmodule
-except ImportError, e:
+except ImportError as e:
     icetray.logging.log_warn('Module iceprod.modules not found. Will not define IceProd Class')
 else:
     Level1SimulationFilter = ipmodule.FromOptionParser(make_parser(),main)
