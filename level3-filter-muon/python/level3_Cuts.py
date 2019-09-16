@@ -63,7 +63,7 @@ def DoLevel3Cuts(frame, Track, Pulses, Suffix):
         else:
             Plogl=1000
             
-        DirectEllipse=(LDir/180)**2+(NDir/10)**2
+        DirectEllipse=(LDir/180)**2+(NDir//10)**2
         Level3Cut=((DirectEllipse>2 and NDir>6) or (Plogl<7.5) or (Rlogl<9.0))
 
         if (Qtot>10**4):
