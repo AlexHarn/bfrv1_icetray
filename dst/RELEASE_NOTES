@@ -9,7 +9,7 @@ trunk
 -----
 Sept. 18, 2019 Juan Carlos
 ---------------------------
-Release V00-10-06
+Release V00-10-07
 
 * Fixed bug for missing linefit for DST2013
 * Fixed bug in calculation of Extended Siderial time
