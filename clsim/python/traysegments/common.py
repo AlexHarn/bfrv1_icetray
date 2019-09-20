@@ -60,7 +60,9 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
             
         else:
             openCLDevices.append(device)
-    
+
+    if not openCLDevices:
+        icetray.logging.log_fatal("No matching OpenCL devices. Devices: {} Selection: UseCPUs={}, UseGPUs={}, UseOnlyDeviceNumber={}. ".format(', '.join([d.device for d in I3CLSimOpenCLDevice.GetAllDevices()]), UseCPUs, UseGPUs, UseOnlyDeviceNumber))
     return openCLDevices
 
 def parseIceModel(IceModelLocation, disableTilt=False):
