@@ -95,6 +95,8 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
     
     if (converters_.empty())
         log_fatal("Need at least 1 I3CLSimStepToPhotonConverter");
+    if (converters_.size() > 1)
+        log_fatal("Cannot handle more than 1 OpenCL device. See: https://code.icecube.wisc.edu/projects/icecube/ticket/2360");
 
     // Harmonize bunch sizes
     for (auto &converter : converters_) {
