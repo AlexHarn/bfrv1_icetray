@@ -10,7 +10,7 @@
 I3IceLayerTilt::I3IceLayerTilt() : tilt(false), lnum(0), l0(0), r0(0) { }
 
 void I3IceLayerTilt::error(const std::string& str){
-  log_fatal(str.c_str());
+  log_fatal("%s",str.c_str());
   throw std::runtime_error(str);
 }
 
