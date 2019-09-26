@@ -7,6 +7,11 @@
 Release Notes
 =============
 
+Trunk
+-----
+- Use a read only stream to read datafiles to prevent crash if the data files 
+  are on cvmfs, as well as switch to $I3_BUILD 
+
 March 24, 2017 Mike Richman (mike.d.richman@gmail.com)
 --------------------------------------------------------------------
 Release V00-02-04

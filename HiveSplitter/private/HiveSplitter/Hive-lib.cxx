@@ -378,7 +378,7 @@ namespace honey{
     DOMHoneyCombRegister NewRegister;
 
     // READ
-    std::fstream file ( fileName.c_str());
+    std::ifstream file ( fileName.c_str());
     assert(file.is_open());
     //containers
     std::string line, word;

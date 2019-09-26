@@ -440,9 +440,9 @@ void HiveSplitter::BuildDistanceMap(I3GeometryConstPtr geo) {
 
   log_info("Building DOM-Hive Look-Up tables");
 
-  Hive SingleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_SRC")) +"/HiveSplitter/resources/SingleDenseHive.dat");
-  Hive DoubleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_SRC")) +"/HiveSplitter/resources/DoubleDenseHive.dat");
-  Hive TrippleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_SRC")) +"/HiveSplitter/resources/TrippleDenseHive.dat");
+  Hive SingleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_BUILD")) +"/HiveSplitter/resources/SingleDenseHive.dat");
+  Hive DoubleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_BUILD")) +"/HiveSplitter/resources/DoubleDenseHive.dat");
+  Hive TrippleDenseHive = ReadHiveFromFile(boost::lexical_cast<std::string>(getenv("I3_BUILD")) +"/HiveSplitter/resources/TrippleDenseHive.dat");
 
   log_info_stream("Building DistanceMap"<< std::flush);
   /* MATRICE LOOKS LIKE THIS: horizontal index_x, vertical index_y;
