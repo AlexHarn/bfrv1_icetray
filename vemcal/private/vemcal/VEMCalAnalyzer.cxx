@@ -7,6 +7,8 @@
  * @version $Rev: $
  * @date $Date: $
  * @author tilo
+ * 
+ * Removed I3Db dependency  --S. Tilav 24/Sep/2019
  */
 
 
@@ -62,25 +64,10 @@ double muonSpec(double* x, double* p)
 }
 
 
-VEMCalAnalyzer::VEMCalAnalyzer(const std::string& host, const std::string& user, const std::string& pword, const std::string& dbase):
+VEMCalAnalyzer::VEMCalAnalyzer():
     firstRunID_(-1), lastRunID_(-1), startTime_(0,0), storeHistos_(true)
 {
   
-    int dbRevisionID = 0;
-    
-    // Create I3OmDb Object
-    omDb_ = I3OmDb::InitInstance();
-    
-    // Connect to database
-    I3OmDb::Result_t rc = omDb_->Connect(host.c_str(), dbRevisionID, user.c_str(), pword.c_str(), dbase.c_str()) ;
-    if(rc != I3OmDb::OK && rc != I3OmDb::ErrorAlreadyConnected)
-    {
-	log_fatal("Unable to connect to database server!");
-    }
-    else
-    {
-         log_info("Connected to database \"%s\" on %s", dbase.c_str(), host.c_str()); 
-    }
 }
 
 VEMCalAnalyzer::~VEMCalAnalyzer()
@@ -137,14 +124,10 @@ void VEMCalAnalyzer::OpenFiles(const std::vector<std::string>& fileList)
 	// Loop over all Histogramms in the top level directory of the file
 	int muonCounter = 0;
 	int hglgCounter = 0;
-	//TList* keyList = rootfile->GetListOfKeys();
-//alessio
+
         TIter next(rootfile->GetListOfKeys()); 
         TKey *key; 
         while ((key=(TKey*)next())) {
-//	for(int i=0; i<keyList->GetEntries(); i++)
-//	{
-//	    TKey* key = static_cast<TKey*>(keyList->At(i));
 	    
 	    int str, om;
 	    char prefix[9];
@@ -182,16 +165,11 @@ void VEMCalAnalyzer::OpenFiles(const std::vector<std::string>& fileList)
 
 	}
 
-//alessio
-//delete keyList;
-//rootfile->Close();	
 	delete rootfile;
 
 	log_info("  Added %d muon histograms.", muonCounter);
 	log_info("  Added %d hglg histograms.", hglgCounter);
     }
-    I3OmDb::BigTime_t firstRunTime= omDb_->GetRunStartDate(firstRunID_);
-    startTime_.SetUnixTime(firstRunTime.Time,firstRunTime.Frac);
     
     log_info("First run : %d", firstRunID_);
     log_info("Last  run : %d", lastRunID_);

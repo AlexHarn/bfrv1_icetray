@@ -13,11 +13,8 @@
 #ifndef _VEMCAL_VEMCALANALYZER_H_
 #define _VEMCAL_VEMCALANALYZER_H_
 
-
-
 #include <icetray/OMKey.h>
 #include <dataclasses/I3Time.h>
-#include <I3Db/I3OmDb/I3OmDb.h>
 
 #include <vector>
 #include <string>
@@ -64,10 +61,7 @@ typedef std::map<OMKey, VEMCalResult> VEMCalResultMap;
 class VEMCalAnalyzer
 {
 public:
-    VEMCalAnalyzer(const std::string& host  = "dbs2.icecube.wisc.edu",
-		   const std::string& user  = "www",
-		   const std::string& pword = "",
-		   const std::string& dbase = "I3OmDb");
+    VEMCalAnalyzer();
     
     ~VEMCalAnalyzer();
     
@@ -125,7 +119,6 @@ private:
     
     HGLGHistMap hglgHistos_;
 
-    I3OmDb* omDb_;
 };
 
 
@@ -150,6 +143,5 @@ inline void VEMCalAnalyzer::Maximum(std::pair<OMKey, double>& max, const OMKey& 
 	max.first  = omKey;
     }
 };
-
 
 #endif
