@@ -6,14 +6,15 @@ vemcal
 	
 author of project
         Tilo Waldenmaier <tilo.waldenmaier@desy.de>
-
+maintaned by 
+        Serap Tilav <tilav@udel.edu>
 Description
         The vemcal project is a collection of icetray modules, standalone routines and scripts to perform the muon calibration of the IceTop DOMs. In the following a brief description of the individal modules is given.
 
 Usage
-        See example script `< ../../examples/vemcal_jeb_snippet.py>`
+        See example script `< ../../examples/vemcal_PnF_filter.py>`
 
-I3VEMCalExtractor Module
+I3VEMCalExtractor Module 
         The I3VEMCalExtractor is the most important module which is intended to run on the JEB filter clients at South Pole to extract all the needed information from the IceTop minimum bias and the standard IceTop pulses. The extracted information is written it in a condensed format (I3VEMCalData) back to the frame in order to transfer it to the North. The I3VEMCalExtractor has the following configuration parameters:
 
 
