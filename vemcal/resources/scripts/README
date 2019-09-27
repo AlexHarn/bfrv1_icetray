@@ -1,0 +1,10 @@
+Current scripts which are used by the VEMCal project:
+vemcal_submit_condor.py, vemcal_process.py, vemcal_analyze.py, vemcal_graphs.py
+
+-- Cron runs in vemcal account on submitter-1 machine, submits vemcal_submit_condor.py everyday
+-- vemcal_submit_condor.py runs vemcal_process.py on each run file (PnF files)
+-- vemcal_process.py produces root files
+
+-- vemcal_analyze.py runs biweekly on the root files, uses vemcal_graphs.py to produce vemcal plots which show up in https://wiki.icecube.wisc.edu/index.php/VEMCal-Monitor
+
+Serap Tilav 24/Sep/2019
