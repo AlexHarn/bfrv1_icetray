@@ -14,6 +14,9 @@ from icecube.icetray import I3Units
 from icecube.load_pybindings import load_pybindings
 load_pybindings(__name__,__path__)
 
+def str_remove(instring, removestr):
+    return ''.join(s for s in instring if s not in removestr)
+
 @icetray.traysegment
 def SplineMPE(tray, name,
               fitname = "",
@@ -136,9 +139,20 @@ def SplineMPE(tray, name,
   # If not the SplineService will be created
 
   #SplineService names
-  BareMuSplineName = "BareMuSplineJitter" + str(PreJitter) + BareMuAmplitudeSpline.translate(string.maketrans("",""), string.punctuation) + BareMuTimingSpline.translate(string.maketrans("",""), string.punctuation)
-  StochSplineName = "StochMuSplineJitter" + str(PreJitter) + StochAmplitudeSpline.translate(string.maketrans("",""), string.punctuation) + StochTimingSpline.translate(string.maketrans("",""), string.punctuation)
-  NoiseSplineName = "NoiseSpline" + BareMuAmplitudeSpline.translate(string.maketrans("",""), string.punctuation) + BareMuTimingSpline.translate(string.maketrans("",""), string.punctuation)
+  BareMuSplineName = "BareMuSplineJitter" + str(PreJitter) +\
+          str_remove(BareMuAmplitudeSpline, string.punctuation) +\
+          str_remove(BareMuTimingSpline, string.punctuation)
+  StochSplineName = "StochMuSplineJitter" + str(PreJitter) +\
+          str_remove(StochAmplitudeSpline, string.punctuation) +\
+          str_remove(StochTimingSpline, string.punctuation)
+  NoiseSplineName = "NoiseSpline" + \
+          str_remove(BareMuAmplitudeSpline, string.punctuation)+\
+          str_remove(BareMuTimingSpline, string.punctuation) 
+    
+  #the old p2 version:
+  #BareMuSplineName = "BareMuSplineJitter" + str(PreJitter) + BareMuAmplitudeSpline.translate(str.maketrans("","", string.punctuation)) + BareMuTimingSpline.translate(str.maketrans("","", string.punctuation))
+  #StochSplineName = "StochMuSplineJitter" + str(PreJitter) + StochAmplitudeSpline.translate(str.maketrans("","", string.punctuation)) + StochTimingSpline.translate(str.maketrans("","", string.punctuation))
+  #NoiseSplineName = "NoiseSpline" + BareMuAmplitudeSpline.translate(str.maketrans("","", string.punctuation)) + BareMuTimingSpline.translate(str.maketrans("","", string.punctuation))
 
   ExistingServices = tray.context.keys()
 
