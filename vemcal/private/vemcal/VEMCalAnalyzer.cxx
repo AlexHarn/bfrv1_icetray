@@ -11,7 +11,6 @@
  * Removed I3Db dependency  --S. Tilav 24/Sep/2019
  */
 
-
 #include <vemcal/VEMCalAnalyzer.h>
 #include <TFile.h>
 #include <TClass.h>
@@ -24,19 +23,15 @@
 #include <TArrow.h>
 #include <TText.h>
 #include <TPaveText.h>
-
 #include <TROOT.h>
 
 #include <iostream>
 #include <ostream>
 #include <fstream>
 #include <cstring>
-
 #include <algorithm>
 
-
 using namespace std;
-
 
 double hglgDiff(double* x, double* p)
 {
@@ -44,7 +39,6 @@ double hglgDiff(double* x, double* p)
     if(x[0]>p[1]) ret = p[0] + p[3]*log10(1 + p[2]*(x[0] - p[1]));
     return ret;
 }
-
 
 double muonSpec(double* x, double* p)
 {
