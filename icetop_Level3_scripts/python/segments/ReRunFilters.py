@@ -70,7 +70,7 @@ def ReRunFilters(tray,name,
         tray.AddModule("I3OrphanQDropper",name+"_drop_IC79_IC86_2011_Q")
 
     # Now run the filters again on the P frames.
-    tray.AddModule('I3FilterModule<I3CosmicRayFilter_13>',
+    tray.AddModule('I3FilterModule<I3CosmicRayFilter_13>', name + '_CRFilter13',
                    DecisionName       = 'I3CosmicRayFilter_13',
                    IceTopPulseMaskKey = Pulses,
                    TriggerEvalList    = list(),
