@@ -30,7 +30,7 @@ def main(args, outputLevel=2):
 
     icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_ERROR)
     icetray.I3Logger.global_logger.set_level_for_unit("MakeQualityCuts",icetray.I3LogLevel.LOG_INFO)
-    
+
     if not args.L3_gcdfile:
         if args.isMC:
             gcdfile=["/data/ana/CosmicRay/IceTop_level3/sim/%s/GCD/Level3_%i_GCD.i3.gz"%(args.detector, args.dataset)]
@@ -122,7 +122,8 @@ def main(args, outputLevel=2):
 
     wanted_icetop_filter=['IceTop_EventPrescale',
                           'IceTop_StandardFilter',
-                          'IceTop_InFillFilter']
+                          'IceTop_InFillFilter',
+                          'IceTop_TwoStationFilter']
  
     wanted_icetop_pulses=[icetop_globals.icetop_hlc_pulses,
                           icetop_globals.icetop_slc_pulses,
@@ -167,7 +168,14 @@ def main(args, outputLevel=2):
 
     wanted=wanted_general+wanted_icetop_filter+wanted_icetop_pulses+wanted_icetop_waveforms+wanted_icetop_reco+wanted_icetop_cuts
     
-    
+    wanted_sta2 = wanted_general + wanted_icetop_filter + \
+                    [icetop_globals.icetop_hlc_pulses,
+                    icetop_globals.icetop_slc_pulses,
+                    icetop_globals.icetop_clean_hlc_pulses,
+                    icetop_globals.icetop_cluster_cleaning_excluded_tanks,
+                    icetop_globals.icetop_tank_pulse_merger_excluded_tanks,
+                    'TankPulseMergerExcludedSLCTanks']
+
     if args.do_inice:
         wanted_inice_pulses=[icetop_globals.inice_pulses,
                              icetop_globals.inice_coinc_pulses,
@@ -215,6 +223,13 @@ def main(args, outputLevel=2):
                    Keys = wanted
                    )
     
+    tray.AddModule("Keep", 'DropObjects_STA2',
+                   Keys = wanted_sta2,
+                   If = lambda frame: ('IceTop_TwoStationFilter' in frame and frame['IceTop_TwoStationFilter'].value) \
+                       and not ('IceTop_StandardFilter' in frame and frame['IceTop_StandardFilter'].value) \
+                       and not ('IceTop_InFillFilter' in frame and frame['IceTop_InFillFilter'].value)
+                   )
+
     if args.output.replace('.bz2', '').replace('.gz','')[-3:] == '.i3':
         tray.AddModule("I3Writer", "i3-writer",
                        Filename = args.output,
