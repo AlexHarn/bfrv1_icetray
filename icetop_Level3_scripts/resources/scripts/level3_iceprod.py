@@ -236,8 +236,11 @@ def main(options, stats={}):
 
     wanted_icetop_filter=['IceTop_EventPrescale',
                           'IceTop_StandardFilter',
-                          'IceTop_InFillFilter',
-                          'IceTop_TwoStationFilter']
+                          'IceTop_InFillFilter']
+
+    ## The two-station filter: only exists 2016 and onward
+    if not (options['detector']=="IC79" or options['detector']=="IC86.2011" or options['detector']=="IC86.2012" or options['detector']=="IC86.2013" or options['detector']=="IC86.2014" or options['detector']=="IC86.2015"):
+        wanted_icetop_filter += ['IceTop_TwoStationFilter']
  
     wanted_icetop_pulses=[icetop_globals.icetop_hlc_pulses,
                           icetop_globals.icetop_slc_pulses,
@@ -337,12 +340,14 @@ def main(options, stats={}):
                    Keys = wanted
                    )
 
-    tray.AddModule("Keep", 'DropObjects_STA2',
-                   Keys = wanted_sta2,
-                   If = lambda frame: ('IceTop_TwoStationFilter' in frame and frame['IceTop_TwoStationFilter'].value) \
-                       and not ('IceTop_StandardFilter' in frame and frame['IceTop_StandardFilter'].value) \
-                       and not ('IceTop_InFillFilter' in frame and frame['IceTop_InFillFilter'].value)
-                   )
+    ## The two-station filter: only exists 2016 and onward
+    if not (options['detector']=="IC79" or options['detector']=="IC86.2011" or options['detector']=="IC86.2012" or options['detector']=="IC86.2013" or options['detector']=="IC86.2014" or options['detector']=="IC86.2015"):
+        tray.AddModule("Keep", 'DropObjects_STA2',
+                       Keys = wanted_sta2,
+                       If = lambda frame: ('IceTop_TwoStationFilter' in frame and frame['IceTop_TwoStationFilter'].value) \
+                           and not ('IceTop_StandardFilter' in frame and frame['IceTop_StandardFilter'].value) \
+                           and not ('IceTop_InFillFilter' in frame and frame['IceTop_InFillFilter'].value)
+                       )
 
     if options['outfile'].replace('.bz2', '').replace('.gz','')[-3:] == '.i3':
         tray.AddModule("I3Writer", "i3-writer",

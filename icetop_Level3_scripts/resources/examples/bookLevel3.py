@@ -158,6 +158,10 @@ it_filter=['IceTop_EventPrescale',
            'IceTop_StandardFilter',
            'IceTop_InFillFilter']
 
+## The two-station filter: only exists 2016 and onward
+if not (args.detector=="IC79" or args.detector=="IC86.2011" or args.detector=="IC86.2012" or args.detector=="IC86.2013" or args.detector=="IC86.2014" or args.detector=="IC86.2015"):
+    it_filter += ['IceTop_TwoStationFilter']
+
 it_pulses=[dict(key =icetop_globals.icetop_clean_hlc_pulses,
                 converter = dataclasses.converters.I3RecoPulseSeriesMapConverter(bookGeometry=True),
                 name = icetop_globals.icetop_clean_hlc_pulses),
