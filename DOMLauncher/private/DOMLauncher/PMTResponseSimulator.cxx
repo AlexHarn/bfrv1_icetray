@@ -271,7 +271,7 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 			log_debug_stream("Falling back to generic charge distribution for " << dom);
 			speDistribution=genericChargeDistribution_;
 		}
-		chargeDistributions_.insert(std::make_pair(dom,speDistribution)).first;
+		chargeDistributions_.insert(std::make_pair(dom,speDistribution));
 	}
 	else
 		speDistribution=chargeDistributions_.find(dom)->second;

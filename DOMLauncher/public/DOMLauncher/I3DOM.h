@@ -334,9 +334,6 @@ protected:
     /// ATWDb is busy/dead to time = ATWDbDeadTo_;
     double ATWDbDeadTo_;
 
-    ///Max amplitude of the normalized pulse template
-    double pulseTemplatePeak_;
-
     ///The time at which the pulse template has it's maximum
     double timeOfPulseTemplatePeak_;
 
