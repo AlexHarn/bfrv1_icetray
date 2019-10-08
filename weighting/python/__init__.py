@@ -129,7 +129,7 @@ class WeightCalculatorBase(icetray.I3ConditionalModule):
 	def DAQ(self, frame):
 
 		if 'PolyplopiaPrimary' in frame:
-			primary = frame['MCPrimary']
+			primary = frame['PolyplopiaPrimary']
 		elif 'MCPrimary' in frame:
 			primary = frame['MCPrimary']
 		else:
