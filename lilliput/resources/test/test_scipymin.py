@@ -14,7 +14,6 @@ import icecube.lilliput
 import icecube.dataio
 import icecube.common_variables
 import icecube.tableio
-import icecube.hdfwriter
 import icecube.linefit
 import icecube.lilliput.segments
 
