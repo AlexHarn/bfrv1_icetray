@@ -1,4 +1,11 @@
-
+#
+# put your email address here if you would like notification emails
+# about commits to this project.
+# $Id: .mailinglist 163167 2018-06-11 20:09:04Z kjmeagher $
+#
+# Maintainer
+alanc@udel.edu
+# Observer
 chris.weaver@icecube.wisc.edu
 thomas.kintscher@desy.de
 kmeagher@icecube.wisc.edu
