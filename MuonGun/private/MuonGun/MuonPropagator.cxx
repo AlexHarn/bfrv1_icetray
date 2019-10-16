@@ -8,6 +8,7 @@
 
 #include <boost/assign.hpp>
 #include <boost/foreach.hpp>
+#include <boost/bimap.hpp>
 
 #include "MuonGun/MuonPropagator.h"
 
