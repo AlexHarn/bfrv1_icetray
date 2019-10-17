@@ -11,6 +11,7 @@ import icecube.sim_services
 import icecube.simclasses
 import icecube.cmc
 import icecube.PROPOSAL
+import json
 
 default_media_definition = os.path.expandvars(
     "$I3_BUILD/PROPOSAL/resources/config_icesim.json")
@@ -21,7 +22,6 @@ def PropagateMuons(tray, name,
                    RandomService=None,
                    CylinderRadius=None,
                    CylinderLength=None,
-                   SliceMuons=None,
                    SaveState=True,
                    InputMCTreeName="I3MCTree_preMuonProp",
                    OutputMCTreeName="I3MCTree",
@@ -40,10 +40,6 @@ def PropagateMuons(tray, name,
     :param float CylinderLength:
         Full height of the target volume in m
         (this param is now depricated, use the config file in the detector configuration)
-    :param bool SliceMuons:
-        Emit constant-energy track slices in addition to stochastic losses
-        (similar to the output of I3MuonSlicer)
-        (this param is now depricated, use the config file with key continous_loss_output)
     :param bool SaveState:
         If set to `True`, store the state of the supplied RNG.
     :param str InputMCTree:
@@ -61,9 +57,6 @@ def PropagateMuons(tray, name,
     if CylinderLength is not None:
         icecube.icetray.logging.log_warn(
             "The CylinderLength now should be set in the configuration file in the detector configuration")
-    if SliceMuons is not None:
-        icecube.icetray.logging.log_warn(
-            "The SliceMuons now should be set in the configuration file with key continous_loss_output")
     propagators = make_standard_propagators(**kwargs)
 
     # Set up propagators.
@@ -98,15 +91,21 @@ def PropagateMuons(tray, name,
     return
 
 def make_standard_propagators(SplitSubPeVCascades=True,
+                              EmitTrackSegments=True,
                               MaxMuons=10,
-                              PROPOSAL_config_file=default_media_definition,
-                              **kwargs):
+                              PROPOSAL_config_file=default_media_definition):
     """
     Set up standard propagators (PROPOSAL for muons and taus, CMC for cascades)
+    :param bool SplitSubPeVCascades:
+        Split cascades into segments above 1 TeV. Otherwise, split only above 1 PeV.
+    :param bool EmitTrackSegments:
+        Emit constant-energy track slices in addition to stochastic losses
+        (similar to the output of I3MuonSlicer)
+    :param str PROPOSAL_config_file:
+        Path to PROPOSAL config file
     Keyword arguments will be passed to I3PropagatorServicePROPOSAL
     """
     from icecube.icetray import I3Units
-    
 
     cascade_propagator = icecube.cmc.I3CascadeMCService(
         icecube.phys_services.I3GSLRandomService(1))  # Dummy RNG
@@ -117,7 +116,7 @@ def make_standard_propagators(SplitSubPeVCascades=True,
         cascade_propagator.SetThresholdSplit(1*I3Units.PeV)
     cascade_propagator.SetMaxMuons(MaxMuons)
     muon_propagator = icecube.PROPOSAL.I3PropagatorServicePROPOSAL(
-            config_file=PROPOSAL_config_file)
+            config_file=PROPOSAL_config_file, slice_tracks=EmitTrackSegments)
     propagator_map =\
         icecube.sim_services.I3ParticleTypePropagatorServiceMap()
 
