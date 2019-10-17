@@ -178,9 +178,8 @@ def I3CLSimMakePhotons(tray, name,
         Only the most recent positions are saved, older positions are overwritten if
         the maximum size is reached.
     :param UseI3PropagatorService:
-        Use PROPOSAL and cmc to propagate initial particles through the detector.
-        Do not use this mode if particles were already propagated, e.g. with
-        simprod.segments.PropagateMuons
+        Use PROPOSAL and cmc to propagate initial particles (i.e. with NaN
+        lengths) through the detector.
     :param UseGeant4:
         Enabling this setting will disable all cascade and muon light yield
         parameterizations. All particles will sent to Geant4 for a full

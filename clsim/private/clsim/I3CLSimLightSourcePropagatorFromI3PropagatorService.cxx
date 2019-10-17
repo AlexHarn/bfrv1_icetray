@@ -39,7 +39,9 @@ void I3CLSimLightSourcePropagatorFromI3PropagatorService::SetRandomService(I3Ran
 
 bool I3CLSimLightSourcePropagatorFromI3PropagatorService::IsValidForLightSource(const I3CLSimLightSource &source)
 {
+    // accept any particle in the type list that has not already been propagated
     return (source.GetType() == I3CLSimLightSource::Particle)
+        && std::isnan(source.GetParticle().GetLength())
         && (particleToPropagatorServiceMap_->find(source.GetParticle().GetType()) != particleToPropagatorServiceMap_->end());
 }
 
