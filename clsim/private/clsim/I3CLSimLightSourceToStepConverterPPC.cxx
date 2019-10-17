@@ -282,7 +282,13 @@ void I3CLSimLightSourceToStepConverterPPC::EnqueueLightSource(const I3CLSimLight
     const double logE = std::max(0., std::log(E)); // protect against extremely low energies
 
     if (isElectron || isHadron) {
-        const double nph=5.21*(0.924*I3Units::g/I3Units::cm3)/density;
+        // See Eq. (8) in: 
+        // Calculation of the Cherenkov light yield from electromagnetic cascades in ice with Geant4 
+        // L. Raedel, C. Wiebusch
+        // Astropart.Phys. 44 (2013) 102-113 
+        // DOI: 10.1016/j.astropartphys.2013.01.015
+        // http://arxiv.org/abs/arXiv:1210.5140
+        const double nph=5.321*(0.91*I3Units::g/I3Units::cm3)/density;
         
         // Get cascade extension and fluctuation parameters
         I3SimConstants::ShowerParameters shower_params(particle.GetType(), E, density);
@@ -367,7 +373,12 @@ void I3CLSimLightSourceToStepConverterPPC::EnqueueLightSource(const I3CLSimLight
                   particle.GetMajorID(), particle.GetMinorID(),
                   E*I3Units::GeV/I3Units::TeV, length/I3Units::m);
         
-        // calculation the way it's done by PPC (updated June 2018)
+        // See Tab. C.3 in:
+        // Calculation of the Cherenkov light yield from low energetic secondary particles accompanying high-energy muons in ice and water with Geant 4 simulations
+        // L. Raedel, C. Wiebusch
+        // Astropart.Phys. 38 (2012) 53-67 
+        // 10.1016/j.astropartphys.2012.09.008 
+        // http://arxiv.org/abs/arXiv:1206.5530
         const double extr=1+std::max(0.0, 0.1880+0.0206*logE);
         const double muonFraction = 1./extr;
         
