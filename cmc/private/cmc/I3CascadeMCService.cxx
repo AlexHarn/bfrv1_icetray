@@ -89,13 +89,13 @@ void I3CascadeMCService::SetStepWidth(int w ){
 // returns the iterator pointing to the last added particle
 void I3CascadeMCService::Simulate(I3Particle& cascade, vector<I3Particle>& daughters) {
 
-  I3Particle new_cascade = cascade.Clone();
   
-  if (!IsCascade(new_cascade))
-    log_fatal("%s is not a cascade!", new_cascade.GetTypeString().c_str());
+  if (!IsCascade(cascade))
+    log_fatal("%s is not a cascade!", cascade.GetTypeString().c_str());
 
   cascade.SetLength(0.);
-  
+  I3Particle new_cascade = cascade.Clone();
+
   // if particle is a hadron shower rescale hadron energy and 
   // substitue hadron shower with EM shower
   if ( IsHadron(new_cascade) ) {

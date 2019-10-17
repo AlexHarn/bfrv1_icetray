@@ -190,11 +190,22 @@ I3MMCTrackPtr I3PropagatorServicePROPOSAL::propagate(I3Particle& p, std::vector<
         // this is not the particle you're looking for
         // move along...and add it to the daughter list
         daughters.push_back(particle_converter_.GenerateI3Particle(*secondaries.at(i)));
+        I3Particle &segment = daughters.back();
+
+        // I3PropagatorModule and related clients will not return secondaries
+        // to the originating propagator by default. To force muon secondaries
+        // (e.g. from pair production) to themselves be propagated, we unset
+        // their length.
+        if (secondaries.at(i)->GetTypeId() == PROPOSAL::DynamicData::Particle
+            && proposal_service_.IsRegistered(static_cast<const PROPOSAL::Particle*>(secondaries.at(i))->GetParticleDef())
+            && segment.GetLength() == 0)
+        {
+            segment.SetLength(NAN);
+        }
 
         // Emit track segments with the current energy for use with
         // parameterizations such as https://arxiv.org/abs/1206.5530
         if (slice_tracks_) {
-            I3Particle &segment = daughters.back();
             double energyLoss = segment.GetEnergy();
             if (segment.GetType() == I3Particle::ContinuousEnergyLoss) {
                 segment.SetType(p.GetType());

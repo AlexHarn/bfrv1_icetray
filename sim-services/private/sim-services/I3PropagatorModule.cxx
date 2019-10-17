@@ -258,7 +258,7 @@ void I3PropagatorModule::DAQ(I3FramePtr frame)
             I3ParticleTypePropagatorServiceMap::const_iterator it =
                 particleToPropagatorServiceMap_->find(child.GetType());
             // In looping as in public health, don't consume your own output.
-            if (it != particleToPropagatorServiceMap_->end() && it->second != currentPropagator)
+            if (it != particleToPropagatorServiceMap_->end() && (it->second != currentPropagator || std::isnan(child_it->GetLength())))
                 particlesToPropagate.push_back(std::make_pair(child_it, it->second));
         }
         particlesToPropagate.pop_front();

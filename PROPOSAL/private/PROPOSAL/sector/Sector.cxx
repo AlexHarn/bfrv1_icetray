@@ -458,6 +458,9 @@ double Sector::Propagate(double distance)
                             for(unsigned int i=0; i<decay_products.size(); i++){
                                 // set additional properties for muon pair particles
                                 decay_products[i]->SetPosition(particle_.GetPosition());
+                                // FIXME: Implement full angular distribution,
+                                // e.g. following https://cds.cern.ch/record/558831/files/sl-2002-016.pdf
+                                decay_products[i]->SetDirection(particle_.GetDirection());
                                 decay_products[i]->SetTime(particle_.GetTime());
                                 decay_products[i]->SetParentParticleEnergy(particle_.GetEnergy());
                             }
