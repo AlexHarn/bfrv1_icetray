@@ -55,7 +55,6 @@ def I3CLSimMakePhotons(tray, name,
                        OutputMCTreeName=None,
                        FlasherInfoVectName=None,
                        FlasherPulseSeriesName=None,
-                       MMCTrackListName="MMCTrackList",
                        PhotonSeriesName="PhotonSeriesMap",
                        MCPESeriesName="MCPESeriesMap",
                        RandomService=None,
@@ -63,6 +62,7 @@ def I3CLSimMakePhotons(tray, name,
                        DisableTilt=False,
                        UnWeightedPhotons=False,
                        UnWeightedPhotonsScalingFactor=None,
+                       UseI3PropagatorService=True,
                        UseGeant4=False,
                        ParticleHistory=False,
                        ParticleHistoryGranularity=20*icetray.I3Units.m,
@@ -177,6 +177,10 @@ def I3CLSimMakePhotons(tray, name,
         The maximum number of scatterings points to be saved for every photon hitting a DOM.
         Only the most recent positions are saved, older positions are overwritten if
         the maximum size is reached.
+    :param UseI3PropagatorService:
+        Use PROPOSAL and cmc to propagate initial particles through the detector.
+        Do not use this mode if particles were already propagated, e.g. with
+        simprod.segments.PropagateMuons
     :param UseGeant4:
         Enabling this setting will disable all cascade and muon light yield
         parameterizations. All particles will sent to Geant4 for a full
@@ -263,7 +267,7 @@ def I3CLSimMakePhotons(tray, name,
         DisableTilt=DisableTilt,
         UnWeightedPhotons=UnWeightedPhotons,
         UnWeightedPhotonsScalingFactor=UnWeightedPhotonsScalingFactor,
-        MMCTrackListName=MMCTrackListName,
+        UseI3PropagatorService=UseI3PropagatorService,
         UseGeant4=UseGeant4,
         CrossoverEnergyEM=CrossoverEnergyEM,
         CrossoverEnergyHadron=CrossoverEnergyHadron,
@@ -297,13 +301,8 @@ def I3CLSimMakePhotons(tray, name,
     # stash server instance in the context to keep it alive
     tray.context['CLSimServer'] = server
 
-    if MMCTrackListName is None or MMCTrackListName=="":
-        # the input does not seem to have been processed by MMC
-        ChopMuons = False
-    else:
-        ChopMuons = True
     if UseGPUs:
-        if not ChopMuons:
+        if UseI3PropagatorService:
             logging.log_warn("Propagating muons and photons in the same process. This may starve your GPU.")
         if UseGeant4:
             loggin.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
@@ -316,7 +315,6 @@ def I3CLSimMakePhotons(tray, name,
         OutputMCTreeName=OutputMCTreeName,
         FlasherInfoVectName=FlasherInfoVectName,
         FlasherPulseSeriesName=FlasherPulseSeriesName,
-        MMCTrackListName=MMCTrackListName,
         PhotonSeriesName=PhotonSeriesName,
         MCPESeriesName=MCPESeriesName,
         RandomService=RandomService,
@@ -425,12 +423,6 @@ def I3CLSimMakePhotonsWithServer(tray, name,
         tray.AddModule("I3GeometryDecomposer", name + "_decomposeGeometry",
                        If=lambda frame: If(frame) and ("I3OMGeoMap" not in frame) and ("I3ModuleGeoMap" not in frame))
 
-    if MMCTrackListName is None or MMCTrackListName=="":
-        # the input does not seem to have been processed by MMC
-        ChopMuons = False
-    else:
-        ChopMuons = True
-
     if MCTreeName is None or MCTreeName=="":
         clSimMCTreeName=""
         if ChopMuons:
@@ -462,36 +454,20 @@ def I3CLSimMakePhotonsWithServer(tray, name,
                        FlasherOMKeyVectName = clSimOMKeyMaskName,
                        If=If)
 
-    # (optional) pre-processing
-    # disable if ParticleHistory was requested, as it interferes with adding
-    # particles to the MCTree in I3CLSimClientModule
-    if ChopMuons and not ParticleHistory:
-        if OutputMCTreeName is not None:
-            clSimMCTreeName_new = OutputMCTreeName
-        else:
-            clSimMCTreeName_new = clSimMCTreeName + "_sliced"
-        
-        tray.AddModule("I3MuonSlicer", name + "_chopMuons",
-                       InputMCTreeName=clSimMCTreeName,
-                       MMCTrackListName=MMCTrackListName,
-                       OutputMCTreeName=clSimMCTreeName_new,
-                       If=If)
-        clSimMCTreeName = clSimMCTreeName_new
+    if (OutputMCTreeName is not None) and (OutputMCTreeName != ""):
+        # copy the MCTree to the requested output name
+        def copyMCTree(frame, inputName, outputName, If_=None):
+            if If_ is not None:
+                if not If_(frame): return
+            frame[outputName] = frame[inputName]
+        tray.AddModule(copyMCTree, name + "_copyMCTree",
+                       inputName=clSimMCTreeName,
+                       outputName=OutputMCTreeName,
+                       Streams=[icetray.I3Frame.DAQ],
+                       If_=If)
+        clSimMCTreeName = OutputMCTreeName
     else:
-        if (OutputMCTreeName is not None) and (OutputMCTreeName != ""):
-            # copy the MCTree to the requested output name
-            def copyMCTree(frame, inputName, outputName, If_=None):
-                if If_ is not None:
-                    if not If_(frame): return
-                frame[outputName] = frame[inputName]
-            tray.AddModule(copyMCTree, name + "_copyMCTree",
-                           inputName=clSimMCTreeName,
-                           outputName=OutputMCTreeName,
-                           Streams=[icetray.I3Frame.DAQ],
-                           If_=If)
-            clSimMCTreeName = OutputMCTreeName
-        else:
-            clSimMCTreeName = clSimMCTreeName
+        clSimMCTreeName = clSimMCTreeName
 
     clsimModuleArgs = {
         'ServerAddress': ServerAddress,
@@ -513,7 +489,7 @@ def I3CLSimMakePhotonsWithServer(tray, name,
         stepGenerator.SetRandomService(RandomService)
         stepGenerator.SetWlenBias(DetectorSettings['WavelengthGenerationBias'])
         propagators = []
-        if not ChopMuons:
+        if DetectorSettings['UseI3PropagatorService']:
             from icecube.simprod.segments.PropagateMuons import make_standard_propagators
             pmap = make_standard_propagators(EmitTrackSegments=True, SplitSubPeVCascades=False)
             propagators.append(clsim.I3CLSimLightSourcePropagatorFromI3PropagatorService(pmap,ParticleHistory,ParticleHistoryGranularity))
@@ -535,22 +511,5 @@ def I3CLSimMakePhotonsWithServer(tray, name,
     tray.AddModule('I3CLSimClientModule', name+"_makePhotons",
         **clsimModuleArgs
     )
-
-    if ChopMuons and not ParticleHistory:
-        sliceRemoverAdditionalParams = dict()
-        if PhotonSeriesName is not None:
-            sliceRemoverAdditionalParams["InputPhotonSeriesMapName"] = PhotonSeriesName
-            sliceRemoverAdditionalParams["OutputPhotonSeriesMapName"] = PhotonSeriesName
-
-        # re-assign the output hits from the sliced tree to the original tree
-        tray.AddModule("I3MuonSliceRemoverAndPulseRelabeler",
-            InputMCTreeName = clSimMCTreeName,
-            OldMCTreeName = MCTreeName,
-            InputMCPESeriesMapName = MCPESeriesName,
-            OutputMCPESeriesMapName = MCPESeriesName,
-            **sliceRemoverAdditionalParams
-            )
-        if OutputMCTreeName is None:
-            tray.Add("Delete", keys=[clSimMCTreeName])
 
     return clsimModuleArgs

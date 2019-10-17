@@ -293,14 +293,12 @@ tray.AddModule(generateEvent, "generateEvent",
     )
 
 MCTreeName="I3MCTree"
-MMCTrackListName=None
 photonSeriesName = None
 
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     GCDFile = GCDFile,
     PhotonSeriesName = photonSeriesName,
     MCTreeName = MCTreeName,
-    MMCTrackListName = MMCTrackListName,
     RandomService = randomService,
     MCPESeriesName = "MCPESeriesMap",
     UnshadowedFraction = 0.95,
