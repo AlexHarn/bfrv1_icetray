@@ -130,10 +130,6 @@ def I3CLSimMakePhotons(tray, name,
         (I3CLSimFlasherPulseSeries objects are clsim's internal flasher
         representation, if "FlasherInfoVectName" is used, the I3FlasherInfoVect
         objects are converted to I3CLSimFlasherPulseSeries objects.)
-    :param MMCTrackListName:
-        Only used if *ChopMuons* is active. Set it to the name
-        of the I3MMCTrackList object that contains additional
-        muon energy loss information.
     :param PhotonSeriesName:
         Configure this to enable writing an I3PhotonSeriesMap containing
         all photons that reached the DOM surface.
@@ -345,7 +341,6 @@ def I3CLSimMakePhotonsWithServer(tray, name,
                        OutputMCTreeName=None,
                        FlasherInfoVectName=None,
                        FlasherPulseSeriesName=None,
-                       MMCTrackListName="MMCTrackList",
                        PhotonSeriesName="PhotonSeriesMap",
                        MCPESeriesName="MCPESeriesMap",
                        RandomService=None,
@@ -387,12 +382,6 @@ def I3CLSimMakePhotonsWithServer(tray, name,
         (I3CLSimFlasherPulseSeries objects are clsim's internal flasher
         representation, if "FlasherInfoVectName" is used, the I3FlasherInfoVect
         objects are converted to I3CLSimFlasherPulseSeries objects.)
-    :param MMCTrackListName:
-        Only used if *ChopMuons* is active. Set it to the name
-        of the I3MMCTrackList object that contains additional muon energy loss
-        information. If this is not set, cascades, muons, and taus will be
-        propagated as needed. Doing the propagation on the fly can reduce
-        memory overhead for large events.
     :param PhotonSeriesName:
         Configure this to enable writing an I3CompressedPhotonSeriesMap containing
         all photons that reached the DOM surface. If this is set to None,
