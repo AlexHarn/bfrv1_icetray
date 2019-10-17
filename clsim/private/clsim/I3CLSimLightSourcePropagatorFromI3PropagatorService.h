@@ -9,7 +9,7 @@ class I3CLSimLightSourcePropagatorFromI3PropagatorService : public I3CLSimLightS
 {
 public:
     
-    I3CLSimLightSourcePropagatorFromI3PropagatorService(I3ParticleTypePropagatorServiceMapPtr);
+    I3CLSimLightSourcePropagatorFromI3PropagatorService(I3ParticleTypePropagatorServiceMapPtr, bool trackParticleHistory=false, double cascadeBinWidth=50*I3Units::m);
     virtual ~I3CLSimLightSourcePropagatorFromI3PropagatorService();
 
     // inherited:
@@ -51,6 +51,8 @@ private:
     I3ParticleTypePropagatorServiceMapPtr particleToPropagatorServiceMap_;
 
     bool initialized_;
+    bool trackParticleHistory_;
+    double cascadeBinWidth_;
     
     SET_LOGGER("I3CLSimLightSourcePropagatorFromI3PropagatorService");
 };

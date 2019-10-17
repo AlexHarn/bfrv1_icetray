@@ -2,8 +2,14 @@
 #include "clsim/I3CLSimLightSourcePropagatorFromI3PropagatorService.h"
 #include "clsim/I3CLSimLightSource.h"
 
-I3CLSimLightSourcePropagatorFromI3PropagatorService::I3CLSimLightSourcePropagatorFromI3PropagatorService(I3ParticleTypePropagatorServiceMapPtr particleToPropagatorServiceMap)
-    : particleToPropagatorServiceMap_(particleToPropagatorServiceMap), initialized_(false)
+I3CLSimLightSourcePropagatorFromI3PropagatorService::I3CLSimLightSourcePropagatorFromI3PropagatorService(
+    I3ParticleTypePropagatorServiceMapPtr particleToPropagatorServiceMap,
+    bool trackParticleHistory,
+    double cascadeBinWidth)
+    : particleToPropagatorServiceMap_(particleToPropagatorServiceMap),
+      initialized_(false),
+      trackParticleHistory_(trackParticleHistory),
+      cascadeBinWidth_(cascadeBinWidth/I3Constants::c)
 {
     if (!particleToPropagatorServiceMap_)
         log_fatal("(null) propagator map is invalid");
@@ -41,7 +47,12 @@ I3MCTreePtr I3CLSimLightSourcePropagatorFromI3PropagatorService::Convert(I3CLSim
     secondary_callback emitSecondary, step_callback)
 {
     std::deque<std::pair<I3Particle, I3PropagatorServicePtr>> queue;
-    
+    std::map<I3ParticleID, I3ParticleID> orphans;
+    I3MCTreePtr history;
+    if (trackParticleHistory_) {
+        history.reset(new I3MCTree);
+    }
+
     auto iter = particleToPropagatorServiceMap_->find(lightSource->GetParticle().GetType());
     assert( iter != particleToPropagatorServiceMap_->end());
     queue.emplace_back(lightSource->GetParticle(), iter->second);
@@ -58,21 +69,63 @@ I3MCTreePtr I3CLSimLightSourcePropagatorFromI3PropagatorService::Convert(I3CLSim
         auto &item = queue.front();
 
         // propagate it!
-        for (auto &particle : item.second->Propagate(item.first, NULL, NULL)) {
+        auto secondaries = item.second->Propagate(item.first, NULL, NULL);
+        // emit parent if the propagator didn't set its shape to dark
+        emitNonDark(item.first);
+
+        std::deque<I3Particle> coalesced_secondaries;
+        for (auto &particle : secondaries) {
             
             auto iter = particleToPropagatorServiceMap_->find(particle.GetType());
-            if (iter->second != item.second && iter != particleToPropagatorServiceMap_->end()) {
+            // return secondaries to propagation if they are not yet final
+            if (iter != particleToPropagatorServiceMap_->end() &&
+                (iter->second != item.second || std::isnan(particle.GetLength()))) {
                 queue.emplace_back(particle, iter->second);
             } else {
                 emitNonDark(particle);
             }
+            if (trackParticleHistory_ &&
+              !(
+                // Omit particles that could be handled by the originating
+                // propagator, but are marked as final, e.g. track slices
+                (iter != particleToPropagatorServiceMap_->end()
+                  && iter->second == item.second
+                  && std::isfinite(particle.GetLength()))
+                // Also omit neutrinos
+                || particle.IsNeutrino()
+              )) {
+                if (coalesced_secondaries.empty() ||
+                  !particle.IsCascade() ||
+                  particle.GetType() == I3Particle::NuclInt ||
+                  coalesced_secondaries.back().GetType() == I3Particle::NuclInt ||
+                  particle.GetTime() - coalesced_secondaries.back().GetTime() > cascadeBinWidth_) {
+                    coalesced_secondaries.push_back(particle);
+                } else {
+                    I3Particle &prev = coalesced_secondaries.back();
+                    prev.SetEnergy(prev.GetEnergy()+particle.GetEnergy());
+                    orphans.emplace(particle.GetID(),prev.GetID());
+                }
+            }
         }
-        // emit parent if the propagator didn't set its shape to dark
-        emitNonDark(item.first);
+
+        if (history) {
+            auto parent = history->find(item.first);
+            if (parent != history->end()) {
+                *parent = item.first;
+                for (auto &particle : coalesced_secondaries)
+                    history->append_child(parent, particle);
+            } else if (orphans.find(item.first.GetID()) == orphans.end()) {
+                history->insert_after(item.first);
+                parent = history->find(item.first);
+                for (auto &particle : coalesced_secondaries)
+                    history->append_child(parent, particle);
+            }
+            // NB: do not attach secondaries if parent was merged
+        }
 
         queue.pop_front();
     }
 
-    return I3MCTreePtr();
+    return history;
 }
 

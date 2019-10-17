@@ -38,7 +38,7 @@ namespace bp = boost::python;
 
 namespace {
 
-void Convert(I3CLSimLightSourcePropagator &prop, I3CLSimLightSourceConstPtr source, uint32_t identifier, bp::object secondary_callback, bp::object step_callback)
+I3MCTreePtr Convert(I3CLSimLightSourcePropagator &prop, I3CLSimLightSourceConstPtr source, uint32_t identifier, bp::object secondary_callback, bp::object step_callback)
 {
     I3CLSimLightSourcePropagator::secondary_callback emitSecondary = [&](I3CLSimLightSourceConstPtr &lightSource, uint32_t lightSourceIdentifier) ->bool
     {
@@ -50,7 +50,7 @@ void Convert(I3CLSimLightSourcePropagator &prop, I3CLSimLightSourceConstPtr sour
         step_callback(step);
     };
     
-    prop.Convert(source, identifier, emitSecondary, emitStep);
+    return prop.Convert(source, identifier, emitSecondary, emitStep);
 }
 
 }
@@ -79,6 +79,10 @@ void register_I3CLSimLightSourcePropagator()
                boost::shared_ptr<I3CLSimLightSourcePropagatorFromI3PropagatorService>,
                bp::bases<I3CLSimLightSourcePropagator>,
                boost::noncopyable>("I3CLSimLightSourcePropagatorFromI3PropagatorService",
-                                   bp::init<I3ParticleTypePropagatorServiceMapPtr>())
+                                   bp::init<I3ParticleTypePropagatorServiceMapPtr,bool,double>((
+                                       bp::arg("propagators"),
+                                       bp::arg("trackParticleHistory")=false,
+                                       bp::arg("cascadeBinWidth")=50*I3Units::m
+                                   )))
     ;
 }
