@@ -35,7 +35,7 @@ def main(args, outputLevel=2):
         if args.isMC:
             gcdfile=["/data/ana/CosmicRay/IceTop_level3/sim/%s/GCD/Level3_%i_GCD.i3.gz"%(args.detector, args.dataset)]
         else:
-            gcdfile=glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))
+            gcdfile=glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/production/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))
     else:
         gcdfile = [args.L3_gcdfile]
         
@@ -331,7 +331,7 @@ if __name__ == "__main__":
                 icetray.logging.log_error("When using the default L3 GCD for data, you need to specify the run number such that we can look for the correct GCD!")
                 ok=False
             else:
-                if not os.path.exists(glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))[0]):
+                if not os.path.exists(glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/production/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))[0]):
                     icetray.logging.log_error("Default L3 file not found.")
                     ok=False
     else:
