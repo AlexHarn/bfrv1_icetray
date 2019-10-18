@@ -14,6 +14,9 @@ def find_L2_GCD_from_date(runnumber, day, month, year):
                 '/data/exp/IceCube/{year}/filtered/level2/{month:02d}{day:02d}/Level2_*_data_Run{run:08d}_*GCD.i3.gz'.\
                     format(year=year, run=runnumber, month=month, day=day),
                 '/data/exp/IceCube/{year}/filtered/level2/{month:02d}{day:02d}/Run{run:08d}/Level2_*_data_Run{run:08d}_*GCD.i3.gz'.\
+                    format(year=year, run=runnumber, month=month, day=day),
+                ## IC86.2017 requires these:
+                '/data/exp/IceCube/{year}/filtered/level2/{month:02d}{day:02d}/Run{run:08d}/Level2_*_data_Run{run:08d}_*GCD.i3.zst'.\
                     format(year=year, run=runnumber, month=month, day=day)]
     gcd = sum([glob.glob(g) for g in gcd_glob], [])
     gcd = [g for g in gcd if os.path.exists(g)]

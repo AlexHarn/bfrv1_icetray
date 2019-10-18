@@ -97,7 +97,7 @@ if not args.L3_gcdfile:
             icetray.logging.log_error("When using the default L3 GCD for data, you need to specify the run number such that we can look for the correct GCD!")
             ok=False
         else:
-            if not len(glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run)))==1:
+            if not len(glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/production/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run)))==1:
                 icetray.logging.log_error("Default L3 GCD file not found.")
                 ok=False
 else:
@@ -122,16 +122,16 @@ if not args.L3_gcdfile:
         if args.isMC:
             gcdfile=["/data/ana/CosmicRay/IceTop_level3/sim/%s/GCD/Level3_%i_GCD.i3.gz"%(args.detector, args.dataset)]
         else:
-            gcdfile=glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))
+            gcdfile=glob.glob("/data/ana/CosmicRay/IceTop_level3/exp/%s/production/GCD/Level3_%s_data_Run00%i_????_GCD.i3.gz"%(args.detector, args.detector, args.run))
 else:
         gcdfile = [args.L3_gcdfile]
 
 tray=I3Tray()
 tray.AddModule("I3Reader","reader", FilenameList=gcdfile+args.inputFiles)
 
-# If the L2 gcd file is not specified, use the base_filename which is used for compressing. Check First whether it exists.                                                                               
-# If the L2 gcd file is provided (probably in the case when running on your own cluster and when you copied the diff and L2 GCDs there),                                                                 
-# then you use this, but you check first whether the filename makes sense (is the same as the base_filename used for compression).                                                                       
+# If the L2 gcd file is not specified, use the base_filename which is used for compressing. Check First whether it exists. 
+# If the L2 gcd file is provided (probably in the case when running on your own cluster and when you copied the diff and L2 GCDs there),
+# then you use this, but you check first whether the filename makes sense (is the same as the base_filename used for compression). 
 def CheckL2GCD(frame):
     geodiff=frame["I3GeometryDiff"]
     if args.L2_gcdfile:
