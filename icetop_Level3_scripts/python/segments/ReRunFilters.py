@@ -99,12 +99,16 @@ def ReRunFilters(tray,name,
                    If                 = lambda fr: fr.Stop==icetray.I3Frame.Physics and fr["IceTopSTA3_13"].value and not fr["IceTopSTA5_13"].value
                    )
     
+
     # IceTop Infill STA2 filter check in Level2 cleaned hlc pulses.
-    tray.AddModule(icetop_Level3_scripts.modules.ReevaluateTriggerOnIceTopSplit,
-                   name + '_ReevaluateTriggerOnIceTopSplit',
-                   Input  = Pulses,
-                   Output = 'IceTop_TwoStationFilter'
-                   )
+    # Do this for 2016 and onward only
+    # (Without this, there will be no IceTop_TwoStationFilter in the frame.)
+    if not (Detector=="IC79" or Detector=="IC86.2011" or Detector=="IC86.2012" or Detector=="IC86.2013" or Detector=="IC86.2014" or Detector=="IC86.2015"):
+        tray.AddModule(icetop_Level3_scripts.modules.ReevaluateTriggerOnIceTopSplit,
+                       name + '_ReevaluateTriggerOnIceTopSplit',
+                       Input  = Pulses,
+                       Output = 'IceTop_TwoStationFilter'
+                       )
 
     # Now remove the events which did not pass the STA5, InFillSTA3, InFillSTA2, or IsSmallShower filter 
     # Also write booleans in the frame whether it passed any standard filter or the infill filter.
@@ -119,6 +123,8 @@ def ReRunFilters(tray,name,
         if frame["IceTopSTA5_13"].value or ("IsSmallShower" in frame and frame["IsSmallShower"].value):
             standardPassed=True
 
+        ## Note: for 2015 and earlier, there should be no TwoStationFilter in the frame, 
+        ## so none of them will pass this criterion (all false):
         if frame.Has('IceTop_TwoStationFilter') and frame["IceTop_TwoStationFilter"].value:
             infillsta2Passed=True
 
