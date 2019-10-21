@@ -30,8 +30,8 @@ i3_executable(decode3
 ## BLAS is included via gsl, and the FreeBSD port of GotoBLAS2
 ## doesn't bring in libgfortran for us
 if ((CMAKE_SYSTEM_NAME STREQUAL "FreeBSD") AND BLAS_FOUND)
-  target_link_libraries(payload-parsing-standalone "-L/usr/local/lib/gcc6" "gfortran")
-  target_link_libraries(payload-parsing-decode3    "-L/usr/local/lib/gcc6" "gfortran")
+  target_link_libraries(payload-parsing-standalone "-L/usr/local/lib/gcc9" "gfortran")
+  target_link_libraries(payload-parsing-decode3    "-L/usr/local/lib/gcc9" "gfortran")
 endif ((CMAKE_SYSTEM_NAME STREQUAL "FreeBSD") AND BLAS_FOUND)
 
 i3_test_executable(test private/test/*.cxx
