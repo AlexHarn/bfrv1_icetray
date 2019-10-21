@@ -37,7 +37,8 @@ struct I3MCPulse {
     PRE_PULSE = 40,
     ELASTIC_LATE_PULSE = 50,
     INELASTIC_LATE_PULSE = 60,
-    EARLY_AFTER_PULSE = 70
+    EARLY_AFTER_PULSE = 70,
+    CROSSTALK_PULSE = 80
   };
 
   double time;
