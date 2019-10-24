@@ -64,15 +64,21 @@ def RestoreTimewindow(tray, name) :
 @icetray.traysegment
 def MuonL3(tray, name, gcdfile, infiles, output_i3, output_hd5, output_root, photonicsdir, photonicsdriverdir, photonicsdriverfile, infmuonampsplinepath, infmuonprobsplinepath, cascadeampsplinepath, cascadeprobsplinepath, restore_timewindow_forMC = False):
     
-    files = [gcdfile]
+    # Add I3Reader to the tray only if infiles are given
+    if infiles is not None:
+        # check for GCD file
+        if gcdfile is None:
+            raise RuntimeError("No GCD file specified!")
+            
+        files = [gcdfile]
 
-    if isinstance(infiles,str):
-        files.append(infiles)
-    else:
-        for f in infiles:files.append(f)
+        if isinstance(infiles, str):
+            files.append(infiles)
+        else:
+            for f in infiles:files.append(f)
+
+        tray.Add(dataio.I3Reader, FilenameList=files)
     
-    tray.Add(dataio.I3Reader, FilenameList=files)
-
     #Select only events passing muon filter and that are inice
     tray.AddSegment(CleanInputStreams)
 
@@ -114,7 +120,6 @@ def MuonL3(tray, name, gcdfile, infiles, output_i3, output_hd5, output_root, pho
 
     # Do level3 reconstructions
     tray.AddSegment(DoReconstructions,
-        
         Pulses="TWSRT"+Suffix+"InIcePulses",
         Suffix=Suffix,
         photonicsdir=photonicsdir,
@@ -123,20 +128,13 @@ def MuonL3(tray, name, gcdfile, infiles, output_i3, output_hd5, output_root, pho
         infmuonampsplinepath=infmuonampsplinepath,
         infmuonprobsplinepath=infmuonprobsplinepath,
         cascadeampsplinepath=cascadeampsplinepath,
-        cascadeprobsplinepath=cascadeprobsplinepath
-        
-        #params=params)
-        #options=options
-        )
+        cascadeprobsplinepath=cascadeprobsplinepath)
 
 
     # common variables, keep keys, write output
     tray.AddSegment(WriteOutput,
         Suffix=Suffix,
-        #params=params)
-        #options=options
         output_i3=output_i3,
         output_hd5=output_hd5,
-        output_root=output_root
-        )
+        output_root=output_root)
     

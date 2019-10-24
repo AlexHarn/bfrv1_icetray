@@ -414,20 +414,21 @@ def WriteOutput(tray, name, Suffix, output_i3, output_hd5, output_root):
     tray.AddModule(replaceMCTree, Streams=[icetray.I3Frame.DAQ])
 
     # Write hd5"s, root"s, and i3"s
-    if (output_hd5 != "") :
+    if (output_hd5 != ""):
         tray.AddSegment(hdfwriter.I3HDFWriter,
             Output=output_hd5,
             Keys=keep_booking,
             SubEventStreams=["Final"])
 
-    if (output_root != "") :
+    if (output_root != ""):
         tray.AddSegment(rootwriter.I3ROOTWriter,
             Output=output_root,
             Keys=keep_booking,
             SubEventStreams=["Final"])
 
-    tray.Add("I3Writer",
-        Filename = output_i3,
-        SkipKeys=["CalibratedWaveforms", "CleanIceTopRawData", "CleanInIceRawData"],
-        DropOrphanStreams=[icetray.I3Frame.DAQ],
-        Streams=[icetray.I3Frame.DAQ, icetray.I3Frame.Physics])
+    if (output_i3 != ""):
+        tray.Add("I3Writer",
+            Filename = output_i3,
+            SkipKeys=["CalibratedWaveforms", "CleanIceTopRawData", "CleanInIceRawData"],
+            DropOrphanStreams=[icetray.I3Frame.DAQ],
+            Streams=[icetray.I3Frame.DAQ, icetray.I3Frame.Physics])

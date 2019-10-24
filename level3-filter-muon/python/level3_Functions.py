@@ -17,12 +17,13 @@ def GetBestTrack(frame, Suffix):
         frame.Delete("BestTrackName")
     HasGoodTrack=False
     for track in tracks:
-        if frame[track].fit_status==dataclasses.I3Particle.OK:
-            HasGoodTrack=True
-            frame["BestTrack"]=frame[track]
-            best_track=track
-            frame.Put("BestTrackName",dataclasses.I3String(best_track))
-            return True
+        if frame.Has(track):
+            if frame[track].fit_status==dataclasses.I3Particle.OK:
+                HasGoodTrack=True
+                frame["BestTrack"]=frame[track]
+                best_track=track
+                frame.Put("BestTrackName",dataclasses.I3String(best_track))
+                return True
     if not HasGoodTrack:
         return False
 

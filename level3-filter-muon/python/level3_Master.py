@@ -216,7 +216,7 @@ if (__name__=="__main__"):
     # write options (for debug)
     print("===== option list start =====")
     for key, value in opts.items() :
-        print "%s is set to : " %(key), value
+        print("%s is set to : " %(key), value)
     print("===== option list end =====")
 
     #------------------------------
