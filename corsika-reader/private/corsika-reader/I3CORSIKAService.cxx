@@ -107,7 +107,10 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 	}
 	
 	// Verify coordinate frame conversions
-	i3_assert(std::acos(primary.GetDir()*target_dir) < 1e-1*I3Units::degree);
+
+        if (std::acos(primary.GetDir()*target_dir) > 1e-1*I3Units::degree){
+          log_warn("target direction %g deg from primary",std::acos(primary.GetDir()*target_dir));
+        }
 	I3Position actual_core = primary.GetPos() - I3CORSIKAReaderUtils::GetSlantDepth(primary.GetDir(), primary.GetPos())*primary.GetDir();
 	i3_assert((actual_core-core).Magnitude() < I3Units::m);
 	
