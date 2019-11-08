@@ -11,4 +11,4 @@ if __name__ == '__main__':
    stats = {}
    cors = CorsikaGenerator()
    cors.ExecuteOpts(stats)
-   print stats
+   print(stats)

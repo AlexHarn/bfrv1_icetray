@@ -236,7 +236,7 @@ class ProductionHistogramModule(I3Module) :
             if isinstance(histogram, Histogram):
                 histograms.append(histogram)
             if isinstance(histogram, HistogramModule):
-                histograms.extend([h for n,h in histogram.histograms.iteritems()])
+                histograms.extend([h for n,h in histogram.histograms.items()])
 
         all_empty = not any([any(h.bin_values) for h in histograms])
         if all_empty:

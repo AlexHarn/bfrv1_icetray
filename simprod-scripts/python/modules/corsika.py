@@ -132,7 +132,7 @@ def configure_corsika(params):
     """
     Configure corsika from paramters
     """
-    import dcorsika
+    from . import dcorsika
 
     atmod = params.atmospheres[params.procnum % len(params.atmospheres)]
 
@@ -308,10 +308,10 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         from I3Tray import I3Tray
         from icecube import icetray,phys_services, dataio, dataclasses
         from ..util import BasicCounter
-        from corsika import CorsikaReaderTraySegment,configure_corsika
+        #from corsika import CorsikaReaderTraySegment,configure_corsika
         from ..segments.GenerateNeutrinos import GenerateAtmosphericNeutrinos
         from ..segments import PropagateMuons
-        import dcorsika
+        from . import dcorsika
         from .. import weights
    
         if self.cutofftype == "EnergyPerNucleon" : self.spric = True
@@ -369,7 +369,7 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         tray.context['I3SummaryService'] = summary
         
         randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)\
-            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
+            if not self.usegslrng else phys_services.I3GSLRandomService(self.seed)
         tray.context["I3RandomService"] = randomService
 
 
