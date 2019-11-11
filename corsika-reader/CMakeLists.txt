@@ -18,7 +18,7 @@ i3_add_library(corsika-reader
 	private/corsika-reader/I3CORSIKAReaderUtils.cxx
         private/corsika-reader/I3CorsikaWeight.cxx
 	${PROCESS_FILES}
-	USE_TOOLS boost python opencl
+	USE_TOOLS boost python
 	USE_PROJECTS serialization icetray dataio dataclasses simclasses sim-services phys-services 
 )
 

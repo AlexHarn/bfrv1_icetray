@@ -5,7 +5,7 @@
 #include <phys-services/surfaces/Sphere.h>
 
 #include <boost/bimap.hpp>
-#include <boost/compute/iterator/transform_iterator.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
 namespace I3CORSIKAReaderUtils {
 
