@@ -11,22 +11,25 @@
 
 #include "icetray/load_project.h"
 #include "corsika-reader/I3CorsikaWeight.h"
-#include "corsika-reader/I3CORSIKAService.h"
 
 namespace bp=boost::python;
+
+#ifdef USE_CORSIKA_CLIENT
+#include "corsika-reader/I3CORSIKAService.h"
 
 void add_bias(I3Particle &p, float mu_bias, I3Frame& frame){
   auto biases = boost::make_shared<ShowerBiasMap>();
   biases->emplace(p.GetID(), ShowerBiasMap::mapped_type(CorsikaClient::Mu,mu_bias,1));
   frame.Put("ShowerBias", biases);
 }
+#endif //USE_CORSIKA_CLIENT
 
 BOOST_PYTHON_MODULE(corsika_reader)
 {
   bp::import("icecube.icetray");
   bp::import("icecube.sim_services");
 
-  bp::def("add_bias",&add_bias);
+
 
   bp::class_<I3CorsikaWeight,
              bp::bases<I3FrameObject>,
@@ -39,6 +42,8 @@ BOOST_PYTHON_MODULE(corsika_reader)
     .def_readonly("max_x",      &I3CorsikaWeight::max_x)    
     ;
 
+#ifdef USE_CORSIKA_CLIENT 
+  bp::def("add_bias",&add_bias);
   bp::class_<CorsikaService,
              boost::shared_ptr<CorsikaService>,
              bp::bases<I3IncrementalEventGeneratorService>,
@@ -50,5 +55,6 @@ BOOST_PYTHON_MODULE(corsika_reader)
     .def("NextParticle",&CorsikaService::NextParticle)
     .def("EndEvent",&CorsikaService::EndEvent)
     ;
+#endif //USE_CORSIKA_CLIENT
 }
     

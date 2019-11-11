@@ -3,14 +3,16 @@ i3_project(corsika-reader
 	PYTHON_DIR python
 )
 
-
 if (Boost_VERSION VERSION_GREATER 106399)
+  MESSAGE(STATUS "    + Boost >= 6.4 : Adding CORSIKA Client/Server")
+  ADD_DEFINITIONS(-DUSE_CORSIKA_CLIENT)
   set(PROCESS_FILES 
       private/corsika-reader/CorsikaClient.cxx
       private/corsika-reader/I3CORSIKAService.cxx	
       )
+else (Boost_VERSION VERSION_GREATER 106399)
+  MESSAGE(STATUS "    - Boost < 6.4 : Skipping CORSIKA Client/Server")
 endif (Boost_VERSION VERSION_GREATER 106399)
-
 
 i3_add_library(corsika-reader
 	private/corsika-reader/I3CORSIKAReader.cxx
@@ -22,13 +24,11 @@ i3_add_library(corsika-reader
 	USE_PROJECTS serialization icetray dataio dataclasses simclasses sim-services phys-services 
 )
 
-if (Boost_VERSION VERSION_GREATER 106399)
-  i3_add_pybindings(corsika_reader
+i3_add_pybindings(corsika_reader
       private/pybindings/corsika-reader.cxx
       USE_TOOLS boost python
       USE_PROJECTS corsika-reader
       ) 
-endif (Boost_VERSION VERSION_GREATER 106399)           
 
 i3_executable_script(check resources/scripts/check.py)
 
