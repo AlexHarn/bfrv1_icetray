@@ -369,10 +369,11 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
         
-        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)\
-            if not self.usegslrng else phys_services.I3GSLRandomService(self.seed)
+        if self.usegslrng:
+            randomService = phys_services.I3GSLRandomService(self.seed)
+        else:
+            randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)
         tray.context["I3RandomService"] = randomService
-
 
         tray.AddSegment(CorsikaReaderTraySegment,
                   gcdfile=self.gcdfile, randomService=randomService,
@@ -507,8 +508,11 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         if self.pgam[0] > 0:
            self.pgam = [-1*x for x in self.pgam]
 
-        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)\
-            if not self.usegslrng else phys_services.I3GSLRandomService(self.seed)
+        if self.usegslrng:
+            randomService = phys_services.I3GSLRandomService(self.seed)
+        else:
+            randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)
+
         corsika_settings = weights.FiveComponent(self.nshowers,
                                                  self.eprimarymin,self.eprimarymax,
                                                  normalization=self.pnorm,
