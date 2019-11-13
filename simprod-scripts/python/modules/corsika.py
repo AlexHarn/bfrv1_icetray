@@ -205,7 +205,7 @@ def configure_corsika(params):
     cors.f2k     = 'T'
     cors.compress = params.compress
     cors.skipoptions  = params.skipoptions
-    cors.usepipe  = params.usepipe and not params.makefifo
+    cors.usepipe  = params.usepipe
 
     if params.ranpri == 3:
        if len(params.pnorm) != 5:
@@ -286,7 +286,6 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         self.AddParameter('SimulateIceTop','Simulate IceTop detector',False)
         self.AddParameter('SelectNeutrino','Randomly select CORSIKA neutrino and force interaction',False)
         self.AddParameter('UsePipe', 'Use pipe for corsika output', False)
-        self.AddParameter('MakeFIFO', 'Tell CORSIKA create FIFO', False)
 
         self.AddParameter('compress','compress corsika output',False)
         self.AddParameter('skipoptions','Options to skip',[])
@@ -308,7 +307,6 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         from I3Tray import I3Tray
         from icecube import icetray,phys_services, dataio, dataclasses
         from ..util import BasicCounter
-        #from corsika import CorsikaReaderTraySegment,configure_corsika
         from ..segments.GenerateNeutrinos import GenerateAtmosphericNeutrinos
         from ..segments import PropagateMuons
         from . import dcorsika
@@ -319,6 +317,11 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         else: raise Exception("Undefined CutoffType %s" % cutoff_typ)
         if not self.uppercutofftype:
             self.uppercutofftype = self.cutofftype
+
+        # cast lists
+        self.pnorm=[float(x) for x in self.pnorm]
+        self.pgam=[float(x) for x in self.pgam]
+        self.atmospheres=[int(x) for x in self.atmospheres]
         
         cors = configure_corsika(self)
         cors.f2k = "F"
@@ -331,8 +334,6 @@ class CorsikaGenerator(ipmodule.ParsingModule):
             if self.usepipe:
                 cwd = os.getcwd()
                 cors.stage()
-                if self.makefifo:
-                   os.mkfifo(outpath)
                    
                 if os.fork(): # parent
                      retval = cors.Execute(self.stats)
@@ -466,7 +467,6 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         self.AddParameter('CVMFS', 'Path to CVMFS repository', '/cvmfs/icecube.opensciencegrid.org/') 
         self.AddParameter('SimulateIceTop','Simulate IceTop detector',False)
         self.AddParameter('UsePipe', 'Use pipe for corsika output', False) 
-        self.AddParameter('MakeFIFO', 'Tell CORSIKA create FIFO', False)
         self.AddParameter('Polyplopia','Produce coincident showers',False)
         self.AddParameter('BackgroundFile','pre-generated coincident showers file',"")
         self.AddParameter('compress','compress corsika output', False)
@@ -484,25 +484,31 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         from I3Tray import I3Tray
         from icecube import icetray,phys_services, dataio, dataclasses
         from ..util import BasicCounter
-        from corsika import CorsikaReaderTraySegment,configure_corsika
         from .. import segments
         from ..segments.GenerateNeutrinos import GenerateAtmosphericNeutrinos
         from ..segments import PropagateMuons
         from .. import weights
-        import dcorsika
+        from . import dcorsika
         import re
    
         if not self.uppercutofftype:
             self.uppercutofftype = self.cutofftype
+
+        # cast lists
+        self.pnorm=[float(x) for x in self.pnorm]
+        self.pgam=[float(x) for x in self.pgam]
+        self.atmospheres=[int(x) for x in self.atmospheres]
         
         p = re.compile('[0-9]+')
         m = p.match(str(self.corsikaversion))
         if m and int(m.group()) < 74000:
                 raise Exception('need a newer version of corsika with AtmosphericNeutrinos got %s' % m.group())
+        
         if self.pgam[0] > 0:
            self.pgam = [-1*x for x in self.pgam]
 
-        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)
+        randomService = phys_services.I3SPRNGRandomService(self.seed, self.nproc, self.procnum)\
+            if not self.usegslrng else phys_services.I3GSLRandomService(self.seed)
         corsika_settings = weights.FiveComponent(self.nshowers,
                                                  self.eprimarymin,self.eprimarymax,
                                                  normalization=self.pnorm,
@@ -581,10 +587,10 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
                generator.SetParameter('SimulateIceTop',self.simulateicetop)
                generator.SetParameter('SelectNeutrino',self.selectneutrino)
                generator.SetParameter('UsePipe', self.usepipe)
-               generator.SetParameter('MakeFIFO', self.makefifo)
                generator.SetParameter('compress', self.compress)
                generator.SetParameter('skipoptions', self.skipoptions)
                generator.SetParameter('gcdfile', self.gcdfile)
+               generator.SetParameter('usegslrng', self.usegslrng)
                generator.Execute(self.stats)
                counter += 1
 

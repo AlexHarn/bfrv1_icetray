@@ -127,7 +127,8 @@ class ClSim(ipmodule.ParsingModule):
         randomService = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc,
-             		streamnum = self.procnum)
+             		streamnum = self.procnum)\
+                        if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed * self.nproc + self.procnum)
         tray.context['I3RandomService'] = randomService
 
 
@@ -147,7 +148,8 @@ class ClSim(ipmodule.ParsingModule):
         	randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc*2,
-             		streamnum = self.nproc + self.procnum)
+             		streamnum = self.nproc + self.procnum)\
+                        if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2 * (self.seed * self.nproc + self.procnum))
         	tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
 
         	tray.AddModule("Rename","rename_corsika_mctree",
@@ -351,7 +353,7 @@ class HybridPhotons(ipmodule.ParsingModule):
              		seed = self.seed,
              		nstreams = self.nproc,
              		streamnum = self.procnum)\
-            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed*self.nproc+self.procnum)
+            if not self.usegslrng else phys_services.I3GSLRandomService(seed = self.seed * self.nproc + self.procnum)
 
         tray.context['I3RandomService'] = randomService
 
@@ -370,7 +372,8 @@ class HybridPhotons(ipmodule.ParsingModule):
         	randomServiceForPropagators = phys_services.I3SPRNGRandomService(
              		seed = self.seed,
              		nstreams = self.nproc*2,
-             		streamnum = self.nproc + self.procnum)
+             		streamnum = self.nproc + self.procnum)\
+                        if not self.usegslrng else phys_services.I3GSLRandomService(seed = 2 * (self.seed * self.nproc + self.procnum))
         	tray.context['I3PropagatorRandomService'] = randomServiceForPropagators
 
         	tray.AddModule("Rename","rename_corsika_mctree",Keys=['I3MCTree','I3MCTree_preMuonProp'])
