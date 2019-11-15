@@ -271,7 +271,10 @@ void register_ServiceWrappers()
         boost::noncopyable>("I3SeedServiceBase", bp::no_init)
         .def("SetEvent", &I3SeedServiceBase::SetEvent)
         .def("GetSeed", &I3SeedServiceBase::GetSeed)
+        .def("GetDummy", &I3SeedServiceBase::GetDummy)
         .def("GetCopy", &I3SeedServiceBase::GetCopy)
+        .def("Tweak", &I3SeedServiceBase::Tweak)
+        .def("FillInTheBlanks", &I3SeedServiceBase::FillInTheBlanks)
         WRAP_CONTEXT(I3SeedServiceBase)
     ;
 
@@ -279,7 +282,10 @@ void register_ServiceWrappers()
         boost::noncopyable>("I3SeedService")
         .def("SetEvent", &I3SeedServiceBase::SetEvent)
         .def("GetSeed", &I3SeedServiceBase::GetSeed)
+        .def("GetDummy", &I3SeedServiceBase::GetDummy)
         .def("GetCopy", &I3SeedServiceBase::GetCopy)
+        .def("Tweak", &I3SeedServiceBase::Tweak)
+        .def("FillInTheBlanks", &I3SeedServiceBase::FillInTheBlanks)
         WRAP_CONTEXT(I3SeedServiceBase)
     ;
 
