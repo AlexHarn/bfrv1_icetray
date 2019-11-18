@@ -31,4 +31,18 @@ Files
 The module I3TensorOfIntertia puts the following two frame objects (found in the
 recclasses project) in the frame : I3TensorOfInertiaFitParams and I3TensorOfInertiaTest.
 
+Output Variables
+^^^^^^^^^^^^^^^^
+
+
+
+Input Variables
+^^^^^^^^^^^^^^^
+
+* Name - Name given to the fit the module adds to the event
+* InputSelection - OMResponse selector to use for input
+* InputReadout - Data Readout to use for input
+* MinHits - Minimum number of hits needed for reconstruction
+* AmplitudeWeight - Weight applied to virtual masses in the reconstruction 
+
 `Code Details <../../doxygen/tensor-of-inertia/index.html>`_
