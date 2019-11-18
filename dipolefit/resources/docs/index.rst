@@ -54,7 +54,6 @@ Input Variables
 - **MinHits** - [DEFAULT=5]  Minimum number of hits. Event with fewer hits will not be reconstructed. 
 - **DipoleStep** - [DEFAULT=0]  The distance between two time sorted hits that used to calulate the dipole. For ``DipoleStep=x``, the 'dipole' direction will be calculated using position(i) and position(i+x). Use ``DipoleStep=0`` to use dynamically changing N/2 (recommended)
 - **AmpWeightPower** - [DEFAULT=0] Hits are weighted with the amplitude raised to this power. Usually =0 so hits_weight=1, or =1 so hits_weight=amplitude
-- **InputRecoHits** - [DEFAULT=""] RecoHits to use for input
 - **InputRecoPulses** - [DEFAULT=""] RecoPulses to use for input
 
 Examples and Tests
