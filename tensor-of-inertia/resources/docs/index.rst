@@ -31,10 +31,6 @@ Files
 The module I3TensorOfIntertia puts the following two frame objects (found in the
 recclasses project) in the frame : I3TensorOfInertiaFitParams and I3TensorOfInertiaTest.
 
-Output Variables
-^^^^^^^^^^^^^^^^
-
-
 
 Input Variables
 ^^^^^^^^^^^^^^^
