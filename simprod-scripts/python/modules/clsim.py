@@ -170,7 +170,6 @@ class ClSim(ipmodule.ParsingModule):
             UseGeant4 = self.usegeant4,
             DOMOversizeFactor = self.oversize,
             MCTreeName = self.mctreename,
-            MMCTrackListName="MMCTrackList",
             MCPESeriesName = self.photonseriesname,
             PhotonSeriesName = self.rawphotonseriesname,
             HoleIceParameterization = self.holeiceparametrization
