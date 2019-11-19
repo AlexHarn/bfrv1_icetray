@@ -40,6 +40,9 @@ I3TableRowDescriptionPtr I3CorsikaShowerInfoConverter::CreateDescription(const I
   desc->AddField<double>("ghMaxNum", "", "Gaisser-Hillas fit parameter: maximum number of particles");
   desc->AddField<double>("ghStartDepth", "g/cm^2", "Gaisser-Hillas fit parameter: starting depth of the shower");
   desc->AddField<double>("ghMaxDepth", "g/cm^2", "Gaisser-Hillas fit parameter: depth of the shower maximum");
+  desc->AddField<double>("ghLambdaa", "g/cm^2", "Gaisser-Hillas fit parameter: \"a\" part of lambda = a + bt + ct^2");
+  desc->AddField<double>("ghLambdab", "", "Gaisser-Hillas fit parameter: \"b\" part of lambda = a + bt + ct^2");
+  desc->AddField<double>("ghLambdac", "1/(g/cm^2)", "Gaisser-Hillas fit parameter: \"c\" part of lambda = a + bt + ct^2");
   desc->AddField<double>("ghRedChiSqr", "", "Reduced chi-square of the Gaisser-Hillas fit");
   desc->AddField<double>("resampleRadius", "m", "Radius of the resampling area");
   desc->AddField<double>("weight", "m", "Radius of the resampling area");
@@ -66,13 +69,16 @@ I3TableRowDescriptionPtr I3CorsikaShowerInfoConverter::CreateDescription(const I
 size_t I3CorsikaShowerInfoConverter::FillRows(const I3CorsikaShowerInfo& info, I3TableRowPtr rows)
 {
   // A temporary hack to see if we're reading files in which topsimulator stored depths in g/cm^2 (without converting).
-  // We'll try to predict it and act accordingly (either un-convert or not).
-  // This bit should go away in the future when all topsimulator files are storing converted units.
+  // We'll try to predict it and act accordingly.
+  // This bit should go away in the future when all topsimulator files are storing Corsika-style units.
+  // This routine will serve up numbers in "original Corsika-style units" such as g/cm^2 etc, and NOT I3Units.
   bool depths_not_stored_using_I3Units = 0;
   double big = 0.001 * gcm2;
   if (info.ghMaxDepth < big && info.ghStartDepth < big && info.firstIntDepth < big) {
     log_debug("It looks like depths were stored as g/cm^2 instead of I3Units native units. I will NOT convert them.");
     depths_not_stored_using_I3Units = 1;
+  } else {
+    log_info("This looks like an old file where depths were stored in I3Units native units. I will convert them to Corsika units.");
   }
 
   rows->Set<int32_t>("crsRunID", info.crsRunID);
@@ -92,6 +98,9 @@ size_t I3CorsikaShowerInfoConverter::FillRows(const I3CorsikaShowerInfo& info, I
     rows->Set<double>("ghStartDepth", info.ghStartDepth/gcm2);
     rows->Set<double>("ghMaxDepth", info.ghMaxDepth/gcm2);
   }
+  rows->Set<double>("ghLambdaa", info.ghLambdaa); // Corsika units (g/cm^2)
+  rows->Set<double>("ghLambdab", info.ghLambdab); // Corsika units (unitless)
+  rows->Set<double>("ghLambdac", info.ghLambdac); // Corsika units (1/(g/cm^2))
   rows->Set<double>("ghRedChiSqr", info.ghRedChiSqr);
   rows->Set<double>("resampleRadius", info.resampleRadius);
   rows->Set<double>("weight", info.weight);

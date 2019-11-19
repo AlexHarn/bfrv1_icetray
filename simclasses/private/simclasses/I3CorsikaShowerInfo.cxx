@@ -39,6 +39,9 @@ void I3CorsikaShowerInfo::clear()
   ghMaxNum     = NAN;
   ghStartDepth = NAN;
   ghMaxDepth   = NAN;
+  ghLambdaa    = NAN;
+  ghLambdab    = NAN;
+  ghLambdac    = NAN;
   ghRedChiSqr  = NAN;
 
   resampleRadius = NAN;
@@ -93,6 +96,11 @@ void I3CorsikaShowerInfo::serialize(Archive& ar, unsigned version)
     ar & make_nvp("curved", curved);
     ar & make_nvp("curvedObs", curvedObs);
   }
+  if (version > 3) {
+    ar & make_nvp("ghLambdaa",      ghLambdaa);
+    ar & make_nvp("ghLambdab",      ghLambdab);
+    ar & make_nvp("ghLambdac",      ghLambdac);
+  }
 }
 
 
@@ -106,6 +114,10 @@ bool I3CorsikaShowerInfo::operator==(const I3CorsikaShowerInfo& rhs) {
          obsLevelHeight == rhs.obsLevelHeight &&
          ghMaxNum == rhs.ghMaxNum &&
          ghStartDepth == rhs.ghStartDepth &&
+         ghMaxDepth == rhs.ghMaxDepth &&
+         ghLambdaa == rhs.ghLambdaa &&
+         ghLambdab == rhs.ghLambdab &&
+         ghLambdac == rhs.ghLambdac &&
          ghRedChiSqr == rhs.ghRedChiSqr &&
          longProfile == rhs.longProfile &&
          resampleRadius == rhs.resampleRadius &&
@@ -130,6 +142,10 @@ std::ostream& I3CorsikaShowerInfo::Print(std::ostream& os) const{
      << "\n  obsLevelHeight  :" << obsLevelHeight
      << "\n  ghMaxNum        :" << ghMaxNum
      << "\n  ghStartDepth    :" << ghStartDepth
+     << "\n  ghMaxDepth      :" << ghMaxDepth
+     << "\n  ghLambdaa       :" << ghLambdaa
+     << "\n  ghLambdab       :" << ghLambdab
+     << "\n  ghLambdac       :" << ghLambdac
      << "\n  ghRedChiSqr     :" << ghRedChiSqr
      << "\n  resampleRadius  :" << resampleRadius
      << "\n  nResample       :" << nResample

@@ -50,6 +50,10 @@ class TestEquality(unittest.TestCase):
             x.ghStartDepth = 5.5
             x.ghRedChiSqr = 6.6
             x.resampleRadius = 7.7
+            x.ghMaxDepth = 8.8
+            x.ghLambdaa = 9.9
+            x.ghLambdab = 10.0
+            x.ghLambdac = 11.1
             return x
 
         x = CorsikaLongStep()

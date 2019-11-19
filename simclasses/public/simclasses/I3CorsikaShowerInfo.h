@@ -24,7 +24,7 @@
  * shower information
  */
 
-static const unsigned i3corsikashowerinfo_version_ = 3;
+static const unsigned i3corsikashowerinfo_version_ = 4;
 
 struct I3CorsikaShowerInfo: public I3FrameObject
 {
@@ -46,6 +46,9 @@ struct I3CorsikaShowerInfo: public I3FrameObject
   double ghMaxNum;
   double ghStartDepth;
   double ghMaxDepth;
+  double ghLambdaa;
+  double ghLambdab;
+  double ghLambdac;
   double ghRedChiSqr;
   
   CorsikaLongProfile longProfile;
