@@ -16,6 +16,7 @@ parser.add_argument('--year', type=int, metavar='NUM', help='Year for snow heigh
 parser.add_argument('--output', type=str, metavar='FILE', help='Shiny new Level 3 GCD-File')
 parser.add_argument('--MCgcd',type=str,metavar='FILE',help="GCD used in MC to use as a base.")
 parser.add_argument('--L2-gcdfile', dest='L2_gcdfile', help='Manually specify the L2 GCD file to be used. When you run in Madison with the standard L3 GCD diff, this is not needed.')
+parser.add_argument('--VEMCal-dir', dest='VEMCal_dir', help='Manually specify the directory holding VEMCal (xml) files.  When you run in Madison, this is not needed.')
 
 args = parser.parse_args()
 
@@ -56,7 +57,8 @@ tray.Add(UpdateVEMCal, 'updateVEMCal',
     Runnumber = args.runnumber,
     Day       = args.day,
     Month     = args.month,
-    Year      = args.year
+    Year      = args.year,
+    XMLDir    = args.VEMCal_dir
     )
 
 from icecube.frame_object_diff.segments import compress
