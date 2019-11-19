@@ -409,15 +409,20 @@ bool I3CorsikaReader::NextSubBlock()
             // Fill Gaisser-Hillas fit results in shower info
             // For IceTop, we do NKG and EGS64, so the fit is applied to both e.m. and muons
             // LONGI T 20.0 T F has to be used (see CORSIKA manual)
+            // Note: these are all being stored as Corsika-style units (like g/cm^2), and NOT I3Units.
             showerInfo_->ghMaxNum     = static_cast<double>(subBlock_[256]);//No. particles at max development
             showerInfo_->ghStartDepth = static_cast<double>(subBlock_[257]);//*(I3Units::g/(I3Units::cm2));//Starting depth of development
             showerInfo_->ghMaxDepth   = static_cast<double>(subBlock_[258]);//*(I3Units::g/(I3Units::cm2));//Location of shower max
+            showerInfo_->ghLambdaa = static_cast<double>(subBlock_[259]);// "a" part of the lambda (a + bt + ct^2), in Corsika units
+            showerInfo_->ghLambdab = static_cast<double>(subBlock_[260]);// "b" part of the lambda, in Corsika units
+            showerInfo_->ghLambdac = static_cast<double>(subBlock_[261]);// "c" part of the lambda, in Corsika units
             showerInfo_->ghRedChiSqr  = static_cast<double>(subBlock_[262]);//chi2 of GH fit
 
             log_debug("    Gaisser-Hillas fit."); 
             log_debug("    Nmax: %.2f", showerInfo_->ghMaxNum);
             log_debug("    t0: %.2f", (showerInfo_->ghStartDepth));///(I3Units::g/I3Units::cm2));
             log_debug("    tmax: %.2f", (showerInfo_->ghMaxDepth));///(I3Units::g/I3Units::cm2));
+            log_debug("    a/b/c: %.2f/%.2f/%.2f", showerInfo->ghLambdaa, showerInfo->ghLambdab, showerInfo->ghLambdac);
             log_debug("    Chi2: %.2f", showerInfo_->ghRedChiSqr);
         }
             
