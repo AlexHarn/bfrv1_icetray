@@ -236,6 +236,8 @@ void register_ServiceWrappers()
         .def("GetLogLikelihood", GetLLHSimple, (bp::args("self"), bp::arg("hypothesis")))
         .def("GetLogLikelihood", GetLLHGradient, (bp::args("self"), bp::arg("hypothesis"),
             bp::arg("maximize_extra_dimensions"), bp::arg("with_gradient")=false))
+        .def("GetLogLikelihoodWithGradient", &I3EventLogLikelihoodBase::GetLogLikelihoodWithGradient,
+            bp::arg("weight")=1)
         .def("HasGradient", &I3EventLogLikelihoodBase::HasGradient)
         WRAP_CONTEXT(I3EventLogLikelihoodBase)
     ;
@@ -250,6 +252,8 @@ void register_ServiceWrappers()
         .def("GetLogLikelihood", GetLLHSimple, (bp::args("self"), bp::arg("hypothesis")))
         .def("GetLogLikelihood", GetLLHGradient, (bp::args("self"), bp::arg("hypothesis"),
             bp::arg("maximize_extra_dimensions"), bp::arg("with_gradient")=false))
+        .def("GetLogLikelihoodWithGradient", &I3EventLogLikelihoodBase::GetLogLikelihoodWithGradient,
+            bp::arg("weight")=1)
         .def("HasGradient", &I3EventLogLikelihoodBase::HasGradient)
         WRAP_CONTEXT(I3EventLogLikelihoodBase)
     ;
