@@ -135,7 +135,7 @@ I3LaputopLikelihood::I3LaputopLikelihood( std::string name ):
   fCurvType = Laputop::FrontDelay::None;
   fSnowServiceName = DEFAULT_SNOWSERVICENAME;
   fCorrectAtm_ = false;
-
+  fOld_XYZ_from_OM_ = false;
 }
 
 
@@ -184,6 +184,11 @@ I3LaputopLikelihood::I3LaputopLikelihood( const I3Context &context ):
 	       "than this value, all stations used when <0.",
 	       fMaxIntraStaTimeDiff_);
 
+  fOld_XYZ_from_OM_ = false;
+  AddParameter("OldXYZ",
+               "Use the (old) way of assigning XY according to DOM, rather than tank",
+               fOld_XYZ_from_OM_);
+
 }
 
 // get configuration parameters
@@ -199,6 +204,7 @@ void I3LaputopLikelihood::Configure(){
   GetParameter("CorrectEnvironment", fCorrectAtm_);
   GetParameter("SaturationLikelihood", fSaturation_);
   GetParameter("MaxIntraStationTimeDiff",fMaxIntraStaTimeDiff_);
+  GetParameter("OldXYZ", fOld_XYZ_from_OM_);
 
   //if ((fLDF != NKG_NAME) && (fLDF != DLP_NAME) && (fLDF != POWERLAW_NAME))
   //  log_fatal("Lateral distribution function '%s' not supported!", fLDF.c_str());
@@ -629,10 +635,16 @@ unsigned int I3LaputopLikelihood::FillInput(const I3Frame &f){
 	// Actually fill the internal inputdata container with HIT tanks
 	// This is the "default way of filling".
 	tankPulse new_pulse;
-	new_pulse.omkey = dom_key; 
-	new_pulse.x = (om.position).GetX();
-	new_pulse.y = (om.position).GetY();
-	new_pulse.z = (om.position).GetZ();
+	new_pulse.omkey = dom_key;
+    if (fOld_XYZ_from_OM_) {  // The way it was done for many years...
+        new_pulse.x = (om.position).GetX();
+        new_pulse.y = (om.position).GetY();
+        new_pulse.z = (om.position).GetZ();
+    } else { // ...but the hit should be associated with TANK coordinates, not DOM coordiantes.
+        new_pulse.x = (tankGeo.position).GetX();
+        new_pulse.y = (tankGeo.position).GetY();
+        new_pulse.z = (tankGeo.position).GetZ();
+    }
 	new_pulse.t = it_pulse->GetTime();
 	new_pulse.width = it_pulse->GetWidth();
 	new_pulse.logvem = log10(it_pulse->GetCharge());

@@ -123,6 +123,10 @@ class I3LaputopLikelihood : public I3EventLogLikelihoodBase,
   // Options for using the saturation llh and atmosphere correction
   bool fCorrectAtm_;
   bool fSaturation_;
+                                      
+  // Option for using the (backward-compatible) XYZ from the DOM coordinates
+  // (New better way = get XYZ from Tank coordinates)
+  bool fOld_XYZ_from_OM_;
   
   // Option for extra cleaning for extreme timing fluctuations within station
   double fMaxIntraStaTimeDiff_;

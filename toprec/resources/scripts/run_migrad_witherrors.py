@@ -100,7 +100,8 @@ tray.AddService("I3LaputopLikelihoodServiceFactory","ToprecLike2")(
     ("badtanks", excludedTanksName),
     ("dynamiccoretreatment",11.0),     # do the 11-meter core cut
     ("curvature",""),      # NO timing likelihood
-    ("SnowServiceName","SimpleSnow21")
+    ("SnowServiceName","SimpleSnow21"),
+    ("OldXYZ", True)  # For backward-compatibility
     )
 
 

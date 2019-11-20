@@ -226,7 +226,8 @@ TEST(run_it)
   tray.SetParameter(name+"ToprecLike2","DynamicCoreTreatment", 11.0);     // don't do dynamic core things
   tray.SetParameter(name+"ToprecLike2","SaturationLikelihood", 1);
   tray.SetParameter(name+"ToprecLike2","Curvature","");      // NO timing likelihood (at first; this will be overridden)
-  tray.SetParameter(name+"ToprecLike2","SnowServiceName",name+"SimpleSnow");  // New!
+  tray.SetParameter(name+"ToprecLike2","SnowServiceName",name+"SimpleSnow");
+  tray.SetParameter(name+"ToprecLike2","OldXYZ", 1);  // Be backward-compatible for this test
 
   // This module performs the three steps
   std::vector<std::string> vldf; vldf.push_back("dlp");vldf.push_back("dlp");vldf.push_back("dlp");
