@@ -122,3 +122,55 @@ a python object (instead of a I3Service) is demonstrated.
 
    tray.Execute()
    
+Cable Shadow
+------------
+
+Within the IceCube Neutrino Observatory there are corrections that must be made in the simulation software to
+ensure that the results are accurate. These corrections are made due to the properties of the ice such as
+contamination from dust and changes in the absorption and scattering properties. Noise is also properly
+simulated looking at the response of the Digital Optical Modules.
+
+
+One aspect of the detector that we needed to implement was the presence of physical objects found within the
+detector that were not properly implemented. This includes the cables that provide power to the DOMs and
+transmit data to the surface. These cables affect the number of detected photons. Photons are completely
+absorbed by the cables removing them from the simulation all together. This corresponds to about 5% of photons
+produced in the simulation.
+
+Simulating these cables were simply implemented by introducing a set of cylinders throughout the detector. Each
+of these cylinders are placed next to a DOM oriented azimuthally in the direction best known to us due to
+flasher data. The cylinders edge is then set to be flush with the surface of the DOM and extend vertically up
+and down to a specified length to best represent the appearance of a cable. The radius of the cylinder is set to
+2.3 cm which is known from construction.
+
+
+Once these cables are implemented into the detector the set of photons which had been detected by each DOM is
+then checked to see if they interacted with the cable. The last known direction is taken from each photon and is
+then backpropagated from the surface of the DOM for a certain distance along a line. If this line intersects the
+edge of the cylinder the photon is then removed from the simulation.
+
+An example of using Cable Shadow is by first adding cylinders to the geometry::
+
+  from icecube.simclasses import I3CylinderMap
+  cable_map = I3CylinderMap()
+  tray.Add(AddCylinders , Cable_map = cable_map ,Length_of_cylinder = 17.0, Radius_of_cylinder = 0.023)
+
+Then running the I3ShadowPhotonRemoverModule to remove photons::
+
+  tray.AddModule("I3ShadowedPhotonRemoverModule",
+               "PhotonRemover",
+	       InputPhotonSeriesMapName = "Photons",
+               OutputPhotonSeriesMapName = "ShadowedPhotons",
+               Cable_Map = "CableMap",
+               Distance = 125.0)
+
+  
+
+.. figure:: First_Cable_Shadow_image.png
+   :scale: 50 %
+   :align: left
+
+.. figure:: Second_Cable_Shadow_Image.png
+   :scale: 50 %
+   :align: right
+
