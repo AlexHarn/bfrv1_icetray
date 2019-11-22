@@ -422,7 +422,7 @@ bool I3CorsikaReader::NextSubBlock()
             log_debug("    Nmax: %.2f", showerInfo_->ghMaxNum);
             log_debug("    t0: %.2f", (showerInfo_->ghStartDepth));///(I3Units::g/I3Units::cm2));
             log_debug("    tmax: %.2f", (showerInfo_->ghMaxDepth));///(I3Units::g/I3Units::cm2));
-            log_debug("    a/b/c: %.2f/%.2f/%.2f", showerInfo->ghLambdaa, showerInfo->ghLambdab, showerInfo->ghLambdac);
+            log_debug("    a/b/c: %.2f/%.2f/%.2f", showerInfo_->ghLambdaa, showerInfo_->ghLambdab, showerInfo_->ghLambdac);
             log_debug("    Chi2: %.2f", showerInfo_->ghRedChiSqr);
         }
             
