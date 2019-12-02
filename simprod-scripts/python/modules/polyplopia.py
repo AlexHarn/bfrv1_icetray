@@ -79,7 +79,7 @@ class PolyplopiaModule(ipmodule.ParsingModule):
              seed = self.seed, 
              nstreams = self.nproc, 
              streamnum = self.procnum) \
-            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
+            if not self.usegslrng else phys_services.I3GSLRandomService(self.seed)
 
         tray.context['I3RandomService'] = randomService
 
