@@ -46,6 +46,7 @@ def _add_i3_writer(tray, outputfile, outputstreams, outputskipkeys):
 
 
 def _execute(tray, executionmaxcount):
+    #print(tray)
     if executionmaxcount:
         tray.Execute(executionmaxcount)
     else:
@@ -150,13 +151,15 @@ def RunI3Tray(params, configure_tray, simulationname, stats=dict(),
 
     # Summarize
     summaryout = tray.context['I3SummaryService']
-    _save_stats(tray, summaryout, stats)
-    if summaryfile:
-        WriteI3Summary(summaryout, summaryfile)
+    if summaryout:
+        _save_stats(tray, summaryout, stats)
+        if summaryfile:
+            WriteI3Summary(summaryout, summaryfile)
 
     # Print Stats and Tray Usage
     if doprintstats:
-        _print_stats(stats, logger, simulationname)
+        if stats:
+            _print_stats(stats, logger, simulationname)
         tray.PrintUsage()
 
     # Free Memory
