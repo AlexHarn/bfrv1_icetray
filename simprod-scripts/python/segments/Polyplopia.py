@@ -199,7 +199,6 @@ def PolyplopiaPhotons(tray, name,
         		UseGeant4 = False,
         		DOMOversizeFactor = DOMOversizeFactor,
         		MCTreeName = "BackgroundI3MCTree",
-        		MMCTrackListName="MMCTrackList",
         		MCPESeriesName = "BackgroundI3MCPESeriesMap",
         		HoleIceParameterization = HoleIceParameterization
 		)
