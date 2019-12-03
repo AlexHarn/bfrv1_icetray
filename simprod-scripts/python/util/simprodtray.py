@@ -17,7 +17,7 @@ rootLogger.setLevel(logging.DEBUG)
 
 
 def _add_i3_summary_service(tray, summaryfile, summaryin):
-    if not summaryin is None:
+    if not summaryin is None: #summary might be {}, that's okay
         summary = summaryin
     elif os.path.exists(summaryfile):
         summary = ReadI3Summary(summaryfile)
@@ -27,7 +27,7 @@ def _add_i3_summary_service(tray, summaryfile, summaryin):
 
 
 def _add_i3_random_service(tray, usegslrng, seed, nstreams, streamnum):
-    if (nstreams is None) or (streamnum is None):
+    if (nstreams is None) or (streamnum is None): #either may be 0
         rand = phys_services.I3GSLRandomService(seed=seed)
     elif usegslrng:
         rand = phys_services.I3GSLRandomService(seed=seed * nstreams + streamnum)
@@ -138,7 +138,7 @@ def RunI3Tray(params, configure_tray, simulationname, stats=dict(),
         _add_i3_summary_service(tray, summaryfile, summaryin)
     if inputfilenamelist:
         tray.AddModule("I3Reader", "reader", filenamelist=inputfilenamelist)
-    if not seed is None:
+    if not seed is None: #may be 0
         _add_i3_random_service(tray, usegslrng, seed, nstreams, streamnum)
     configure_tray(tray, params, stats, logger)
     if outputfile:
@@ -151,7 +151,7 @@ def RunI3Tray(params, configure_tray, simulationname, stats=dict(),
 
     # Summarize
     summaryout = tray.context['I3SummaryService']
-    if summaryout:
+    if not summaryout is None: #summary might be {}, that's okay
         _save_stats(tray, summaryout, stats)
         if summaryfile:
             WriteI3Summary(summaryout, summaryfile)
