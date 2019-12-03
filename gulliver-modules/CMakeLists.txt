@@ -18,11 +18,4 @@ i3_add_library(gulliver-modules
 #    private/test/*.cxx
 #    private/test/*.c)
 
-i3_test_scripts(resources/test/addllh.py
-                resources/test/fancyfit.py
-                resources/test/iterativefit.py
-                resources/test/layered_pandel_fit.py
-                resources/test/mpefit.py
-                resources/test/reversefit.py
-                resources/test/simple_cascade.py
-                resources/test/simplefit.py)
+i3_test_scripts(resources/test/*.py)

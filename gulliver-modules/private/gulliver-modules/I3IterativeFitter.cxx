@@ -268,6 +268,13 @@ void I3IterativeFitter::Configure()
                   cosZenithRange_[0], cosZenithRange_[1]);
     }
 
+    if (cosZenithRange_[1] <= cosZenithRange_[0])
+    {
+        log_fatal("(%s) Invalid cos(zenith) range [%f, %f]. The first element "
+                  "in range must be less than the second.", GetName().c_str(),
+                  cosZenithRange_[0], cosZenithRange_[1]);
+    }
+
     log_debug("(%s) Configured cos(zenith) range: [%f, %f]", GetName().c_str(),
               cosZenithRange_[0], cosZenithRange_[1]);
 
@@ -379,7 +386,7 @@ void I3IterativeFitter::Physics(I3FramePtr frame)
 
     I3LogLikelihoodFitPtr bestFit;
 
-    if (nseeds == 0 || ndof <= 0)
+    if (nseeds == 0)
     {
         log_debug("(%s) No seed(s) available.", GetName().c_str());
 

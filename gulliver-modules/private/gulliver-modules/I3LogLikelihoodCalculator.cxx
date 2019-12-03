@@ -162,6 +162,9 @@ void I3LogLikelihoodCalculator::Physics(I3FramePtr frame){
 
     // input object
     I3ParticleConstPtr particle( frame->Get<I3ParticleConstPtr>( fitName_ ) );
+    if(!particle)
+      log_warn("The I3Particle (%s) does not exist in the frame.", fitName_.c_str());
+    
     if ( CheckParticle(particle) ){
         ++nFitOK_;
     } else {
