@@ -16,9 +16,13 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
 	private/minimizer/I3GSLMultiMin.cxx
 	private/minimizer/DSimulatedAnnealing.cxx
 	private/minimizer/I3GulliverAnnealing.cxx
+	private/minimizer/I3TestMinimizer.cxx
+
+	private/likelihood/I3TestLikelihood.cxx
 
 	private/parametrization/I3SimpleParametrization.cxx
 	private/parametrization/I3HalfSphereParametrization.cxx
+	private/parametrization/I3TestParametrization.cxx
 
 	private/seedservice/I3BasicSeedService.cxx
 	private/seedservice/I3BasicSeedServiceFactory.cxx
