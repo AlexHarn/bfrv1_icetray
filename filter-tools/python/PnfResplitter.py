@@ -1,5 +1,4 @@
 from icecube import icetray, dataclasses, dataio, phys_services
-icetray.load('libtrigger-splitter', False)
 
 @icetray.traysegment
 def PnfResplitter(tray, name, doInIceSplit=True, doNullSplit=True, doIceTopSplit=True):
@@ -43,6 +42,7 @@ def PnfResplitter(tray, name, doInIceSplit=True, doNullSplit=True, doIceTopSplit
     )
 
     if doInIceSplit:
+        icetray.load('libtrigger-splitter', False)
         tray.AddModule('I3TriggerSplitter','InIceSplit')(
             ("TrigHierName", 'DSTTriggers'), 
             ('InputResponses', ['InIceDSTPulses']),
@@ -53,6 +53,7 @@ def PnfResplitter(tray, name, doInIceSplit=True, doNullSplit=True, doIceTopSplit
         # I don't know the IT processing to get from IceTopDSTPulses to IceTopPulses_HLC
         # the icetop working group need to do this in the P-frame
         # for now, i'm splitting on IceTopPulses
+        icetray.load('libtrigger-splitter', False)
         tray.AddModule('I3TriggerSplitter','IceTopSplit')(
             ("TrigHierName", 'DSTTriggers'),
             ('TriggerConfigIDs', [102,1006,1011]),
