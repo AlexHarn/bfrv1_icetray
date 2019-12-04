@@ -24,7 +24,7 @@ from I3Tray import I3Tray
 matplotlib.use("Agg")
 
 filename = os.path.expandvars(
-    "$I3_TESTDATA/Topological_Splitter_testcase.i3.bz2")
+    "$I3_TESTDATA/topological-splitter/Topological_Splitter_testcase.i3.bz2")
 
 scriptname = "simplefit"
 pulsesname = "SRTOfflinePulses"

@@ -59,14 +59,9 @@ class IpdfLikelihood(gulliver.I3EventLogLikelihood):
         m["calls"] = self.calls
         return m
 
-
 filelist = [
-    "GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz",
-    "Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2",
-    ]
-
-filelist = [
-    os.path.join(os.environ["I3_TESTDATA"], "sim", f) for f in filelist
+    os.path.join(os.environ["I3_TESTDATA"], "GCD", "GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"),
+    os.path.join(os.environ["I3_TESTDATA"], "sim", "Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2")
     ]
 
 pulses = "TWSRTHVInIcePulses"
