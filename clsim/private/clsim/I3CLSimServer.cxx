@@ -170,7 +170,8 @@ inline bool send_msg(
 void I3CLSimServer::ServerThread(const std::string &bindAddress)
 {
     zmq::socket_t frontend(context_, ZMQ_ROUTER);
-    frontend.setsockopt(ZMQ_RCVHWM, 1);
+    // Leave enough room in the queue for one bunch of messages
+    frontend.setsockopt(ZMQ_RCVHWM, int(maxBunchSize_/workgroupSize_));
     frontend.setsockopt(ZMQ_SNDHWM, 1);
     frontend.setsockopt(ZMQ_IMMEDIATE, 1);
     frontend.setsockopt(ZMQ_ROUTER_MANDATORY, 1);
@@ -352,8 +353,84 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
     // more than 4 billion unique light sources 
     uint32_t current_bunch_id(0);
     uint32_t current_step_id(0);
+    uint32_t pending_bunches(0);
     std::deque<I3CLSimStep> stepStore;
-    
+
+    auto drain = [&](const zmq::message_t &address) {
+        I3CLSimStepToPhotonConverter::ConversionResult_t result = 
+            converters_[index]->GetConversionResult();
+        pending_bunches--;
+
+        // fill results into output
+        if (result.photons) {
+            auto history = result.photonHistories ?
+                result.photonHistories->begin() :
+                I3CLSimPhotonHistorySeries::const_iterator();
+            for (auto &photon : *result.photons) {
+                auto client_id = localStepIds.right.find(photon.GetID());
+                log_trace_stream("photon ID "<<photon.GetID());
+                i3_assert( client_id != localStepIds.right.end() );
+                auto &request = pendingRequests[client_id->second.first];
+                photon.SetID(client_id->second.second);
+                request.photons->push_back(photon);
+                if (result.photonHistories) {
+                    if (!request.photonHistories)
+                        request.photonHistories = boost::make_shared<I3CLSimPhotonHistorySeries>();
+                    request.photonHistories->push_back(*history++);
+                }
+            }
+        }
+        std::deque<uint32_t> finished;
+        {
+            // Mark this bunch as done
+            auto done = requestsForBunches.right.equal_range(result.identifier);
+            for (auto bunch=done.first; bunch!=done.second; bunch++) {
+                log_trace_stream("request: "<<bunch->second<<" bunch: "<<bunch->first);
+                finished.push_back(bunch->second);
+            }
+            requestsForBunches.right.erase(done.first,done.second);
+        }
+        for (auto request_id : finished) {
+            if (requestsForBunches.left.find(request_id) == requestsForBunches.left.end()) {
+                // this request has been fully serviced
+                auto request = pendingRequests.find(request_id);
+                i3_assert( request != pendingRequests.end() );
+                log_trace_stream("finished request "<<request_id);
+                {
+                    zmq::message_t addr;
+                    addr.copy(&address);
+                    backend.send(addr, ZMQ_SNDMORE);
+                    backend.send(zmq::message_t(), ZMQ_SNDMORE);
+                }
+                if (request->second.photons)
+                    backend.send(serialize(request->second.photons), ZMQ_SNDMORE);
+                if (request->second.photonHistories)
+                    backend.send(serialize(request->second.photonHistories), ZMQ_SNDMORE);
+                backend.send(serialize(request->second.identifier), 0);
+                // remove cache entry
+                pendingRequests.erase(request);
+                // remove local id mapping by erasing the range of
+                // possible (client_id,step_id) pairs with the given
+                // client_id
+                localStepIds.left.erase(
+                    localStepIds.left.lower_bound(std::make_pair(request_id,std::numeric_limits<uint32_t>::min())),
+                    localStepIds.left.upper_bound(std::make_pair(request_id,std::numeric_limits<uint32_t>::max()))
+                );
+            }
+        }
+        log_trace_stream("finished "<<finished.size()<<" bunches");
+    };
+    auto submit = [&](I3CLSimStepSeriesPtr bunch, const zmq::message_t &address) {
+        // If there are two bunches in the pipeline, wait for one to finish
+        if (pending_bunches > 1) {
+            drain(address);
+        }
+        log_trace_stream("submitting bunch "<<current_bunch_id);
+        converters_[index]->EnqueueSteps(bunch, current_bunch_id++);
+        log_trace_stream("done! bunch "<<current_bunch_id-1);
+        pending_bunches++;
+    };
+
     while (true) {
         
         // Request work from the server thread
@@ -370,7 +447,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
         if (items[0].revents & ZMQ_POLLIN) {
             zmq::message_t address;
             std::list<zmq::message_t> body;
-            size_t pending_bunches(0);
+            bool flush = false;
             {
                 std::tie(address, body) = read_message(backend);
                 I3CLSimStepSeriesPtr steps;
@@ -411,10 +488,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                         stepStore.erase(range.first,range.second);
                         log_trace_stream("request "<<request_id<<" to bunch "<<current_bunch_id);
                         requestsForBunches.left.insert(std::make_pair(request_id,current_bunch_id));
-                        log_trace_stream("submitting bunch "<<current_bunch_id);
-                        converters_[index]->EnqueueSteps(bunch, current_bunch_id++);
-                        log_trace_stream("done! bunch "<<current_bunch_id-1);
-                        pending_bunches++;
+                        submit(bunch, address);
                     }
                     // This request will be handled in the next bunch
                     if (!stepStore.empty()) {
@@ -437,71 +511,15 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                     size_t padding = (workgroupSize_-(bunch->size()%workgroupSize_))%workgroupSize_;
                     for (size_t i=0; i < padding; i++)
                         bunch->push_back(NoOpStepTemplate);
-                    converters_[index]->EnqueueSteps(bunch, current_bunch_id++);
-                    pending_bunches++;
+                    submit(bunch, address);
+                    flush = true;
                 }
             }
             log_trace_stream(pending_bunches<<" pending bunches, "<<stepStore.size()<<" steps in store");
 
-            for (size_t i=0; i < pending_bunches; i++) {
-                // Get next result (not necessarily from the batches we just enqueued)
-                I3CLSimStepToPhotonConverter::ConversionResult_t result =
-                    converters_[index]->GetConversionResult();
-                
-                // fill results into output
-                if (result.photons) {
-                    auto history = result.photonHistories ?
-                        result.photonHistories->begin() :
-                        I3CLSimPhotonHistorySeries::const_iterator();
-                    for (auto &photon : *result.photons) {
-                        auto client_id = localStepIds.right.find(photon.GetID());
-                        log_trace_stream("photon ID "<<photon.GetID());
-                        i3_assert( client_id != localStepIds.right.end() );
-                        auto &request = pendingRequests[client_id->second.first];
-                        photon.SetID(client_id->second.second);
-                        request.photons->push_back(photon);
-                        if (result.photonHistories) {
-                            if (!request.photonHistories)
-                                request.photonHistories = boost::make_shared<I3CLSimPhotonHistorySeries>();
-                            request.photonHistories->push_back(*history++);
-                        }
-                    }
-                }
-                std::deque<uint32_t> finished;
-                {
-                    // Mark this bunch as done
-                    auto done = requestsForBunches.right.equal_range(result.identifier);
-                    for (auto bunch=done.first; bunch!=done.second; bunch++) {
-                        log_trace_stream("request: "<<bunch->second<<" bunch: "<<bunch->first);
-                        finished.push_back(bunch->second);
-                    }
-                    requestsForBunches.right.erase(done.first,done.second);
-                }
-                for (auto request_id : finished) {
-                    if (requestsForBunches.left.find(request_id) == requestsForBunches.left.end()) {
-                        // this request has been fully serviced
-                        auto request = pendingRequests.find(request_id);
-                        i3_assert( request != pendingRequests.end() );
-                        log_trace_stream("finished request "<<request_id);
-                        backend.send(address, ZMQ_SNDMORE);
-                        backend.send(zmq::message_t(), ZMQ_SNDMORE);
-                        if (request->second.photons)
-                            backend.send(serialize(request->second.photons), ZMQ_SNDMORE);
-                        if (request->second.photonHistories)
-                            backend.send(serialize(request->second.photonHistories), ZMQ_SNDMORE);
-                        backend.send(serialize(request->second.identifier), 0);
-                        // remove cache entry
-                        pendingRequests.erase(request);
-                        // remove local id mapping by erasing the range of
-                        // possible (client_id,step_id) pairs with the given
-                        // client_id
-                        localStepIds.left.erase(
-                            localStepIds.left.lower_bound(std::make_pair(request_id,std::numeric_limits<uint32_t>::min())),
-                            localStepIds.left.upper_bound(std::make_pair(request_id,std::numeric_limits<uint32_t>::max()))
-                        );
-                    }
-                }
-                log_trace_stream("finished "<<finished.size()<<" bunches");
+            // Get next result (not necessarily from the batches we just enqueued)
+            while (pending_bunches > 0 && (flush || converters_[index]->MorePhotonsAvailable())) {
+                drain(address);
             }
         }
         

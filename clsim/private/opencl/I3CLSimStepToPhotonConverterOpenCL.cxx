@@ -860,8 +860,7 @@ bool I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_uploadSteps(boost::th
                     boost::unique_lock<boost::mutex> guard(statistics_mutex_);
                     statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
                 }
-                log_warn_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns for steps");
-                log_trace("[%u] returned value from input queue..", bufferIndex);
+                log_trace_stream("["<<bufferIndex<<"] waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns for steps");
                 stepsIdentifier = val.first;
                 steps = val.second;
             } else {
@@ -1095,7 +1094,7 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_downloadPhotons(boost
                 boost::unique_lock<boost::mutex> guard(statistics_mutex_);
                 statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
             }
-            log_warn_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << "ns to drain");
+            log_trace_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns to drain");
         } catch(boost::thread_interrupted &i) {
             log_debug("OpenCL thread was interrupted. closing.");
             shouldBreak=true;
