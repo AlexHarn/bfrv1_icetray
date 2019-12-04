@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 
@@ -15,6 +16,12 @@ parser.add_option("-r", "--runnumber", type="int", default=1,
                   dest="RUNNUMBER", help="The run number for this simulation")
 parser.add_option("-x", "--xmlfile", default="benchmark.xml",
                   dest="XMLFILE", help="Write statistics to XMLFILE")
+parser.add_option("--oversize", default=1,
+                  dest="OVERSIZE", help="DOM oversize factor")
+parser.add_option("--energy", default=1e3, type=float,
+                  dest="ENERGY", help="Particle energy in GeV")
+parser.add_option("--type", default="EMinus",
+                  dest="PARTICLE_TYPE", help="Particle type")
 parser.add_option("--icemodel", default=expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
 parser.add_option("--use-cpu",  action="store_true", default=False,
@@ -252,10 +259,14 @@ summary = dataclasses.I3MapStringDouble()
 tray.context['I3SummaryService'] = summary
 
 # a random number generator
-randomService = phys_services.I3SPRNGRandomService(
-    seed = options.SEED,
-    nstreams = 10000,
-    streamnum = options.RUNNUMBER)
+try:
+    randomService = phys_services.I3SPRNGRandomService(
+        seed = options.SEED,
+        nstreams = 10000,
+        streamnum = options.RUNNUMBER)
+except AttributeError:
+    randomService = phys_services.I3GSLRandomService(
+        seed = options.SEED*1000000 + options.RUNNUMBER)
 
 if options.MINIMALGCD:
     tray.AddModule("I3InfiniteSource","streams",
@@ -285,7 +296,8 @@ tray.AddModule("I3MCEventHeaderGenerator","gen_header",
 tray.AddModule(generateEvent, "generateEvent",
     I3RandomService = randomService,
     NEvents = options.NUMEVENTS,
-    Energy = 1*I3Units.TeV,
+    Energy = options.ENERGY,
+    Type = getattr(dataclasses.I3Particle.ParticleType, options.PARTICLE_TYPE),
     # Energy = 1000.*I3Units.TeV,
     # XCoord = xCoord,
     # YCoord = yCoord,
@@ -306,6 +318,7 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     UseCPUs=options.USECPU,
     UseOnlyDeviceNumber=options.DEVICE,
     IceModelLocation=options.ICEMODEL,
+    DOMOversizeFactor=options.OVERSIZE,
     )
 
 
@@ -316,10 +329,29 @@ tray.Execute()
 del tray
 
 ########### this is optional and just parses the generated summary
+prefix = 'I3CLSimModule_makeCLSimHits_makePhotons_clsim_'
+ns_per_photon = summary[prefix+'AverageDeviceTimePerPhoton']
+ns_per_photon_with_util = summary[prefix+'AverageHostTimePerPhoton']
+device_util = summary[prefix+'DeviceUtilization']
+ncalls = int(summary[prefix+'NumKernelCalls'])
 
-ns_per_photon = summary['I3CLSimModule_makeCLSimHits_makePhotons_clsim_AverageDeviceTimePerPhoton']
-ns_per_photon_with_util = summary['I3CLSimModule_makeCLSimHits_makePhotons_clsim_AverageHostTimePerPhoton']
-device_util = summary['I3CLSimModule_makeCLSimHits_makePhotons_clsim_DeviceUtilization']
+if ncalls == 0:
+    sys.stderr.write("Not enough kernel calls to estimate performance! Trying increasing the number of events.\n")
+    sys.exit(1)
+
+total_host_time = summary[prefix+'TotalHostTime']
+total_queue_time = summary.get(prefix+'TotalQueueTime',0.)
+
+class duration(float):
+    def __format__(self, format_spec):
+        if self > 2e9:
+            return format(self/1e9, format_spec) + ' s'
+        elif self > 2e6:
+            return format(self/1e6, format_spec) + ' ms'
+        elif self > 2e3:
+            return format(self/1e3, format_spec) + ' µs'
+        else:
+            return format(self/1e6, format_spec) + ' ns'
 
 print(" ")
 print("# these numbers are performance figures for the GPU:")
@@ -330,6 +362,9 @@ print(" ")
 print("# these numbers include the host utilization and are probably not meaningful for --numevents=1 (the default). You need more events to even out the startup/setup time.")
 print("time per photon (actual, including under-utilization):", ns_per_photon_with_util, "ns")
 print("photons per second (actual, including under-utilization):", 1e9/ns_per_photon_with_util, "photons per second")
+print("host time: {:.1f}".format(duration(total_host_time)))
+print("waiting time: {:.1f} ({:.3f}%)".format(duration(total_queue_time), 100.*total_queue_time/total_host_time))
+print("number of kernel calls:", ncalls)
 
 print("device utilization:", device_util*100., "%")
 

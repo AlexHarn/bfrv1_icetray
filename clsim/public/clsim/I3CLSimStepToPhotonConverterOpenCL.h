@@ -376,6 +376,7 @@ public:
     
     inline double GetTotalDeviceTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_device_duration_in_nanoseconds_);}
     inline double GetTotalHostTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_host_duration_in_nanoseconds_);}
+    inline double GetTotalQueueTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_queue_duration_in_nanoseconds_);}
     inline uint64_t GetNumKernelCalls() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_kernel_calls_;}
     inline uint64_t GetTotalNumPhotonsGenerated() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_num_photons_generated_;}
     inline uint64_t GetTotalNumPhotonsAtDOMs() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_num_photons_atDOMs_;}
@@ -390,6 +391,7 @@ private:
     void OpenCLThread();
     void OpenCLThread_impl(boost::this_thread::disable_interruption &di);
     bool OpenCLThread_impl_uploadSteps(boost::this_thread::disable_interruption &di,
+                                       const boost::posix_time::ptime &last_timestamp,
                                        bool &shouldBreak,
                                        unsigned int bufferIndex,
                                        uint32_t &out_stepsIdentifier,
@@ -416,6 +418,7 @@ private:
     mutable boost::mutex statistics_mutex_;
     uint64_t statistics_total_device_duration_in_nanoseconds_;
     uint64_t statistics_total_host_duration_in_nanoseconds_;
+    uint64_t statistics_total_queue_duration_in_nanoseconds_;
     uint64_t statistics_total_kernel_calls_;
     uint64_t statistics_total_num_photons_generated_;
     uint64_t statistics_total_num_photons_atDOMs_;

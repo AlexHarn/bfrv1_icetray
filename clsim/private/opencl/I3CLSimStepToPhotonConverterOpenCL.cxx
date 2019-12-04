@@ -33,6 +33,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "clsim/I3CLSimStepToPhotonConverterOpenCL.h"
 
+#include <chrono>
+
 // debugging: show GPUtime/photon
 #define DUMP_STATISTICS
 
@@ -70,12 +72,13 @@ I3CLSimStepToPhotonConverterOpenCL::I3CLSimStepToPhotonConverterOpenCL(I3RandomS
 :
 statistics_total_device_duration_in_nanoseconds_(0),
 statistics_total_host_duration_in_nanoseconds_(0),
+statistics_total_queue_duration_in_nanoseconds_(0),
 statistics_total_kernel_calls_(0),
 statistics_total_num_photons_generated_(0),
 statistics_total_num_photons_atDOMs_(0),
 openCLStarted_(false),
-queueToOpenCL_(new I3CLSimQueue<ToOpenCLPair_t>(5)),
-queueFromOpenCL_(new I3CLSimQueue<I3CLSimStepToPhotonConverter::ConversionResult_t>(0)),
+queueToOpenCL_(new I3CLSimQueue<ToOpenCLPair_t>(2)),
+queueFromOpenCL_(new I3CLSimQueue<I3CLSimStepToPhotonConverter::ConversionResult_t>(2)),
 randomService_(randomService),
 initialized_(false),
 compiled_(false),
@@ -822,6 +825,7 @@ namespace {
 }
 
 bool I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_uploadSteps(boost::this_thread::disable_interruption &di,
+                                                                       const boost::posix_time::ptime &last_timestamp,
                                                                        bool &shouldBreak,
                                                                        unsigned int bufferIndex,
                                                                        uint32_t &out_stepsIdentifier,
@@ -843,11 +847,20 @@ bool I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_uploadSteps(boost::th
         // we need to fetch new steps
         
         boost::this_thread::restore_interruption ri(di);
+        typedef std::chrono::high_resolution_clock clock_t;
         try {
             if (blocking) {
                 // this can block until there is something on the queue:
                 log_trace("[%u] waiting for input queue..", bufferIndex);
+                auto t0 = clock_t::now();
                 ToOpenCLPair_t val = queueToOpenCL_->Get();
+                auto dt = clock_t::now()-t0;
+                // count host time only if reference timestamp is set
+                if (!last_timestamp.is_not_a_date_time()) {
+                    boost::unique_lock<boost::mutex> guard(statistics_mutex_);
+                    statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+                }
+                log_warn_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns for steps");
                 log_trace("[%u] returned value from input queue..", bufferIndex);
                 stepsIdentifier = val.first;
                 steps = val.second;
@@ -1074,7 +1087,15 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_downloadPhotons(boost
     {
         boost::this_thread::restore_interruption ri(di);
         try {
+            typedef std::chrono::high_resolution_clock clock_t;
+            auto t0 = clock_t::now();
             queueFromOpenCL_->Put(ConversionResult_t(stepsIdentifier, photons, photonHistories));
+            auto dt = clock_t::now()-t0;
+            {
+                boost::unique_lock<boost::mutex> guard(statistics_mutex_);
+                statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+            }
+            log_warn_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << "ns to drain");
         } catch(boost::thread_interrupted &i) {
             log_debug("OpenCL thread was interrupted. closing.");
             shouldBreak=true;
@@ -1096,6 +1117,9 @@ I3CLSimStepToPhotonConverterOpenCL::DumpStatistics(const cl::Event &kernelFinish
 {
     // calculate time since last kernel execution
     boost::posix_time::ptime this_timestamp(boost::posix_time::microsec_clock::universal_time());
+    // return immediately if no reference timestamp is set (e.g. on first call)
+    if (last_timestamp.is_not_a_date_time())
+        return this_timestamp;
 
 #ifdef DUMP_STATISTICS
     boost::posix_time::time_duration posix_duration = this_timestamp - last_timestamp;
@@ -1197,7 +1221,7 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl(boost::this_thread::d
     std::vector<std::size_t> numberOfSteps(numBuffers, 0);
     
 #ifdef DUMP_STATISTICS
-    boost::posix_time::ptime last_timestamp(boost::posix_time::microsec_clock::universal_time());
+    boost::posix_time::ptime last_timestamp;
 #endif
     
     unsigned int thisBuffer=0;
@@ -1225,7 +1249,7 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl(boost::this_thread::d
             log_trace("[%u] starting \"this\" buffer copy (need to block)..", thisBuffer);
             {
                 bool shouldBreak=false; // shouldBreak is true if this thread has been signalled to terminate
-                OpenCLThread_impl_uploadSteps(di, shouldBreak, thisBuffer, stepsIdentifier[thisBuffer], totalNumberOfPhotons[thisBuffer], numberOfSteps[thisBuffer]);
+                OpenCLThread_impl_uploadSteps(di, last_timestamp, shouldBreak, thisBuffer, stepsIdentifier[thisBuffer], totalNumberOfPhotons[thisBuffer], numberOfSteps[thisBuffer]);
                 if (shouldBreak) break; // is thread termination being requested?
             }
             log_trace("[%u] this buffer has been copied..", thisBuffer);
@@ -1248,7 +1272,7 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl(boost::this_thread::d
             log_trace("[%u] Starting copy (other buffer)..", otherBuffer);
 
             bool shouldBreak=false; // shouldBreak is true if this thread has been signalled to terminate
-            bool gotSomething = OpenCLThread_impl_uploadSteps(di, shouldBreak, otherBuffer, stepsIdentifier[otherBuffer], totalNumberOfPhotons[otherBuffer], numberOfSteps[otherBuffer], false);
+            bool gotSomething = OpenCLThread_impl_uploadSteps(di, last_timestamp, shouldBreak, otherBuffer, stepsIdentifier[otherBuffer], totalNumberOfPhotons[otherBuffer], numberOfSteps[otherBuffer], false);
             if (shouldBreak) break;
             
             if (!gotSomething) {
@@ -1628,6 +1652,8 @@ std::map<std::string, double> I3CLSimStepToPhotonConverterOpenCL::GetStatistics(
     
     summary["TotalDeviceTime"]            = totalDeviceTime;
     summary["TotalHostTime"]              = totalHostTime;
+    summary["TotalQueueTime"]             = GetTotalQueueTime();
+    
     summary["NumKernelCalls"]             = GetNumKernelCalls();
     summary["TotalNumPhotonsGenerated"]   = totalNumPhotonsGenerated;
     summary["TotalNumPhotonsAtDOMs"]      = GetTotalNumPhotonsAtDOMs();
