@@ -3,7 +3,7 @@
 Gulliver
 ========
 
-**Maintainer:** Kai Krings <kai.krings@icecube.wisc.edu>
+**Maintainer:** Alan Coleman <alanc@udel.edu>
 
 .. toctree::
    :maxdepth: 1

@@ -3,7 +3,7 @@
 Lilliput
 ========
 
-**Maintainer:** Kai Krings <kai.krings@icecube.wisc.edu>
+**Maintainer:** Alan Coleman <alanc@udel.edu>
 
 The :mod:`lilliput` project is a collection of `Gulliver` services, that
 is: services that are implementations of the interfaces (base classes)
