@@ -67,7 +67,7 @@ class PrintContext(icetray.I3Module):
         self.AddOutBox("OutBox");
 
     def Configure(self):
-        icetray.logging.log_info("Context keys:",self.ctx.keys())
+        icetray.logging.log_info("Keys: {}".format(self.ctx.keys()),"Context")
 
 
 
