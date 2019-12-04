@@ -2,6 +2,7 @@
 # $Id$
 #
 i3_project(gulliver
+  PYTHON_DIR python
   DOCS_DIR resources/docs)
 
 i3_add_library(gulliver 
