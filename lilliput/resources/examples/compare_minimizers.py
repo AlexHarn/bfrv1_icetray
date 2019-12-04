@@ -125,18 +125,18 @@ def print_result(frame):
     mctruth = icecube.dataclasses.get_most_energetic_track(frame["I3MCTree"])
     original = frame["SPEFitSingle_TWHV"]
 
-    print "\nEvent: ", frame["I3EventHeader"].event_id
-    print "%15s %8s %8s" % ("minimizer", "mc/deg", "orig/deg")
+    print("\nEvent: ", frame["I3EventHeader"].event_id)
+    print("%15s %8s %8s" % ("minimizer", "mc/deg", "orig/deg"))
 
     for minimizer in minimizers:
         reco = frame["SPEFitSingle_TWHV_"+minimizer]
         delta1 = mctruth.dir.angle(reco.dir)
         delta2 = original.dir.angle(reco.dir)
 
-        print "%15s %8.3f %8.3f" % (
-            minimizer,
-            delta1 / icecube.icetray.I3Units.degree,
-            delta2 / icecube.icetray.I3Units.degree)
+        print("%15s %8.3f %8.3f" % (
+                    minimizer,
+                    delta1 / icecube.icetray.I3Units.degree,
+                    delta2 / icecube.icetray.I3Units.degree))
 
 
 tray.AddModule(print_result)
@@ -148,4 +148,4 @@ tray.PrintUsage()
 
 for a in tray.Usage():
     if a.key().startswith("SPEFitSingle_TWHV_"):
-        print a.key(), a.data().usertime
+        print(a.key(), a.data().usertime)
