@@ -25,13 +25,13 @@ class wimpann_params:
   do_earth = 'y'
   total_annh = 0
   to_screen = 'n'
-  #mixing parameters (taken from PDG 2012-06-20 [1]):
-  theta_12 = 33.89
-  theta_13 = 9.12
-  theta_23 = 38.54
+  #mixing parameters (taken from PDGLive 5/30/2017 [1]):
+  theta_12 = 33.65
+  theta_13 = 8.33
+  theta_23 = 45.57
   delta = 0.0 
-  delta_m2_21 = 7.50e-5
-  delta_m2_31 = 2.32e-3
+  delta_m2_21 = 7.53e-5
+  delta_m2_31 = 2.45e-3
   # files
   outfile_sun = ''
   outfile_earth = ''
@@ -56,6 +56,8 @@ parser.add_option("-c", "--channel", action="store", type="int", default=float(n
 parser.add_option("-s", "--seed", action="store", type="int", default=-1, dest="SEED", help="SEED for everything")
 parser.add_option("-r", "--run", action="store", type="int", default=float(numpy.nan), dest="RUN", help="RUN to process files")
 parser.add_option("-w", "--workpath", action="store", default='', dest="WORKPATH", help="Path to WimpSim")
+parser.add_option("-o", "--output", action="store", default='', dest="OUTPUTDIR", help="Output files directory")
+parser.add_option("-n", "--nev", action="store", type="float", default=1e6, dest="NUMEV", help="Number of events per file")
 (options,args) = parser.parse_args()
 
 ### === CONFIGURATION ===
@@ -64,9 +66,9 @@ parser.add_option("-w", "--workpath", action="store", default='', dest="WORKPATH
 pathes = filelocation()
 pathes.workdir = options.WORKPATH
 pathes.indir = ''
-pathes.tmpdir = '/net/user/mzoll/npx3/tmp'
+pathes.tmpdir = '/data/user/grenzi/data/EarthWIMP/Data/tmp'
 pathes.scratchdir = os.getenv('_CONDOR_SCRATCH_DIR')
-pathes.outdir = '/data/sim/IceCube/2011/generated/WimpSim/Sun-INPUT/%04d'% (options.RUN)
+pathes.outdir = options.OUTPUTDIR #'/data/user/grenzi/data/EarthWimpData' #'/data/sim/IceCube/2011/generated/WimpSim/Sun-INPUT/%04d'% (options.RUN)
 
 ### check parameter correctness                                                                                                                               
 print(pathes.scratchdir)
@@ -75,7 +77,8 @@ if pathes.scratchdir == None:
 
 ### wimpann_parameter preparation
 params = wimpann_params()
-events_per_file = 1E6
+events_per_file = options.NUMEV
+print(events_per_file)
 
 params.channel = options.CHANNEL
 params.mass = options.MASS
@@ -96,7 +99,7 @@ if os.access(pathes.tmpdir,os.W_OK) == False:
 
 # Start collecting information about the node I'm running on.
 print ("This is" +str(os.uname())+': '+str(datetime.now())) 
-print ("Execution begins for WIMPANN: Channel %d Mass %d Annihilations %d*1E6" % (options.CHANNEL, options.MASS, options.FILES))
+print ("Execution begins for WIMPANN: Channel %d Mass %d Annihilations %d*%d" % (options.CHANNEL, options.MASS, options.FILES, options.NUMEV))
 
 print ("Processing events")
 
@@ -109,10 +112,14 @@ print ("Moving final outfiles and deleting info-files")
 point_pos_sun= params.outfile_sun.rfind('.',0)
 point_pos_earth= params.outfile_earth.rfind('.',0)
 for i in range (1, options.FILES+1):
-  final_sun = params.outfile_sun[0:point_pos_sun]+'-'+str(i)+params.outfile_sun[point_pos_sun:]
-  final_earth = params.outfile_earth[0:point_pos_earth]+'-'+str(i)+params.outfile_earth[point_pos_earth:]
-  shutil.move( os.path.join(pathes.scratchdir,final_sun), pathes.tmpdir)
-  shutil.move( os.path.join(pathes.scratchdir,final_earth), pathes.tmpdir)
+    if options.FILES==1:
+        final_sun = params.outfile_sun[0:point_pos_sun]+params.outfile_sun[point_pos_sun:] 
+        final_earth = params.outfile_earth[0:point_pos_earth]+params.outfile_earth[point_pos_earth:]
+    else:
+        final_sun = params.outfile_sun[0:point_pos_sun]+'-'+str(i)+params.outfile_sun[point_pos_sun:] 
+        final_earth = params.outfile_earth[0:point_pos_earth]+'-'+str(i)+params.outfile_earth[point_pos_earth:]
+    shutil.move( os.path.join(pathes.scratchdir,final_sun), pathes.tmpdir)
+    shutil.move( os.path.join(pathes.scratchdir,final_earth), pathes.tmpdir)
 print ("Delete info-files")
 os.remove( os.path.join(pathes.scratchdir, params.outfile_info))
 print ("Finished")
