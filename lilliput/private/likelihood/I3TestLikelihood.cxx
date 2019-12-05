@@ -17,10 +17,12 @@ I3TestLikelihood::I3TestLikelihood(const I3Context& context):
   I3EventLogLikelihoodBase(),
   likelihood_(NAN),
   multiplicity_(1),
-  setDiagnostics_(false) {
+  setDiagnostics_(false),
+  hasGradient_(true) {
   AddParameter("LikelihoodValue", "This is the LLH to be returned", likelihood_);
   AddParameter("Multiplicity", "This is the multiplicty of the event", multiplicity_);
   AddParameter("SetDiagnostics", "If true diagnostics will be returned", setDiagnostics_);
+  AddParameter("HasGradient", "If value to be returened if queried about gradient", hasGradient_);
 }
 
 void I3TestLikelihood::Configure() {
@@ -28,6 +30,7 @@ void I3TestLikelihood::Configure() {
   GetParameter("LikelihoodValue", likelihood_);
   GetParameter("Multiplicity", multiplicity_);
   GetParameter("SetDiagnostics", setDiagnostics_);
+  GetParameter("HasGradient", hasGradient_);
 }
 
 I3FrameObjectPtr I3TestLikelihood::GetDiagnostics(const I3EventHypothesis &fitresult){

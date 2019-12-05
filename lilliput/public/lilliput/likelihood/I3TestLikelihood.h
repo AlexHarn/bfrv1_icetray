@@ -18,7 +18,7 @@ class I3TestLikelihood: public I3ServiceBase, public I3EventLogLikelihoodBase {
   virtual void SetGeometry(const I3Geometry &f) {}
   virtual void SetEvent(const I3Frame &f) {}
   virtual double GetLogLikelihood(const I3EventHypothesis &ehypo){return likelihood_;}
-  virtual bool HadGradient() {return true;}
+  virtual bool HasGradient() {return hasGradient_;}
   virtual double GetLogLikelihoodWithGradient( const I3EventHypothesis &ehypo,
       I3EventHypothesis &gradient, double weight = 1 ) {
     return GetLogLikelihood(ehypo);
@@ -33,6 +33,7 @@ class I3TestLikelihood: public I3ServiceBase, public I3EventLogLikelihoodBase {
   double likelihood_;
   unsigned int multiplicity_;
   bool setDiagnostics_;
+  bool hasGradient_;
 };
 
 #endif
