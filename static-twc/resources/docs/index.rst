@@ -49,3 +49,4 @@ The plot was made with IC79 Real data ( June 4 2010 ) with SMT3 trigger conditio
 Upper plot is delta-t distribution before the cleaning while the bottom plot is after cleaning.
 
 Two example scripts in `resources/examples` further illustrates the usage.
+They also show if the STWC works with your I3 files.
