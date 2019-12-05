@@ -72,6 +72,8 @@ def I3CLSimMakePhotons(tray, name,
                        StopDetectedPhotons=True,
                        PhotonHistoryEntries=0,
                        DoNotParallelize=False,
+                       EnableDoubleBuffering=False,
+                       DoublePrecision=False,
                        DOMOversizeFactor=5.,
                        UnshadowedFraction=0.9,
                        HoleIceParameterization=expandvars("$I3_BUILD/ice-models/resources/models/angsens/as.h2-50cm"),
@@ -290,7 +292,9 @@ def I3CLSimMakePhotons(tray, name,
         UseCPUs=UseCPUs,
         OverrideApproximateNumberOfWorkItems=OverrideApproximateNumberOfWorkItems,
         DoNotParallelize=DoNotParallelize,
-        UseOnlyDeviceNumber=UseOnlyDeviceNumber
+        UseOnlyDeviceNumber=UseOnlyDeviceNumber,
+        EnableDoubleBuffering=EnableDoubleBuffering,
+        DoublePrecision=DoublePrecision
     )
     server = clsim.I3CLSimServer(address, clsim.I3CLSimStepToPhotonConverterSeries(converters))
     # stash server instance in the context to keep it alive

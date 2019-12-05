@@ -281,6 +281,8 @@ def setupPropagators(RandomService,
                      UseOnlyDeviceNumber=None,
                      DoNotParallelize=False,
                      OverrideApproximateNumberOfWorkItems=None,
+                     EnableDoubleBuffering=False,
+                     DoublePrecision=False
                      ):
     """
     Create a collection of photon propagators suitable for use with I3CLSimServer
@@ -304,6 +306,8 @@ def setupPropagators(RandomService,
         return clsim.initializeOpenCL(device, RandomService, geometry,
             mediumProperties, wavelengthGenerationBias, clsim.I3CLSimRandomValuePtrSeries(wavelengthGenerators),
             pancakeFactor=DetectorParams['DOMPancakeFactor'],
+            enableDoubleBuffering=EnableDoubleBuffering,
+            doublePrecision=DoublePrecision
             )
         
     return map(create_converter, openCLDevices)

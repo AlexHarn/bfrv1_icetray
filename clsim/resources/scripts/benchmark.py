@@ -26,7 +26,8 @@ parser.add_option("--icemodel", default=expandvars("$I3_BUILD/ice-models/resourc
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
 parser.add_option("--use-cpu",  action="store_true", default=False,
                   dest="USECPU", help="simulate using CPU instead of GPU")
-
+parser.add_option("--double-buffering", action="store_true", default=False,
+                  dest="DOUBLE_BUFFERING", help="Interleave data movement and execution")
 parser.add_option("--minimal-gcd",  action="store_true", default=False,
                   dest="MINIMALGCD", help="generate a trivial GCD from scratch with only 24 DOMs. There are fewer collision checks, so usually things are faster, but unrealistic.")
 
@@ -319,6 +320,7 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     UseOnlyDeviceNumber=options.DEVICE,
     IceModelLocation=options.ICEMODEL,
     DOMOversizeFactor=options.OVERSIZE,
+    EnableDoubleBuffering=options.DOUBLE_BUFFERING
     )
 
 icetray.logging.set_level_for_unit('I3CLSimServer', 'INFO')
