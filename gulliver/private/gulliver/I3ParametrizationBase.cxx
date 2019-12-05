@@ -40,7 +40,7 @@ I3ParametrizationBase::GetParInitSpecs( I3EventHypothesisPtr eh ){
     assert( par_.size() );
     assert( par_.size() == parspecs_.size() );
     if ( ! hypothesis_ ){
-        return parspecs_;
+        return parspecs_; //LCOV_EXCL_LINE it should not be possible to have null pointer
     }
     std::vector<I3FitParameterInitSpecs>::iterator ispec;
     int ipar = 0;

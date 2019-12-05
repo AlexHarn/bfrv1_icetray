@@ -1,8 +1,8 @@
 #include <I3Test.h>
+#include "gulliver/I3Gulliver.h"
 #include "I3TestDummyParametrization.h"
 #include "I3TestDummyMinimizer.h"
 #include "I3TestDummyEventLogLikelihood.h"
-#include "gulliver/I3Gulliver.h"
 #include "dataclasses/I3Direction.h"
 #include "dataclasses/physics/I3Particle.h"
 #include <cstdio>
@@ -12,6 +12,68 @@
 // they have no further useful meaning.
 
 TEST_GROUP(Gulliver_Interfaces);
+
+TEST(DefaultConstructor) {
+    I3EventHypothesisPtr dumb_ptr(new I3EventHypothesis);
+    dumb_ptr->particle = I3ParticlePtr(new I3Particle);
+    dumb_ptr->particle->SetLength(3.0);
+    dumb_ptr->particle->SetDir(M_PI / 2, M_PI / 2);
+    I3ParametrizationBasePtr
+    dumb_param(new I3TestDummyTrackParametrization(dumb_ptr, 0.1, 0.02, 0.5));
+    I3MinimizerBasePtr
+    dumb_mini(new I3TestDummyMinimizer);
+    I3EventLogLikelihoodBasePtr
+    dumb_llh(new I3TestDummyEventLogLikelihood(10.0/*L*/, 2.0/*azi*/, 30.0/*X*/, 4.0/*dL*/, 5.0/*dAzi*/, 5.0/*dX*/));
+    I3Gulliver g(dumb_param, dumb_llh, dumb_mini, "LikelihoodInterface");
+}
+
+TEST(ChangeParametrization) {
+    I3EventHypothesisPtr dumb_ptr(new I3EventHypothesis);
+    dumb_ptr->particle = I3ParticlePtr(new I3Particle);
+    dumb_ptr->particle->SetLength(3.0);
+    dumb_ptr->particle->SetDir(M_PI / 2, M_PI / 2);
+    I3ParametrizationBasePtr
+    dumb_param(new I3TestDummyTrackParametrization(dumb_ptr, 0.1, 0.02, 0.5));
+    I3MinimizerBasePtr
+    dumb_mini(new I3TestDummyMinimizer);
+    I3EventLogLikelihoodBasePtr
+    dumb_llh(new I3TestDummyEventLogLikelihood(10.0/*L*/, 2.0/*azi*/, 30.0/*X*/, 4.0/*dL*/, 5.0/*dAzi*/, 5.0/*dX*/));
+    I3Gulliver g(dumb_param, dumb_llh, dumb_mini, "LikelihoodInterface");
+
+    vector<double> mypar(3,42.0);
+    double val1 = g(mypar);
+
+    I3ParametrizationBasePtr
+    dumb_param2(new I3TestDummyTrackParametrization(dumb_ptr, 0.1, 0.02, 0.5));
+    g.ChangeParametrization(dumb_param2);
+    double val2 = g(mypar);
+
+    ENSURE(val1 == val2);
+}
+
+TEST(ChangeMinimizer) {
+    I3EventHypothesisPtr dumb_ptr(new I3EventHypothesis);
+    dumb_ptr->particle = I3ParticlePtr(new I3Particle);
+    dumb_ptr->particle->SetLength(3.0);
+    dumb_ptr->particle->SetDir(M_PI / 2, M_PI / 2);
+    I3ParametrizationBasePtr
+    dumb_param(new I3TestDummyTrackParametrization(dumb_ptr, 0.1, 0.02, 0.5));
+    I3MinimizerBasePtr
+    dumb_mini(new I3TestDummyMinimizer);
+    I3EventLogLikelihoodBasePtr
+    dumb_llh(new I3TestDummyEventLogLikelihood(10.0/*L*/, 2.0/*azi*/, 30.0/*X*/, 4.0/*dL*/, 5.0/*dAzi*/, 5.0/*dX*/));
+    I3Gulliver g(dumb_param, dumb_llh, dumb_mini, "LikelihoodInterface");
+
+    vector<double> mypar(3,42.0);
+    double val1 = g(mypar);
+
+    I3MinimizerBasePtr
+    dumb_mini2(new I3TestDummyMinimizer);
+    g.ChangeMinimizer(dumb_mini2);
+    double val2 = g(mypar);
+
+    ENSURE(val1 == val2);
+}
 
 // testing the parametrization mechanisms
 

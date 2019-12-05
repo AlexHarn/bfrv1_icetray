@@ -99,11 +99,6 @@ void I3EventLogLikelihoodCombiner::Configure(){
     // unsigned int nllh = llhNamesVector_.size();
     unsigned int nllh = logLikelihoods_.size();
     unsigned int nweights = weightsVector_.size();
-    if ( nllh == 0 ){
-        log_fatal( "(%s) You need to provide a list of likelihood services to "
-                   "combine, using the %s option.",
-                   GetName().c_str(), inputllhs_optionname );
-    }
     if ( nweights == 0 ){
         weightsVector_.resize(nllh, 1.0 );
     } else if ( weightsVector_.size() != nllh ){
