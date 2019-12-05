@@ -113,7 +113,7 @@ void I3StartStopPoint::CalculateStartStopPoint(I3FramePtr frame,
   track->SetShape(shape_);
   
   if(!(particle.GetFitStatus()==I3Particle::OK)){
-    log_info("Fit fucked up, nothing done!");
+    log_info("Fit failed, nothing done!");
     I3FiniteCutsPtr finiteCuts(new I3FiniteCuts());
     
     frame->Put(fitName_+"_FiniteCuts",finiteCuts);

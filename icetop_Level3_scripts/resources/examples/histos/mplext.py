@@ -438,7 +438,7 @@ def ViolinPlot(x, y, bins=10, range=None, meancolor="r", mediancolor="b",
   if meancolor != "":
     merrbar = plt.errorbar(xcens, means, stds / np.sqrt(ns), marker="o", ls="o",
                            elinewidth=2, mew=0, color=meancolor, zorder=1, **kwargs)
-    # matplotlib is fucking up the zorder for me if not explicitly told what to do
+    # matplotlib is messing up the zorder for me if not explicitly told what to do
     for el in merrbar[2]:
       el.set_zorder(1)
 

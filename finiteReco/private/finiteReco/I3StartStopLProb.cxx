@@ -83,7 +83,7 @@ void I3StartStopLProb::Physics(I3FramePtr frame){
     return;
   }
   else if(track->GetFitStatus()!=I3Particle::OK){
-    log_info("Fit fucked up, nothing done!");
+    log_info("Fit failed, nothing done!");
     frame->Put(instanceName+"_StartStopParams",SSPPtr);
     PushFrame(frame,"OutBox");
     return;
