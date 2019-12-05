@@ -15,13 +15,10 @@ i3_add_library(gulliver
 
 i3_test_executable(test 
   private/test/main.cxx
-  private/test/FastLogSumTest.cxx
-  private/test/I3GradientTest.cxx
-  private/test/I3GulliverTest.cxx
-  private/test/LikelihoodCombinerTest.cxx
+  private/test/*.cxx
   USE_PROJECTS icetray gulliver
 )
-i3_test_scripts(resources/scripts/*.py)
+i3_test_scripts(resources/tests/*.py)
 
 i3_add_pybindings(gulliver
   private/pybindings/I3LogLikelihoodFitParams.cxx
@@ -32,6 +29,6 @@ i3_add_pybindings(gulliver
   private/pybindings/ServiceWrappers.cxx
   private/pybindings/module.cxx
   USE_TOOLS boost python 
-  USE_PROJECTS gulliver icetray dataclasses phys-services 
+  USE_PROJECTS gulliver icetray dataclasses phys-services serialization 
   )
 

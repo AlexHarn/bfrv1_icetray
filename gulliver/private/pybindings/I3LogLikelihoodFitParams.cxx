@@ -25,6 +25,7 @@ void register_I3LogLikelihoodFitParams()
     .def_readwrite("rlogl", &I3LogLikelihoodFitParams::rlogl_)
     .def_readwrite("ndof", &I3LogLikelihoodFitParams::ndof_)
     .def_readwrite("nmini", &I3LogLikelihoodFitParams::nmini_)
+    .def("reset", &I3LogLikelihoodFitParams::Reset, "Sets all values to default")
     .def(dataclass_suite<I3LogLikelihoodFitParams>())
     ;
 
