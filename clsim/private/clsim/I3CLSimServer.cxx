@@ -170,15 +170,21 @@ inline bool send_msg(
 void I3CLSimServer::ServerThread(const std::string &bindAddress)
 {
     zmq::socket_t frontend(context_, ZMQ_ROUTER);
-    // Leave enough room in the queue for one bunch of messages
-    frontend.setsockopt(ZMQ_RCVHWM, int(maxBunchSize_/workgroupSize_));
-    frontend.setsockopt(ZMQ_SNDHWM, 1);
-    frontend.setsockopt(ZMQ_IMMEDIATE, 1);
-    frontend.setsockopt(ZMQ_ROUTER_MANDATORY, 1);
-    frontend.bind(bindAddress);
-
     zmq::socket_t backend(context_, ZMQ_ROUTER);
-    backend.bind("inproc://worker");
+    {
+        // Leave enough room in queues for one bunch of messages
+        int bunchBlock = converters_.size()*maxBunchSize_/workgroupSize_;
+        frontend.setsockopt(ZMQ_RCVHWM, bunchBlock);
+        frontend.setsockopt(ZMQ_SNDHWM, bunchBlock);
+        // frontend.setsockopt(ZMQ_SNDHWM, 0);
+
+        frontend.setsockopt(ZMQ_IMMEDIATE, 1);
+        frontend.setsockopt(ZMQ_ROUTER_MANDATORY, 1);
+        frontend.bind(bindAddress);
+
+        backend.setsockopt(ZMQ_RCVHWM, bunchBlock);
+        backend.bind("inproc://worker");
+    }
 
     // Listen for control messages
     zmq::socket_t control(context_, ZMQ_SUB);

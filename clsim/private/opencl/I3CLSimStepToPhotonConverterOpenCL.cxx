@@ -70,12 +70,6 @@ const bool I3CLSimStepToPhotonConverterOpenCL::default_useNativeMath=true;
 I3CLSimStepToPhotonConverterOpenCL::I3CLSimStepToPhotonConverterOpenCL(I3RandomServicePtr randomService,
                                                                        bool useNativeMath)
 :
-statistics_total_device_duration_in_nanoseconds_(0),
-statistics_total_host_duration_in_nanoseconds_(0),
-statistics_total_queue_duration_in_nanoseconds_(0),
-statistics_total_kernel_calls_(0),
-statistics_total_num_photons_generated_(0),
-statistics_total_num_photons_atDOMs_(0),
 openCLStarted_(false),
 queueToOpenCL_(new I3CLSimQueue<ToOpenCLPair_t>(2)),
 queueFromOpenCL_(new I3CLSimQueue<I3CLSimStepToPhotonConverter::ConversionResult_t>(2)),
@@ -857,10 +851,16 @@ bool I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_uploadSteps(boost::th
                 auto dt = clock_t::now()-t0;
                 // count host time only if reference timestamp is set
                 if (!last_timestamp.is_not_a_date_time()) {
-                    boost::unique_lock<boost::mutex> guard(statistics_mutex_);
-                    statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+                    boost::unique_lock<boost::mutex> guard(statistics_.mutex);
+                    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+                    auto &stat = statistics_.input_wait;
+                    if (stat.count() >= 10 && std::pow(ns-stat.mean(),2) > 9*stat.variance()) {
+                        log_info_stream("Input wait "<<ns<<" ns (expected "<<stat.mean()<<" +- "<<std::sqrt(stat.variance())<<" ns)");
+                    }
+                    stat.update(ns);
+                    statistics_.total_queue_duration += ns;
                 }
-                log_trace_stream("["<<bufferIndex<<"] waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns for steps");
+                log_trace_stream("["<<bufferIndex<<"] waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns for bunch "<<val.first);
                 stepsIdentifier = val.first;
                 steps = val.second;
             } else {
@@ -1031,8 +1031,8 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_downloadPhotons(boost
 
 #ifdef DUMP_STATISTICS
         {
-            boost::unique_lock<boost::mutex> guard(statistics_mutex_);
-            statistics_total_num_photons_atDOMs_ += numberOfGeneratedPhotons;
+            boost::unique_lock<boost::mutex> guard(statistics_.mutex);
+            statistics_.total_num_photons_atDOMs += numberOfGeneratedPhotons;
         }
 #endif
         
@@ -1091,10 +1091,18 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_downloadPhotons(boost
             queueFromOpenCL_->Put(ConversionResult_t(stepsIdentifier, photons, photonHistories));
             auto dt = clock_t::now()-t0;
             {
-                boost::unique_lock<boost::mutex> guard(statistics_mutex_);
-                statistics_total_queue_duration_in_nanoseconds_ += std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+                boost::unique_lock<boost::mutex> guard(statistics_.mutex);
+                auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+                auto &stat = statistics_.output_wait;
+                // warn if queue wait time is off by more than 3 standard deviations
+                if (stat.count() >= 10 && std::pow(ns-stat.mean(),2) > 9*stat.variance()) {
+                    log_info_stream("Output wait "<<ns<<" ns (expected "<<stat.mean()<<" +- "<<std::sqrt(stat.variance())<<" ns)");
+                } else {
+                    log_trace_stream("waited "<<ns<< " ns to drain");
+                }
+                statistics_.total_queue_duration += ns;
+                stat.update(ns);
             }
-            log_trace_stream("waited "<<std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << " ns to drain");
         } catch(boost::thread_interrupted &i) {
             log_debug("OpenCL thread was interrupted. closing.");
             shouldBreak=true;
@@ -1131,12 +1139,14 @@ I3CLSimStepToPhotonConverterOpenCL::DumpStatistics(const cl::Event &kernelFinish
     const uint64_t kernel_duration_in_nanoseconds = (timeStart==timeEnd)?deviceProfilingResolution:(timeEnd-timeStart);
     
     {
-        boost::unique_lock<boost::mutex> guard(statistics_mutex_);
-        
-        statistics_total_device_duration_in_nanoseconds_ += kernel_duration_in_nanoseconds;
-        statistics_total_host_duration_in_nanoseconds_ += host_duration_in_nanoseconds;
-        statistics_total_kernel_calls_++;
-        statistics_total_num_photons_generated_ += totalNumberOfPhotons;
+        boost::unique_lock<boost::mutex> guard(statistics_.mutex);
+
+        statistics_.device_duration.update(kernel_duration_in_nanoseconds);
+        statistics_.host_duration.update(host_duration_in_nanoseconds);
+        statistics_.total_device_duration += kernel_duration_in_nanoseconds;
+        statistics_.total_host_duration += host_duration_in_nanoseconds;
+        statistics_.total_kernel_calls++;
+        statistics_.total_num_photons_generated += totalNumberOfPhotons;
     }
     
     const double utilization = static_cast<double>(kernel_duration_in_nanoseconds)/static_cast<double>(host_duration_in_nanoseconds);
@@ -1644,18 +1654,28 @@ I3CLSimStepToPhotonConverter::ConversionResult_t I3CLSimStepToPhotonConverterOpe
 std::map<std::string, double> I3CLSimStepToPhotonConverterOpenCL::GetStatistics() const
 {
     std::map<std::string, double> summary;
+    boost::unique_lock<boost::mutex> guard(statistics_.mutex);
     
-    const double totalNumPhotonsGenerated = GetTotalNumPhotonsGenerated();
-    const double totalDeviceTime = static_cast<double>(GetTotalDeviceTime())*I3Units::ns;
-    const double totalHostTime = static_cast<double>(GetTotalHostTime())*I3Units::ns;
-    
+    const double totalNumPhotonsGenerated = statistics_.total_num_photons_generated;
+    const double totalDeviceTime = static_cast<double>(statistics_.total_device_duration)*I3Units::ns;
+    const double totalHostTime = static_cast<double>(statistics_.total_host_duration)*I3Units::ns;
+
     summary["TotalDeviceTime"]            = totalDeviceTime;
     summary["TotalHostTime"]              = totalHostTime;
-    summary["TotalQueueTime"]             = GetTotalQueueTime();
-    
-    summary["NumKernelCalls"]             = GetNumKernelCalls();
+    summary["TotalQueueTime"]             = statistics_.total_queue_duration;
+
+    summary["DeviceTimePerKernelMean"]    = statistics_.device_duration.mean();
+    summary["DeviceTimePerKernelStd"]     = std::sqrt(statistics_.device_duration.variance());
+    summary["HostTimePerKernelMean"]      = statistics_.host_duration.mean();
+    summary["HostTimePerKernelStd"]       = std::sqrt(statistics_.host_duration.variance());
+    summary["InputTimePerKernelMean"]     = statistics_.input_wait.mean();
+    summary["InputTimePerKernelStd"]      = std::sqrt(statistics_.input_wait.variance());
+    summary["OutputTimePerKernelMean"]    = statistics_.output_wait.mean();
+    summary["OutputTimePerKernelStd"]     = std::sqrt(statistics_.output_wait.variance());
+
+    summary["NumKernelCalls"]             = statistics_.total_kernel_calls;
     summary["TotalNumPhotonsGenerated"]   = totalNumPhotonsGenerated;
-    summary["TotalNumPhotonsAtDOMs"]      = GetTotalNumPhotonsAtDOMs();
+    summary["TotalNumPhotonsAtDOMs"]      = statistics_.total_num_photons_atDOMs;
     
     summary["AverageDeviceTimePerPhoton"] = totalDeviceTime/totalNumPhotonsGenerated;
     summary["AverageHostTimePerPhoton"]   = totalHostTime/totalNumPhotonsGenerated;

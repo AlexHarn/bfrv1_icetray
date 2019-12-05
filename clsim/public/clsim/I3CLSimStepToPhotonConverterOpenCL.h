@@ -374,12 +374,12 @@ public:
     
     virtual std::map<std::string, double> GetStatistics() const;
     
-    inline double GetTotalDeviceTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_device_duration_in_nanoseconds_);}
-    inline double GetTotalHostTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_host_duration_in_nanoseconds_);}
-    inline double GetTotalQueueTime() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return static_cast<double>(statistics_total_queue_duration_in_nanoseconds_);}
-    inline uint64_t GetNumKernelCalls() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_kernel_calls_;}
-    inline uint64_t GetTotalNumPhotonsGenerated() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_num_photons_generated_;}
-    inline uint64_t GetTotalNumPhotonsAtDOMs() const {boost::unique_lock<boost::mutex> guard(statistics_mutex_); return statistics_total_num_photons_atDOMs_;}
+    inline double GetTotalDeviceTime() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return static_cast<double>(statistics_.total_device_duration);}
+    inline double GetTotalHostTime() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return static_cast<double>(statistics_.total_host_duration);}
+    inline double GetTotalQueueTime() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return static_cast<double>(statistics_.total_queue_duration);}
+    inline uint64_t GetNumKernelCalls() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return statistics_.total_kernel_calls;}
+    inline uint64_t GetTotalNumPhotonsGenerated() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return statistics_.total_num_photons_generated;}
+    inline uint64_t GetTotalNumPhotonsAtDOMs() const {boost::unique_lock<boost::mutex> guard(statistics_.mutex); return statistics_.total_num_photons_atDOMs;}
     
 private:
     typedef std::pair<uint32_t, I3CLSimStepSeriesConstPtr> ToOpenCLPair_t;
@@ -415,15 +415,43 @@ private:
                                             const std::string &deviceName,
                                             uint64_t deviceProfilingResolution);
 
-    mutable boost::mutex statistics_mutex_;
-    uint64_t statistics_total_device_duration_in_nanoseconds_;
-    uint64_t statistics_total_host_duration_in_nanoseconds_;
-    uint64_t statistics_total_queue_duration_in_nanoseconds_;
-    uint64_t statistics_total_kernel_calls_;
-    uint64_t statistics_total_num_photons_generated_;
-    uint64_t statistics_total_num_photons_atDOMs_;
+    // Keep a running mean using Welford's online algorithm
+    // See: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+    class metric {
+    public:
+        metric() : count_(0), mean_(0), mean2_(0) {}
+        void update(double value) {
+            count_++;
+            double delta = value - mean_;
+            mean_ += delta / count_;
+            double delta2 = value - mean_;
+            mean2_ += delta*delta2;
+        }
+        size_t count() const { return count_; }
+        double mean() const { return mean_; }
+        double variance() const { return (count_ > 1) ? mean2_/(count_-1) : NAN; }
+    private:
+        size_t count_;
+        double mean_, mean2_;
+    };
+    struct statistics_bundle {
+        statistics_bundle() :
+            total_host_duration(0), total_device_duration(0), total_queue_duration(0),
+            total_kernel_calls(0), total_num_photons_generated(0), total_num_photons_atDOMs(0) {}
+        metric input_wait;
+        metric output_wait;
+        metric host_duration;
+        metric device_duration;
+        uint64_t total_host_duration;
+        uint64_t total_device_duration;
+        uint64_t total_queue_duration;
+        uint64_t total_kernel_calls;
+        uint64_t total_num_photons_generated;
+        uint64_t total_num_photons_atDOMs;
+        mutable boost::mutex mutex;
+    };
+    statistics_bundle statistics_;
 
-    
     boost::shared_ptr<boost::thread> openCLThreadObj_;
     boost::condition_variable_any openCLStarted_cond_;
     boost::mutex openCLStarted_mutex_;

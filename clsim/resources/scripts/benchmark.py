@@ -321,6 +321,8 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     DOMOversizeFactor=options.OVERSIZE,
     )
 
+icetray.logging.set_level_for_unit('I3CLSimServer', 'INFO')
+icetray.logging.set_level_for_unit('I3CLSimStepToPhotonConverterOpenCL', 'INFO')
 
 from datetime import datetime
 t0 = datetime.now()
@@ -328,6 +330,9 @@ tray.Execute()
 walltime_in_execute = ((datetime.now() - t0).total_seconds())*1e9
 
 del tray
+
+import pprint
+pprint.pprint(dict(summary))
 
 ########### this is optional and just parses the generated summary
 import numpy as np
@@ -368,8 +373,8 @@ print("(avg)   time per photon (actual, including under-utilization):", ns_per_p
 print("(avg)   photons per second (actual, including under-utilization):", 1e9/ns_per_photon_with_util, "photons per second")
 print("(total) host time: {:.1f}".format(duration(total_host_time)))
 print("(total) waiting time: {:.1f} ({:.3f}%)".format(duration(total_queue_time), 100.*total_queue_time/total_host_time))
-print("(total) number of kernel calls:", ncalls)
-print("wallclock time: {:.1f}".format(duration(walltime_in_execute)))
+print("(total) number of kernel calls: {:.0f}".format(ncalls))
+print("        wallclock time: {:.1f}".format(duration(walltime_in_execute)))
 
 print("(avg)   device utilization:", device_util*100., "%")
 
