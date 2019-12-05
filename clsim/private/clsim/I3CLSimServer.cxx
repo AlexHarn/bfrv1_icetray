@@ -5,6 +5,8 @@
 
 #include <list>
 
+#include <chrono>
+
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
@@ -95,8 +97,6 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
     
     if (converters_.empty())
         log_fatal("Need at least 1 I3CLSimStepToPhotonConverter");
-    if (converters_.size() > 1)
-        log_fatal("Cannot handle more than 1 OpenCL device. See: https://code.icecube.wisc.edu/projects/icecube/ticket/2360");
 
     // Harmonize bunch sizes
     for (auto &converter : converters_) {
@@ -210,7 +210,38 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     std::queue<zmq::message_t > workers;
     /// Map from internal task ID to address of originating client and external ID
     std::map<uint32_t, std::array<zmq::message_t, 2> > clients;
-    
+
+    auto handle_worker = [&]() {
+        zmq::message_t address;
+        std::list<zmq::message_t> body;
+        std::tie(address, body) = read_message(backend);
+        
+        // A "ready" message; no payload
+        if (body.size() == 1 && body.front().size() == 0) {
+            workers.push(std::move(address));
+            return;
+        }
+        
+        // Otherwise, look up address of originating client
+        // and return the payload
+        uint32_t client_id = deserialize<uint32_t>(body.back());
+        body.pop_back();
+        auto destination = clients.find(client_id);
+        if (destination == clients.end()) {
+            log_error_stream("Unknown client ID " << client_id);
+            return;
+        }
+        log_trace_stream("returning request "<<deserialize<uint32_t>(destination->second[1]));
+        
+        frontend.send(destination->second[0], ZMQ_SNDMORE);
+        frontend.send(zmq::message_t(), ZMQ_SNDMORE);
+        for (auto &packet : body)
+            frontend.send(packet, ZMQ_SNDMORE);
+        frontend.send(destination->second[1], 0);
+        
+        clients.erase(destination);
+    };
+
     log_trace_stream("Server thread started on "<<bindAddress);
     while (true) {
         
@@ -224,7 +255,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
             zmq::message_t address;
             std::list<zmq::message_t> body;
             std::tie(address, body) = read_message(frontend);
-            log_debug("got message on frontend");
+            log_trace("got message on frontend");
             
             if ( body.size() == 1 ) {
                 if ( body.front() == I3CLSimServerUtils::greeting ) {
@@ -234,14 +265,20 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
                     frontend.send(zmq::message_t(), ZMQ_SNDMORE);
                     frontend.send(serialize(std::make_pair(workgroupSize_, maxBunchSize_)), 0);
                 } else if ( body.front() == I3CLSimServerUtils::barrier ) {
+                    while (workers.size() < workerThreads_.size()) {
+                        log_trace_stream(workers.size()<<" workers");
+                        handle_worker();
+                        log_trace_stream(workers.size()<<" workers");
+                    }
                     log_debug_stream("flushing "<<workers.size()<<" workers");
+
                     while (!workers.empty()) {
                         backend.send(workers.front(), ZMQ_SNDMORE);
                         backend.send(zmq::message_t(), ZMQ_SNDMORE);
                         backend.send(body.front(), 0);
                         workers.pop();
-                        log_trace_stream("flushed");
                     }
+                    log_debug_stream("flushed");
                 } else {
                     log_error_stream("Unknown message "<<std::string(
                         body.front().data<char>(),
@@ -270,40 +307,12 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
                 workers.pop();
             }
         }
-        
+
         // Message from worker
         if ((items[1].revents & ZMQ_POLLIN) && pollout(&outitems[0], 1)) {
-            
-            zmq::message_t address;
-            std::list<zmq::message_t> body;
-            std::tie(address, body) = read_message(backend);
-            
-            // A "ready" message; no payload
-            if (body.size() == 1 && body.front().size() == 0) {
-                workers.push(std::move(address));
-                continue;
-            }
-            
-            // Otherwise, look up address of originating client
-            // and return the payload
-            uint32_t client_id = deserialize<uint32_t>(body.back());
-            body.pop_back();
-            auto destination = clients.find(client_id);
-            if (destination == clients.end()) {
-                log_error_stream("Unknown client ID " << client_id);
-                continue;
-            }
-            log_trace_stream("returning request "<<deserialize<uint32_t>(destination->second[1]));
-            
-            frontend.send(destination->second[0], ZMQ_SNDMORE);
-            frontend.send(zmq::message_t(), ZMQ_SNDMORE);
-            for (auto &packet : body)
-                frontend.send(packet, ZMQ_SNDMORE);
-            frontend.send(destination->second[1], 0);
-            
-            clients.erase(destination);
+            handle_worker();
         }
-        
+
         // Shutdown signal from main thread
         if (items[2].revents & ZMQ_POLLIN) {
             zmq::message_t dummy;
@@ -368,7 +377,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                 I3CLSimPhotonHistorySeries::const_iterator();
             for (auto &photon : *result.photons) {
                 auto client_id = localStepIds.right.find(photon.GetID());
-                log_trace_stream("photon ID "<<photon.GetID());
+                // log_trace_stream("photon ID "<<photon.GetID());
                 i3_assert( client_id != localStepIds.right.end() );
                 auto &request = pendingRequests[client_id->second.first];
                 photon.SetID(client_id->second.second);
@@ -385,7 +394,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
             // Mark this bunch as done
             auto done = requestsForBunches.right.equal_range(result.identifier);
             for (auto bunch=done.first; bunch!=done.second; bunch++) {
-                log_trace_stream("request: "<<bunch->second<<" bunch: "<<bunch->first);
+                // log_trace_stream("["<<index<<"] request: "<<bunch->second<<" bunch: "<<bunch->first);
                 finished.push_back(bunch->second);
             }
             requestsForBunches.right.erase(done.first,done.second);
@@ -395,7 +404,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                 // this request has been fully serviced
                 auto request = pendingRequests.find(request_id);
                 i3_assert( request != pendingRequests.end() );
-                log_trace_stream("finished request "<<request_id);
+                log_trace_stream("["<<index<<"] finished request "<<request_id);
                 {
                     zmq::message_t addr;
                     addr.copy(&address);
@@ -418,21 +427,21 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                 );
             }
         }
-        log_trace_stream("finished "<<finished.size()<<" bunches");
+        log_trace_stream("["<<index<<"] finished "<<finished.size()<<" bunches");
     };
     auto submit = [&](I3CLSimStepSeriesPtr bunch, const zmq::message_t &address) {
         // If there are two bunches in the pipeline, wait for one to finish
         if (pending_bunches > 1) {
             drain(address);
         }
-        log_trace_stream("submitting bunch "<<current_bunch_id);
+        log_trace_stream("["<<index<<"] submitting bunch "<<current_bunch_id);
         converters_[index]->EnqueueSteps(bunch, current_bunch_id++);
-        log_trace_stream("done! bunch "<<current_bunch_id-1);
+        log_trace_stream("["<<index<<"] done! bunch "<<current_bunch_id-1);
         pending_bunches++;
     };
 
     while (true) {
-        
+
         // Request work from the server thread
         // (empty message to emulate REQ envelope)
         backend.send(zmq::message_t(),ZMQ_SNDMORE);
@@ -457,7 +466,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                     steps = deserialize<I3CLSimStepSeriesPtr>(*msg++);
                     request_id = deserialize<uint32_t>(*msg++);
                 } else {
-                    i3_assert(body.size() == 1);
+                    // i3_assert(body.size() == 1);
                 }
                 
                 // Submit job
@@ -469,8 +478,8 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                             id = localStepIds.left.insert(std::make_pair(std::make_pair(
                                 request_id,step.GetID()),current_step_id++)).first;
                         }
+                        // log_trace_stream("["<<index<<"] request "<<request_id<<" step ID "<<step.GetID()<<" -> "<<id->second);
                         step.SetID(id->second);
-                        log_trace_stream("request "<<request_id<<" step ID "<<step.GetID());
                         stepStore.push_back(step);
                     }
                     pendingRequests.emplace(request_id,
@@ -486,17 +495,17 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                             std::next(stepStore.begin(),maxBunchSize_));
                         auto bunch = boost::make_shared<I3CLSimStepSeries>(range.first,range.second);
                         stepStore.erase(range.first,range.second);
-                        log_trace_stream("request "<<request_id<<" to bunch "<<current_bunch_id);
+                        // log_trace_stream("["<<index<<"] request "<<request_id<<" to bunch "<<current_bunch_id);
                         requestsForBunches.left.insert(std::make_pair(request_id,current_bunch_id));
                         submit(bunch, address);
                     }
                     // This request will be handled in the next bunch
                     if (!stepStore.empty()) {
-                        log_trace_stream("request "<<request_id<<" to bunch "<<current_bunch_id);
+                        // log_trace_stream("["<<index<<"] request "<<request_id<<" to bunch "<<current_bunch_id);
                         requestsForBunches.left.insert(std::make_pair(request_id,current_bunch_id));
                     }
                 } else if (!stepStore.empty()) {
-                    log_debug_stream("flushing "<<stepStore.size()<<" steps from store");
+                    log_debug_stream("["<<index<<"] flushing "<<stepStore.size()<<" steps from store");
                     // barrier reached; flush entire step store
                     auto bunch = boost::make_shared<I3CLSimStepSeries>(stepStore.begin(),stepStore.end());
                     stepStore.clear();
@@ -515,7 +524,8 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
                     flush = true;
                 }
             }
-            log_trace_stream(pending_bunches<<" pending bunches, "<<stepStore.size()<<" steps in store");
+            if (pending_bunches > 0)
+                log_trace_stream("["<<index<<"] "<<pending_bunches<<" pending bunches, "<<stepStore.size()<<" steps in store");
 
             // Get next result (not necessarily from the batches we just enqueued)
             while (pending_bunches > 0 && (flush || converters_[index]->MorePhotonsAvailable())) {
@@ -600,6 +610,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
         return item->revents & ZMQ_POLLOUT;
     };
     zmq::message_t lastIdentifier;
+    std::set<uint32_t> pendingIdentifiers;
     bool barrierActive = false;
     const zmq::message_t barrier("adieu", 5);
     log_trace_stream("Connector thread running");
@@ -614,7 +625,16 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
             std::tie(address, body) = read_message(server);
             i3_assert( body.size() > 0 );
             // check whether the barrier has been reached
-            outbox.send(serialize(barrierActive && body.back() == lastIdentifier), ZMQ_SNDMORE);
+            auto id = pendingIdentifiers.find(deserialize<uint32_t>(body.back()));
+            if (id == pendingIdentifiers.end()) {
+                log_fatal_stream("Unknown identifier");
+            } else {
+                pendingIdentifiers.erase(id);
+            }
+            outbox.send(serialize(barrierActive && pendingIdentifiers.empty()), ZMQ_SNDMORE);
+            if (pendingIdentifiers.empty()) {
+                barrierActive = false;
+            }
             for (auto &msg : body) {
                 int flags = msg.more() ? ZMQ_SNDMORE : 0;
                 outbox.send(std::move(msg), flags);
@@ -633,7 +653,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
                     barrierActive = true;
                 } else if (!msg.more()) {
                     // note last id seen
-                    lastIdentifier.copy(&msg);
+                    pendingIdentifiers.insert(deserialize<uint32_t>(msg));
                 }
                 flags = msg.more() ? ZMQ_SNDMORE : 0;
                 server.send(std::move(msg), flags);
@@ -641,9 +661,10 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
             } while (flags);
 
             // server will never reply to a flush with no pending steps
-            if (barrierActive && lastIdentifier.size() == 0) {
+            if (barrierActive && pendingIdentifiers.empty()) {
                 outbox.send(serialize(barrierActive), ZMQ_SNDMORE);
                 outbox.send(serialize(UINT_MAX), 0);
+                barrierActive = false;
             }
         }
 

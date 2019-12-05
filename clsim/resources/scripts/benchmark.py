@@ -322,25 +322,29 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     )
 
 
-
+from datetime import datetime
+t0 = datetime.now()
 tray.Execute()
-
+walltime_in_execute = ((datetime.now() - t0).total_seconds())*1e9
 
 del tray
 
 ########### this is optional and just parses the generated summary
-prefix = 'I3CLSimModule_makeCLSimHits_makePhotons_clsim_'
-ns_per_photon = summary[prefix+'AverageDeviceTimePerPhoton']
-ns_per_photon_with_util = summary[prefix+'AverageHostTimePerPhoton']
-device_util = summary[prefix+'DeviceUtilization']
-ncalls = int(summary[prefix+'NumKernelCalls'])
+import numpy as np
+def get(key, aggregate=np.mean, default=0):
+    pkey = 'I3CLSimModule_makeCLSimHits_makePhotons_clsim_'+key
+    return aggregate([summary.get(k,default) for k in summary.keys() if k.startswith(pkey)])
+ns_per_photon = get('AverageDeviceTimePerPhoton')
+ns_per_photon_with_util = get('AverageHostTimePerPhoton')
+device_util = get('DeviceUtilization')
+ncalls = get('NumKernelCalls', sum)
 
 if ncalls == 0:
     sys.stderr.write("Not enough kernel calls to estimate performance! Trying increasing the number of events.\n")
     sys.exit(1)
 
-total_host_time = summary[prefix+'TotalHostTime']
-total_queue_time = summary.get(prefix+'TotalQueueTime',0.)
+total_host_time = get('TotalHostTime', sum)
+total_queue_time = get('TotalQueueTime', sum)
 
 class duration(float):
     def __format__(self, format_spec):
@@ -360,11 +364,12 @@ print("photons per second (GPU):", 1e9/ns_per_photon, "photons per second")
 
 print(" ")
 print("# these numbers include the host utilization and are probably not meaningful for --numevents=1 (the default). You need more events to even out the startup/setup time.")
-print("time per photon (actual, including under-utilization):", ns_per_photon_with_util, "ns")
-print("photons per second (actual, including under-utilization):", 1e9/ns_per_photon_with_util, "photons per second")
-print("host time: {:.1f}".format(duration(total_host_time)))
-print("waiting time: {:.1f} ({:.3f}%)".format(duration(total_queue_time), 100.*total_queue_time/total_host_time))
-print("number of kernel calls:", ncalls)
+print("(avg)   time per photon (actual, including under-utilization):", ns_per_photon_with_util, "ns")
+print("(avg)   photons per second (actual, including under-utilization):", 1e9/ns_per_photon_with_util, "photons per second")
+print("(total) host time: {:.1f}".format(duration(total_host_time)))
+print("(total) waiting time: {:.1f} ({:.3f}%)".format(duration(total_queue_time), 100.*total_queue_time/total_host_time))
+print("(total) number of kernel calls:", ncalls)
+print("wallclock time: {:.1f}".format(duration(walltime_in_execute)))
 
-print("device utilization:", device_util*100., "%")
+print("(avg)   device utilization:", device_util*100., "%")
 
