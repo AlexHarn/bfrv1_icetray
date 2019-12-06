@@ -4,7 +4,7 @@
 import os
 import tempfile
 import shutil
-from icecube import icetray, dataclasses, dataio
+from icecube import icetray, dataclasses, dataio, clsim
 from I3Tray import I3Tray
 
 try:
@@ -15,7 +15,10 @@ try:
     tmpfile = os.path.join(tmpdir,'test.i3')
     summaryfile = os.path.join(tmpdir,'summary.xml')
     gcdfile = os.path.expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz')
-    
+
+    # prefer GPUs
+    usegpus = any([device.gpu for device in clsim.I3CLSimOpenCLDevice.GetAllDevices()])    
+
     # make a very small DeepCore muon gun file
     n = MuonGunGenerator()
     n.SetParameter('outputfile',tmpfile)
@@ -27,6 +30,8 @@ try:
     n.SetParameter('length_dc',500)
     n.SetParameter('radius_dc',150)
     n.SetParameter('deepcore',True)
+    n.SetParameter('usegpus', usegpus)
+    n.SetParameter('useonlydevicenumber',0)
     n.SetParameter('model','Hoerandel5_atmod12_SIBYLL')
     if n.Execute({}) != 0:
         raise Exception('MuonGunGenerator_DC did not return OK')

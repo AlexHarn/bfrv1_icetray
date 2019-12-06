@@ -5,7 +5,7 @@ import os
 import tempfile
 import shutil
 
-from icecube import icetray, dataclasses, dataio
+from icecube import icetray, dataclasses, dataio, clsim
 from I3Tray import I3Tray
 
 try:
@@ -16,6 +16,9 @@ try:
     tmpfile = os.path.join(tmpdir,'test.i3')
     summaryfile = os.path.join(tmpdir,'summary.xml')
     gcdfile = os.path.expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_2016.57531_V0.i3.gz')
+
+    # prefer GPUs
+    usegpus = any([device.gpu for device in clsim.I3CLSimOpenCLDevice.GetAllDevices()])    
     
     # make a very small muon gun file
     n = MuonGunGenerator()
@@ -26,6 +29,8 @@ try:
     n.SetParameter('length',1600)
     n.SetParameter('radius',800)
     n.SetParameter('model','Hoerandel5_atmod12_SIBYLL')
+    n.SetParameter('usegpus', usegpus)
+    n.SetParameter('useonlydevicenumber',0)
     if n.Execute({}) != 0:
         raise Exception('MuonGunGenerator did not return OK')
 
