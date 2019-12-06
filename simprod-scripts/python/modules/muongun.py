@@ -144,7 +144,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
 
         randomService = icecube.phys_services.I3SPRNGRandomService(
             self.seed, self.nproc, self.procnum)\
-            if not self.usegslrng else phys_services.I3GSLRandomService(seed)
+            if not self.usegslrng else icecube.phys_services.I3GSLRandomService(self.seed)
         tray.context["I3RandomService"] = randomService
 
         tray.AddModule("I3InfiniteSource","TheSource",
