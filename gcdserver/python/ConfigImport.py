@@ -9,7 +9,7 @@ import icecube.gcdserver.DetectorStatus as D
 from icecube.gcdserver.OptionParser import GCDOptionParser
 from icecube.gcdserver.MongoDB import getDB
 from icecube.gcdserver.XMLDict import XMLDict
-from I3MS import statusDBInserter
+from icecube.gcdserver.I3MS import statusDBInserter
 
 """
 Export run configuration XML data into the mongoDB status database.

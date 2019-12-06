@@ -9,7 +9,7 @@ import icecube.gcdserver.Geometry as G
 import icecube.gcdserver.Calibration as C
 from icecube.gcdserver.OptionParser import GCDOptionParser
 from icecube.gcdserver.MongoDB import getDB
-from I3MS import calDBInserter
+from icecube.gcdserver.I3MS import calDBInserter
 
 
 def importFile(inserter, inputFile):

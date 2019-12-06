@@ -13,11 +13,15 @@ DEFAULT_I3LIVE_SERVER = "live.icecube.wisc.edu"
 DEFAULT_DB_USER = "icecube"
 DEFAULT_DB_PASS = "skua"
 
-
 from optparse import OptionParser
-from ConfigParser  import SafeConfigParser
 from os.path import join
 from os import environ
+
+import sys
+if sys.version_info >= (3,0):
+    from configparser  import SafeConfigParser
+else:
+    from ConfigParser  import SafeConfigParser
 
 
 def getConfigOption(config, option, default):

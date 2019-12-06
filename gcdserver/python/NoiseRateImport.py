@@ -8,7 +8,7 @@ import icecube.gcdserver.Geometry as G
 import icecube.gcdserver.Calibration as C
 from icecube.gcdserver.OptionParser import GCDOptionParser
 from icecube.gcdserver.MongoDB import getDB, fillBlobDB
-from I3MS import calDBInserter
+from icecube.gcdserver.I3MS import calDBInserter
 
 
 def importFile(geoDB, inserter, inputFile):
@@ -37,7 +37,7 @@ def doInsert(db, runValid, i3msHost, files):
                 importFile(geoDB, inserter, os.path.abspath(file))
             except Exception as e:
                 errCode = -1
-                print "Unable to import file %s: %s" % (file, e)
+                print("Unable to import file %s: %s" % (file, e))
         inserter.commit()
     return errCode
 
@@ -48,11 +48,11 @@ if __name__ == "__main__":
                       help="runValid entry for calibration quantities")
     (options, args) = parser.parse_args()
     if options.runValid == None:
-        print "Calibration runValid not specified"
+        print("Calibration runValid not specified")
         parser.print_help()
         sys.exit(-1)
     if len(args) == 0:
-        print "No noise rate files specified"
+        print("No noise rate files specified")
         sys.exit(-1)
     errCode = doInsert(getDB(options.dbhost, options.dbuser, options.dbpass),
                        options.runValid, options.i3mshost, args)
