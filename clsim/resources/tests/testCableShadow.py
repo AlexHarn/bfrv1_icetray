@@ -108,9 +108,12 @@ if __name__ == "__main__":
     MCTreeName = "I3MCTree"
 
 
+    # prefer GPUs
+    usegpus = any([device.gpu for device in clsim.I3CLSimOpenCLDevice.GetAllDevices()])    
     tray.AddSegment(clsim.I3CLSimMakePhotons,"MakePhotons",
-                    UseGPUs = False,
-                    UseCPUs = True,
+                    UseGPUs = usegpus,
+                    UseOnlyDeviceNumber=1,
+                    UseCPUs = not usegpus,                    
                     PhotonSeriesName = photonSeriesName,
                     MCTreeName = MCTreeName,
                     RandomService = randomService,
