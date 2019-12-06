@@ -4,6 +4,7 @@ import os
 import sys
 import copy
 import bson
+import binascii
 from threading import RLock
 
 import icecube.gcdserver.MongoDB as MongoDB
@@ -46,7 +47,7 @@ def file_context(fileData, fileName=None):
     if fileName is not None and type(fileName) is not str:
         raise Exception("Invalid file name: %s" % fileName)
     if fileName is None or len(fileName) == 0:
-        fileName = os.urandom(16).encode('hex')
+        fileName = binascii.hexlify(os.urandom(16))
     if fileName[0] is not '/':
         fileName = "/tmp/%s" % fileName
     try:
@@ -71,7 +72,7 @@ def config_file_context(configName, trigConfName=TRIG_CONF_NAME,
     Create the pdaq configuration file hierarchy
     """
     # Make a temporary directory
-    dirName = "/tmp/%s" % os.urandom(16).encode('hex')
+    dirName = "/tmp/%s" % binascii.hexlify(os.urandom(16))
     with tempdir_context(dirName):
         # Make the trigger and domconfig subdirs
         trigDir = "%s/trigger" % dirName
@@ -216,7 +217,7 @@ class SimCollection(object):
             self._check_unique(doc)
             newdoc = copy.deepcopy(doc)
             if "_id" not in newdoc:
-                newdoc['_id'] = bson.ObjectId(os.urandom(12).encode('hex'))
+                newdoc['_id'] = binascii.hexlify(bson.ObjectId(os.urandom(12)))
             self.__data.append(newdoc)
             self.find()
             return newdoc['_id']
