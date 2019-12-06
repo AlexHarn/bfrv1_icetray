@@ -44,7 +44,7 @@ def doInsert(db, runValid, i3msHost, files):
                 importFile(inserter, os.path.abspath(file))
             except Exception as e:
                 errCode = -1
-                print "Unable to import file %s: %s" % (file, e)
+                print("Unable to import file %s: %s" % (file, e))
         inserter.commit()
     return errCode
 
@@ -55,11 +55,11 @@ if __name__ == "__main__":
                       help="runValid entry for calibration quantities")
     (options, args) = parser.parse_args()
     if options.runValid == None:
-        print "Calibration runValid not specified"
+        print("Calibration runValid not specified")
         parser.print_help()
         sys.exit(-1)
     if len(args) == 0:
-        print "No snow depth files specified"
+        print("No snow depth files specified")
         sys.exit(-1)
     errCode = doInsert(getDB(options.dbhost, options.dbuser, options.dbpass),
                        options.runValid, options.i3mshost, args)

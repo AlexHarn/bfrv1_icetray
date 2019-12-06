@@ -98,7 +98,7 @@ def doInsert(db, configFiles, i3msHost, force=False):
                 inserter.commit()
             except Exception as e:
                 errCode = -1
-                print "Unable to import file %s: %s" % (configFile, e)
+                print("Unable to import file %s: %s" % (configFile, e))
     return errCode
 
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
                       help="Force load configuration if I3MS is unavailable")
     (options, args) = parser.parse_args()
     if len(args) < 1:
-        print "Usage: ConfigImport.py configurationFile1 configurationFile2 ..."
+        print("Usage: ConfigImport.py configurationFile1 configurationFile2 ...")
         parser.print_help()
         sys.exit(-1)
     errCode = doInsert(getDB(options.dbhost, options.dbuser, options.dbpass),

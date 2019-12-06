@@ -157,7 +157,7 @@ class DBMissingConfiguration(Exception):
     pass
 
 
-def fillBlobDB(db, run=sys.maxint, configuration=None):
+def fillBlobDB(db, run=sys.maxsize, configuration=None):
     """
     Get a BlobDB instance backed by documents loaded from MongoDB.
     @run: Run number for calibration data

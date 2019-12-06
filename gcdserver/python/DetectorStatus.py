@@ -1,5 +1,5 @@
 
-import Geometry as G
+import icecube.gcdserver.Geometry as G
 
 """
 file: Status.py

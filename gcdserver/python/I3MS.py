@@ -207,7 +207,7 @@ class DBInsertHandler(object):
 
     def commit(self):
         if self.__inserter.docCount() == 0:
-            print "No documents to commit"
+            print("No documents to commit")
             return
         # Insert the documents
         print ("Committing %d document(s) to %s collection." %
@@ -217,23 +217,23 @@ class DBInsertHandler(object):
         try:
             transaction = self.__inserter.commit()
         except EmptyTransaction:
-            print "No new documents to commit"
+            print("No new documents to commit")
             return
         newDocumentCount = self.__inserter.getDocumentCount(transaction)
-        print "Committed %d new documents" % newDocumentCount
+        print("Committed %d new documents" % newDocumentCount)
         transactionNumber = transaction.getTransactionNumber()
         try:
             self.__forwardTransactionData(transaction)
-            print "Transaction %d complete" % transactionNumber
+            print("Transaction %d complete" % transactionNumber)
         except Exception as e:
             # Roll back the transaction
-            print "Error forwarding transaction: %s" % str(e)
+            print("Error forwarding transaction: %s" % str(e))
             if not self.__force:
-                print "Rolling back transaction %d" % transactionNumber
+                print("Rolling back transaction %d" % transactionNumber)
                 self.__inserter.rollback(transaction)
                 raise
             else:
-                print "Transaction complete, but not forwarded"
+                print("Transaction complete, but not forwarded")
 
     def close(self):
         self.__sender.close()
