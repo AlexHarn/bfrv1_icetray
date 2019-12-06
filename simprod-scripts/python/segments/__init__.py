@@ -9,4 +9,5 @@ from .GenerateNoiseTriggers import *
 from .PropagateMuons import *
 from .HybridPhotonicsCLSim import *
 from .Polyplopia import *
+from .PPC import *
 from .GenerateFlashers import *
