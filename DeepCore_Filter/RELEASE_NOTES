@@ -5,8 +5,14 @@
 Release Notes
 =============
 
+December 6, 2019 
+------------------------------------------------------------------
+- Fix the default GCD file for the python test scripts
+  -- Michael Larson
+
+
 June 12, 2018 Kevin Meagher
----------------------------
+------------------------------------------------------------------
 Release V02-00-12
 
 - Documentation cleanups
