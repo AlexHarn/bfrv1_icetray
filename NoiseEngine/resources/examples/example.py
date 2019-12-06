@@ -15,7 +15,7 @@
  ###################################################################################
 from I3Tray import *
 from icecube import icetray, STTools, NoiseEngine
-from icecube.STTools.seededRT.configuration_services import I3ClassicSeededRTConfigurationService
+from icecube.STTools.seededRT.configuration_services import I3DOMLinkSeededRTConfigurationService
 infile = ["/data/sim/IceCube/2010/filtered/level2a/neutrino-generator/6359/GeoCalibDetectorStatus_IC79.55380_L2a.i3.gz",
 	"/data/sim/IceCube/2010/filtered/level2a/neutrino-generator/6359/00000-00999/Level2a_nugen_numu_IC79.006359.000030.i3.bz2"]
 
@@ -64,21 +64,20 @@ tray.AddModule( "I3StaticTWC<I3RecoPulseSeries>", "StaticTWC",
 # the NoiseEngine algorithm on those hits most likely to be due
 # to physics in the detector.
 #----------------------------------------------------------------- 
-seededRTConfigService_nodust = I3ClassicSeededRTConfigurationService(
+seededRTConfigService_nodust = I3DOMLinkSeededRTConfigurationService(
     useDustlayerCorrection  = False,
-    icecubeRTTime           = 750*I3Units.ns,
-    icecubeRTRadius         = 150*I3Units.m
-    )
+    ic_ic_RTTime           = 750*I3Units.ns,
+    ic_ic_RTRadius         = 150*I3Units.m
+)
 
 tray.AddModule("I3SeededRTCleaning_RecoPulse_Module", "RTCleaning_STTools",
                AllowNoSeedHits = False,
-               InputHitSeriesMapName = HitSeriesName+"_STW_"+name,
-               OutputHitSeriesMapName = HitSeriesName+"_STW_ClassicRT_"+name,
+               InputHitSeriesMapName = "OfflinePulses_StaticTWC_STW",
+               OutputHitSeriesMapName = "OfflinePulses_StaticTWC_STW_ClassicRT",
                STConfigService = seededRTConfigService_nodust,
                MaxNIterations = 0,
                SeedProcedure = "AllCoreHits",
-               If=If,
-               )
+)
 
 #----------------------------------------------------------------- 
 # And finally run the NoiseEngine filter. This produces a map of
