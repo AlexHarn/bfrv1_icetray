@@ -101,6 +101,7 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                           "Graphics Processing Unit number (shoud default to environment if None)",
                           None)
         self.AddParameter("UseGPUs", "Use Graphics Processing Unit",False)
+        self.AddParameter("UseOnlyDeviceNumber", "Use only this device.", 0)
         self.AddParameter("oversize","over-R: DOM radius oversize scaling factor",5)
         self.AddParameter("holeiceparametrization", "Location of hole ice param files", 
                           os.path.expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"))
@@ -207,20 +208,20 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                     raise Exception("Configured empty efficiency list")
             else:
                 efficiency = choose_max_efficiency(self.efficiency)
- 
+
             from icecube import clsim
-            try:
+            try:                
                 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
                                 GCDFile = self.gcdfile,
                                 RandomService = randomService,
                                 UseGPUs = self.usegpus,
+                                UseOnlyDeviceNumber = self.useonlydevicenumber,
                                 UseCPUs= not self.usegpus,
                                 IceModelLocation = os.path.join(self.icemodellocation,self.icemodel),
                                 UnshadowedFraction = efficiency,
                                 UseGeant4 = False,
                                 DOMOversizeFactor = self.oversize,
                                 MCTreeName = "I3MCTree", 
-                                MMCTrackListName="MMCTrackList",
                                 MCPESeriesName = self.photonseriesname,
                                 PhotonSeriesName = self.rawphotonseriesname,
                                 HoleIceParameterization = self.holeiceparametrization)
