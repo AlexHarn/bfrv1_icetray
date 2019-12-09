@@ -12,3 +12,7 @@ i3_add_library(StartingTrackVeto
                photonics-service serialization
   USE_TOOLS boost python
 )
+
+i3_test_scripts(StartingTrackVeto
+  resources/test/*.py
+)

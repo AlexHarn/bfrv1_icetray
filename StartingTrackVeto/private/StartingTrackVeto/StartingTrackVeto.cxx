@@ -102,6 +102,9 @@ void StartingTrackVeto::Physics(I3FramePtr frame) {
     if(!frame->Has(fitName_))
         PushFrame(frame);
     else {
+        if (!geo_)  {
+            log_fatal("Physics frame encountered before the first Geometry frame. Did you forget to read a GCD file?");
+        }
         I3VectorI3ParticleConstPtr segments =
             frame->Get<I3VectorI3ParticleConstPtr>(particleSegmentsName_);
 
