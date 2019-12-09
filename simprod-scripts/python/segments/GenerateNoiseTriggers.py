@@ -14,7 +14,7 @@
 from icecube import icetray
 
 @icetray.traysegment
-def ProduceNoiseTriggers(tray, name, gcd_file, nevents=1):
+def ProduceNoiseTriggers(tray, name, gcd_file, nevents=1, run_id=None):
     """
     ProduceNoiseTriggers: Create events containing only noise and no simulated particle interactions. These
     are needed for low-energy DeepCore and PINGU simulation due to a lower detector threshold. There
@@ -48,7 +48,8 @@ def ProduceNoiseTriggers(tray, name, gcd_file, nevents=1):
 
     from icecube import trigger_sim, dataio
     tray.AddSegment(trigger_sim.TriggerSim,name+"_triggers",
-            gcd_file = dataio.I3File(gcd_file,'r'))
+                    run_id = run_id,
+                    gcd_file = dataio.I3File(gcd_file,'r'))
 
     # Prepare for the CoincidenceAfterProcessing
     from icecube.dataclasses import I3MCTree

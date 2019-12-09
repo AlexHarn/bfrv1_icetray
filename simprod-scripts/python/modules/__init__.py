@@ -2,7 +2,7 @@
 from .genie import Genie, GeniePlusClSim
 from .corsika import CorsikaGenerator, Corsika5ComponentGenerator
 from .muongun import MuonGunGenerator
-from .noisetriggers import ProduceNoiseTriggers
+from .noisetriggers import NoiseTriggers
 from .icetop import AirShowerGenerator, IceTopShowerGenerator
 from .ppc import PPC, PPCResampleCorsika, PPCTraySegment
 from .clsim import ClSim, HybridPhotons, ClSimResampleCorsika

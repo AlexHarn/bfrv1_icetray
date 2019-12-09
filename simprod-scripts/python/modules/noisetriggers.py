@@ -14,6 +14,10 @@
 from ..segments import ProduceNoiseTriggers
 from ..util import ReadI3Summary, WriteI3Summary
 from .. import ipmodule
+from I3Tray import I3Tray
+from icecube import icetray, dataio, phys_services, dataclasses
+import os
+
 
 class NoiseTriggers(ipmodule.ParsingModule):
     def __init__(self):
@@ -42,11 +46,9 @@ class NoiseTriggers(ipmodule.ParsingModule):
         tray.context['I3SummaryService'] = summary
 
         tray.AddSegment(ProduceNoiseTriggers, "noise_triggers",
-                gcd_file = self.gcdfile,
-                mjd = int(self.mjd),
-                runId = self.RunId,
-                nevents = self.nevents,
-                )
+                        gcd_file = self.gcdfile,
+                        nevents = self.nevents,
+                        run_id = self.runid)
 
         from ..util import BasicCounter, DAQCounter
         from icecube import icetray
@@ -58,7 +60,7 @@ class NoiseTriggers(ipmodule.ParsingModule):
         skipkeys = [ "I3Triggers", "MCPMTResponseMap", "MCTimeIncEventID"]
 
         tray.AddModule("I3Writer","writer",
-                       filename=self.outfile,
+                       filename=self.outputfile,
                        Streams=[icetray.I3Frame.TrayInfo,
                                 icetray.I3Frame.DAQ,
                                 icetray.I3Frame.Stream('S'),
@@ -66,7 +68,6 @@ class NoiseTriggers(ipmodule.ParsingModule):
                        SkipKeys = skipkeys,
                        )
 
-        
         tray.Execute(4+self.nevents)
         
         tray.PrintUsage()
