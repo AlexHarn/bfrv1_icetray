@@ -9,8 +9,9 @@ class ExamplesTestSuite( unittest.TestCase ):
 
     def runtest( self, example_name, input_filename ):
         ret_code = subp.call(
-            ("../examples/" + example_name, os.path.expandvars(input_filename))
-        )
+	    ("../examples/" + example_name, os.path.expandvars(input_filename)),
+	    cwd=os.path.dirname( __file__ )
+	)
         self.assertEqual( ret_code, 0, "return code should be zero" )
 
     def test_select_domlaunches( self ):
