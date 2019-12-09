@@ -1,7 +1,8 @@
 from icecube.icetray import I3Frame, I3Module
 from icecube.dataclasses import I3EventHeader, I3Constants
 from math import cos
-from ROOT import TH1D,TCanvas, TFile, TF1, TPaveText, gROOT
+# defer ROOT import to work around https://code.icecube.wisc.edu/projects/icecube/ticket/2258
+from ROOT import gROOT
 class PlotStoch(I3Module):
     def __init__(self, ctx):
         I3Module.__init__(self, ctx)
@@ -55,6 +56,7 @@ class PlotStoch(I3Module):
                     4) Add EventID, Run, and other stoch calculations on plot
                     5) Save nEvents to ps file (possible event selection : do in python function before this module)
         '''
+        from ROOT import TH1D,TCanvas, TFile, TF1, TPaveText, gROOT
 
         counter = 0
         ## PRELIM
