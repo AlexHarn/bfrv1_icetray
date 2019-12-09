@@ -44,7 +44,7 @@ Act I: Configuration
     configuration parameter in the Gulliver module(s).
 
 3. Module instantiation and configuration: an :class:`I3Gulliver` object
-   is created with 3 services:
+   is created and linked with 3 services from the context:
 
   * **likelihood service**
   * **parametrization service**
@@ -53,15 +53,18 @@ Act I: Configuration
   .. note::
 
     The **seed service** is *not* fed to **gulliver**, it stays
-    separate.
+    separate. 
 
 Act II: Getting Ready For The Fit
 ---------------------------------
 
-#. Scene: processing a P-frame.
-#. **module** asks **seed service** how many seeds are available.
+0. The likelihood service is told to run ``SetGeometry`` on the G-Frame
+
+#. **module** arrives at the P-Frame.
+#. **module** gives event data (P-frame) to the **seed service** via 
+   ``SetEvent(frame)`` and asks the **seed service** how many seeds are available.
 #. **module** starts loop over all available seeds.
-#. **module** provides seed and physics frame to **gulliver**.
+#. **module** provides seed (``I3EventHypothesis``) and physics frame to **gulliver**.
 #. **gulliver** gives event data (P-frame) to likelihood; gets the
    *multiplicity* :math:`N_{\rm mult}`.
 #. **gulliver** gives event data (P-frame) to parametrization; gets
@@ -89,32 +92,35 @@ Act II: Getting Ready For The Fit
 
    * Initial values of free parameters
    * Step sizes of free parameters
-   * Bounds, if any
+   * Bounds, if any (0 for both bounds is *unbounded*)
 
-#. **gulliver** passes the specifications to the minimizer.
-#. The minimizer uses the specifications to generate a set of parameter
-   values.
-#. The minimizer asks **gulliver** for the function value
-   :math:`-\log(\mathcal{L})` corresponding to these parameter values.
-#. **gulliver** gives the parameter values to the
-   **parametrization service**.
-#. **parametrization service** updates the current event hypothesis
-   using the new parameter values.
-#. **gulliver** passes the current event hypothesis to the
-   **likelihood service**.
-#. **likelihood service** computes :math:`+\log(\mathcal{L})`.
-#. **gulliver** returns :math:`-\log(\mathcal{L})` to the minimizer.
-#. If the minimizer wants to use gradients:
+#. **gulliver** passes the specifications to the **minimizer**.
 
-   * **gulliver** asks **likelihood service** to compute gradient.
-   * **gulliver** asks **parametrization service** to apply chain rule.
-   * **gulliver** returns also the parameter gradient to the minimizer.
+#. Minimization begins and iterates over the following for each *step*:
 
-#. The minimizer uses function values (and gradient) to either:
+    #. The **minimizer** uses the specifications to generate a set of parameter
+       values.
+    #. The **minimizer** asks **gulliver** for the function value
+       :math:`-\log(\mathcal{L})` corresponding to these parameter values.
+    #. **gulliver** gives the parameter values to the
+       **parametrization service**.
+    #. **parametrization service** updates the current event hypothesis
+       using the new parameter values.
+    #. **gulliver** passes the current event hypothesis to the
+       **likelihood service**.
+    #. **likelihood service** computes :math:`+\log(\mathcal{L})`.
+    #. **gulliver** returns :math:`-\log(\mathcal{L})` to the minimizer.
+    #. If the minimizer wants to use gradients:
 
-   * Generate a new set of parameter values.
-   * Decide that no minimum can be found (``FAIL``).
-   * Decide that it has found a minimum (``SUCCESS``).
+       * **gulliver** asks **likelihood service** to compute gradient.
+       * **gulliver** asks **parametrization service** to apply chain rule.
+       * **gulliver** returns also the parameter gradient to the minimizer.
+
+    #. The minimizer uses function values (and gradient) to either:
+
+       * Generate a new set of parameter values.
+       * Decide that no minimum can be found (``FAIL``).
+       * Decide that it has found a minimum (``SUCCESS``).
 
 #. The minimizer returns a :class:`I3MinimizerResult` object with
 
