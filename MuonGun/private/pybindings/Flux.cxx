@@ -16,7 +16,7 @@ using namespace boost::python;
 
 class PyFlux : public Flux, public wrapper<Flux> {
 public:
-	double GetLog(double h, double ct, unsigned m) const
+	virtual double GetLog(double h, double ct, unsigned m) const override
 	{
 		detail::gil_holder lock;
 		return get_override("GetLog")(h, ct, m);

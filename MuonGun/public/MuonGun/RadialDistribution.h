@@ -77,7 +77,7 @@ public:
 	double Generate(I3RandomService &rng, double depth, double cos_theta,
 	    unsigned multiplicity) const;
 	
-	virtual bool operator==(const RadialDistribution&) const;
+	virtual bool operator==(const RadialDistribution&) const override;
 private:
 	friend class icecube::serialization::access;
 	template <typename Archive>
@@ -106,7 +106,7 @@ public:
 	double Generate(I3RandomService &rng, double depth, double cos_theta,
 	    unsigned multiplicity) const;
 	
-	virtual bool operator==(const RadialDistribution&) const;
+	virtual bool operator==(const RadialDistribution&) const override;
 private:
 	SplineRadialDistribution() {}
 	friend class icecube::serialization::access;

@@ -13,11 +13,11 @@ public:
 	Floodlight(SamplingSurfacePtr, boost::shared_ptr<OffsetPowerLaw>, double cosMin=-1, double cosMax=1);
 	
 	// Generator Interface
-	virtual void Generate(I3RandomService &rng, I3MCTree &tree, BundleConfiguration &bundle) const;
-	virtual GenerationProbabilityPtr Clone() const;
-	virtual bool IsCompatible(GenerationProbabilityConstPtr) const;
-	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const;
-	virtual SamplingSurfaceConstPtr GetInjectionSurface() const { return surface_; }
+	virtual void Generate(I3RandomService &rng, I3MCTree &tree, BundleConfiguration &bundle) const override;
+	virtual GenerationProbabilityPtr Clone() const override;
+	virtual bool IsCompatible(GenerationProbabilityConstPtr) const override;
+	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const override;
+	virtual SamplingSurfaceConstPtr GetInjectionSurface() const override { return surface_; }
 	
 private:
 	Floodlight() {};

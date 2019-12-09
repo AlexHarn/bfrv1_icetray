@@ -86,8 +86,8 @@ public:
 	    unsigned multiplicity, double radius, log_value log_energy) const;
 	std::vector<std::pair<double,double> > Generate(I3RandomService &rng,
 	    double depth, double cos_theta, unsigned multiplicity, unsigned samples) const;
-	virtual double GetMaxRadius() const;
-	virtual bool operator==(const EnergyDistribution&) const;
+	virtual double GetMaxRadius() const override;
+	virtual bool operator==(const EnergyDistribution&) const override;
 private:
 	SplineEnergyDistribution() {}
 	
@@ -107,9 +107,9 @@ public:
 	std::vector<std::pair<double,double> > Generate(I3RandomService &rng,
 	    double depth, double cos_theta, unsigned multiplicity, unsigned samples) const;
 	
-	virtual double GetMaxRadius() const;
+	virtual double GetMaxRadius() const override;
 	
-	virtual bool operator==(const EnergyDistribution&) const;
+	virtual bool operator==(const EnergyDistribution&) const override;
 	
 	OffsetPowerLaw GetSpectrum(double depth, double cos_theta, unsigned m, double r) const;
 private:

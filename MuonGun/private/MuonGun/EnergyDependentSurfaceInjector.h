@@ -43,8 +43,8 @@ public:
 	ConstantSurfaceScalingFunction(SamplingSurfacePtr surface);
 	virtual ~ConstantSurfaceScalingFunction();
 	
-	virtual SamplingSurfacePtr GetSurface(double energy) const;
-	virtual bool operator==(const SurfaceScalingFunction&) const;
+	virtual SamplingSurfacePtr GetSurface(double energy) const override;
+	virtual bool operator==(const SurfaceScalingFunction&) const override;
 private:
 	ConstantSurfaceScalingFunction();
 	friend class icecube::serialization::access;
@@ -61,8 +61,8 @@ public:
 	BasicSurfaceScalingFunction();
 	virtual ~BasicSurfaceScalingFunction();
 	
-	virtual SamplingSurfacePtr GetSurface(double energy) const;
-	virtual bool operator==(const SurfaceScalingFunction&) const;
+	virtual SamplingSurfacePtr GetSurface(double energy) const override;
+	virtual bool operator==(const SurfaceScalingFunction&) const override;
 	
 	void SetCapScaling(double energyScale, double scale, double offset, double power);
 	void SetSideScaling(double energyScale, double scale, double offset, double power);
@@ -106,9 +106,9 @@ public:
 	    SurfaceScalingFunctionPtr scaling=boost::make_shared<BasicSurfaceScalingFunction>());
 
 	// GenerationProbability interface
-	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const;
-	virtual GenerationProbabilityPtr Clone() const;
-	virtual bool IsCompatible(GenerationProbabilityConstPtr) const;
+	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const override;
+	virtual GenerationProbabilityPtr Clone() const override;
+	virtual bool IsCompatible(GenerationProbabilityConstPtr) const override;
 	
 	// Generator interface
 	void Generate(I3RandomService &rng, I3MCTree &tree, BundleConfiguration &bundle) const;

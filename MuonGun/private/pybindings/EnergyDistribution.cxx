@@ -20,19 +20,19 @@ using namespace boost::python;
 class PyEnergyDistribution : public EnergyDistribution, public wrapper<EnergyDistribution> {
 public:
 	virtual double GetLog(double depth, double cos_theta,
-	    unsigned multiplicity, double radius, double energy) const
+	    unsigned multiplicity, double radius, log_value energy) const override
 	{
 		detail::gil_holder lock;
-		return get_override("GetLog")(depth, cos_theta, multiplicity, radius, energy);
+		return get_override("GetLog")(depth, cos_theta, multiplicity, radius, double(energy));
 	}
 	virtual std::vector<std::pair<double,double> > Generate(I3RandomService &rng,
 	    double depth, double cos_theta,
-	    unsigned multiplicity, unsigned nsamples) const
+	    unsigned multiplicity, unsigned nsamples) const override
 	{
 		detail::gil_holder lock;
 		return get_override("Generate")(rng, depth, cos_theta, multiplicity, nsamples);
 	}
-	virtual bool operator==(const EnergyDistribution&) const
+	virtual bool operator==(const EnergyDistribution&) const override
 	{
 		return false;
 	}

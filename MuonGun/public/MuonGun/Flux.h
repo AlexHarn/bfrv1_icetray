@@ -54,7 +54,7 @@ public:
 	BMSSFlux();
 	double GetLog(double depth, double cos_theta, unsigned multiplicity) const;
 	
-	virtual bool operator==(const Flux&) const;
+	virtual bool operator==(const Flux&) const override;
 private:
 	friend class icecube::serialization::access;
 	template <typename Archive>
@@ -72,7 +72,7 @@ public:
 	SplineFlux(const std::string &singles, const std::string &bundles);
 	double GetLog(double depth, double cos_theta, unsigned multiplicity) const;
 	
-	virtual bool operator==(const Flux&) const;
+	virtual bool operator==(const Flux&) const override;
 private:
 	SplineFlux() {}
 	

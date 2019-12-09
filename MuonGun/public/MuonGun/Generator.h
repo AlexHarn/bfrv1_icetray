@@ -133,15 +133,15 @@ public:
 	void push_back(const GenerationProbabilityPtr&);
 public:
 	// GenerationProbability interface
-	virtual GenerationProbabilityPtr Clone() const;
-	virtual SamplingSurfaceConstPtr GetInjectionSurface() const;
-	virtual bool IsCompatible(GenerationProbabilityConstPtr) const;
+	virtual GenerationProbabilityPtr Clone() const override;
+	virtual SamplingSurfaceConstPtr GetInjectionSurface() const override;
+	virtual bool IsCompatible(GenerationProbabilityConstPtr) const override;
 protected:
 	/**
 	 * Calculate the *total* probability that the given configuration was generated
 	 * by any of the distributions in the colleciton.
 	 */
-	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const;
+	virtual double GetLogGenerationProbability(const I3Particle &axis, const BundleConfiguration &bundle) const override;
 private:
 	GenerationProbabilityCollection() {}
 	friend class icecube::serialization::access;
