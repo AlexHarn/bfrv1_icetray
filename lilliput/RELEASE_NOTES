@@ -5,10 +5,15 @@
 Release Notes
 =============
 
-trunk
------
+December 13, 2019 Alan Coleman (alanc@udel.edu)
+---------------------------
+Release V01-14-03
 
-- Expose I3BasicSeedService to Python
+- Expose ``I3BasicSeedService`` to Python
+- Changed the default random number generator from I3SPRNGRandomService to 
+I3GSLRandomService
+- Added test/dummy minmizer, likelihood, and parameterization which give 
+contrived results to help with development and testing
 
 June 12, 2018 Kevin Meagher
 ---------------------------

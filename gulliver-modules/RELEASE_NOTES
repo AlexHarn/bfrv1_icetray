@@ -5,10 +5,11 @@
 Release Notes
 =============
 
-trunk
------
+December 13, 2019 Alan Coleman (alanc@udel.edu)
+-----------------------------------------------------
+Release V01-10-02
 
-- Log fatal if `OutputName` is not configured rather than falling back to the
+- Log fatal if ``OutputName`` is not configured rather than falling back to the
   module instance name
 
 September 15, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
