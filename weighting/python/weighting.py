@@ -5,6 +5,8 @@ import copy
 import itertools
 import warnings
 import sys
+from contextlib import contextmanager
+from functools import partial
 
 from icecube.icetray import I3Units
 
@@ -15,6 +17,7 @@ else:
 
 # some enums for CORSIKA->PDG compatibility
 class ParticleType(enum):
+	Gamma       =    1
 	PPlus       =   14
 	He4Nucleus  =  402
 	N14Nucleus  = 1407
@@ -27,8 +30,11 @@ class ParticleType(enum):
 	NuMuBar     =   69
 	NuTau       =  133
 	NuTauBar    =  134
+	MuMinus     =    6
+	MuPlus      =    5
 
 class PDGCode(enum):
+	Gamma       =         22
 	PPlus       =       2212
 	He4Nucleus  = 1000020040
 	N14Nucleus  = 1000070140
@@ -41,6 +47,8 @@ class PDGCode(enum):
 	NuMuBar     =        -14
 	NuTau       =         16
 	NuTauBar    =        -16
+	MuMinus     =         13
+	MuPlus      =        -13
 
 PDGCode.from_corsika = classmethod(lambda cls, i: getattr(cls, ParticleType.values[i].name))
 ParticleType.from_pdg = classmethod(lambda cls, i: getattr(cls, PDGCode.values[i].name))
@@ -741,6 +749,47 @@ class SimprodFunction(ast.NodeTransformer):
 			raise RuntimeError("Invalid expression: %s not allowed" % nodetype)
 		return super(SimprodFunction, self).generic_visit(node)
 
+@contextmanager
+def simprod_cursor(database='vm-i3simprod.icecube.wisc.edu'):
+	mysql = _import_mysql()
+	
+	try:
+		db = mysql.connect(host=database, user='i3simprod-ro', passwd='Twed9~Dret', db='i3simprod')
+	except mysql.OperationalError as e:
+		reason = e.args[1]
+		reason += " This might happen if you tried to connect to the simprod database from many cluster jobs in parallel. Don't do that. Instead, query the generator for your dataset once, and pass it to your jobs in a file."
+		raise mysql.OperationalError(e.args[0], reason)
+	yield db.cursor()
+	db.close()
+
+NOTHING = object()
+
+def get(collection, key, default=NOTHING, type=NOTHING):
+	"""
+	Get with optional type coersion
+	"""
+	if default is NOTHING:
+		value = collection[key]
+	else:
+		value = collection.get(key, default)
+	if type is NOTHING:
+		return value
+	else:
+		return type(value)
+
+_sql_types = dict(string=str, int=int, double=float, float=float, bool=bool)
+
+def get_steering(cursor, dataset_id):
+	cursor.execute("SELECT name, type, value FROM steering_parameter WHERE dataset_id=%s", (dataset_id,))
+	steering = {}
+	for name, typus, value in cursor.fetchall():
+		try:
+			steering[name] = _sql_types[typus](value)
+		except ValueError:
+			steering[name] = value
+			pass
+	return steering
+
 def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.wisc.edu'):
 	"""
 	Extreme laziness: parse weighting scheme out of the simulation production database
@@ -774,29 +823,32 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 	# In case this is a post-processed set, chase the chain back until we hit the real generated set
 	while True:
 		cursor.execute("SELECT description FROM dataset WHERE dataset_id=%s", (dataset_id,))
-		match = re.match(r'.*(from|of) dataset (\d{4})', cursor.fetchone()[0], re.IGNORECASE)
+		description = cursor.fetchone()[0]
+		match = re.match(r'.*(from|of) dataset (\d{4,5})', description, re.IGNORECASE) if description else None
 		if match:
 			dataset_id = int(match.group(2))
 		else:
-			break
+			try:
+				try:
+					parent_id = get_steering(cursor, dataset_id)['inputdataset']
+				except KeyError:
+					parent_id = get_steering(cursor, dataset_id)['MCPE_dataset']
+				# check if this is an IceTop dataset, in which case we should
+				# stop before we get to generation level
+				parent = get_steering(cursor, parent_id)
+				if 'CORSIKA::platform' in parent:
+					break
+				dataset_id = parent_id
+			except KeyError:
+				break
 	
 	# query category and number of completed files
 	cursor.execute("SELECT category FROM dataset JOIN simcat ON dataset.simcat_id=simcat.simcat_id and dataset.dataset_id=%s", (dataset_id,))
 	row = cursor.fetchone()
 	category = row[0]
-	
-	typemap=dict(string=str, int=int, double=float, float=float, bool=bool)
-	def get_steering(cursor, dataset_id):
-		cursor.execute("SELECT name, type, value FROM steering_parameter WHERE dataset_id=%s", (dataset_id,))
-		steering = {}
-		for name, typus, value in cursor.fetchall():
-			try:
-				steering[name] = typemap[typus](value)
-			except ValueError:
-				steering[name] = value
-				pass
-		return steering
+
 	steering = get_steering(cursor, dataset_id)
+	get_steering_param = partial(get, steering)
 	
 	if category == 'Test':
 		if steering['mctype'] == 'corsika':
@@ -807,9 +859,9 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 	def _coerce_tray_parameter(row):
 		if not row:
 			return None
-		if row[1] in typemap:
+		if row[1] in _sql_types:
 			try:
-				return typemap[row[1]](row[2])
+				return _sql_types[row[1]](row[2])
 			except ValueError:
 				# not a literal, must be a function
 				return SimprodFunction(row[2], get_steering(cursor, dataset_id))
@@ -847,29 +899,30 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 		
 	if category == 'neutrino-generator':
 		if 'NUGEN::elogmin' in steering:
-			emin, emax = 10**steering['NUGEN::elogmin'], 10**steering['NUGEN::elogmax']
+			emin, emax = 10**get_steering_param('NUGEN::elogmin', type=float), 10**get_steering_param('NUGEN::elogmax', type=float)
 		elif 'NUGEN::from_energy' in steering:
-			emin, emax = steering['NUGEN::from_energy'], steering['NUGEN::to_energy']
+			emin, emax = get_steering_param('NUGEN::from_energy', type=float), get_steering_param('NUGEN::to_energy', type=float)
 		else:
-			emin, emax = float(steering['NUGEN::emin']), float(steering['NUGEN::emax'])
+			emin, emax = get_steering_param('NUGEN::emin', type=float), get_steering_param('NUGEN::emax', type=float)
 		nugen_kwargs = dict()
 		if 'NUGEN::injectionradius' in steering:
-			nugen_kwargs['InjectionRadius'] = steering['NUGEN::injectionradius']
+			nugen_kwargs['InjectionRadius'] = get_steering_param('NUGEN::injectionradius', type=float)
 		elif 'NUGEN::cylinder_length' in steering:
-			nugen_kwargs['CylinderHeight'] = steering['NUGEN::cylinder_length']
-			nugen_kwargs['CylinderRadius'] = steering['NUGEN::cylinder_radius']
+			nugen_kwargs['CylinderHeight'] = get_steering_param('NUGEN::cylinder_length', type=float)
+			nugen_kwargs['CylinderRadius'] = get_steering_param('NUGEN::cylinder_radius', type=float)
 		if get_metaproject(dataset_id, 'nugen', 0)[1:] >= (4,1,6):
 			nugen_kwargs['InjectionMode'] = 'Cylinder'
 		generator = NeutrinoGenerator(NEvents=steering['nevents'],
 		    FromEnergy     =emin,
 		    ToEnergy       =emax,
-		    GammaIndex     =steering['NUGEN::gamma'],
-		    NeutrinoFlavor =steering['NUGEN::flavor'],
-		    ZenithMin      =steering['NUGEN::zenithmin']*I3Units.deg,
-		    ZenithMax      =steering['NUGEN::zenithmax']*I3Units.deg,
+		    GammaIndex     =get_steering_param('NUGEN::gamma', type=float),
+		    NeutrinoFlavor =get_steering_param('NUGEN::flavor'),
+		    ZenithMin      =get_steering_param('NUGEN::zenithmin', type=float)*I3Units.deg,
+		    ZenithMax      =get_steering_param('NUGEN::zenithmax', type=float)*I3Units.deg,
 		    **nugen_kwargs)
 	elif category == 'CORSIKA-in-ice':
-		if steering['composition'].startswith('5-component') or steering['composition'] == 'jcorsika':
+		composition = steering.get('composition', '5-component')
+		if composition.startswith('5-component') or composition == 'jcorsika':
 			gamma = get_tray_parameter(dataset_id, "pgam")
 			if gamma is None:
 				gamma = [-2]*5
@@ -898,20 +951,20 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 			length = get_tray_parameter(dataset_id, 'length', "icecube.simprod.generators.CorsikaGenerator")
 			if length is None:
 				if 'CORSIKA::length' in steering:
-					length = steering['CORSIKA::length']*I3Units.m
+					length = get_steering_param('CORSIKA::length', type=float)*I3Units.m
 				else:
 					length = 1600*I3Units.m
 					warnings.warn("No target cylinder length for dataset {dataset_id}! Assuming {length:.0f} m".format(**locals()))
 			radius = get_tray_parameter(dataset_id, 'radius', "icecube.simprod.generators.CorsikaGenerator")
 			if radius is None:
 				if 'CORSIKA::radius' in steering:
-					radius = steering['CORSIKA::radius']*I3Units.m
+					radius = get_steering_param('CORSIKA::radius', type=float)*I3Units.m
 				else:
 					radius = 800*I3Units.m
 					warnings.warn("No target cylinder length for dataset {dataset_id}! Assuming {radius:.0f} m".format(**locals()))
 			if use_muongun:
 				from icecube import MuonGun
-				nevents = steering['CORSIKA::showers']
+				nevents = get_steering_param('CORSIKA::showers', type=int)
 				if gamma == [-2.0]*5 and norm == [10., 5., 3., 2., 1.]:
 					model = 'Standard5Comp'
 				elif gamma == [-2.6]*5 and norm == [3., 2., 1., 1., 1.]:
@@ -920,32 +973,29 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 					raise ValueError("Unknown CORSIKA configuration!")
 				generator = nevents*MuonGun.corsika_genprob(model)
 			else:
-				try:
-					oversampling = steering['oversampling']
-				except KeyError:
-					oversampling = 1
+				oversampling = get_steering_param('oversampling', 1, int)
 
-				generator = FiveComponent(oversampling*steering['CORSIKA::showers'],
-				    emin=steering['CORSIKA::eprimarymin']*I3Units.GeV,
-				    emax=steering['CORSIKA::eprimarymax']*I3Units.GeV,
+				generator = FiveComponent(oversampling*get_steering_param('CORSIKA::showers', type=int),
+				    emin=get_steering_param('CORSIKA::eprimarymin', type=float)*I3Units.GeV,
+				    emax=get_steering_param('CORSIKA::eprimarymax', type=float)*I3Units.GeV,
 				    normalization=norm, gamma=gamma,
 				    LowerCutoffType=LowerCutoffType, UpperCutoffType=UpperCutoffType,
 				    height=length, radius=radius)
-		elif steering['composition'].startswith('polygonato') or steering['composition'].startswith('Hoerandel'):
+		elif composition.startswith('polygonato') or composition.startswith('Hoerandel'):
 			if use_muongun:
 				from icecube import MuonGun
-				length = steering['CORSIKA::length']*I3Units.m
-				radius = steering['CORSIKA::radius']*I3Units.m
+				length = get_steering_param('CORSIKA::length', type=float)*I3Units.m
+				radius = get_steering_param('CORSIKA::radius', type=float)*I3Units.m
 				area = numpy.pi**2*radius*(radius+length)
 				areanorm = 0.131475115*area
 				generator = (steering['CORSIKA::showers']/areanorm)*MuonGun.corsika_genprob('Hoerandel5')
 			else:
 				generator = Hoerandel(steering['CORSIKA::showers'],
-				    emin=steering['CORSIKA::eprimarymin']*I3Units.GeV,
-				    emax=steering['CORSIKA::eprimarymax']*I3Units.GeV,
-				    dslope=steering['CORSIKA::dslope'],
-				    height=steering['CORSIKA::length']*I3Units.m,
-				    radius=steering['CORSIKA::radius']*I3Units.m)
+				    emin=get_steering_param('CORSIKA::eprimarymin', type=float)*I3Units.GeV,
+				    emax=get_steering_param('CORSIKA::eprimarymax', type=float)*I3Units.GeV,
+				    dslope=get_steering_param('CORSIKA::dslope', type=float),
+				    height=get_steering_param('CORSIKA::length', type=float)*I3Units.m,
+				    radius=get_steering_param('CORSIKA::radius', type=float)*I3Units.m)
 	elif category == 'CORSIKA-ice-top':
 		
 		# get the parent (generator) dataset, as the generator parameters may
@@ -964,6 +1014,7 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 				radius = SimprodFunction(substeering['CORSIKA::radius'], substeering)
 			else:
 				radius = lambda CORSIKA_ebin: substeering['CORSIKA::radius']
+		get_substeering_param = partial(get, substeering)
 		
 		# logarithmic energy bin is a function of the procnum
 		ebin = SimprodFunction(substeering['CORSIKA::ebin'], substeering)
@@ -971,33 +1022,36 @@ def from_simprod(dataset_id, use_muongun=False, database='vm-i3simprod.icecube.w
 		# check that the energy steps are spaced like we expect
 		dlogE = ebin(procnum=1) - ebin(procnum=0)
 		assert dlogE > 0, "Subsequent procnums end up in different energy bins"
-		eslope = substeering['CORSIKA::eslope']
+		eslope = get_substeering_param('CORSIKA::eslope', type=float)
 		assert eslope == -1, "Weighting scheme only makes sense for E^-1 generation"
 		
 		try:
-			oversampling = substeering['CORSIKA::oversampling']
+			oversampling = get_substeering_param('CORSIKA::oversampling', type=int)
 		except KeyError:
 			oversampling = get_tray_parameter(dataset_id, 'samples', "icecube.simprod.modules.IceTopShowerGenerator")
 		
-		ctmin = numpy.cos(numpy.radians(substeering['CORSIKA::cthmax']))
-		ctmax = numpy.cos(numpy.radians(substeering['CORSIKA::cthmin']))
+		ctmin = numpy.cos(numpy.radians(get_substeering_param('CORSIKA::cthmax', type=float)))
+		ctmax = numpy.cos(numpy.radians(get_substeering_param('CORSIKA::cthmin', type=float)))
 		# projected area x solid angle: pi^2 r^2 (ctmax^2 - ctmin^2)
 		
-		emin = substeering['CORSIKA::ebin_first']
-		emax = substeering['CORSIKA::ebin_last']
+		emin = get_substeering_param('CORSIKA::ebin_first', type=float)
+		emax = get_substeering_param('CORSIKA::ebin_last', type=float)
 		num_ebins = int((emax - emin) / dlogE) + 1
 		ebins = numpy.linspace(emin, emax, num_ebins)
 		
 		# go up further levels if necessary
 		while not 'CORSIKA::primary' in substeering:
 			substeering = get_steering(cursor, substeering['inputdataset'])
-		primary = substeering['PRIMARY::%s' % substeering['CORSIKA::primary']]
+		try:
+			primary = substeering['PRIMARY::%s' % substeering['CORSIKA::primary']]
+		except KeyError:
+			primary = getattr(ParticleType, substeering['CORSIKA::primary'])
 		
 		# number of showers in bin
 		if type(substeering['CORSIKA::showers']) == str:
 			nshowers =  SimprodFunction(substeering['CORSIKA::showers'], substeering)
 		elif 'CORSIKA::showers' in substeering:
-			nshowers = lambda CORSIKA_ebin: substeering['CORSIKA::showers']
+			nshowers = lambda CORSIKA_ebin: int(substeering['CORSIKA::showers'])
 		else:
 			nshowers = lambda CORSIKA_ebin: 1.
 		
