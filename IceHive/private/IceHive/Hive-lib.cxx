@@ -433,8 +433,10 @@ builder::Topology builder::ReadTopologyFromFile (const std::string& fileName) {
   Topology NewTopo;
 
   // READ
-  std::fstream file ( fileName.c_str());
-  assert(file.is_open());
+  std::ifstream file ( fileName.c_str());
+  if (!file) {
+    log_fatal_stream("Unable to open "<<fileName<<" for reading");
+  }
   //containers
   std::string line, word;
   unsigned int strings, oms;
