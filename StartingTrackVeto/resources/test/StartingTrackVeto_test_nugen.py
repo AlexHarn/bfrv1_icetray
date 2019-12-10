@@ -22,10 +22,12 @@ except:
     print("Can't find full-size spline tables, skipping test")
     sys.exit(0)
 
+datadir = os.environ["I3_DATA"]
 testdir = os.environ["I3_TESTDATA"]
 files = ["GCD/GeoCalibDetectorStatus_2012.56063_V0.i3.gz",
          "sim/Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2"]
-filelist = [os.path.join(testdir, f) for f in files]
+filelist = [os.path.join(datadir, files[0]),
+            os.path.join(testdir, files[1])]
 
 pulses="InIcePulses"
 fit="SplineMPE"
@@ -43,31 +45,31 @@ tray.Add(pulli3omgeo,"soitonlyhappensonce",Streams=[icetray.I3Frame.Geometry])
 
 def pullbadDOMList(frame):
     global BadOMs
-    print frame["BadDomsList"],frame["BadDomsListSLC"]
+    print(frame["BadDomsList"],frame["BadDomsListSLC"])
     BadOMs=frame["BadDomsList"]
     BadOMs.extend(frame["BadDomsListSLC"])
 tray.Add(pullbadDOMList,"soitonlyhappensonce2",Streams=[icetray.I3Frame.DetectorStatus])
 
 def make_n_segment_vector(frame,fit,n=1):
     if n%2==0:
-        print "n=",n,"is even! Change this!"
+        print("n=",n,"is even! Change this!")
         sys.exit(910)
     try:
         basep=frame[fit]
     except:
-        print "I don't see what you're looking for"
+        print("I don't see what you're looking for")
         return True
     #shift to closest approach to 0,0,0
     origin_cap=phys_services.I3Calculator.closest_approach_position(basep,dataclasses.I3Position(0,0,0))
-    #print origin_cap
+    #print(origin_cap)
     basep_shift_d=numpy.sign(origin_cap.z - basep.pos.z) *\
                   numpy.sign(basep.dir.z) *\
                   (origin_cap-basep.pos).magnitude
-    #print basep_shift_d
+    #print(basep_shift_d)
     basep_shift_pos=basep.pos+basep.dir*basep_shift_d#basep.shift_along_track(basep_shift_d)
-    #print basep_shift_pos
+    #print(basep_shift_pos)
     basep_shift_t=basep_shift_d/basep.speed
-    #print basep_shift_t
+    #print(basep_shift_t)
     basep.pos=basep_shift_pos
     basep.time=basep.time+basep_shift_t
     segments=[]

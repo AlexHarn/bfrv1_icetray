@@ -43,31 +43,31 @@ tray.Add(pulli3omgeo,"soitonlyhappensonce",Streams=[icetray.I3Frame.Geometry])
 
 def pullbadDOMList(frame):
     global BadOMs
-    print frame["BadDomsList"],frame["BadDomsListSLC"]
+    print(frame["BadDomsList"],frame["BadDomsListSLC"])
     BadOMs=frame["BadDomsList"]
     BadOMs.extend(frame["BadDomsListSLC"])
 tray.Add(pullbadDOMList,"soitonlyhappensonce2",Streams=[icetray.I3Frame.DetectorStatus])
 
 def make_n_segment_vector(frame,fit,n=1):
     if n%2==0:
-        print "n=",n,"is even! Change this!"
+        print("n=",n,"is even! Change this!")
         sys.exit(910)
     try:
         basep=frame[fit]
     except:
-        print "I don't see what you're looking for"
+        print("I don't see what you're looking for")
         return True
     #shift to closest approach to 0,0,0
     origin_cap=phys_services.I3Calculator.closest_approach_position(basep,dataclasses.I3Position(0,0,0))
-    #print origin_cap
+    #print(origin_cap)
     basep_shift_d=numpy.sign(origin_cap.z - basep.pos.z) *\
                   numpy.sign(basep.dir.z) *\
                   (origin_cap-basep.pos).magnitude
-    #print basep_shift_d
+    #print(basep_shift_d)
     basep_shift_pos=basep.pos+basep.dir*basep_shift_d#basep.shift_along_track(basep_shift_d)
-    #print basep_shift_pos
+    #print(basep_shift_pos)
     basep_shift_t=basep_shift_d/basep.speed
-    #print basep_shift_t
+    #print(basep_shift_t)
     basep.pos=basep_shift_pos
     basep.time=basep.time+basep_shift_t
     segments=[]
