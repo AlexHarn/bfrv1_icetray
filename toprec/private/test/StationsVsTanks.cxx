@@ -610,8 +610,9 @@ TEST(StationwiseLikelihood)
   //ENSURE_DISTANCE(llh, -127.73558, 0.00001);  // With no modifications
   //ENSURE_DISTANCE(llh, -125.56441, 0.00001);  // With one hit tank removed and marked "bad" (one fewer hit tank)
   //ENSURE_DISTANCE(llh, -124.26599, 0.00001);  // With one not-hit tank marked "bad" (one fewer not-hit station)
-  ENSURE_DISTANCE(llh, -121.60269, 0.00001);  // With another hit tank removed, but NOT also marked "bad"
-
+  //ENSURE_DISTANCE(llh, -121.60269, 0.00001);  // With another hit tank removed, but NOT also marked "bad"
+  ENSURE_DISTANCE(llh, -122.05577, 0.00001);  // After change: using Tank coordinates, not DOM coordinates
+    
 
   }
 

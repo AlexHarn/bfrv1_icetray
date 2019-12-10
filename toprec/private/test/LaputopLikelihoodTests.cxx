@@ -169,8 +169,14 @@ TEST(FakeFill)
   tankPulse regularpulse = pnorm[0];
   ENSURE(regularpulse.omkey.GetString() == 43);
   ENSURE(regularpulse.omkey.GetOM() == 61);
+  /* old: use the DOM's coordinates
   ENSURE_DISTANCE(regularpulse.x, -260.01, 0.001);
   ENSURE_DISTANCE(regularpulse.y, 38.74, 0.001);
+  ENSURE_DISTANCE(regularpulse.z, 1945.16, 0.001);
+   */
+  // new: use the Tank's coordinates:
+  ENSURE_DISTANCE(regularpulse.x, -260.27, 0.001);
+  ENSURE_DISTANCE(regularpulse.y, 38.61, 0.001);
   ENSURE_DISTANCE(regularpulse.z, 1945.16, 0.001);
   ENSURE_DISTANCE(regularpulse.t, 10572.57, 0.001);
   ENSURE_DISTANCE(regularpulse.width, 153.87358, 0.000001);
@@ -196,9 +202,15 @@ TEST(FakeFill)
   tankPulse satpulse1 = psat[0];
   ENSURE(satpulse1.omkey.GetString() == 62);
   ENSURE(satpulse1.omkey.GetOM() == 64);
+  /* old: use the DOM's coordinates
   ENSURE_DISTANCE(satpulse1.x, -209.01, 0.001);
   ENSURE_DISTANCE(satpulse1.y, 241.43, 0.001);
-  ENSURE_DISTANCE(satpulse1.z, 1945.99, 0.001); 
+  ENSURE_DISTANCE(satpulse1.z, 1945.99, 0.001);
+   */
+  // New: use the Tank's coordinates
+  ENSURE_DISTANCE(satpulse1.x, -209.195, 0.001);
+  ENSURE_DISTANCE(satpulse1.y, 241.205, 0.001);
+  ENSURE_DISTANCE(satpulse1.z, 1945.99, 0.001);
   ENSURE_DISTANCE(satpulse1.t, 10145.445, 0.001);
   ENSURE_DISTANCE(satpulse1.width, 139.28784, 0.00001);
   ENSURE_DISTANCE(satpulse1.logvem, 2.96, 0.001);  // --- reset to max LG saturation
@@ -207,8 +219,13 @@ TEST(FakeFill)
   tankPulse satpulse2 = psat[1];
   ENSURE(satpulse2.omkey.GetString() == 75);
   ENSURE(satpulse2.omkey.GetOM() == 61);
+  /* old: use the DOM's coordinates
   ENSURE_DISTANCE(satpulse2.x, -352.69, 0.001);
   ENSURE_DISTANCE(satpulse2.y, 421.15, 0.001);
+  ENSURE_DISTANCE(satpulse2.z, 1946.01, 0.001);
+   */
+  ENSURE_DISTANCE(satpulse2.x, -352.605, 0.001);
+  ENSURE_DISTANCE(satpulse2.y, 421.425, 0.001);
   ENSURE_DISTANCE(satpulse2.z, 1946.01, 0.001);
   ENSURE_DISTANCE(satpulse2.t, 10126.95, 0.001);
   ENSURE_DISTANCE(satpulse2.width, 130.26392, 0.00001);
