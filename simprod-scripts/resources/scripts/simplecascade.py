@@ -2,9 +2,6 @@
 
 """
 IceProd Module for Simple Muon Production
-
-Injects a cascade randomly in a cylinder centered on,
-but well within the IC86 detector.
 """
 
 import os,sys
@@ -101,7 +98,7 @@ def configure_tray(tray, params, stats, logger):
 
 def main():
     """
-     GPU Photon propagation w corsika resampling
+     Injects a muon at the center of the detector.
     """
     # Get Params
     parser = argparse.ArgumentParser(description="SimpleCascade script")
