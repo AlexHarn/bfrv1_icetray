@@ -102,7 +102,7 @@ if __name__ == "__main__":
                    Primary_direction = dataclasses.I3Direction(0 , 0 ,-1),
                    Daughter_direction = dataclasses.I3Direction(0 , 0 , -1),
                    I3RandomService = randomService,
-                   Energy = 100.0*I3Units.TeV )
+                   Energy = 1.0*I3Units.TeV )
 
     photonSeriesName = "Photons"
     MCTreeName = "I3MCTree"
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     usegpus = any([device.gpu for device in clsim.I3CLSimOpenCLDevice.GetAllDevices()])    
     tray.AddSegment(clsim.I3CLSimMakePhotons,"MakePhotons",
                     UseGPUs = usegpus,
-                    UseOnlyDeviceNumber=1,
+                    UseOnlyDeviceNumber=0,
                     UseCPUs = not usegpus,                    
                     PhotonSeriesName = photonSeriesName,
                     MCTreeName = MCTreeName,
