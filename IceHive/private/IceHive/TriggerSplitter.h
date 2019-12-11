@@ -120,7 +120,6 @@ private: //internals
     double start_time_;
     double end_time_;
     offset_map_t *offsets_;
-    double min_offset_, max_offset_;
   public:
     ///constructor : explicit
     SubTrigger(const double start,
@@ -130,9 +129,7 @@ private: //internals
                const double max_offset) :
       start_time_(start),
       end_time_(end),
-      offsets_(offsets),
-      min_offset_(min_offset),
-      max_offset_(max_offset)
+      offsets_(offsets)
     {};
     /** @brief Select pulses that fall within this subtrigger
      * @param hits the hits which contain this subwindow
