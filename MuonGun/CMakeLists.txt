@@ -1,3 +1,5 @@
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
+
 i3_project(MuonGun
     PYTHON_DIR python
     DOCS_DIR resources/docs
