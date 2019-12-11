@@ -3,7 +3,7 @@
 from I3Tray import I3Tray, I3Units
 from icecube import icetray, dataio, dataclasses, phys_services
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary, BasicCounter, DAQCounter
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 import argparse
 from icecube import neutrino_generator, earthmodel_service, PROPOSAL, cmc
@@ -19,20 +19,21 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_outputfile(parser)
+    arguments.add_gcdfile(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
+    arguments.add_enablehistogram(parser)
+    arguments.add_histogramfilename(parser)
 
-    simprodtray.add_argument_nproc(parser)
-    simprodtray.add_argument_procnum(parser)
-    simprodtray.add_argument_seed(parser)
-    simprodtray.add_argument_usegslrng(parser)
+    arguments.add_nproc(parser)
+    arguments.add_procnum(parser)
+    arguments.add_seed(parser)
+    arguments.add_usegslrng(parser)
 
-    parser.add_argument("--summaryfile", dest="summaryfile",
-                        default='summary.json', type=str, required=False,
-                        help='JSON Summary filename')
-    parser.add_argument("--nevents", dest="nevents",
-                        default=0, type=int, required=False,
-                        help='Number of events')
+    arguments.add_nevents(parser)
+
+    arguments.add_proposalparams(parser)
+
     parser.add_argument("--SimMode", dest="simmode",
                         default='FULL', type=str, required=False,
                         help='simulation mode')
@@ -43,7 +44,7 @@ def add_args(parser):
                         default='Surface', type=str, required=False,
                         help='injection mode')
     parser.add_argument("--CylinderParams", dest="cylinderparams",
-                        default=[0, 0, 0, 0, 0], type=simprodtray.float_comma_list, required=False,
+                        default=[0, 0, 0, 0, 0], type=arguments.float_comma_list, required=False,
                         help='For CIRCLE[radius, active_height_before, active_height_after],'' for SURFACE[radius, length, center_x, center_y, center_z]')
     parser.add_argument("--no-AutoExtendMuonVolume", dest="autoextendmuonvolume",
                         default=True, action="store_false", required=False,
@@ -93,21 +94,12 @@ def add_args(parser):
     parser.add_argument("--ParamsMap", dest="paramsmap",
                         default=dict(), type=json.loads, required=False,
                         help='any other parameters')
-    parser.add_argument("--PROPOSALParams", dest="proposalparams",
-                        default=dict(), type=json.loads, required=False,
-                        help='any other parameters for proposal')
     parser.add_argument("--PropagateMuons", dest="propagatemuons",
                         default=False, action="store_true", required=False,
                         help='Run PROPOSAL (by default this should be done at photonprop')
     parser.add_argument("--BackgroundFile", dest="backgroundfile",
                         default="", type=str, required=False,
                         help='pre-generated coincident showers file')
-    parser.add_argument("--HistogramFilename", dest="histogramfilename",
-                        default=None, type=str, required=False,
-                        help='Histogram filename.')
-    parser.add_argument("--EnableHistogram", dest="enablehistogram",
-                        default=False, action="store_true", required=False,
-                        help='Write a SanityChecker histogram file.')
 
 
 def configure_tray(tray, params, stats, logger):

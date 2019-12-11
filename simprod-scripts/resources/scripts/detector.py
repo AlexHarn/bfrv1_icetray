@@ -30,7 +30,7 @@ from icecube import icetray, dataclasses, simclasses, dataio
 from icecube.icetray import I3Frame
 from icecube.simprod import segments
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 import argparse
 from icecube import clsim
@@ -51,18 +51,18 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_inputfile(parser)
-    simprodtray.add_argument_outputfile(parser)
+    arguments.add_gcdfile(parser)
+    arguments.add_inputfile(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
+    arguments.add_enablehistogram(parser)
+    arguments.add_histogramfilename(parser)
 
-    simprodtray.add_argument_nproc(parser)
-    simprodtray.add_argument_procnum(parser)
-    simprodtray.add_argument_seed(parser)
-    simprodtray.add_argument_usegslrng(parser)
-    
-    parser.add_argument("--SummaryFile", dest="summaryfile",
-                        default=None, type=str, required=False,
-                        help='Summary filename')
+    arguments.add_nproc(parser)
+    arguments.add_procnum(parser)
+    arguments.add_seed(parser)
+    arguments.add_usegslrng(parser)
+
     parser.add_argument("--MCType", dest="mctype",
                         default='corsika_weighted', type=str, required=False,
                         help='Generator particle type')
@@ -91,7 +91,7 @@ def add_args(parser):
                         default=True, action="store_false", required=False,
                         help='Simulate beacon launches')
     parser.add_argument("--TimeShiftSkipKeys", dest="timeshiftskipkeys",
-                        default=[], type=simprodtray.str_comma_list, required=False,
+                        default=[], type=arguments.str_comma_list, required=False,
                         help='Skip keys in the triggersim TimeShifter')
     parser.add_argument("--SampleEfficiency", dest="sampleefficiency",
                         default=0.0, type=float, required=False,
@@ -105,17 +105,11 @@ def add_args(parser):
     parser.add_argument("--MCPESeriesName", dest="mcpeseriesname",
                         default='I3MCPESeriesMap', type=str, required=False,
                         help='Name of MCPESeriesMap in frame')
-    parser.add_argument("--HistogramFilename", dest="histogramfilename",
-                        default=None, type=str, required=False,
-                        help='Histogram filename.')
-    parser.add_argument("--EnableHistogram", dest="enablehistogram",
-                        default=False, action="store_true", required=False,
-                        help='Write a SanityChecker histogram file.')
     parser.add_argument("--DetectorName", dest="detectorname",
                         default='IC86', type=str, required=False,
                         help='Name of detector')
     parser.add_argument("--SkipKeys", dest="skipkeys",
-                        default=[], type=simprodtray.str_comma_list, required=False,
+                        default=[], type=arguments.str_comma_list, required=False,
                         help='Skip keys for the writer')
 
 

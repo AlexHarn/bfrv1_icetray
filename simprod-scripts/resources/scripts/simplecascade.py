@@ -12,7 +12,7 @@ from I3Tray import I3Units, I3Tray
 from icecube import icetray, dataio, dataclasses
 from icecube.simprod import segments
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 
 import random
@@ -27,21 +27,19 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_outputfile(parser)
-    simprodtray.add_argument_seed(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_histogramfilename(parser)
 
-    parser.add_argument("--nevents", dest="nevents",
-                        default=0, type=int, required=False,
-                        help='Number of events')
+    arguments.add_seed(parser)
+
+    arguments.add_nevents(parser)
+
     parser.add_argument("--FromEnergy", dest="fromenergy",
                         default=1.*I3Units.TeV, type=float, required=False,
                         help='Minimum energy')
     parser.add_argument("--ToEnergy", dest="toenergy",
                         default=10.*I3Units.PeV, type=float, required=False,
                         help='Maximum energy')
-    parser.add_argument("--HistogramFilename", dest="histogramfilename",
-                        default=None, type=str, required=False,
-                        help='Histogram filename.')
 
 
 def configure_tray(tray, params, stats, logger):

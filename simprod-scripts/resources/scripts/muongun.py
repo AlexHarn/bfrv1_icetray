@@ -7,7 +7,7 @@ IceProd module for ``MuonGun`` simulations
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
 from icecube.simprod.util import CombineHits, DrivingTime
 import os.path
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 import argparse
 import icecube.icetray
@@ -30,17 +30,32 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_outputfile(parser)
+    arguments.add_gcdfile(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
+    arguments.add_enablehistogram(parser)
+    arguments.add_histogramfilename(parser)
 
-    simprodtray.add_argument_nproc(parser)
-    simprodtray.add_argument_procnum(parser)
-    simprodtray.add_argument_seed(parser)
-    simprodtray.add_argument_usegslrng(parser)
+    arguments.add_nproc(parser)
+    arguments.add_procnum(parser)
+    arguments.add_seed(parser)
+    arguments.add_usegslrng(parser)
 
-    parser.add_argument("--nevents", dest="nevents",
-                        default=1, type=int, required=False,
-                        help="number of generated events")
+    arguments.add_nevents(parser)
+
+    arguments.add_icemodellocation(parser)
+    arguments.add_icemodel(parser)
+    arguments.add_holeiceparametrization(parser)
+    arguments.add_oversize(parser)
+    arguments.add_efficiency(parser)
+
+    arguments.add_photonseriesname(parser)
+
+    arguments.add_gpu(parser)
+    parser.add_argument("--UseGPUs", dest="usegpus",
+                        default=False, action="store_true", required=False,
+                        help="Use Graphics Processing Unit")
+
     parser.add_argument("--model", dest="model",
                         default="Hoerandel5_atmod12_SIBYLL",
                         type=str, required=False,
@@ -96,47 +111,12 @@ def add_args(parser):
     parser.add_argument("--no-propagate-photons", dest="propagate_photons",
                         default=True, action="store_false", required=False,
                         help='Run ClSim.')
-    parser.add_argument("--summaryfile", dest="summaryfile",
-                        default="muongun.json", type=str, required=False,
-                        help="Summary filename")
-    parser.add_argument("--HistogramFilename", dest="histogramfilename",
-                        default=None, type=str, required=False,
-                        help='Histogram filename.')
-    parser.add_argument("--EnableHistogram", dest="enablehistogram",
-                        default=False, action="store_true", required=False,
-                        help='Write a SanityChecker histogram file.')
     parser.add_argument("--natural-rate", dest="natural_rate",
                         default=False, action="store_true", required=False,
                         help="Sample natural rate muon bundles")
-    parser.add_argument("--GPU", dest="gpu",
-                        default=None, type=str, required=False,
-                        help="Graphics Processing Unit number (shoud default to environment if None)")
-    parser.add_argument("--UseGPUs", dest="usegpus",
-                        default=False, action="store_true", required=False,
-                        help="Use Graphics Processing Unit")
     parser.add_argument("--UseOnlyDeviceNumber", dest="useonlydevicenumber",
                         default=0, type=int, required=False,
                         help="Use only this device.")
-    parser.add_argument("--oversize", dest="oversize",
-                        default=5, type=int, required=False,
-                        help="over-R: DOM radius oversize scaling factor")
-    parser.add_argument("--holeiceparametrization", dest="holeiceparametrization",
-                        default=os.path.expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
-                        type=str, required=False,
-                        help="Location of hole ice param files")
-    parser.add_argument("--efficiency", dest="efficiency",
-                        default=[1.00], type=simprodtray.float_comma_list, required=False,
-                        help="overall DOM efficiency correction")
-    parser.add_argument("--IceModelLocation", dest="icemodellocation",
-                        default=os.path.expandvars("$I3_BUILD/ice-models/resources/models"),
-                        type=str, required=False,
-                        help="Location of ice model param files")
-    parser.add_argument("--IceModel", dest="icemodel",
-                        default="spice_3.2", type=str, required=False,
-                        help="ice model subdirectory")
-    parser.add_argument("--PhotonSeriesName", dest="photonseriesname",
-                        default="I3MCPESeriesMap", type=str, required=False,
-                        help="Photon Series Name")
     parser.add_argument("--RawPhotonSeriesName", dest="rawphotonseriesname",
                         default=None, type=str, required=False,
                         help="Raw Photon Series Name")

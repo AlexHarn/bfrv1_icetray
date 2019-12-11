@@ -9,10 +9,9 @@ from os.path import expandvars
 from icecube.simprod.util import CombineHits, DrivingTime
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
 from icecube.simprod.util.fileutils import download,untar,isurl
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 import argparse
-import json
 from icecube import clsim
 from icecube import polyplopia
 from icecube.production_histograms import ProductionHistogramModule
@@ -27,68 +26,48 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_inputfilelist(parser)
-    simprodtray.add_argument_outputfile(parser)
-                        
-    simprodtray.add_argument_nproc(parser)
-    simprodtray.add_argument_procnum(parser)
-    simprodtray.add_argument_seed(parser)  
-    simprodtray.add_argument_usegslrng(parser)  
+    arguments.add_gcdfile(parser)
+    arguments.add_inputfilelist(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
+    arguments.add_enablehistogram(parser)
+    arguments.add_histogramfilename(parser)
+
+    arguments.add_nproc(parser)
+    arguments.add_procnum(parser)
+    arguments.add_seed(parser)  
+    arguments.add_usegslrng(parser)  
+
+    arguments.add_icemodellocation(parser)
+    arguments.add_icemodel(parser)
+    arguments.add_holeiceparametrization(parser)
+    arguments.add_oversize(parser)
+    arguments.add_efficiency(parser)
+
+    arguments.add_proposalparams(parser)
+
+    arguments.add_photonseriesname(parser)
     
-    parser.add_argument("--summaryfile", dest="summaryfile",
-                        default='summary.json', type=str, required=False,
-                        help='JSON Summary filename')
-    parser.add_argument("--GPU", dest="gpu",
-                        default=None, type=str, required=False,
-                        help="Graphics Processing Unit number (shoud default to environment if None)")
+    arguments.add_gpu(parser)
     parser.add_argument("--UseGPUs", dest="usegpus",
                         default=False, action="store_true", required=False,
                         help="Use Graphics Processing Unit")
+
     parser.add_argument("--no-RunMPHitFilter", dest="runmphitfilter",
                         default=True, action="store_false", required=False,
                         help="Run polyplopia's mphitfilter")
     parser.add_argument("--no-PropagateMuons", dest="propagatemuons",
                         default=True, action="store_false", required=False,
                         help='Run PROPOSAL to do in-ice propagation')
-    parser.add_argument("--PROPOSALParams", dest="proposalparams",
-                        default=dict(), type=json.loads, required=False,
-                        help='any other parameters for proposal')
-    parser.add_argument("--oversize", dest="oversize",
-                        default=5, type=int, required=False,
-                        help="over-R: DOM radius oversize scaling factor")
-    parser.add_argument("--holeiceparametrization", dest="holeiceparametrization",
-                        default=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
-                        type=str, required=False,
-                        help="Location of hole ice param files")
-    parser.add_argument("--efficiency", dest="efficiency",
-                        default=[1.00], type=simprodtray.float_comma_list, required=False,
-                        help="overall DOM efficiency correction")
-    parser.add_argument("--IceModelLocation", dest="icemodellocation",
-                        default=expandvars("$I3_BUILD/ice-models/resources/models"),
-                        type=str, required=False,
-                        help="Location of ice model param files")
-    parser.add_argument("--IceModel", dest="icemodel",
-                        default="spice_3.2", type=str, required=False,
-                        help="ice model subdirectory")
     parser.add_argument("--MCTreeName", dest="mctreename",
                         default="I3MCTree", type=str, required=False,
                         help="Name of MCTree frame object")
-    parser.add_argument("--PhotonSeriesName", dest="photonseriesname",
-                        default="I3MCPESeriesMap", type=str, required=False,
-                        help="Photon Series Name")
     parser.add_argument("--RawPhotonSeriesName", dest="rawphotonseriesname",
                         default=None, type=str, required=False,
                         help="Raw Photon Series Name")
     parser.add_argument("--UseGeant4", dest="usegeant4",
                         default=False, action="store_true", required=False,
                         help="Enable Geant4 propagation")
-    parser.add_argument("--HistogramFilename", dest="histogramfilename",
-                        default=None, type=str, required=False,
-                        help='Histogram filename.')
-    parser.add_argument("--EnableHistogram", dest="enablehistogram",
-                        default=False, action="store_true", required=False,
-                        help='Write a SanityChecker histogram file.')
     parser.add_argument("--no-KeepMCTree", dest="keepmctree",
                         default=True, action="store_false", required=False,
                         help='Delete propagated MCTree otherwise')

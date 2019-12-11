@@ -3,7 +3,7 @@
 import os
 from icecube.simprod.segments import ProduceNoiseTriggers
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
 import argparse
 from icecube.simprod.util import BasicCounter, DAQCounter
@@ -15,24 +15,20 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_outputfile(parser)
+    arguments.add_gcdfile(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
+
+    arguments.add_seed(parser)
+
+    arguments.add_nevents(parser)
     
-    parser.add_argument("--summaryfile", dest="summaryfile",
-                        default='summary.json', type=str, required=False,
-                        help='JSON Summary filename')
     parser.add_argument("--Detector", dest="detector",
                         default="IC86:2011", type=str, required=False,
                         help="detector to simulate")
-    parser.add_argument("--nevents", dest="nevents",
-                        default=1000, type=int, required=False,
-                        help='Number of events')
     parser.add_argument("--RunId", dest="runid",
                         default=0, type=int, required=False,
                         help="Configure run ID")
-    parser.add_argument("--RNGSeed", dest="rngseed",
-                        default=0, type=int, required=False,
-                        help="RNG seed")
 
 
 def configure_tray(tray, params, stats, logger):
@@ -69,7 +65,7 @@ def main():
                         outputfile=params['outputfile'],
                         outputskipkeys=["I3Triggers", "MCPMTResponseMap", "MCTimeIncEventID"],
                         executionmaxcount=4 + params['nevents'],
-                        seed=params['rngseed'])
+                        seed=params['seed'])
 
 
 if __name__ == "__main__":

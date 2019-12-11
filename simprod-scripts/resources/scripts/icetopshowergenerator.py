@@ -7,7 +7,7 @@ Wrapper runs GenerateIceTopShowers Tray segment
 import os
 from I3Tray import I3Tray, I3Units
 from icecube.simprod import segments
-from icecube.simprod.util import simprodtray
+from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
 from icecube import icetray, dataclasses, dataio
 from icecube.simprod.util.simprodtray import RunI3Tray
@@ -23,21 +23,19 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    simprodtray.add_argument_gcdfile(parser)
-    simprodtray.add_argument_inputfilelist(parser)
-    simprodtray.add_argument_outputfile(parser)
+    arguments.add_gcdfile(parser)
+    arguments.add_inputfilelist(parser)
+    arguments.add_outputfile(parser)
+    arguments.add_summaryfile(parser)
 
-    simprodtray.add_argument_nproc(parser)
-    simprodtray.add_argument_procnum(parser)
-    simprodtray.add_argument_seed(parser)
-    simprodtray.add_argument_usegslrng(parser)
+    arguments.add_nproc(parser)
+    arguments.add_procnum(parser)
+    arguments.add_seed(parser)
+    arguments.add_usegslrng(parser)
     
     parser.add_argument("--samples", dest="samples",
                         default=1, type=int, required=False,
                         help='Number of samples of the same CORSIKA shower')
-    parser.add_argument("--summaryfile", dest="summaryfile",
-                        default='summary.json', type=str, required=False,
-                        help='Summary filename')
     parser.add_argument("--RunId", dest="runid",
                         default=None, type=str, required=False,
                         help='RunId (or dataset)')

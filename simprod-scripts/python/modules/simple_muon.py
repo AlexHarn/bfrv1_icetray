@@ -78,6 +78,7 @@ class StartingMuon(ipmodule.ParsingModule):
                         icetray.I3Frame.Stream('M')])
 
       # Execute the Tray
+      print(tray)
       tray.Execute(self.nevents)
       
       # Free memory

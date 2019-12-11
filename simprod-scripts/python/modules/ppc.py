@@ -287,6 +287,7 @@ class PPCResampleCorsika(PPC):
         self.Configure(tray)
 
        # Execute 
+        print(tray) 
         tray.Execute()
 
         del tray
