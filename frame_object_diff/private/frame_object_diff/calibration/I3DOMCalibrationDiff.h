@@ -90,8 +90,6 @@ private:
   SPEChargeDistribution combinedSPEFit_;
   double meanATWDCharge_;
   double meanFADCCharge_;
-  bool meanATWDChargeValid_;
-  bool meanFADCChargeValid_;
 
   /**
    * A shared pointer to the unpacked data, so we don't
