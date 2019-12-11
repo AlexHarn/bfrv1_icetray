@@ -27,6 +27,7 @@ class RunParameters:
     self.RunTest = False
 
 #__________________________________________________
+q_frames=1
 class TestQFrameContent(unittest.TestCase):
   """ Probe the content of the Qframe """
   def __init__(self, methodName='runTest'):
@@ -35,7 +36,6 @@ class TestQFrameContent(unittest.TestCase):
     self.WimpParamsName = "WIMP_params"
     self.WimpMCTreeName = "I3MCTree"
     self.EventHeaderName = "I3EventHeader"
-    self.count_up=1
   
   def testKeys(self):
     self.assert_(self.WimpParamsName in self.frame, "The params are written to the frame.")
@@ -43,6 +43,7 @@ class TestQFrameContent(unittest.TestCase):
     self.assert_(self.EventHeaderName in self.frame, "The EventHeader is written to the frame.")
 
   def testTypes(self):
+    global q_frames
     #try to access all keys of the params
     WimpParams = self.frame[self.WimpParamsName]
     self.assert_(isinstance(WimpParams, simclasses.I3WimpParams) and WimpParams!=simclasses.I3WimpParams(), "WimpParams exists and not the default constructor")
@@ -71,8 +72,8 @@ class TestQFrameContent(unittest.TestCase):
     #test the values EentHeader:
     self.assert_(EventHeader.start_time != dataclasses.I3Time(), "EventHeader.start_time is set")
     self.assert_(EventHeader.run_id == 0, "EventHeader.run_id is correctly set")
-    self.assert_(EventHeader.event_id == self.count_up, "EventHeader.event_id is correctly set")
-    self.count_up+=1
+    self.assert_(EventHeader.event_id == q_frames, "EventHeader.event_id is correctly set")
+    q_frames+=1
     
 #__________________________________________________
 class TestIFrameContent(unittest.TestCase):
@@ -280,30 +281,29 @@ def parseOptions(parser, params):
   params.I3File = options.I3FILE
   params.RunTest = options.RUNTEST
 
-#___________________IF STANDALONE__________________________
-if (__name__=='__main__'):
-  from optparse import OptionParser
+#___________________TRAY__________________________
+from optparse import OptionParser
 
-  params = RunParameters()
+params = RunParameters()
 
-  usage = 'usage: %prog [options]'
-  parser = OptionParser(usage)
+usage = 'usage: %prog [options]'
+parser = OptionParser(usage)
 
-  parseOptions(parser, params)
+parseOptions(parser, params)
   
-  from icecube import icetray, dataio
+from icecube import icetray, dataio
   
-  tray = I3Tray()
+tray = I3Tray()
   
-  tray.AddSegment(DoUnitTestEarth, "DoUnitTestEarth", options = params)
+tray.AddSegment(DoUnitTestEarth, "DoUnitTestEarth", options = params)
   
-  if params.I3File:
+if params.I3File:
     tray.AddModule("I3Writer","writer",
-      #streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics],
-      filename = params.Outfile,)
+    #streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics],
+    filename = params.Outfile,)
 
-  if (params.NEvents==0):
+if (params.NEvents==0):
     tray.Execute()
-  else:
+else:
     tray.Execute(params.NEvents)
     

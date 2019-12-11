@@ -27,6 +27,7 @@ class RunParameters:
     self.RunTest = False
 
 #__________________________________________________
+q_frames=1
 class TestQFrameContent(unittest.TestCase):
   """ Test teh content of the Q-frame """
   def __init__(self, methodName='runTest'):
@@ -35,7 +36,6 @@ class TestQFrameContent(unittest.TestCase):
     self.WimpParamsName = "WIMP_params"
     self.WimpMCTreeName = "I3MCTree"
     self.EventHeaderName = "I3EventHeader"
-    self.count_up=1
    
   def testKeys(self):
     self.assert_(self.WimpParamsName in self.frame, "The params are written to the frame.")
@@ -43,6 +43,7 @@ class TestQFrameContent(unittest.TestCase):
     self.assert_(self.EventHeaderName in self.frame, "The EventHeader is written to the frame.")
    
   def testTypes(self):
+    global q_frames
     #try to access all keys of the params
     WimpParams = self.frame[self.WimpParamsName]
     self.assert_(isinstance(WimpParams, simclasses.I3WimpParams) and WimpParams!=simclasses.I3WimpParams(), "WimpParams exists and not the default constructor")
@@ -71,8 +72,8 @@ class TestQFrameContent(unittest.TestCase):
     #test the values EentHeader:
     self.assert_(EventHeader.start_time != dataclasses.I3Time(), "EventHeader.start_time is set")
     self.assert_(EventHeader.run_id == 0, "EventHeader.run_id is correctly set")
-    self.assert_(EventHeader.event_id == self.count_up, "EventHeader.event_id is correctly set")
-    self.count_up+=1
+    self.assert_(EventHeader.event_id == q_frames, "EventHeader.event_id is correctly set")
+    q_frames+=1
 
 #__________________________________________________
 class TestIFrameContent(unittest.TestCase):
