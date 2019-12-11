@@ -18,7 +18,7 @@ class I3IceLayerTilt {
 #define LMAX 6    // number of dust loggers
 #define LYRS 170  // number of depth points
 
-  bool tilt, setr;
+  bool tilt;
   int lnum, lpts, l0;
   double lmin, lrdz, r0;
   double lnx, lny;
