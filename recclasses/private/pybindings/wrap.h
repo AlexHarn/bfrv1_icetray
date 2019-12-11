@@ -70,7 +70,7 @@ namespace boost { namespace python { namespace wrap {
         >cls(classname.c_str());
         cls.def(dataclass_suite< ::I3Vector<T> >());
         register_pointer_conversions< ::I3Vector<T> >();
-        return cls;
+        return std::move(cls);
     }
 
     template <typename T>
@@ -84,7 +84,7 @@ namespace boost { namespace python { namespace wrap {
 
         class_<std::vector<T> > cls(classname.c_str());
         cls.def(dataclass_suite< std::vector<T> >());
-        return cls;
+        return std::move(cls);
     }
 
 }}}
