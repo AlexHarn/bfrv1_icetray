@@ -22,18 +22,19 @@
 struct SepFunc {
     virtual double operator() (double p) const = 0;
     virtual std::string separation_type () const = 0;
+    virtual ~SepFunc() {}
 };
 struct SepGini : public SepFunc {
-    virtual double operator() (double p) const;
-    virtual std::string separation_type () const;
+    double operator() (double p) const;
+    std::string separation_type () const;
 };
 struct SepCrossEntropy : public SepFunc {
-    virtual double operator() (double p) const;
-    virtual std::string separation_type () const;
+    double operator() (double p) const;
+    std::string separation_type () const;
 };
 struct SepMisclassError : public SepFunc {
-    virtual double operator() (double p) const;
-    virtual std::string separation_type () const;
+    double operator() (double p) const;
+    std::string separation_type () const;
 };
 
 inline double SepGini::operator() (double p) const
