@@ -24,7 +24,7 @@ def check_success(frame):
     if "STWCOfflinePulses" in frame.keys():
         print("STWC was successful.")
     else:
-	print("STWC was not successful.")
+        print("STWC was not successful.")
 
 # icetray
 tray = I3Tray()

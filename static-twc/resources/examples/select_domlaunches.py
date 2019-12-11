@@ -22,9 +22,9 @@ infile = sys.argv[1]
 
 def check_success(frame):
     if "STWCInIceRawData" in frame.keys():
-        print("STWC was successful.")
+        print('STWC was successful.')
     else:
-	print("STWC was not successful.")
+        print('STWC was not successful.')
 
 # icetray
 tray = I3Tray()
