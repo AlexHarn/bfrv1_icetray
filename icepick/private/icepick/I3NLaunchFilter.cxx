@@ -60,10 +60,8 @@ bool I3NLaunchFilter::SelectFrame(I3Frame& frame)
 	  // generate some tank id: e.g. 21/61..21/64 -> 2101,2101,2102,2102
 	  tankCount[iter->first.GetString()*100+(iter->first.GetOM()-59)/2]++;
 	  break;
-	case I3OMGeo::Scintillator: break;
-	case I3OMGeo::IceAct: break;
-	case I3OMGeo::AMANDA: break;
-	case I3OMGeo::UnknownType: break;
+        default:
+          break;
 	}
       else {
 	log_error("missing geo entry for DOM %d/%d",iter->first.GetString(),iter->first.GetOM());
