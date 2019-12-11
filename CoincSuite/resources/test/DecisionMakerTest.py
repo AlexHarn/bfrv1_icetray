@@ -118,16 +118,17 @@ class TestDaqSequence(unittest.TestCase):
       self.assert_(self.frame[SplitName+"ReducedCount"].value==1)
 
 #__________________________________________________
+pframes = 0
 class TestPhysicsSequence(unittest.TestCase):
   """ define what the test-case should actually see """
   def __init__(self, methodName='runTest'):
     super(TestPhysicsSequence,self).__init__(methodName)
-    self.pframes = 0
     
   def testSequence(self):
+    global pframes
     """ the physics frame arrive in the sequence split(0), split(1), hypo(0), split(2) """
     if (self.frame.Stop == icetray.I3Frame.Physics): #just to be sure
-      if (self.pframes == 0): #the first split-frame that has been recombined and is redundant
+      if (pframes == 0): #the first split-frame that has been recombined and is redundant
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==SplitName and eh.sub_event_id==0)
         self.assert_(self.frame.Has("CS_ReducedBy"))
@@ -136,7 +137,7 @@ class TestPhysicsSequence(unittest.TestCase):
         self.assert_(self.frame.Has("CS_ReducedWith"))
         rw = self.frame["CS_ReducedWith"]
         self.assert_(rw[SplitName][0]==1.)
-      elif (self.pframes == 1): #the second split-frame that has been recombined and is redundant
+      elif (pframes == 1): #the second split-frame that has been recombined and is redundant
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==SplitName and eh.sub_event_id==1)
         self.assert_(self.frame.Has("CS_ReducedBy"))
@@ -145,7 +146,7 @@ class TestPhysicsSequence(unittest.TestCase):
         self.assert_(self.frame.Has("CS_ReducedWith"))
         rw = self.frame["CS_ReducedWith"]
         self.assert_(rw[SplitName][0]==1)
-      elif (self.pframes == 2): #the hypoframe which is found to be the right recombination hypothesis
+      elif (pframes == 2): #the hypoframe which is found to be the right recombination hypothesis
         self.assert_(self.frame.Has("I3EventHeader"))
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==HypoName and eh.sub_event_id==0)
@@ -168,7 +169,7 @@ class TestPhysicsSequence(unittest.TestCase):
         red = self.frame["CS_Reducing"]
         self.assert_(red[SplitName][0]==0)
         self.assert_(red[SplitName][1]==1)
-      elif (self.pframes == 3): #the recombined event from the split-frames
+      elif (pframes == 3): #the recombined event from the split-frames
         self.assert_(self.frame.Has("I3EventHeader"))
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==SplitName and eh.sub_event_id==2)
@@ -190,7 +191,7 @@ class TestPhysicsSequence(unittest.TestCase):
       else:
         icetray.logging.log_fatal("to many frames")
 
-      self.pframes +=1
+      pframes +=1
 
 
 #=== TRAY ===

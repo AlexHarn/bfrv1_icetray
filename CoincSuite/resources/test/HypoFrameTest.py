@@ -90,21 +90,22 @@ class ScenarioSource(icetray.I3Module):
 
 
 #__________________________________________________
+pframes = 0
 class TestPhysicsSequence(unittest.TestCase):
   """ define what the test-case should actually see """
   def __init__(self, methodName='runTest'):
     super(TestPhysicsSequence,self).__init__(methodName)
-    self.pframes = 0
   
   def testSequence(self):
+    global pframes
     if (self.frame.Stop == icetray.I3Frame.Physics): #just to be sure
-      if (self.pframes == 0):
+      if (pframes == 0):
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==SplitName and eh.sub_event_id==0)
-      elif (self.pframes == 1):
+      elif (pframes == 1):
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==SplitName and eh.sub_event_id==1)
-      elif (self.pframes == 2):
+      elif (pframes == 2):
         self.assert_(self.frame.Has("I3EventHeader"))
         eh = self.frame["I3EventHeader"]
         self.assert_(eh.sub_event_stream==HypoName and eh.sub_event_id==0)
@@ -126,7 +127,7 @@ class TestPhysicsSequence(unittest.TestCase):
       else:
         log_fatal("to many frames")
 
-      self.pframes +=1
+      pframes +=1
 
 #=== TRAY ===
 from icecube import icetray, dataio
