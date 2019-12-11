@@ -56,14 +56,6 @@ namespace{
   
   bool IsInIce(const I3Particle& p){return p.GetLocationType() == I3Particle::InIce; }
 
-  bool IsInVolume(const I3Particle& p){
-	if (IsInIce(p) && p.HasPosition()) {
-		return sqrt(p.GetX()*p.GetX() + p.GetY()*p.GetY() + p.GetZ()*p.GetZ()) < 2e3*I3Units::meter;
-	}
-	return false;
-  }
-
-
 }
 
 I3MCTree::optional_value
