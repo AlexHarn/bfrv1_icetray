@@ -119,7 +119,6 @@ bool I3MuonFilter_13::KeepEvent(I3Frame& frame)
   bool toreturn = false;
 
   unsigned int nch_;
-  int nhits_;
   double intCharge_;
   double logintCharge_;
 
@@ -141,7 +140,6 @@ bool I3MuonFilter_13::KeepEvent(I3Frame& frame)
     
     intCharge_ = 0;
     
-    nhits_ = 0;
     I3RecoPulseSeriesMap::const_iterator miter;
     
     for(miter=iniceChannels.begin(); miter!=iniceChannels.end(); miter++)
@@ -157,8 +155,8 @@ bool I3MuonFilter_13::KeepEvent(I3Frame& frame)
       
     }
     
-    log_trace("Event has %d hit channels and a total of %d hits and total charge of %f",
-	      nch_,nhits_, intCharge_);
+    log_trace("Event has %d hit channels and a total charge of %f",
+	      nch_, intCharge_);
     
     logintCharge_ = log10(intCharge_);    
   }
