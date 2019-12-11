@@ -284,30 +284,29 @@ def parseOptions(parser, params):
   params.I3File = options.I3FILE
   params.RunTest = options.RUNTEST
 
-#___________________IF STANDALONE__________________________
-if (__name__=='__main__'):
-  from optparse import OptionParser
+#___________________TRAY__________________________
+from optparse import OptionParser
 
-  params = RunParameters()
+params = RunParameters()
 
-  usage = 'usage: %prog [options]'
-  parser = OptionParser(usage)
+usage = 'usage: %prog [options]'
+parser = OptionParser(usage)
 
-  parseOptions(parser, params)
+parseOptions(parser, params)
   
-  from icecube import icetray, dataio
+from icecube import icetray, dataio
   
-  tray = I3Tray()
+tray = I3Tray()
   
-  tray.AddSegment(DoUnitTestSun, "DoUnitTestSun", options = params)
+tray.AddSegment(DoUnitTestSun, "DoUnitTestSun", options = params)
   
-  if params.I3File:
+if params.I3File:
     tray.AddModule("I3Writer","writer",
-      #streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics],
-      filename = params.Outfile,)
+    #streams = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics],
+    filename = params.Outfile,)
     
-  if (params.NEvents==0):
+if (params.NEvents==0):
     tray.Execute()
-  else:
+else:
     tray.Execute(params.NEvents)
     
