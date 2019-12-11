@@ -158,7 +158,7 @@ void ObtainEventInfo(I3FramePtr frame,
 
                 // Get the mean photo-electrons expected in each time bin, store in quantilesMuon
                 // Time measured starting from direct cherenkov photon arrival time
-                photonService->GetProbabilityQuantiles(&timeEdges[0], 0, quantilesMuon, timeEdges.size());
+                photonService->GetProbabilityQuantiles(&timeEdges[0], 0, quantilesMuon, (timeEdges.size() - 1));
             }
 
             I3Position thisPos((*s).GetPos().GetX(), (*s).GetPos().GetY(), (*s).GetPos().GetZ()); // segment position
