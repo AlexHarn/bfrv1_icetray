@@ -73,9 +73,11 @@ public:
     
     ~I3CLSimPhoton();
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Waddress-of-packed-member"
-    
+#endif
+  
     inline float GetPosX() const {return ((const cl_float *)&posAndTime)[0];}
     inline float GetPosY() const {return ((const cl_float *)&posAndTime)[1];}
     inline float GetPosZ() const {return ((const cl_float *)&posAndTime)[2];}
@@ -185,8 +187,9 @@ public:
         ((cl_float *)&startDir)[1]=dir.CalcPhi();
     }
 
+#ifdef __clang__
 #pragma clang diagnostic pop
-    
+#endif    
     
     // cl_float4 is a struct consisting of 4 floats named .x, .y, .z, .w
     // .. well.. On MacOS OpenCL 1.0, it's just an array[4].. so access it like that

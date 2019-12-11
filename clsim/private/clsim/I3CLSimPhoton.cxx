@@ -38,8 +38,10 @@ namespace {
 
 I3CLSimPhoton::~I3CLSimPhoton() { }
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Waddress-of-packed-member"
+#endif
 template <class Archive>
 void I3CLSimPhoton::save(Archive &ar, unsigned version) const
 {
@@ -106,8 +108,10 @@ void I3CLSimPhoton::load(Archive &ar, unsigned version)
     ar >> make_nvp("groupVelocity", temp); groupVelocity=temp;
     ar >> make_nvp("distInAbsLens", temp); distInAbsLens=temp;
 
-}     
+}
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 // just save the binary blob for binary archives (internal storage is little-endian)
 
@@ -168,12 +172,16 @@ void I3Vector<I3CLSimPhoton>::serialize(portable_binary_oarchive &ar, unsigned v
 }
 
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winstantiation-after-specialization"
+#endif
 I3_SERIALIZABLE(I3CLSimPhoton);
 I3_SERIALIZABLE(I3CLSimPhotonSeries);
 I3_SERIALIZABLE(I3CLSimPhotonSeriesMap);
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 
 std::ostream& operator<<(std::ostream& os, const I3CLSimPhoton& p){

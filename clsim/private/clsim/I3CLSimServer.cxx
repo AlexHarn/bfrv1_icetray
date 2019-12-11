@@ -71,7 +71,7 @@ T deserialize(const zmq::message_t &message)
     icecube::archive::portable_binary_iarchive pia(istream);
 
     pia >> value;
-    i3_assert( istream.tellg() == message.size() );
+    i3_assert( istream.tellg() == static_cast<unsigned>(message.size()) );
 
     return std::move(value);
 }

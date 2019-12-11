@@ -38,8 +38,10 @@ namespace {
 
 I3CLSimStep::~I3CLSimStep() { }
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Waddress-of-packed-member"
+#endif
 template <class Archive>
 void I3CLSimStep::save(Archive &ar, unsigned version) const
 {
@@ -88,8 +90,9 @@ void I3CLSimStep::load(Archive &ar, unsigned version)
     ar >> make_nvp("dummy2", temp_uint16); dummy2=temp_uint16;
 
 }
+#ifdef __clang__
 #pragma clang diagnostic pop
-
+#endif
 
 // just save the binary blob for binary archives (internal storage is little-endian)
 
@@ -144,11 +147,16 @@ void I3Vector<I3CLSimStep>::serialize(portable_binary_oarchive &ar, unsigned ver
 }
 
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winstantiation-after-specialization"
+#endif
 I3_SERIALIZABLE(I3CLSimStep);
 I3_SERIALIZABLE(I3CLSimStepSeries);
+
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 
 std::ostream& operator<<(std::ostream& os, const I3CLSimStep& s){
