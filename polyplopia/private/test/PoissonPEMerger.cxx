@@ -235,7 +235,7 @@ void do_test(const std::string hitsOptionName){
   while(!results->empty()){
     frame=results->front();
     results->pop();
-    auto count=frame->Get<I3Int>("PolyplopiaCount").value;
+    uint32_t count=frame->Get<I3Int>("PolyplopiaCount").value;
     
     //check the MCTree
     auto tree=frame->Get<I3MCTree>();
