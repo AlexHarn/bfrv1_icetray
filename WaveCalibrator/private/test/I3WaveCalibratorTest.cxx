@@ -116,8 +116,8 @@ TEST(SLCClipping)
 	plow.CalibrateFADC_SLC(omkey, dl, calib, status, wf);
 	
 	ENSURE_EQUAL(wf.GetWaveformInformation().size(), 2u, "Errata present for clipped SLC launch");
-	ENSURE_EQUAL(wf.GetWaveformInformation()[1].GetInterval().first, 0, "Clipped region begins at 0");
-	ENSURE_EQUAL(wf.GetWaveformInformation()[1].GetInterval().second, 3, "Clipped region ends at 3");
+	ENSURE_EQUAL(wf.GetWaveformInformation()[1].GetInterval().first, 0u, "Clipped region begins at 0");
+	ENSURE_EQUAL(wf.GetWaveformInformation()[1].GetInterval().second, 3u, "Clipped region ends at 3");
 	ENSURE_EQUAL(wf.GetWaveformInformation()[1].GetStatus(), I3Waveform::SATURATED, "Clipped region is marked");
 	
 	I3OMGeo geo;

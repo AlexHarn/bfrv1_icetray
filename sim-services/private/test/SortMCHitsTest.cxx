@@ -172,8 +172,8 @@ TEST(2_MCPEStreaming)
         
         ENSURE(aux.find(p1)!=aux.end(),"particle 1 must appear in the output");
         ENSURE(aux.find(p2)!=aux.end(),"particle 2 must appear in the output");
-        ENSURE_EQUAL(aux[p1].size(), 4,"Particle 1 should have 4 children");
-        ENSURE_EQUAL(aux[p2].size(), 2,"Particle 2 should have 2 children");
+        ENSURE_EQUAL(aux[p1].size(), 4u,"Particle 1 should have 4 children");
+        ENSURE_EQUAL(aux[p2].size(), 2u,"Particle 2 should have 2 children");
         
         uint32_t p1Expected[4]={0,1,2,3};
         uint32_t p2Expected[2]={2,4};
@@ -197,15 +197,15 @@ TEST(2_MCPEStreaming)
         std::tie(hits, aux) = stream.extractMCPEsWithPIDInfo();
         
         ENSURE(isTimeOrdered<I3MCPE>(hits));
-        ENSURE_EQUAL(hits.size(), 6,"Should have 6 pulses after merging");
+        ENSURE_EQUAL(hits.size(), 6u,"Should have 6 pulses after merging");
         ENSURE(aux.size()==3,"Number of parent particles should be unchanged");
         ENSURE(aux.find(p1)!=aux.end(),"particle 1 must appear in the output");
         ENSURE(aux.find(p2)!=aux.end(),"particle 2 must appear in the output");
         // NB: there are 4 children here instead of 3 because we don't average
         // the hit times in the streaming case
-        ENSURE_EQUAL(aux[p1].size(), 4,"Particle 1 should have 4 children");
-        ENSURE_EQUAL(aux[p2].size(), 3,"Particle 2 should have 3 children");
-        ENSURE_EQUAL(aux[p3].size(), 1,"Particle 3 should have 1 child");
+        ENSURE_EQUAL(aux[p1].size(), 4u,"Particle 1 should have 4 children");
+        ENSURE_EQUAL(aux[p2].size(), 3u,"Particle 2 should have 3 children");
+        ENSURE_EQUAL(aux[p3].size(), 1u,"Particle 3 should have 1 child");
 
         uint32_t p1ExpectedSort[4]={0,1,2,3};
         uint32_t p2ExpectedSort[3]={2,4,5};

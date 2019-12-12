@@ -700,12 +700,12 @@ TEST(IngestMergedPE){
 	frame=rts.processFrame(frame);
 	const auto& allOutputPulses=frame->Get<I3Map<OMKey,std::vector<I3MCPulse>>>("I3MCPulseSeriesMap");
 	const auto& allOutputParents=frame->Get<I3ParticleIDMap>("I3MCPulseSeriesMapParticleIDMap");
-	ENSURE_EQUAL(allOutputPulses.size(),1,"There should be pulses (only) on the test DOM");
-	ENSURE_EQUAL(allOutputParents.size(),1,"There should be pulses (only) on the test DOM");
+	ENSURE_EQUAL(allOutputPulses.size(),1u,"There should be pulses (only) on the test DOM");
+	ENSURE_EQUAL(allOutputParents.size(),1u,"There should be pulses (only) on the test DOM");
 	const auto& outputPulses=allOutputPulses.at(testOM);
 	const auto& outputParents=allOutputParents.at(testOM);
 	
-	ENSURE_EQUAL(outputPulses.size(),14);
+	ENSURE_EQUAL(outputPulses.size(),14u);
 	std::map<I3ParticleID,int> counts;
 	for(const auto& item : outputParents)
 		counts[item.first]+=item.second.size();

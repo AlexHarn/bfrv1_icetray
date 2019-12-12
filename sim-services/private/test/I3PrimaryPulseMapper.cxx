@@ -122,9 +122,9 @@ TEST(MapPulses){
 				std::cout << idx << ' ';
 			std::cout << std::endl;
 		}
-		ENSURE_EQUAL(ppim.size(),1,"Only primary 1 should appear for OM(1,1)");
+		ENSURE_EQUAL(ppim.size(),1u,"Only primary 1 should appear for OM(1,1)");
 		ENSURE(ppim.count(p1),"Only primary 1 should appear for OM(1,1)");
-		ENSURE_EQUAL(ppim.find(p1)->second.size(),4,"All pe on OM(1,1) should be associated with primary 1");
+		ENSURE_EQUAL(ppim.find(p1)->second.size(),4u,"All pe on OM(1,1) should be associated with primary 1");
 		ENSURE(std::is_sorted(ppim.find(p1)->second.begin(),ppim.find(p1)->second.end()),"P.E. indices should be sorted");
 	}
 	{
@@ -135,9 +135,9 @@ TEST(MapPulses){
 				std::cout << idx << ' ';
 			std::cout << std::endl;
 		}
-		ENSURE_EQUAL(ppim.size(),1,"Only primary 2 should appear for OM(1,2)");
+		ENSURE_EQUAL(ppim.size(),1u,"Only primary 2 should appear for OM(1,2)");
 		ENSURE(ppim.count(p2),"Only primary 2 should appear for OM(1,2)");
-		ENSURE_EQUAL(ppim.find(p2)->second.size(),3,"All pe on OM(1,2) should be associated with primary 2");
+		ENSURE_EQUAL(ppim.find(p2)->second.size(),3u,"All pe on OM(1,2) should be associated with primary 2");
 		ENSURE(std::is_sorted(ppim.find(p2)->second.begin(),ppim.find(p2)->second.end()),"P.E. indices should be sorted");
 	}
 	{
@@ -148,11 +148,11 @@ TEST(MapPulses){
 				std::cout << idx << ' ';
 			std::cout << std::endl;
 		}
-		ENSURE_EQUAL(ppim.size(),2,"Both primaries should appear for OM(1,3)");
+		ENSURE_EQUAL(ppim.size(),2u,"Both primaries should appear for OM(1,3)");
 		ENSURE(ppim.count(p1),"Primary 21should appear for OM(1,3)");
 		ENSURE(ppim.count(p2),"Primary 2 should appear for OM(1,3)");
-		ENSURE_EQUAL(ppim.find(p1)->second.size(),1,"The pe on OM(1,3) should be associated with primary 1");
-		ENSURE_EQUAL(ppim.find(p2)->second.size(),1,"The pe on OM(1,3) should be associated with primary 2");
+		ENSURE_EQUAL(ppim.find(p1)->second.size(),1u,"The pe on OM(1,3) should be associated with primary 1");
+		ENSURE_EQUAL(ppim.find(p2)->second.size(),1u,"The pe on OM(1,3) should be associated with primary 2");
 		ENSURE(std::is_sorted(ppim.find(p1)->second.begin(),ppim.find(p1)->second.end()),"P.E. indices should be sorted");
 		ENSURE(std::is_sorted(ppim.find(p2)->second.begin(),ppim.find(p2)->second.end()),"P.E. indices should be sorted");
 	}
