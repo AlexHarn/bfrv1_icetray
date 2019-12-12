@@ -75,13 +75,13 @@ TEST(Exceptions)
             OMKeyHash::StringOmNbr2SimpleIndex(omkey->GetString(), omkey->GetOM());
             FAIL("Should throw if OMKey is not hashable.");
         }
-        catch(std::runtime_error) {}
+        catch(std::runtime_error&) {}
 
         try
         {
             OMKeyHash::OMKey2SimpleIndex(*omkey);
             FAIL("Should throw if OMKey is not hashable.");
         }
-        catch(std::runtime_error) {}
+        catch(std::runtime_error&) {}
     }
 }
