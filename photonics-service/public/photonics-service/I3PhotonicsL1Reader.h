@@ -179,7 +179,7 @@ class I3PhotonicsL1Reader {
   float *err_chunk;
   Amasim_Table_Type *table;
   int *n_tables ;  /*Number of tables read*/
-  photonics::Geo_type (*geo);
+  photonics::Geo_type *geo;
   Tableset_level1_container_type mytablesets_level1;
   pref_level1_t  pref_level1;
   

@@ -218,7 +218,7 @@ class I3PhotonicsL2Reader {
   const char *photorec_mark;
   struct Amasim_Level2_Table_type *table;
   int *n_tables ;
-  struct Level2_geo_type (*geo);
+  struct Level2_geo_type *geo;
   struct pref_level2_t pref_level2;
   struct Tableset_level2_container_type mytablesets_level2;
 
