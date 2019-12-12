@@ -90,7 +90,8 @@ def LaputopStandard(tray, name,
         ("SaturationLikelihood", True),
         ("MaxIntraStationTimeDiff",80.0),    # Don't use time fluctuating tanks for timing fits, could really mess up the hard work
         ("Curvature",""),      # NO timing likelihood (at first; this will be overridden)
-        ("SnowServiceName",name+"SimpleSnow")
+        ("SnowServiceName",name+"SimpleSnow"),
+        ("OldXYZ", True)  # For backward-compatibility for L3: DOM coordinates
         )
         
     ################# GULLIVERIZED FITTER MODULE #######################
