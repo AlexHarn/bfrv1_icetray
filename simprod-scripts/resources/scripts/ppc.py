@@ -42,6 +42,7 @@ def add_args(parser):
     arguments.add_icemodel(parser)
     arguments.add_holeiceparametrization(parser)
     arguments.add_oversize(parser)
+    arguments.add_efficiency(parser)
 
     arguments.add_proposalparams(parser)
 
@@ -55,9 +56,6 @@ def add_args(parser):
     parser.add_argument("--no-RunMPHitFilter", dest="runmphitfilter",
                         default=True, action="store_false", required=False,
                         help="Run polyplopia's mphitfilter")
-    parser.add_argument("--efficiency", dest="efficiency",
-                        default=1.00, type=float, required=False,
-                        help="overall DOM efficiency scaling factor (systematics)")
     parser.add_argument("--gpulib", dest="gpulib",
                         default="opencl", type=str, required=False,
                         help="set gpu library to load (defaults to cuda)")
@@ -102,8 +100,8 @@ def configure_tray(tray, params, stats, logger):
                         **params['proposalparams'])
 
     tray.AddSegment(segments.PPCTraySegment, "ppc_photons",
-                    gpu=params['gpu'],
-                    usegpus=params['usegpus'],
+                    GPU=params['gpu'],
+                    UseGPUs=params['usegpus'],
                     UnshadowedFraction=params['efficiency'],
                     DOMOversizeFactor=params['oversize'],
                     IceModelLocation=params['icemodellocation'],

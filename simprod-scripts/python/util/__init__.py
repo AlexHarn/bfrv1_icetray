@@ -114,3 +114,10 @@ def ReadI3Summary(filename):
 def I3Summary2Dict(s):
     from icecube.dataclasses import I3MapStringDouble
     return dict(zip(summary.keys(),summary.values()))
+
+
+def SetGPUEnvironmentVariables(GPU):
+    os.putenv("CUDA_VISIBLE_DEVICES", str(GPU))
+    os.putenv("COMPUTE", ":0." + str(GPU))
+    os.putenv("GPU_DEVICE_ORDINAL", str(GPU))
+

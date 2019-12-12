@@ -6,7 +6,7 @@
 
 import os
 from os.path import expandvars
-from icecube.simprod.util import CombineHits, DrivingTime
+from icecube.simprod.util import CombineHits, DrivingTime, SetGPUEnvironmentVariables
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
 from icecube.simprod.util.fileutils import download,untar,isurl
 from icecube.simprod.util import simprodtray, arguments
@@ -85,16 +85,7 @@ def configure_tray(tray, params, stats, logger):
         logger (logging.Logger): the logger for this script
     """
     if params['gpu'] is not None and params['usegpus']:
-        os.putenv("CUDA_VISIBLE_DEVICES", str(params['gpu']))
-        os.putenv("COMPUTE", ":0." + str(params['gpu']))
-        os.putenv("GPU_DEVICE_ORDINAL", str(params['gpu']))
-
-    if len(params['efficiency']) == 1:
-        efficiency = params['efficiency'][0]
-    elif len(params['efficiency']) > 1:
-        efficiency = params['efficiency']
-    else:
-        raise Exception("Configured empty efficiency list")
+        SetGPUEnvironmentVariables(params['gpu'])
 
     if params['propagatemuons']:
         if params['usegslrng']:
@@ -115,7 +106,7 @@ def configure_tray(tray, params, stats, logger):
                     UseGPUs=params['usegpus'],
                     UseCPUs=not params['usegpus'],
                     IceModelLocation=os.path.join(params['icemodellocation'], params['icemodel']),
-                    UnshadowedFraction=efficiency,
+                    UnshadowedFraction=params['efficiency'],
                     UseGeant4=params['usegeant4'],
                     DOMOversizeFactor=params['oversize'],
                     MCTreeName=params['mctreename'],

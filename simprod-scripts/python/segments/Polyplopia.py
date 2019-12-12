@@ -137,7 +137,7 @@ def PolyplopiaPhotons(tray, name,
                bgfile = bgfile,
                timewindow = timewindow,
                rate = rate,
-           ) 
+           )
 
         tray.AddModule("Rename","rename_mmc", Keys=['MMCTrackList','SignalMMCTrackList'])
 
@@ -146,70 +146,46 @@ def PolyplopiaPhotons(tray, name,
                SaveState=False,
                InputMCTreeName="BackgroundI3MCTree_preMuonProp",
                OutputMCTreeName="BackgroundI3MCTree",
-               **PROPOSALParams
-        ) 
-
-        from .. import segments 
-        from ..util import choose_max_efficiency
-        # Propagate photons
-        if type(Efficiency) == list or type(Efficiency) == tuple:
-           if len(Efficiency) == 1:
-              _efficiency=float(Efficiency[0])
-           elif len(Efficiency) > 1:
-              _efficiency=map(float,Efficiency)
-           elif len(Efficiency) < 1:
-              raise Exception("Configured empty efficiency list")
-        else:
-            _efficiency = choose_max_efficiency(Efficiency)
-         
-
+               **PROPOSALParams) 
+        
+        from icecube.simprod import util
         if GPU is not None:
-           os.putenv("CUDA_VISIBLE_DEVICES",str(GPU))
-           os.putenv("COMPUTE",":0."+str(GPU))
-           os.putenv("GPU_DEVICE_ORDINAL",str(GPU))
+           util.SetGPUEnvironmentVariables(GPU)
 
         tray.AddModule("Rename","rename_pes", Keys=[PhotonSeriesName,'SignalI3MCPEs'])
 
-        if UsePPC:
-           from ..modules.ppc import PPCTraySegment
-           tray.AddSegment(PPCTraySegment,"ppc_photons",
-			  gpu = -1,
-			  usegpus = UseGPUs,
-			  efficiency = _efficiency,
-			  oversize = DOMOversizeFactor,
-			  IceModelLocation = IceModelLocation.replace('clsim','ppc'),
-			  IceModel = IceModel,
-			  volumecyl = True,
-			  gpulib = 'opencl',
-			  InputMCTree="BackgroundI3MCTree",
-			  keep_empty_events = True,
-			  mcpeseries = "BackgroundI3MCPESeriesMap")
-
-
+        if UsePPC: # Propagate photons
+           tray.AddSegment(segments.PPCTraySegment,"ppc_photons",
+                           UseGPUs = UseGPUs,
+                           UnshadowedFraction = Efficiency,
+                           DOMOversizeFactor = DOMOversizeFactor,
+                           IceModelLocation = IceModelLocation.replace('clsim','ppc'),
+                           IceModel = IceModel,
+                           volumecyl = True,
+                           gpulib = 'opencl',
+                           InputMCTree="BackgroundI3MCTree",
+                           keep_empty_events = True,
+                           MCPESeriesName = "BackgroundI3MCPESeriesMap")
         else: # use clsim
-
-        	from icecube import clsim
-        	tray.AddSegment(clsim.I3CLSimMakeHits, "makeBackgroundCLSimHits",
-        		GCDFile = GCDFile,
-        		RandomService = RandomService,
-        		UseGPUs = UseGPUs,
-        		UseCPUs= not UseGPUs,
-        		IceModelLocation = os.path.join(IceModelLocation,IceModel),
-        		UnshadowedFraction = _efficiency,
-        		UseGeant4 = False,
-        		DOMOversizeFactor = DOMOversizeFactor,
-        		MCTreeName = "BackgroundI3MCTree",
-        		MCPESeriesName = "BackgroundI3MCPESeriesMap",
-        		HoleIceParameterization = HoleIceParameterization
-		)
-
+            from icecube import clsim
+            tray.AddSegment(clsim.I3CLSimMakeHits, "makeBackgroundCLSimHits",
+                            GCDFile = GCDFile,
+                            RandomService = RandomService,
+                            UseGPUs = UseGPUs,
+                            UseCPUs= not UseGPUs,
+                            IceModelLocation = os.path.join(IceModelLocation,IceModel),
+                            UnshadowedFraction = Efficiency,
+                            UseGeant4 = False,
+                            DOMOversizeFactor = DOMOversizeFactor,
+                            MCTreeName = "BackgroundI3MCTree",
+                            MCPESeriesName = "BackgroundI3MCPESeriesMap",
+                            HoleIceParameterization = HoleIceParameterization)
 
         from icecube import polyplopia
         if mctype.lower() =='corsika':
            WeightMap="CorsikaWeightMap"
         else:
            WeightMap="I3MCWeightDict"
-
 
         tray.AddModule("MPHitFilter","hitfilter",
               HitOMThreshold=1,
@@ -243,7 +219,6 @@ def PolyplopiaPhotons(tray, name,
               combined.merge(background)
               f[mctree_name] = combined
            tray.Add(merge_trees, Streams=[icetray.I3Frame.DAQ])
-
 
         tray.AddModule("Rename","rename_mmc1", Keys=['MMCTrackList','BackgroundMMCTrackList'])
         tray.AddModule("Rename","rename_mmc2", Keys=['SignalMMCTrackList','MMCTrackList'])

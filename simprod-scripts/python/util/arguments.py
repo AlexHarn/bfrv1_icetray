@@ -117,7 +117,7 @@ def add_oversize(parser):
 
 def add_efficiency(parser):
     parser.add_argument("--efficiency", dest="efficiency",
-                        default=[1.00], type=float_comma_list, required=False,
+                        default=1.00, type=float, required=False,
                         help="overall DOM efficiency correction")
 
 def add_photonseriesname(parser):

@@ -21,7 +21,7 @@ def PPCTraySegment(tray,
                    InputMCTree="I3MCTree",
                    MCPESeriesName="I3MCPESeriesMap",
                    UseGPUs=True,
-                   GPU=-1,
+                   GPU=None,
                    tempdir=None):
     """
     PPC Photon Propagation Code TraySegment (supports CUDA/OpenCL)
@@ -55,14 +55,18 @@ def PPCTraySegment(tray,
         os.putenv("OGPU", "1")
     else:
         os.putenv("OCPU", "1")
-    if GPU >= 0 and UseGPUs:
-        os.putenv("CUDA_VISIBLE_DEVICES", str(GPU))
-        os.putenv("COMPUTE", ":0." + str(GPU))
-        os.putenv("GPU_DEVICE_ORDINAL", str(GPU))
+    
+    from icecube.simprod import util
+    if GPU is not None and UseGPUs:
+        util.SetGPUEnvironmentVariables(GPU)
+    
+    _gpu = GPU
+    if _gpu is None:
+        _gpu = -1
 
     tray.AddModule("i3ppc", "ppc",
                    If=lambda f: f[InputMCTree].size() or keep_empty_events,
-                   gpu=GPU,
+                   gpu=_gpu,
                    efficiency_scaling_factor=UnshadowedFraction,
                    cyl=volumecyl,
                    keep=keep_empty_events,

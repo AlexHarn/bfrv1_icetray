@@ -32,7 +32,7 @@ mmp.vbprint( "Parsed Arguments",  [1,2] )
 from icecube import icetray, dataclasses, dataio, sim_services, phys_services
 from icecube import monopole_generator
 from icecube.icetray import I3Units
-from icecube.simprod.segments import DetectorSim, Calibration, PropagatePhotons, PropagateMuons
+from icecube.simprod.segments import DetectorSim, Calibration, PropagatePhotons, PropagateMuons, PPCTraySegment
 
 import I3Tray
 from I3Tray import *
@@ -133,7 +133,6 @@ tray.AddSegment(PropagateMuons, 'propagator',
 
 
 # Light production below
-from icecube.simprod.modules.ppc import PPCTraySegment
 tray.AddSegment(PPCTraySegment, "makeCLSimHits",
             UseGPUs = True,
             IceModelLocation = os.path.expandvars("$I3_SRC/ice-models/resources/models"),

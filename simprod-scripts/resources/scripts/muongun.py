@@ -5,7 +5,7 @@ IceProd module for ``MuonGun`` simulations
 """
 
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
-from icecube.simprod.util import CombineHits, DrivingTime
+from icecube.simprod.util import CombineHits, DrivingTime, SetGPUEnvironmentVariables
 import os.path
 from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
@@ -137,10 +137,8 @@ def configure_tray(tray, params, stats, logger):
         logger (logging.Logger): the logger for this script
     """
     if params['gpu'] is not None and params['usegpus']:
-        os.putenv("CUDA_VISIBLE_DEVICES", str(params['gpu']))
-        os.putenv("COMPUTE", ":0." + str(params['gpu']))
-        os.putenv("GPU_DEVICE_ORDINAL", str(params['gpu']))
-
+        SetGPUEnvironmentVariables(params['gpu'])
+    
     tray.AddModule("I3InfiniteSource", "TheSource",
                    Prefix=params['gcdfile'],
                    Stream=icecube.icetray.I3Frame.DAQ)
@@ -189,13 +187,6 @@ def configure_tray(tray, params, stats, logger):
         if not params['propagate_muons']:
             raise BaseException("You have to propagate muons if you want to propagate photons")
 
-        if len(params['efficiency']) == 1:
-            efficiency = params['efficiency'][0]
-        elif len(params['efficiency']) > 1:
-            efficiency = params['efficiency']
-        else:
-            raise Exception("Configured empty efficiency list")
-
         try:
             tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
                             GCDFile=params['gcdfile'],
@@ -204,7 +195,7 @@ def configure_tray(tray, params, stats, logger):
                             UseOnlyDeviceNumber=params['useonlydevicenumber'],
                             UseCPUs=not params['usegpus'],
                             IceModelLocation=os.path.join(params['icemodellocation'], params['icemodel']),
-                            UnshadowedFraction=efficiency,
+                            UnshadowedFraction=params['efficiency'],
                             UseGeant4=False,
                             DOMOversizeFactor=params['oversize'],
                             MCTreeName="I3MCTree",
