@@ -11,7 +11,7 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/math/common_factor_rt.hpp>
+#include <boost/integer/common_factor_rt.hpp>
 #include <boost/bimap/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 
@@ -106,7 +106,7 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
         if (workgroupSize_ == 0) {
             workgroupSize_ = converter->GetWorkgroupSize();
         } else {
-            workgroupSize_ = boost::math::lcm(workgroupSize_, converter->GetWorkgroupSize());
+            workgroupSize_ = boost::integer::lcm(workgroupSize_, converter->GetWorkgroupSize());
         }
         
         if (maxBunchSize_ == 0) {
