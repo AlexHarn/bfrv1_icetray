@@ -80,8 +80,6 @@ bool I3CscdLlhSimplex::Minimize(list<I3CscdLlhHitPtr>* hits,
   Mat_DP p(mpts, ndim);
   Vec_DP y(mpts);
 
-  char seedPattern[ndim+1];
-  seedPattern[ndim] = '\0';
   log_debug("Initialize the p matrix and y vector:");
   for (int i=0; i<mpts; i++) 
   {
@@ -93,7 +91,6 @@ bool I3CscdLlhSimplex::Minimize(list<I3CscdLlhHitPtr>* hits,
       if (fixParam_[j]) 
       {
         x[j] = p[i][j] = seed_[j];
-        seedPattern[j] = '0';
         nFix++;
       } // fixed
       else 
@@ -101,17 +98,14 @@ bool I3CscdLlhSimplex::Minimize(list<I3CscdLlhHitPtr>* hits,
         if (j == i + nFix - 1) 
         {
 	  x[j] = p[i][j] = seed_[j] + stepSize_[j];
-	  seedPattern[j] = '+';
 	}
         else 
         {
 	  x[j] = p[i][j] = seed_[j] - stepSize_[j];
-	  seedPattern[j] = '-';
 	}
       } // free
     } // for j
    
-    log_debug("%s", seedPattern);
     y[i] = Func(x);
   } // for i
 
