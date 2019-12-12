@@ -1,126 +1,231 @@
-#!/usr/bin/env python
 from os import uname
-from os import path as path
-from os import system as system
-from datetime import datetime
-import sys, numpy,argparse,glob,time,os,gzip,pickle
-print uname()
-desc="icetray script to extract info"
-parser = argparse.ArgumentParser(description=desc)
-parser.add_argument('-i','--infiles',dest='infiles',
-                type=str,default=[],nargs='+',
-                help="[I]nfiles with frames")
-parser.add_argument('-o','--outfilebase',dest='outfilebase',type=str,
-                default="",help='base name for [o]utfiles')
-parser.add_argument('-v','--verbose',dest='verbose',type=int,
-                default=0,help='verbose? 1=True 0=False')
-parser.add_argument('-p','--pulsesname',dest='pulsesname',type=str,
-                default="SplitInIcePulses",help='Name of pulse series to use.')
+import argparse, os
+import numpy as np
+print(uname())
+
+desc="This is an example script for using StartingTrackVeto"
+parser = argparse.ArgumentParser(description = desc)
+parser.add_argument("-i", "--infiles", dest = "infiles",
+                    type = str, default = [], nargs = "+",
+                    help = "[i]nfiles with frames")
+parser.add_argument("-o", "--outfilebase", dest = "outfilebase",
+                    type = str, default = "./test",
+                    help = "base name for [o]utfiles")
+parser.add_argument("-p", "--pulsesname", dest = "pulsesname",
+                    type = str, default = "SplitInIcePulses",
+                    help = "name of [p]ulse sereies to use")
+parser.add_argument("-f", "--fit", dest = "fit",
+                    type = str, default = "SPEFit2",
+                    help = "name of I3Particle [f]it to feed to STV")
 args = parser.parse_args()
 
+infiles     = args.infiles
+outfilebase = args.outfilebase
+pulsesname  = args.pulsesname
+fit         = args.fit
 
-infiles=args.infiles
-pulsesname=args.pulsesname
-outfilebase=args.outfilebase
-verbose=args.verbose
-print infiles,len(infiles)
-print outfilebase
-
-from icecube import dataclasses,phys_services,dataio,icetray,photonics_service,StartingTrackVeto
+from icecube import dataio, dataclasses, icetray, StartingTrackVeto
+from icecube import photonics_service, phys_services
 from I3Tray import *
 
-#You will need to point this to the correct spline tables
-PhotonicsDir = "/cvmfs/icecube.opensciencegrid.org/data/photon-tables/"
-PhotonicsSplineDirectory = os.path.join(PhotonicsDir, "splines")
+###--------Loading PhotoSoline Services--------###
 
-inf_muon_service = photonics_service.I3PhotoSplineService(
-                   amplitudetable = os.path.join(PhotonicsSplineDirectory ,"InfBareMu_mie_abs_z20a10.fits"),  ## Amplitude tables
-                   timingtable = os.path.join(PhotonicsSplineDirectory ,"InfBareMu_mie_prob_z20a10.fits"),  ## Timing tables
-                   timingSigma  = 0.0)
-                   #maxRadius   = 125.0)
+def return_photonics_service(service_type="inf_muon"):
+    '''
+    Checks various locations for Spline Tables then loads 
+    and returns a I3PhotoSplineService.
 
-seg_muon_service = photonics_service.I3PhotoSplineService(
-                   amplitudetable = os.path.join(PhotonicsSplineDirectory ,"ZeroLengthMieMuons_250_z20_a10.abs.fits"),  ## Amplitude tables
-                   timingtable = os.path.join(PhotonicsSplineDirectory ,"ZeroLengthMieMuons_250_z20_a10.prob.fits"),    ## Timing tables
-                   timingSigma  = 0.0)
-                   #maxRadius   = 125.0)
-tray = I3Tray()
+    Inputs:
+    -------
+      - service_type: type of photonics service to load.
+          choices: "inf_muon", "seg_muon", "cscd"
 
-tray.Add('I3Reader','reader', FilenameList=infiles)
+    Outputs:
+    --------
+      - I3PhotoSplineService of requested type for use
+          in the StartinTrackVeto calculations
+    '''
+    #Find location of spline tables
+    table_base=""
+    if os.path.isfile(os.path.expandvars("$I3_DATA/photon-tables/splines/ems_mie_z20_a10.%s.fits") % "abs"):
+       table_base = os.path.expandvars("$I3_DATA/photon-tables/splines/ems_mie_z20_a10.%s.fits")
+    elif os.path.isfile("splines/ems_mie_z20_a10.%s.fits" % "abs"):
+       table_base = os.path.expandvars("splines/ems_mie_z20_a10.%s.fits")
+    elif os.path.isfile("/cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.%s.fits" % "abs"):
+        table_base = os.path.expandvars("/cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.%s.fits")
+    elif os.path.isfile("/home/icecube/i3/data/generalized_starting_events/splines/ems_mie_z20_a10.%s.fits" % "abs"):
+        table_base = os.path.expandvars("/home/icecube/i3/data/generalized_starting_events/splines/ems_mie_z20_a10.%s.fits")
+    else:
+        print("You don't have splines anywhere I can find. This will eventually raise an error, for now it semi-silently dies")
+
+    #Load photospline service from location found above
+    if service_type=="cscd":
+        cascade_service = photonics_service.I3PhotoSplineService(table_base % "abs", 
+                                                                 table_base % "prob", 
+                                                                 0,
+                                                                 maxRadius = 600.0)
+        return cascade_service
+    elif service_type=="seg_muon":
+        seg_muon_service = photonics_service.I3PhotoSplineService(
+                           amplitudetable = os.path.join( os.path.expandvars("$I3_DATA/photon-tables/splines/") ,"ZeroLengthMieMuons_250_z20_a10.abs.fits"),  ## Amplitude tables
+                           timingtable = os.path.join( os.path.expandvars("$I3_DATA/photon-tables/splines/") ,"ZeroLengthMieMuons_250_z20_a10.prob.fits"),    ## Timing tables
+                           timingSigma  = 0.0,
+                           maxRadius    = 600.0)
+        return seg_muon_service
+    elif service_type=="inf_muon":
+        inf_muon_service = photonics_service.I3PhotoSplineService(
+                           amplitudetable = os.path.join( os.path.expandvars("$I3_DATA/photon-tables/splines/") ,"InfBareMu_mie_abs_z20a10.fits"),  ## Amplitude tables
+                           timingtable = os.path.join( os.path.expandvars("$I3_DATA/photon-tables/splines/") ,"InfBareMu_mie_prob_z20a10.fits"),    ## Timing tables
+                           timingSigma  = 0.0,
+                           maxRadius    = 600.0) 
+        return inf_muon_service
+    else:
+        print("You didn't give me a spline service type I recognize. This will eventually raise an error, for now it semi-silently dies")
 
 
+#Loading an infinite muon service and segmented muon service for methods below
+inf_muon_service = return_photonics_service(service_type = "inf_muon")
+seg_muon_service = return_photonics_service(service_type = "seg_muon")
+
+###--------End of PhotoSpline Service Loading--------###
+
+###--------Icetray Utility Methods--------###
 def pulli3omgeo(frame):
+    #Pull I3omgeo from geometry frame
     global i3omgeo
-    i3omgeo=frame["I3Geometry"].omgeo
-tray.Add(pulli3omgeo,"soitonlyhappensonce",Streams=[icetray.I3Frame.Geometry])
+    i3omgeo = frame["I3Geometry"].omgeo
 
 def pullbadDOMList(frame):
+    #Pull bad DOM lists from detector status frame
     global BadOMs
-    print frame["BadDomsList"],frame["BadDomsListSLC"]
-    BadOMs=frame["BadDomsList"]
+    print(frame["BadDomsList"], frame["BadDomsListSLC"])
+    BadOMs = frame["BadDomsList"]
     BadOMs.extend(frame["BadDomsListSLC"])
-tray.Add(pullbadDOMList,"soitonlyhappensonce2",Streams=[icetray.I3Frame.DetectorStatus])
 
-def make_n_segment_vector(frame,fit,n=1):
-    if n%2==0:
-        print "n=",n,"is even! Change this!"
+def rmdictvalue(frame, keys):
+    #Delete key from frame if key already exists in frame
+    for key in keys:
+        if frame.Has(key):
+            del frame[key]
+
+###--------End of I3 Utilities--------###
+
+###--------STV Functions--------###
+def make_n_segment_vector(frame, fit, n=1):
+    '''
+    Splits fit up into segments which is required for 
+    StartingTrackVeto. If n=1, one infinite track segment
+    is saved to the frame. If n>1, finite track segements
+    are saved to the frame.
+
+    Inputs:
+    -------
+      -frame: I3Frame
+      -fit: I3Particle fit to be segemented and used 
+         in StartingTackVeto
+      -n: number of segments to split fit up into
+         (must be odd!)   
+
+    Outputs:
+    --------
+      -Save segments to frame as an I3Vector of I3Particles
+    '''
+    #Check that n is odd and fit exists in frame
+    if n%2 == 0:
+        print("n =",n,"is even! change this!")
         sys.exit(910)
     try:
-        basep=frame[fit]
+        basep = frame[fit]
     except:
-        print "I don't see what you're looking for"
-        return True
-    #shift to closest approach to 0,0,0
-    origin_cap=phys_services.I3Calculator.closest_approach_position(basep,dataclasses.I3Position(0,0,0))
-    #print origin_cap
-    basep_shift_d=numpy.sign(origin_cap.z - basep.pos.z) *\
-                  numpy.sign(basep.dir.z) *\
-                  (origin_cap-basep.pos).magnitude
-    #print basep_shift_d
-    basep_shift_pos=basep.shift_along_track(basep_shift_d)
-    #print basep_shift_pos
-    basep_shift_t=basep_shift_d/basep.speed
-    #print basep_shift_t
-    basep.pos=basep_shift_pos
-    basep.time=basep.time+basep_shift_t
-    segments=[]
-    segment_length=1950./n
+        print("I can't find the fit you want to segment")
+        return False
+
+    #Shift to closest approach position (cap) to the origin (0,0,0)
+    origin_cap = phys_services.I3Calculator.closest_approach_position(basep, dataclasses.I3Position(0,0,0))
+    basep_shift_d   = np.sign(origin_cap.z - basep.pos.z) *\
+                      np.sign(basep.dir.z) *\
+                      (origin_cap - basep.pos).magnitude
+    basep_shift_pos = basep.pos + (basep.dir*basep_shift_d)
+    basep_shift_t   = basep_shift_d/basep.speed
+
+    basep.pos  = basep_shift_pos
+    basep.time = basep.time + basep_shift_t
+    
+    #Create segments
+    segments = []
+    segment_length = 1950./n
     for idx in range(n):
-        dshift=segment_length*(idx-((n-1)/2.))
-        particle=dataclasses.I3Particle()
-        particle.time=basep.time+(dshift/basep.speed)
-        particle.pos=basep.shift_along_track(dshift)
-        particle.dir=basep.dir
-        particle.energy=0.01
+        dshift = segment_length * (idx - ((n-1)/2.))
+        particle = dataclasses.I3Particle()
+        particle.time   = basep.time + (dshift / basep.speed)
+        particle.pos    = basep.pos + (basep.dir * dshift)
+        particle.dir    = basep.dir
+        particle.energy = 0.01
+
         if n==1:
-            particle.shape=particle.shape.InfiniteTrack
-            particle.length=0
+            particle.shape  = particle.shape.InfiniteTrack
+            particle.length = 0
         else:
-            particle.shape=particle.shape.ContainedTrack
-            particle.length=segment_length
+            particle.shape  = particle.shape.ContainedTrack
+            particle.length = segment_length
+
         segments.append(particle)
-    del frame[fit+"_"+str(n)+"_segments"]
-    frame[fit+"_"+str(n)+"_segments"]=dataclasses.I3VectorI3Particle(segments)
-    print "Put", fit+"_"+str(n)+"_segments", "in the frame"
+
+    #Save segments in frame
+    segments_str = fit + '_' + str(n) + '_segments'
+    rmdictvalue(frame, [segments_str])
+    frame[segments_str] = dataclasses.I3VectorI3Particle(segments)
+    print("Put", segments_str, "in the frame")
     del segments
 
-
-def fit_check_cut(tray,name,n=1,fits_to_try=[],phot_serv=inf_muon_service,dtype="cher_dat",cad_d=125):
+def runSTV(tray, name, n=1, fits_to_try = [], phot_serv = None, dtype = "cherdat", cad_d = 125, pulsesname = ""):
     for fn in fits_to_try:
-        tray.Add(make_n_segment_vector,'make_n_segment_vector_'+fn+"_"+str(n),fit=fn,n=n)
-        tray.Add('StartingTrackVeto','STV_'+fn+"_"+str(n),Pulses=pulsesname,Photonics_Service=phot_serv,
-                Miss_Prob_Thresh=1,Fit=fn,Particle_Segments=fn+"_"+str(n)+"_segments",
-                Distance_Along_Track_Type=dtype,Supress_Stochastics=True,Min_CAD_Dist=cad_d)
+        tray.Add(make_n_segment_vector, "make_n_segment_vector_"+fn+"_"+str(n),
+                 fit = fn,
+                 n   = n)
+        tray.Add("StartingTrackVeto", "STV_"+fn+"_"+str(n),
+                 Pulses                    = pulsesname,
+                 Photonics_Service         = phot_serv,
+                 Miss_Prob_Thresh          = 1,
+                 Fit                       = fn,
+                 Particle_Segments         = fn + '_' + str(n) + '_segments',
+                 Distance_Along_Track_Type = dtype,
+                 Supress_Stochastics       = True,
+                 Min_CAD_Dist              = cad_d)
 
-tray.AddSegment(fit_check_cut,"fit_check_cut_1",n=1,phot_serv=inf_muon_service,fits_to_try=["SPEFit2"],
-                dtype="cher_dat")
-#You can use this, but be warned I3PhotoSpline will be upset and very loud about it. It complains you didn't choose where the read table read should happen even though it is. I need to dig into this more.
-#tray.AddSegment(fit_check_cut,"fit_check_cut_ns_131",n=131,phot_serv=seg_muon_service,fits_to_try=["SPEFit2"],
-#               dtype="contrib_dat")
 
-if len(outfilebase)==0:
-    outfilebase="test"
-tray.AddModule('I3Writer', 'writer', Filename=outfilebase+".i3.bz2",Streams=[icetray.I3Frame.DAQ,icetray.I3Frame.Physics],DropOrphanStreams=[icetray.I3Frame.DAQ])
+###--------End of STV Methods--------###
+
+###--------IceTray--------###
+tray = I3Tray()
+tray.Add("I3Reader", "reader",
+         FilenameList = infiles)
+
+tray.Add(pulli3omgeo, "soitonlyhappensonce",
+         Streams = [icetray.I3Frame.Geometry])
+tray.Add(pullbadDOMList, "pullbadDOMList",
+         Streams = [icetray.I3Frame.DetectorStatus])
+
+tray.AddSegment(runSTV, "runSTV_nseg_1",
+                fits_to_try = [fit],
+                phot_serv   = inf_muon_service,
+                pulsesname  = pulsesname)
+'''
+Option to run STV with a segmented track        
+tray.AddSegment(runSTV, "runSTV_nseg_1",
+                fits_to_try = [fit],
+                n           = 131,
+                phot_serv   = seg_muon_service,
+                pulsesname  = pulsesname)
+'''
+tray.Add("I3Writer", "writer",
+         Filename          = outfilebase + ".i3.bz2",
+         Streams           = [icetray.I3Frame.DAQ,
+                              icetray.I3Frame.Physics],
+         DropOrphanStreams = [icetray.I3Frame.Geometry,
+                              icetray.I3Frame.Calibration,
+                              icetray.I3Frame.DetectorStatus,
+                              icetray.I3Frame.DAQ])
 
 tray.Execute()
-
+###--------End of IceTray--------###
