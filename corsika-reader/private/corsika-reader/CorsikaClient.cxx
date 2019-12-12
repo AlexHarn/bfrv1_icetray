@@ -111,7 +111,7 @@ read(boost::asio::ip::tcp::socket &socket, uint32_t bytes)
 	assert(bytes % sizeof(T) == 0);
 	std::vector<T> buffer(bytes/sizeof(T));
 	socket.read_some(boost::asio::buffer(buffer.data(), bytes));
-	return std::move(buffer);
+	return buffer;
 }
 
 void
