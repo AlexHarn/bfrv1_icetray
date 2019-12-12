@@ -79,7 +79,7 @@ void ObtainEventInfo(I3FramePtr frame,
 
         const OMKey& omkey = k->first;
         I3VectorDouble sumQuantilesPerSegment; // expected light yield per segment
-        I3VectorDouble sumQuantilesPerTime(timeEdges.size()); // expected light yield per time bin
+        I3VectorDouble sumQuantilesPerTime(timeEdges.size()-1); // expected light yield per time bin
 
         // Only use the IceCube or Gen2 DOMs
         if(omkey.GetString()<87 && omkey.GetOM()>60)
@@ -149,7 +149,8 @@ void ObtainEventInfo(I3FramePtr frame,
 
             // Get the mean photo electrons expected from the source
             photonService->SelectSource(meanPEs, NULL, ePointDistance, geoTime, ps, true);
-            double * quantilesMuon = new double[timeEdges.size()];
+            size_t nbins = timeEdges.size() - 1;
+            double * quantilesMuon = new double[nbins];
 
             if(meanPEs > 0) {
                 log_debug("mean pes=%f ePointDistance=%f geoTime=%f",meanPEs,ePointDistance, geoTime);
@@ -158,7 +159,7 @@ void ObtainEventInfo(I3FramePtr frame,
 
                 // Get the mean photo-electrons expected in each time bin, store in quantilesMuon
                 // Time measured starting from direct cherenkov photon arrival time
-                photonService->GetProbabilityQuantiles(&timeEdges[0], 0, quantilesMuon, (timeEdges.size() - 1));
+                photonService->GetProbabilityQuantiles(&timeEdges[0], 0, quantilesMuon, nbins);
             }
 
             I3Position thisPos((*s).GetPos().GetX(), (*s).GetPos().GetY(), (*s).GetPos().GetZ()); // segment position
@@ -176,20 +177,20 @@ void ObtainEventInfo(I3FramePtr frame,
             // Sometimes the splines behave oddly, you should never see a PE yield below 0 or above 1000,
             // if you do something has gone awry and you should just take 0 as the PE yield to be safe
             if(meanPEs < 0 || meanPEs > 1000) {
-                for(unsigned int i = 0; i < timeEdges.size(); ++i) {
+                for(unsigned int i = 0; i < nbins; ++i) {
                     quantilesMuon[i] = 0;
                 }
             }
             // Scale the quantiles to get the meanPE in each time bin
             else {
-                for(unsigned int i = 0; i < timeEdges.size(); ++i) {
+                for(unsigned int i = 0; i < nbins; ++i) {
                     quantilesMuon[i] = quantilesMuon[i]*meanPEs;
                 }
             }
 
             // Build the per segment and per time yeilds
             double sumQuantilesPerSegmentTmp = 0;
-            for(unsigned int i = 0; i < timeEdges.size(); ++i) {
+            for(unsigned int i = 0; i < nbins; ++i) {
                 sumQuantilesPerSegmentTmp += quantilesMuon[i];
                 sumQuantilesPerTime[i] += quantilesMuon[i];
                 log_debug("muon qunatiles=%f",quantilesMuon[i]);
@@ -203,7 +204,7 @@ void ObtainEventInfo(I3FramePtr frame,
 
         // Find peak yeild in time so you can use it to set the time window for comparing observed and expected charges
         double maxQuantilePerTime = 0;
-        for(unsigned int i = 0; i < timeEdges.size(); ++i) {
+        for(unsigned int i = 0; i < (timeEdges.size()-1); ++i) {
             if(sumQuantilesPerTime[i] > maxQuantilePerTime)
                 maxQuantilePerTime = sumQuantilesPerTime[i];
         }
@@ -235,7 +236,7 @@ void ObtainEventInfo(I3FramePtr frame,
 
         // Find the time over threshold (threshold = 0.01 * maxQuantilePerTime)
         std::vector<unsigned int> gtThreshIdxs;
-        for(unsigned int i = 0; i < timeEdges.size(); ++i) {
+        for(unsigned int i = 0; i < (timeEdges.size()-1); ++i) {
             log_debug("sum_quantiles_pertime=%f maxQuantilePerTime=%f",sumQuantilesPerTime[i],maxQuantilePerTime);
             if(sumQuantilesPerTime[i] > .01 * maxQuantilePerTime)
                 gtThreshIdxs.push_back(i);
