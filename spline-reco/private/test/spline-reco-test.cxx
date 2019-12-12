@@ -205,7 +205,7 @@ namespace SplineRecoTest {
       try {
 	splineLlh.SetEvent(*frame);
       }
-      catch (std::runtime_error) {
+      catch (std::runtime_error&) {
 	// good, we probably had a log_fatal
 	fatal_thrown = true;
       } catch (...) {
@@ -232,7 +232,7 @@ namespace SplineRecoTest {
 	splineLlh.llhChoice = "XxXBlablaXxX";
 	splineLlh.SetEvent(*frame);
       }
-      catch (std::runtime_error) {
+      catch (std::runtime_error&) {
 	// good, we probably had a log_fatal
 	fatal_thrown = true;
       } catch (...) {
@@ -279,7 +279,7 @@ namespace SplineRecoTest {
       try {
 	splineLlh.GetLogLikelihood(hyp);
       }
-      catch (std::runtime_error) {
+      catch (std::runtime_error&) {
 	// good, we probably had a log_fatal
 	fatal_thrown = true;
       } catch (...) {
