@@ -288,7 +288,7 @@ int I3PhotonicsL1Reader::load_tables(const char *driver_file){
   char line[MAXLINE];
   char tmpline[MAXLINE];
 
-  char tmp_name[MAXLINE];
+  char tmp_name[MAXLINE-5];
   //  char in_file_name[MAXLINE];
 
   double low_ang_tab=-photonics_reader_InF,high_ang_tab=photonics_reader_InF;

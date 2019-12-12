@@ -407,7 +407,7 @@ int I3PhotonicsL2Reader::load_level2_tables(const char *driver_file){
   int j,k,m,q,r,i;
   int isstop=0; /* start=0, stop =1 */
   char line[MAXLINE];
-  char tmp_name[MAXLINE];
+  char tmp_name[MAXLINE-5];
   char in_file_name[MAXLINE];
   char tmp_line[MAXLINE];
   Level2_header_type *h;
@@ -424,10 +424,10 @@ int I3PhotonicsL2Reader::load_level2_tables(const char *driver_file){
   float tmpdepth;
 
   // initialize char arrays
-  memset(line, '\0', MAXLINE);
-  memset(tmp_name, '\0', MAXLINE);
-  memset(in_file_name, '\0', MAXLINE);
-  memset(tmp_line, '\0', MAXLINE);
+  memset(line, '\0', MAXLINE-5);
+  memset(tmp_name, '\0', MAXLINE-5);
+  memset(in_file_name, '\0', MAXLINE-5);
+  memset(tmp_line, '\0', MAXLINE-5);
   if(pref_level2.greetingdone<1){
     pref_level2.greetingdone++;
     log_info("Photonics Level2: Version '%s'",PHOTONICS_VERSION);
