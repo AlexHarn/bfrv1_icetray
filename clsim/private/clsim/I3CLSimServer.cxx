@@ -73,7 +73,7 @@ T deserialize(const zmq::message_t &message)
     pia >> value;
     i3_assert( istream.tellg() == static_cast<unsigned>(message.size()) );
 
-    return std::move(value);
+    return value;
 }
 
 }
