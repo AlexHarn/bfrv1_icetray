@@ -559,16 +559,27 @@ const DOM& flset(int str, int dom){
     p.ofla=-1;
   }
 
-  if(str<0){ type=2; str=-str; }
-  if(str==0) switch(dom){
+  if(str<0){
+    type=2;
+    str=-str;
+  }
+  if(str==0) {
+    switch(dom){
     case 1: type=3; r[0]=544.07; r[1]=55.89; r[2]=136.86; break;
     case 2: type=4; r[0]=11.87; r[1]=179.19; r[2]=-205.64; break;
     }
-  else for(int n=0; n<d.gsize; n++) if(q.names[n].str==str && q.names[n].dom==dom){
+  }
+  else{
+    for(int n=0; n<d.gsize; n++){
+      if(q.names[n].str==str && q.names[n].dom==dom){
 	p.fla=n;
-	for(int m=0; m<3; m++) r[m]=q.oms[n].r[m]; break;
+	for(int m=0; m<3; m++) {
+	  r[m]=q.oms[n].r[m];
+	}
+	break;
       }
-
+    }
+  }
   {
     char * FLDR=getenv("FLDR");
     p.fldr=FLDR==NULL?-1:atof(FLDR);

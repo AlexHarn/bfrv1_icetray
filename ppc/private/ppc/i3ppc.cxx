@@ -159,7 +159,7 @@ public:
 			if (!std::isnan(spe_charge_dist.compensation_factor)) {
 				spe_compensation_factor = spe_charge_dist.compensation_factor;
 			} else {
-                            log_debug("OM (%i/%u): spe compensation factor = %g (default (was: NaN))", spe_compensation_factor);
+			  log_debug("OM (%i/%u): spe compensation factor = %g (default (was: NaN))", om.str,om.dom,spe_compensation_factor);
 			} 
 		    }
 		    if(!isfinite(eff) || eff<0) eff=1.0;

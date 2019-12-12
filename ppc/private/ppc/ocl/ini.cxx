@@ -401,7 +401,12 @@ struct ini{
 
 	if(s.d>0){
 	  float dz=om.r[2]-(s.h+(s.n-n)/s.d);
-	  if(s.dl>dz) s.dl=dz; if(s.dh<dz) s.dh=dz;
+	  if(s.dl>dz) {
+	    s.dl=dz;
+	  }
+	  if(s.dh<dz) {
+	    s.dh=dz;
+	  }
 	}
       }
 
@@ -690,13 +695,34 @@ struct ini{
 	bool flag=true, fail=false;
 	ifstream inFile((icedir+"icemodel.par").c_str(), ifstream::in);
 	if((flag=!inFile.fail())){
-	  if(flag) flag=(bool)(inFile >> a >> ae);
-	  if(flag) flag=(bool)(inFile >> k >> ke);
-	  if(flag) flag=(bool)(inFile >> A >> Ae);
-	  if(flag) flag=(bool)(inFile >> B >> Be); fail=!flag;
-	  if(flag) flag=(bool)(inFile >> D >> De); if(!flag) D=pow(wv0, k);
-	  if(flag) flag=(bool)(inFile >> E >> Ee); if(!flag) E=0;
-	  if(fail) cerr << "File icemodel.par found, but is corrupt" << endl;
+	  if(flag) {
+	    flag=(bool)(inFile >> a >> ae);
+	  }
+	  if(flag){
+	    flag=(bool)(inFile >> k >> ke);
+	  }
+	  if(flag) {
+	    flag=(bool)(inFile >> A >> Ae);
+	  }
+	  if(flag) {
+	    flag=(bool)(inFile >> B >> Be);
+	  }
+	  fail=!flag;
+	  if(flag) {
+	    flag=(bool)(inFile >> D >> De);
+	  }
+	  if(!flag){
+	    D=pow(wv0, k);
+	  }	    
+	  if(flag) {
+	    flag=(bool)(inFile >> E >> Ee);
+	  }
+	  if(!flag) {
+	    E=0;
+	  }
+	  if(fail) {
+	    cerr << "File icemodel.par found, but is corrupt" << endl;
+	  }
 	  inFile.close(); if(fail) exit(1);
 	}
 	else{ cerr << "File icemodel.par was not found" << endl; exit(1); }
