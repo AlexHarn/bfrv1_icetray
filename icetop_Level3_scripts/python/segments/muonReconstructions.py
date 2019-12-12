@@ -106,11 +106,11 @@ def SPE(tray, name, Pulses = '',
     tray.AddSegment( linefit.simple, prefix+LineFit, inputResponse = Pulses, fitName = prefix+LineFit, If = If )
     
     # Creates SPEFitSingle + SPEFitSingleFitparams
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, prefix+SPEFitSingle, pulses = Pulses, seeds = [prefix+LineFit], If = If )
+    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, prefix+SPEFitSingle, fitname = prefix+SPEFitSingle, pulses = Pulses, seeds = [prefix+LineFit], If = If )
     
     # Creates SPEFit2+ SPEFit2FitParams
     if N_iter > 1:
-        tray.AddSegment( lilliput.segments.I3IterativePandelFitter, prefix+SPEFit, pulses = Pulses, n_iterations = N_iter, seeds = [ prefix+SPEFitSingle ], If = If )
+        tray.AddSegment( lilliput.segments.I3IterativePandelFitter, prefix+SPEFit, fitname = prefix+SPEFit, pulses = Pulses, n_iterations = N_iter, seeds = [ prefix+SPEFitSingle ], If = If )
 
     
 @icetray.traysegment
@@ -126,7 +126,7 @@ def MPE(tray, name,
     from icecube import lilliput, cramer_rao
     import icecube.lilliput.segments
 
-    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, prefix+MPEFit, pulses = Pulses, seeds = [ prefix+Seed ], domllh = 'MPE', If = If)
+    tray.AddSegment( lilliput.segments.I3SinglePandelFitter, prefix+MPEFit, fitname = prefix+MPEFit, pulses = Pulses, seeds = [ prefix+Seed ], domllh = 'MPE', If = If)
 
 @icetray.traysegment
 def MuEX(tray, name, 
