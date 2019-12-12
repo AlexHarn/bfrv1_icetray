@@ -108,9 +108,9 @@ def MakeIceCubeMediumPropertiesPhotonics(tableFile,
 
         # optional units
         unit = 1.                                       # no units by default
-        if keyword is "LAYER": unit = I3Units.meter     # coordinates
-        if keyword is "ABS": unit = 1./I3Units.meter    # absorption coefficient
-        if keyword is "SCAT": unit = 1./I3Units.meter   # scattering coefficient
+        if keyword == "LAYER": unit = I3Units.meter     # coordinates
+        if keyword == "ABS": unit = 1./I3Units.meter    # absorption coefficient
+        if keyword == "SCAT": unit = 1./I3Units.meter   # scattering coefficient
 
         layerdict[keyword] = [float(number)*unit for number in line[1:]]
 
