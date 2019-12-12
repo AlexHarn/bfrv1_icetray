@@ -64,7 +64,8 @@ def LaputopSmallShower(tray, name,
         ("DynamicCoreTreatment", 5.0),     # do the 5-meter core cut
         ("Trigger", 3),            ## Reduce min number of stations (the default is 5)
         ("Curvature",""),      # NO timing likelihood (at first; this will be overridden)
-        ("SnowServiceName",name+"SimpleSnow")
+        ("SnowServiceName",name+"SimpleSnow"),
+        ("OldXYZ", True)  # For backward-compatibility for L3: DOM coordinates
         )
     
     ################# GULLIVERIZED FITTER MODULE #######################
