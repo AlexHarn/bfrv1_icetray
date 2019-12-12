@@ -32,6 +32,8 @@ def add_args(parser):
     arguments.add_procnum(parser)
     arguments.add_seed(parser)
     arguments.add_usegslrng(parser)
+
+    arguments.add_propagatemuons(parser, True)
     
     parser.add_argument("--samples", dest="samples",
                         default=1, type=int, required=False,
@@ -51,9 +53,6 @@ def add_args(parser):
     parser.add_argument("--unthin-r", dest="unthin_r",
                         default=0.*I3Units.meter, type=float, required=False,
                         help="Radius of sampling region for CORSIKA unthinning. Usually energy-dependent, something like -693.4 + 360.4*log10(E/GeV) -60.4*(log10(E/GeV))^2 +3.34*(log10(E/GeV))^3 (hey, don't ask me...)")                    
-    parser.add_argument("--no-propagate-muons", dest="propagate_muons",
-                        default=True, action="store_false", required=False,
-                        help='Propagate muons for ice surface to IceCube')
     parser.add_argument("--dump", dest="dump",
                         default=False, action="store_true", required=False,
                         help="Dump frame contentes to screen")
@@ -98,7 +97,7 @@ def configure_tray(tray, params, stats, logger):
                     RunID=runid,
                     RaiseObservationLevel=params['raise_observation_level']*I3Units.m)
 
-    if params['propagate_muons']:
+    if params['propagatemuons']:
        # segments.PropagateMuons requires a random service, I would prefer to use the same one used above.
        # I could also set the state of randomService to the state of tray.context['I3RandomService'] before running this segment.
        if params['usegslrng']:

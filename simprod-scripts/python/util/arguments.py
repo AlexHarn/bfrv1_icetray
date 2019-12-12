@@ -125,4 +125,24 @@ def add_photonseriesname(parser):
                         default="I3MCPESeriesMap", type=str, required=False,
                         help="Photon Series Name")
 
+def add_propagatemuons(parser, default):
+    if default:
+        parser.add_argument("--no-PropagateMuons", dest="propagatemuons",
+                            default=True, action="store_false", required=False,
+                            help="Don't run PROPOSAL to do in-ice propagation")
+    else:
+        parser.add_argument("--PropagateMuons", dest="propagatemuons",
+                            default=False, action="store_true", required=False,
+                            help="Run PROPOSAL to do in-ice propagation")
+
+def add_usegpus(parser, default):
+    if default:
+        parser.add_argument("--no-UseGPUs", dest="usegpus",
+                            default=True, action="store_false", required=False,
+                            help="Don't use Graphics Processing Unit for photon propagation")
+    else:
+        parser.add_argument("--UseGPUs", dest="usegpus",
+                            default=False, action="store_true", required=False,
+                            help="Use Graphics Processing Unit for photon propagation")
+
 

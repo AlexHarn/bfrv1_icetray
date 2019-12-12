@@ -45,20 +45,16 @@ def add_args(parser):
     arguments.add_efficiency(parser)
 
     arguments.add_proposalparams(parser)
+    arguments.add_propagatemuons(parser, True)
 
     arguments.add_photonseriesname(parser)
     
     arguments.add_gpu(parser)
-    parser.add_argument("--UseGPUs", dest="usegpus",
-                        default=False, action="store_true", required=False,
-                        help="Use Graphics Processing Unit")
+    arguments.add_usegpus(parser, False)
 
     parser.add_argument("--no-RunMPHitFilter", dest="runmphitfilter",
                         default=True, action="store_false", required=False,
-                        help="Run polyplopia's mphitfilter")
-    parser.add_argument("--no-PropagateMuons", dest="propagatemuons",
-                        default=True, action="store_false", required=False,
-                        help='Run PROPOSAL to do in-ice propagation')
+                        help="Don't run polyplopia's mphitfilter")
     parser.add_argument("--MCTreeName", dest="mctreename",
                         default="I3MCTree", type=str, required=False,
                         help="Name of MCTree frame object")
@@ -70,7 +66,7 @@ def add_args(parser):
                         help="Enable Geant4 propagation")
     parser.add_argument("--no-KeepMCTree", dest="keepmctree",
                         default=True, action="store_false", required=False,
-                        help='Delete propagated MCTree otherwise')
+                        help='Delete propagated MCTree')
 
 
 def configure_tray(tray, params, stats, logger):

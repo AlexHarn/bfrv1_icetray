@@ -49,12 +49,12 @@ def add_args(parser):
     arguments.add_oversize(parser)
     arguments.add_efficiency(parser)
 
+    arguments.add_propagatemuons(parser, True)
+
     arguments.add_photonseriesname(parser)
 
     arguments.add_gpu(parser)
-    parser.add_argument("--UseGPUs", dest="usegpus",
-                        default=False, action="store_true", required=False,
-                        help="Use Graphics Processing Unit")
+    arguments.add_usegpus(parser, False)
 
     parser.add_argument("--model", dest="model",
                         default="Hoerandel5_atmod12_SIBYLL",
@@ -105,12 +105,9 @@ def add_args(parser):
     parser.add_argument("--deepcore", dest="deepcore",
                         default=False, action="store_true", required=False,
                         help="use inner cylinder")
-    parser.add_argument("--no-propagate-muons", dest="propagate_muons",
-                        default=True, action="store_false", required=False,
-                        help='Run PROPOSAL.')
     parser.add_argument("--no-propagate-photons", dest="propagate_photons",
                         default=True, action="store_false", required=False,
-                        help='Run ClSim.')
+                        help="Don't run ClSim.")
     parser.add_argument("--natural-rate", dest="natural_rate",
                         default=False, action="store_true", required=False,
                         help="Sample natural rate muon bundles")
@@ -122,7 +119,7 @@ def add_args(parser):
                         help="Raw Photon Series Name")
     parser.add_argument("--no-KeepMCTree", dest="keepmctree",
                         default=True, action="store_false", required=False,
-                        help='Delete propagated MCTree otherwise')
+                        help='Delete propagated MCTree')
 
 
 def configure_tray(tray, params, stats, logger):
@@ -170,7 +167,7 @@ def configure_tray(tray, params, stats, logger):
                         inner_cylinder_z=params['z_dc'],
                         use_inner_cylinder=params['deepcore'])
 
-    if params['propagate_muons']:
+    if params['propagatemuons']:
         tray.AddSegment(PropagateMuons, "propagator",
                         RandomService=tray.context["I3RandomService"],
                         CylinderLength=params['length'],
@@ -184,7 +181,7 @@ def configure_tray(tray, params, stats, logger):
                    Stats=stats)
 
     if params['propagate_photons']:
-        if not params['propagate_muons']:
+        if not params['propagatemuons']:
             raise BaseException("You have to propagate muons if you want to propagate photons")
 
         try:

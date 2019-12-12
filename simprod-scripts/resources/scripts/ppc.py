@@ -45,32 +45,28 @@ def add_args(parser):
     arguments.add_efficiency(parser)
 
     arguments.add_proposalparams(parser)
+    arguments.add_propagatemuons(parser, True)
 
     arguments.add_photonseriesname(parser)
     
     arguments.add_gpu(parser)
-    parser.add_argument("--no-UseGPUs", dest="usegpus",
-                        default=True, action="store_false", required=False,
-                        help="Use Graphics Processing Unit")
+    arguments.add_usegpus(parser, True)
 
     parser.add_argument("--no-RunMPHitFilter", dest="runmphitfilter",
                         default=True, action="store_false", required=False,
-                        help="Run polyplopia's mphitfilter")
+                        help="Don't run polyplopia's mphitfilter")
     parser.add_argument("--gpulib", dest="gpulib",
                         default="opencl", type=str, required=False,
                         help="set gpu library to load (defaults to cuda)")
     parser.add_argument("--no-volumecyl", dest="volumecyl",
                         default=True, action="store_false", required=False,
-                        help="set volume to regular cylinder (set to False for 300m spacing from the DOMs)")
+                        help="Don't set volume to regular cylinder (set flag for 300m spacing from the DOMs)")
     parser.add_argument("--MCTreeName", dest="mctreename",
                         default="I3MCTree", type=str, required=False,
                         help="Name of MCTree frame object")
     parser.add_argument("--KeepEmptyEvents", dest="keepemptyevents",
                         default=False, action="store_true", required=False,
                         help="Don't discard events with no MCPEs")
-    parser.add_argument("--no-PropagateMuons", dest="propagatemuons",
-                        default=True, action="store_false", required=False,
-                        help='Run PROPOSAL to do in-ice propagation')
     parser.add_argument("--TempDir", dest="tempdir",
                         default=None, type=str, required=False,
                         help='Temporary working directory with the ice model')

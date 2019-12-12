@@ -33,6 +33,7 @@ def add_args(parser):
     arguments.add_nevents(parser)
 
     arguments.add_proposalparams(parser)
+    arguments.add_propagatemuons(parser, False)
 
     parser.add_argument("--SimMode", dest="simmode",
                         default='FULL', type=str, required=False,
@@ -48,7 +49,7 @@ def add_args(parser):
                         help='For CIRCLE[radius, active_height_before, active_height_after],'' for SURFACE[radius, length, center_x, center_y, center_z]')
     parser.add_argument("--no-AutoExtendMuonVolume", dest="autoextendmuonvolume",
                         default=True, action="store_false", required=False,
-                        help="Detection volume extension, set off for starting events")
+                        help="Don't use detection volume extension (set flag for starting events)")
     parser.add_argument("--NuFlavor", dest="nuflavor",
                         default='', type=str, required=False,
                         help='Use Legacy injector : Neutrino Flavor')
@@ -94,9 +95,6 @@ def add_args(parser):
     parser.add_argument("--ParamsMap", dest="paramsmap",
                         default=dict(), type=json.loads, required=False,
                         help='any other parameters')
-    parser.add_argument("--PropagateMuons", dest="propagatemuons",
-                        default=False, action="store_true", required=False,
-                        help='Run PROPOSAL (by default this should be done at photonprop')
     parser.add_argument("--BackgroundFile", dest="backgroundfile",
                         default="", type=str, required=False,
                         help='pre-generated coincident showers file')

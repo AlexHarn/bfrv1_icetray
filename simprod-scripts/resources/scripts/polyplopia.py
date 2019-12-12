@@ -44,9 +44,7 @@ def add_args(parser):
     arguments.add_photonseriesname(parser)
 
     arguments.add_gpu(parser)
-    parser.add_argument("--no-UseGPUs", dest="usegpus",
-                        default=True, action="store_false", required=False,
-                        help="Use Graphics Processing Unit for photon propagation.")
+    arguments.add_usegpus(parser, True)
     
     parser.add_argument("--backgroundfile", dest="backgroundfile",
                         default='', type=str, required=False,

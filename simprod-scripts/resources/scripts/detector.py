@@ -80,16 +80,16 @@ def add_args(parser):
                         help='Assume separate Genie MCPEs and BG MCPEs')
     parser.add_argument("--no-FilterTrigger", dest="filtertrigger",
                         default=True, action="store_false", required=False,
-                        help='filter untriggered events')
+                        help="Don't filter untriggered events")
     parser.add_argument("--no-Trigger", dest="trigger",
                         default=True, action="store_false", required=False,
-                        help='Run trigger simulation')
+                        help="Don't run trigger simulation")
     parser.add_argument("--LowMem", dest="lowmem",
                         default=False, action="store_true", required=False,
                         help='Low Memory mode')
     parser.add_argument("--no-BeaconLaunches", dest="beaconlaunches",
                         default=True, action="store_false", required=False,
-                        help='Simulate beacon launches')
+                        help="Don't simulate beacon launches")
     parser.add_argument("--TimeShiftSkipKeys", dest="timeshiftskipkeys",
                         default=[], type=arguments.str_comma_list, required=False,
                         help='Skip keys in the triggersim TimeShifter')
