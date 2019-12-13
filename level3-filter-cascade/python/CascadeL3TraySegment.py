@@ -17,7 +17,6 @@ from icecube.level3_filter_cascade.level3_RunVeto import runVeto_Singles, runVet
 from icecube.level3_filter_cascade.level3_MultiCalculator import multiCalculator
 from icecube.level3_filter_cascade.level3_rateCalc import RateTracker
 from icecube.level3_filter_cascade.level3_Globals import which_split, label
-#from icecube.level3_filter_cascade.level3_HighLevelFits import HighLevelFits, CredoReco, MonopodReco
 from icecube.level3_filter_cascade.level3_HighLevelFits import HighLevelFits # exclude monopod
 from icecube.level3_filter_cascade.level3_Cuts import tagBranches, cutBranches
 from icecube.level3_filter_cascade.level3_Recos import CascadeLlhVertexFit, TimeSplitFits, CoreRemovalFits
@@ -142,22 +141,12 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
         print "This is real data"
         tray.AddSegment(preparePulses, 'newPulses',InIceCscd = lambda frame: which_split(frame, split_name) and frame['CscdL2'].value)
 
-    # fitting SPE32/CscdLLH/Bayesian32/Credo8/Monopod8 for all
+    # fitting SPE32/CscdLLH/Bayesian32/Monopod8 for all
     tray.AddSegment(HighLevelFits, 'CscdL3_HighLevelFits_IC',
                     Pulses='SRTOfflinePulses',
                     InIceCscd = lambda frame: which_split(frame, split_name) and frame['CscdL2'].value,
                     )
 
-    # Credo is retired 
-    '''
-    tray.AddSegment(CredoReco, 'credo_l3',
-                    Pulses='CleanSRTOfflinePulses',
-                    InIceCscd = lambda frame: which_split(frame, split_name) and frame['CscdL2'].value and frame.Has('CleanSRTOfflinePulses'),
-		    year = Year,
-                    AmplitudeTable = AmplitudeTable,
-                    TimingTable = TimingTable
-                    )
-    '''
     tray.AddSegment(L3_Monopod, 'monopod',
                     Pulses='OfflinePulses',
 		    year=Year,
