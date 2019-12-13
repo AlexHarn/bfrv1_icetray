@@ -19,7 +19,7 @@ mu_type =dataclasses.I3Particle.MuPlus
 
 gcdfile = os.path.join(os.environ['I3_TESTDATA'],"GCD",
                        "GeoCalibDetectorStatus_2012.56063_V0.i3.gz")
-TablePath = "/cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines"
+TablePath = os.path.join(os.environ['I3_TESTDATA'],"photospline")
 amplitudetable = TablePath+'/ems_mie_z20_a10.abs.fits'
 timingtable = TablePath+'/ems_mie_z20_a10.prob.fits'
 
