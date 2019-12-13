@@ -741,6 +741,12 @@ double AssessProbability(I3FramePtr frame,
         double sds) {
     log_debug("Getting things from the frame for a prob calc");
     log_debug("Using dat_type=%s",dat_type.c_str());
+    
+    std::string us ("_");
+    std::size_t found = dat_type.find(us);
+    if (found != std::string::npos)
+        dat_type.erase(found,1);
+   
 
     std::string sls = boost::lexical_cast<std::string>(ls);
     I3MapKeyUIntConstPtr keyToIndexMap = frame->Get<I3MapKeyUIntConstPtr>(pulsesName+"_"+fitName+"_keyToIndexMap_"+sls);
