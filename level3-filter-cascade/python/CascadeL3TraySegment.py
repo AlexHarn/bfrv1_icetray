@@ -11,7 +11,6 @@
 from I3Tray import *
 import sys, os, glob
 
-#
 from icecube.level3_filter_cascade.level3_TopoSplitter import TopologicalCounter
 from icecube.level3_filter_cascade.level3_RunVeto import runVeto_Singles, runVeto_Coinc
 from icecube.level3_filter_cascade.level3_MultiCalculator import multiCalculator
@@ -153,24 +152,11 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
 		    AmplitudeTable = AmplitudeTable,
 	            TimingTable = TimingTable
                     )
-    # Agreed to exclude the fit at L3
-    #    tray.AddSegment(MonopodReco, 'monopod_l3',
-    #                    Pulses='SRTOfflinePulses',
-    #                    )
-
+    
     tray.AddSegment(TimeSplitFits, 'TimeSplit', Pulses="OfflinePulses")
     tray.AddSegment(CoreRemovalFits, 'CoreRemoval', Pulses="OfflinePulses",Vertex="L3_MonopodFit4_AmptFit")
 
     tray.AddModule('Delete', 'DeleteNotNeeded', Keys=[ 'CalibratedWaveforms'])
-
-    # No root files for L3a
-    #    from icecube.rootwriter import I3ROOTWriter
-    #    tray.AddSegment(I3ROOTWriter, 'scribe',
-    #                    Output=rootFile,
-    ##                    Keys=['CscdL3_Monopod_SpiceMie_LikelihoodMonopod-SpiceMie', 'CscdL3_Monopod_SpiceMie_CscdL3_Monopod_SpiceMie_likelihood','CscdL3_Monopod_SpiceMieFitParams'], #exclude monopod
-    #                    bookeverything = True,
-    #                    SubEventStreams=[split_name,'nullsplit', 'ice_top'],
-    #                    )
 
     tray.AddModule("I3Writer", "EventWriter",
                    FileName=output_i3,
