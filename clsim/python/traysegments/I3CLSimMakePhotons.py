@@ -245,6 +245,8 @@ def I3CLSimMakePhotons(tray, name,
     """
 
     from icecube import icetray, dataclasses, phys_services, clsim
+    if not hasattr(clsim, "I3CLSimServer"):
+        raise NotImplementedError("clsim was built without ZMQ support. I3CLSimMakePhotons cannot function.")
 
     # warn the user in case they might have done something they probably don't want
     if UnWeightedPhotons and (DOMOversizeFactor != 1.):
@@ -409,6 +411,8 @@ def I3CLSimMakePhotonsWithServer(tray, name,
     :returns: the dictionary of keyword arguments passed to I3CLSimClientModule
     """
     from icecube import icetray, dataclasses, phys_services, clsim
+    if not hasattr(clsim, "I3CLSimServer"):
+        raise NotImplementedError("clsim was built without ZMQ support. I3CLSimMakePhotonsWithServer cannot function.")
 
     # make sure the geometry is updated to the new granular format (in case it is supported)
     if hasattr(dataclasses, "I3ModuleGeo"):

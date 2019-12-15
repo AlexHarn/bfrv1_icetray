@@ -109,7 +109,7 @@ SET(LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
 if (ZMQ_FOUND AND OPENCL_FOUND)
   set(_minimum_cppzmq_version 4.3.0)
   if (${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
-    colormsg(RED "--- Skipping client/server (cppzmq version ${CPPZMQ_VERSION} < ${_minimum_cppzmq_version} too old)")
+    colormsg(RED "--- zmq.hpp version ${CPPZMQ_VERSION} < ${_minimum_cppzmq_version} is too old. I3CLSimMakePhotons will not function.")
   else(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
     add_definitions(-DHAS_ZMQ)
   
@@ -125,7 +125,7 @@ if (ZMQ_FOUND AND OPENCL_FOUND)
     colormsg(GREEN "+-- CLSim server")
   endif(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
 else()
-  colormsg(RED "--- Skipping client/server (cppzmq not found)")
+  colormsg(RED "--- zmq.hpp not found. I3CLSimMakePhotons will not function.")
   
 endif ()
 
