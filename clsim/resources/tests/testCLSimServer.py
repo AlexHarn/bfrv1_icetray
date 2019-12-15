@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 
+import sys
 from icecube import clsim, icetray, dataclasses
 # skip out if I3CLSimServer was not built
 try:
     clsim.I3CLSimServer
 except AttributeError:
-    import sys
     sys.exit(0)
 
 import time
+import tempfile
 from multiprocessing import Process
+try:
+    # PY2
+    from Queue import Queue
+except ImportError:
+    # PY3
+    from queue import Queue
 from numpy.random import uniform
 from numpy.random import seed
 seed(0)
@@ -35,20 +42,21 @@ def dummy_photon_history(photon):
 class DummyConverter(clsim.I3CLSimStepToPhotonConverter):
     def __init__(self):
         super(DummyConverter, self).__init__()
-        self.input_queue = list()
+        self.input_queue = Queue()
     def IsInitialized(self):
         return True
     def GetWorkgroupSize(self):
         return 8
     def GetMaxNumWorkitems(self):
         return 64
+    def MorePhotonsAvailable(self):
+        return not self.input_queue.empty()
     def EnqueueSteps(self, steps, id):
         # ensure that EnqueueSteps blocks to test backpressure
-        import time
         time.sleep(0.1)
-        self.input_queue.append((steps, id))
+        self.input_queue.put((steps, id))
     def GetConversionResult(self):
-        steps, id = self.input_queue.pop(0)
+        steps, id = self.input_queue.get()
         icetray.logging.log_debug('{} steps in bunch {}'.format(len(steps), id), unit='clsim.testCLSimServer')
         photons = clsim.I3CLSimPhotonSeries([dummy_photon(step) for step in steps if step.num > 0])
         history = clsim.I3CLSimPhotonHistorySeries(map(dummy_photon_history, photons))
@@ -117,20 +125,22 @@ icetray.logging.set_level_for_unit('I3CLSimClient', 'TRACE')
 icetray.logging.set_level_for_unit('clsim.testCLSimServer', 'TRACE')
 
 # First, ensure that the test passes when the converter is called directly
-# test_client(DummyConverter(), 10)
+test_client(DummyConverter(), 10)
 
 # Now, call through the server in a separate process
 converters = clsim.I3CLSimStepToPhotonConverterSeries([DummyConverter()])
-address = 'ipc:///tmp/clsim-server.ipc'
+address = 'ipc://'+tempfile.mktemp(prefix='clsim-server-')
 server = clsim.I3CLSimServer(address,converters)
 
 def fire_a_few(num_steps=10, base=0):
-    icetray.logging.BASIC_FORMAT = "{} %(filename)s:%(lineno)s %(levelname)s: %(message)s".format(base)
-    icetray.logging.console()
+    # NB: the Python logging bridge deadlocks from secondary threads in Py3
+    if sys.version_info.major == 2:
+        icetray.logging.BASIC_FORMAT = "{} %(filename)s:%(lineno)s %(levelname)s: %(message)s".format(base)
+        icetray.logging.console()
     icetray.logging.set_level_for_unit('clsim.testCLSimServer', 'TRACE')
     icetray.logging.set_level_for_unit('I3CLSimClient', 'TRACE')
     
-    icetray.logging.log_debug("client {} connecting".format(base), unit='clsim.testCLSimServer')
+    icetray.logging.log_debug("client {} connecting to {}".format(base, address), unit='clsim.testCLSimServer')
     client = clsim.I3CLSimClient(address)
     icetray.logging.log_debug("client {} connected".format(base), unit='clsim.testCLSimServer')
     testing.assert_equal( client.workgroupSize, 8 )
@@ -138,7 +148,6 @@ def fire_a_few(num_steps=10, base=0):
     test_client(client, num_steps, base)
 
 procs = [Process(target=fire_a_few, kwargs=dict(num_steps=10, base=10*i)) for i in range(10)]
-# procs = [Process(target=fire_a_few) for i in range(1)]
 for p in procs:
     p.start()
 for p in procs:
