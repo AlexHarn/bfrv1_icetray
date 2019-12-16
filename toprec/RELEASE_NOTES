@@ -5,6 +5,17 @@
 Release Notes
 =============
 
+trunk
+-----------------------------
+
+- Modified Laputop so that it uses the X/Y/Z coordinates of the Tank that was hit 
+  using StationGeo information, instead of the coordinates of the DOM inside the tank,
+  like 61 or 63, which is off to one side.  Previous functionality can be restored
+  using the "OldXYZ" option, which is default False.  "LaputopStandard" traysegment,
+  used by L3 processing, has this set to True, so as to reproduce previous L3 results.
+
+- Point to correct test-data, and get rid of I3_PORTS references
+
 June 12, 2018 Kevin Meagher
 ---------------------------
 Release V03-04-04
