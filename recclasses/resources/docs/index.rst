@@ -2,7 +2,9 @@
 
 Recclasses
 ==========
-This project is a self-contained collection of storage classes inserted into frames by modules other projects, including their pybindings and table converters. It is maintained by Hans Dembinski <hdembins@udel.edu>.
+This project is a self-contained collection of storage classes inserted into frames by modules other projects, including their pybindings and table converters.
+
+**Maintainer:** Kevin Meagher
 
 .. toctree::
    :maxdepth: 1

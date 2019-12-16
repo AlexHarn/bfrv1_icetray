@@ -17,11 +17,11 @@ import argparse
 
 def move(a, b):
 	cmd = "svn mv {0} {1}".format(a, b)
-	print cmd
+	print(cmd)
 	subp.check_call(cmd.split())
 
 def replace(fn, a, b):
-	print "replace",fn,a,b
+	print("replace",fn,a,b)
 	with open(fn, "r") as f:
 		content = f.read()
 	open(fn, "w").write(content.replace(a, b))
@@ -85,7 +85,7 @@ for cl in args.classes:
 			 "{dst}/private/{dst_project}/{cl}.cxx"
 			 .format(**locals()))
 	except:
-		print "Couldn't move implementation for", cl
+		print("Couldn't move implementation for", cl)
 
 	# move pybindings
 	try:
@@ -94,4 +94,4 @@ for cl in args.classes:
 			 "{dst}/private/pybindings/{cl}.cxx"
 			 .format(**locals()))
 	except:
-		print "Couldn't move pybindings for", cl
+		print("Couldn't move pybindings for", cl)
