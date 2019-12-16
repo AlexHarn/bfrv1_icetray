@@ -4,9 +4,9 @@ file OptionParser.py: Provide an OptionParser with i3live
 host name and database server name already added as options.
 """
 
-DEFAULT_DB_SERVER = ("mongodb://mongodb-live-1.icecube.wisc.edu,"
-                     "mongodb-live-2.icecube.wisc.edu/?"
-                     "replicaSet=rs-live&readPreference=secondaryPreferred")
+DEFAULT_DB_SERVER = ("mongodb://mongo-1.icecube.wisc.edu,"
+                     "mongo-3.icecube.wisc.edu/?replicaSet=rs-live"
+                     "&readPreference=secondaryPreferred")
 
 DEFAULT_I3LIVE_SERVER = "live.icecube.wisc.edu"
 

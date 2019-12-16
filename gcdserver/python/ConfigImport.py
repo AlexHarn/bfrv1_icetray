@@ -77,8 +77,14 @@ def importConfig(inserter, inputFile):
     # Get the DOM configs: Need both 'domConfigList' and 'stringHub' elements
     # to support multiple versions of the runConfig file
     domConfigFileNames = [e.text for e in root.findall('domConfigList')]
-    domConfigFileNames.extend([e.attrib['domConfig'] for e in
-                                          root.findall('stringHub')])
+    # Handle obsolete-style configurations that have both
+    # domConfigList and stringHub elements
+    try:
+        domConfigFileNames.extend([e.attrib['domConfig'] for e in
+                                              root.findall('stringHub')])
+    except:
+        pass
+    
     for name in domConfigFileNames:
         o.addDOMConfigListName(name)
         domConfigListFile = dirName + '/domconfigs/' + name + ".xml"

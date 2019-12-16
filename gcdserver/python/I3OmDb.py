@@ -25,7 +25,7 @@ class RepeatedMySQLConnectFailures(Exception):
 MYSQL_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
-def connectRepeated(user, host):
+def connectRepeated(user, host, passwd=None):
     """
     Tweak to address https://bugs.icecube.wisc.edu/view.php?id=4057.
     """
@@ -35,7 +35,10 @@ def connectRepeated(user, host):
     DB_GONE_AWAY = 2006
     for _ in range(RETRIES):
         try:
-            return connect(user=user, host=host)
+            if passwd is not None:
+                return connect(user=user, host=host, passwd=passwd)
+            else:
+                return connect(user=user, host=host)
         except OperationalError, e:
             if e[0] in (LOST_CONNECTION,
                         NO_DATABASE,
