@@ -7,7 +7,17 @@ Release Notes
 
 trunk
 --------------
-
+- Adding three remaining Gaisser-Hillas fit parameters (a, b, and c) to I3CorsikaShowerInfo.
+- Added CROSSTALK_PULSE to I3MCPulse
+- New classes for cable shadow:
+  * I3Photon
+  * I3CompressedPhoton
+  * I3ExtraGeometry
+  * I3ExtraGeometryItem
+  * I3ExtraGeometryItemMove
+  * I3ExtraGeometryUnion
+  * I3ExtraGeometryCylinder
+  * I3CylinderMap
 
 
 Nov. 12, 2018 Juan Carlos Diaz Velez (juancarlos@icecube.umd.edu)
