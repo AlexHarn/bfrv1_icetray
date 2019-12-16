@@ -9,6 +9,7 @@ trunk
 -----
 * add `__bool__` to `ValidationReport` in addition to `__nonzero__`.
   python2 uses `__nonzero__` but python3 uses `__bool__`.
+* Fix GCD position for unit test
 
 V01-03-02
 ---------
