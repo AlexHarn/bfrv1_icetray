@@ -20,7 +20,7 @@ Overview
 IceCube uses the method of maximum likelihood to reconstruct the direction of muon tracks. The uncertainty of these reconstructions can be estimated by investigating the likelihood space in the region near the likelihood. The likelihood
 space near the minimum of such a reconstruction is usually shaped like a normal distribution (also known as a Gaussian), hence the log likelihood space will end up shaped like a parabola. 
 The standard procedure for analysing the uncertainty of a maximum likelihood estimation is to find the 1σ contour of the likelihood space around the minimum. In the case where some of the parameters are considered nuisance parameters, the space is explored only in the parameters of interest, by constructing a grid of points in the parameters of interest and holding them constant while the likelihood is minimized over the nuisance parameters. 
-Paraboloid then does as χ\ :sup:`2` fit to the resulting grid to a paraboloid and calculates the parameters of the error ellipse.
+Paraboloid then does a χ\ :sup:`2` fit to the resulting grid to a paraboloid and calculates the parameters of the error ellipse.
 The word "paraboloid" refers to a two-dimensional parabola, which is the expected shape of the log-likelihood space near the minimum under most conditions.
 Assuming the log-likelihood space is a paraboloid the 1 sigma contour should be an ellipse.
 
@@ -34,7 +34,7 @@ The original ideas and implementation for the paraboloid fitter were developed b
 
 * a part that interacts with the host framework to obtain the likelihood grid
 * a framework-independent part which performs the actual algorithm to fit a paraboloid to the grid
-* an output part which stores the communicates the results back to the framework. This structure allowed an easy port to gulliver/icetray, which was done in July/August 2006. Chad added the status variable which can be used to diagnose very accurately what went wrong with a failed fit, so that the configuration of the fit, or the implementation itself, can be improved in a relatively effective way. Chad and Jon did a lot of analysis and testing with paraboloid and used it for the first point source analysis with IceCube (IC9).
+* an output part which stores the communicates the results back to the framework. This structure allowed an easy port to gulliver/icetray, which was done in July/August 2006. Chad Finley added the status variable which can be used to diagnose very accurately what went wrong with a failed fit, so that the configuration of the fit, or the implementation itself, can be improved in a relatively effective way. Chad Finleyand Jon Dumm did a lot of analysis and testing with paraboloid and used it for the first point source analysis with IceCube's 9 string configuration (IC9).
 
 The following is a list of people who have contributed to paraboloid over the years:
 
@@ -45,9 +45,6 @@ The following is a list of people who have contributed to paraboloid over the ye
 * Chad Finley 
 * David Boersma
 * Jon Dumm 
-
-
-
 
 Implementation Details
 =======================
@@ -114,7 +111,7 @@ The following is an example steering file for calling paraboloid:
 The ``I3GulliverMinuitFactory`` and the ``I3GulliverIPDFPandelFactory`` should be the same service or be called identically to the services used on the original reconstruction. The ``I3BasicSeedServiceFactory`` should point to the original reconstruction's frame object. The options for these services can be found in the `liliput inspect docs <../../inspect/lilliput.html>`_. The full options for the `I3ParaboloidFitter` module can be found in the 
 `paraboloid inspect docs <../../inspect/paraboloid.html>`_
 
-It is important to note that many of the defaults are what was deemed appropriate for AMANDA, so it is important to use a small step size. 
+It is important to note that many of the defaults in the I3Paraboloid module were are what was deemed appropriate for AMANDA, and have not been changed since. The optimal valuse for IceCube may be different, for example IceCube has better angular resolution so it is important to use a smaller step size. 
 
 Results
 --------
@@ -135,7 +132,7 @@ The rotation angle of the semi-major axis is stored in ``pbfRotAng_`` but since 
 When using the results of Paraboloid is always very important to
 use the paraboloid status. In case of a (partial) failure the track
 variables are not necessarily set to NAN. You only want to use the
-results with ``pbfStatus_``==0 (``PBF_SUCCESS``). The non-zero value of the paraboloid
+results with ``pbfStatus_==0`` (``PBF_SUCCESS``). The non-zero value of the paraboloid
 status tells you exactly what went wrong; this can help you to improve
 the configuration of the fitter modules or to diagnose problems.
 Negative values occur when paraboloid cannot successfully complete the fit, positive values occur after additional checks, when the fit is deemed "not good", Zero (``PBF_SUCCESS``) means everything was okay. The complete list of of possible values are available in the `class documentation <../../doxygen/paraboloid/classI3ParaboloidFitParams.html#a1a24250cbcea80a321623b3f4a21e9c6>`_.
@@ -163,7 +160,7 @@ There seems to be some confusion about exactly what number to correct the parabo
 
 .. image:: containment.svg
 
-The paraboloid sigma variable discussed above is the radius parameter of bivariate distribution (`pbfErr1_` and `pbfErr2_` should both be univariate normal distributions). So the paraboloid sigma pull must be adjusted to the bivariate distribution. One way to accomplish this is to set the median (50% containment) to 1.177σ.
+The paraboloid sigma variable discussed above is the radius parameter of bivariate distribution (``pbfErr1_`` and ``pbfErr2_`` should both be univariate normal distributions). So the paraboloid sigma pull must be adjusted to the bivariate distribution. One way to accomplish this is to set the median (50% containment) to 1.177σ.
 
 The formula for containment on a bivariate normal distribution is the CDF of the `Rayleigh_distribution <https://en.wikipedia.org/wiki/Rayleigh_distribution>`_,which is quite simple: :math:`containment = 1-e^{-r^2/2}`.
 

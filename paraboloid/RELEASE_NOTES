@@ -6,6 +6,13 @@
 Release Notes
 =============
 
+Trunk
+-----
+
+- Minor doc updates
+- Allow Paraboloid to take services by pointer as well as by string
+- Move move location of test data in tests
+
 December 3, 2017 Kevin Meagher
 ---------------------------------------------------------------------------
 Release V01-09-01
