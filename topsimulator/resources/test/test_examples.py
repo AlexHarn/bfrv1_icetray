@@ -29,7 +29,7 @@ class TestSimpleExample(I3Test.TestExampleScripts):
         self.sim_single_particles("g4")
 
     def sim_single_particles(self, resp):
-        gcd = self.I3_TESTDATA + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
+        gcd = self.I3_TESTDATA + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
         self.run_example(
             "sim-single-particles.py",
             "--gcd", gcd,
@@ -41,7 +41,7 @@ class TestSimpleExample(I3Test.TestExampleScripts):
         os.unlink("sim_single_particle_test.i3")
 
     def sim_icetop(self, resp):
-        gcd = self.I3_TESTDATA + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
+        gcd = self.I3_TESTDATA + "/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
         corsika = self.I3_TESTDATA + "/DAT010000"
         self.run_example(
             "sim-icetop.py",
