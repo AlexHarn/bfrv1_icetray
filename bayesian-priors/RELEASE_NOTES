@@ -9,6 +9,8 @@ Release Notes
 trunk 
 ------
 
+* Use new locations for testdata
+* Use `OutputName` in tests
 
 Mar 13, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
 ------------------------------------------------------------------
