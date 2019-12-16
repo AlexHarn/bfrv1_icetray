@@ -4,6 +4,12 @@
 Release Notes
 =============
 
+trunk
+-----
+
+* I3NuGInjector now insert `I3NuGenInfo` objects into S-frames
+* Only convert string to neutrino type once per tray rather than every event
+
 MAY 22, 2018 Kotoyo Hoshina(hoshina@icecube.wisc.edu)
 -----------------------------------------------------
 
