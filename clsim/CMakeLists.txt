@@ -106,26 +106,20 @@ SET(LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
   private/pybindings/module.cxx
 )
 
-if (ZMQ_FOUND AND OPENCL_FOUND)
+if (ZMQ_FOUND)
   set(_minimum_cppzmq_version 4.3.0)
+  set(_vendor_cppzmq ${CMAKE_CURRENT_SOURCE_DIR}/private/vendor/cppzmq)
   if (${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
-    colormsg(RED "--- zmq.hpp version ${CPPZMQ_VERSION} < ${_minimum_cppzmq_version} is too old. I3CLSimMakePhotons will not function.")
-  else(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
-    add_definitions(-DHAS_ZMQ)
-  
-    LIST(APPEND LIB_${PROJECT_NAME}_SOURCEFILES
-        private/clsim/I3CLSimServer.cxx
-        private/clsim/I3CLSimClientModule.cxx
-    )
-    LIST(APPEND LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
-        private/pybindings/I3CLSimStepToPhotonConverter.cxx
-    )
-    LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)
-    LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
-    colormsg(GREEN "+-- CLSim server")
-  endif(${CPPZMQ_VERSION} VERSION_LESS ${_minimum_cppzmq_version})
+    colormsg(YELLOW "--- System zmq.hpp version ${CPPZMQ_VERSION} < ${_minimum_cppzmq_version} is too old. Using ${_vendor_cppzmq}")
+    include_directories(${_vendor_cppzmq})
+  endif()
+  add_definitions(-DHAS_ZMQ)
+
+  LIST(APPEND LIB_${PROJECT_NAME}_PROJECTS corsika-reader)
+  LIST(APPEND LIB_${PROJECT_NAME}_TOOLS zmq)
+  colormsg(GREEN "+-- client/server (have zmq.hpp ${CPPZMQ_VERSION})")
 else()
-  colormsg(RED "--- zmq.hpp not found. I3CLSimMakePhotons will not function.")
+  colormsg(RED "--- ZMQ not found. I3CLSimMakePhotons will not function.")
   
 endif ()
 
@@ -153,6 +147,7 @@ else(BUILD_CLSIM_DATACLASSES_ONLY)
     private/pybindings/I3CLSimLightSource.cxx
     private/pybindings/I3CLSimSpectrumTable.cxx
     private/pybindings/I3CLSimPhotonToMCPEConverter.cxx
+    private/pybindings/I3CLSimStepToPhotonConverter.cxx
   )
 endif(BUILD_CLSIM_DATACLASSES_ONLY)
 
@@ -197,6 +192,8 @@ if(NOT BUILD_CLSIM_DATACLASSES_ONLY)
     # private/clsim
     private/clsim/I3CLSimMediumProperties.cxx
     #private/clsim/I3CLSimModule.cxx
+    private/clsim/I3CLSimServer.cxx
+    private/clsim/I3CLSimClientModule.cxx
     private/clsim/I3CLSimModuleHelper.cxx
     private/clsim/I3CLSimLightSourceParameterization.cxx
     private/clsim/I3CLSimLightSourceToStepConverterPPC.cxx

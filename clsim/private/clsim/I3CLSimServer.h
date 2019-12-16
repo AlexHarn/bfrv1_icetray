@@ -2,38 +2,22 @@
 #ifndef CLSIM_I3CLSIMSERVER_H_INCLUDED
 #define CLSIM_I3CLSIMSERVER_H_INCLUDED
 
-#include "icetray/I3Logging.h"
 #include "clsim/I3CLSimStep.h"
 #include "clsim/I3CLSimStepToPhotonConverter.h"
-
-#include <thread>
-#include <future>
-#include <memory>
-#include <map>
-#include <list>
-#include <queue>
-#include <zmq.hpp>
 
 class I3CLSimServer {
 public:
     I3CLSimServer(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters);
     ~I3CLSimServer();
+    I3CLSimServer(I3CLSimServer &&);
+    I3CLSimServer(const I3CLSimServer &) = delete;
+    I3CLSimServer& operator=(I3CLSimServer &&);
+    I3CLSimServer& operator=(const I3CLSimServer &) = delete;
 
     std::map<std::string, double> GetStatistics() const;
 private:
-    std::vector<I3CLSimStepToPhotonConverterPtr> converters_;
-    std::size_t workgroupSize_, maxBunchSize_;
-    
-    zmq::context_t context_;
-    zmq::socket_t control_, heartbeat_;
-
-    SET_LOGGER("I3CLSimServer");
-
-    void ServerThread(const std::string &bindAddress);
-    void WorkerThread(unsigned index, unsigned buffer_id);
-
-    std::thread serverThread_;
-    std::vector<std::thread> workerThreads_;
+    class impl;
+    std::unique_ptr<impl> impl_;
 };
 
 /// @brief Client for communicating with I3CLSimServer
@@ -45,6 +29,10 @@ class I3CLSimClient {
 public:
     I3CLSimClient(const std::string &server_address);
     ~I3CLSimClient();
+    I3CLSimClient(I3CLSimClient &&);
+    I3CLSimClient(const I3CLSimClient &) = delete;
+    I3CLSimClient& operator=(I3CLSimClient &&);
+    I3CLSimClient& operator=(const I3CLSimClient &) = delete;
 
     /// @brief Submit steps for propagation
     ///
@@ -63,17 +51,12 @@ public:
     /// This function will block until results are available
     I3CLSimStepToPhotonConverter::ConversionResult_t GetConversionResultWithBarrierInfo(bool &barrierWasJustReset);
 
-    std::size_t GetWorkgroupSize() const { return workgroupSize_; }
-    std::size_t GetMaxNumWorkitems() const { return maxBunchSize_; }
-    
+    std::size_t GetWorkgroupSize() const;
+    std::size_t GetMaxNumWorkitems() const;
+
 private:
-    zmq::context_t context_;
-    zmq::socket_t inbox_, outbox_, control_;
-    std::size_t workgroupSize_, maxBunchSize_;
-
-    SET_LOGGER("I3CLSimClient");
-
-    std::future<void> clientTask_;
+    class impl;
+    std::unique_ptr<impl> impl_;
 };
 
 #endif // CLSIM_I3CLSIMSERVER_H_INCLUDED

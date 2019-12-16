@@ -1,11 +1,17 @@
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
+#include "icetray/I3Logging.h"
 #include "clsim/I3CLSimServer.h"
 
-#include <list>
+#ifdef HAS_ZMQ
 
 #include <chrono>
+#include <thread>
+#include <future>
+#include <memory>
+#include <map>
+#include <list>
+#include <queue>
+#include <zmq.hpp>
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -85,7 +91,29 @@ static const zmq::message_t barrier("adieu", 5);
 
 };
 
-I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) :
+class I3CLSimServer::impl {
+public:
+    impl(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters);
+    ~impl();
+
+    std::map<std::string, double> GetStatistics() const;
+private:
+    std::vector<I3CLSimStepToPhotonConverterPtr> converters_;
+    std::size_t workgroupSize_, maxBunchSize_;
+    
+    zmq::context_t context_;
+    zmq::socket_t control_, heartbeat_;
+
+    SET_LOGGER("I3CLSimServer");
+
+    void ServerThread(const std::string &bindAddress);
+    void WorkerThread(unsigned index, unsigned buffer_id);
+
+    std::thread serverThread_;
+    std::vector<std::thread> workerThreads_;
+};
+
+I3CLSimServer::impl::impl(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) :
     converters_(converters),
     workgroupSize_(0), maxBunchSize_(0),
     context_(1),
@@ -121,7 +149,7 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
         }
     }
     
-    serverThread_ = std::thread(&I3CLSimServer::ServerThread, this, address);
+    serverThread_ = std::thread(&I3CLSimServer::impl::ServerThread, this, address);
     {
         // Wait for thread to come online so that shutdown messages
         // in the destructor will have an effect
@@ -134,7 +162,7 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
 
     for (unsigned i=0; i < converters_.size(); i++)
         for (unsigned j=0; j < queueDepth; j++) {
-            workerThreads_.emplace_back(&I3CLSimServer::WorkerThread, this, i, j);
+            workerThreads_.emplace_back(&I3CLSimServer::impl::WorkerThread, this, i, j);
 
             zmq::message_t ping;
             heartbeat_.recv(&ping);
@@ -143,7 +171,7 @@ I3CLSimServer::I3CLSimServer(const std::string &address, const std::vector<I3CLS
     
 }
 
-I3CLSimServer::~I3CLSimServer()
+I3CLSimServer::impl::~impl()
 {
     // send shutdown message to threads
     try {
@@ -167,7 +195,7 @@ inline bool send_msg(
   return socket.send(msg_payload, will_continue ? ZMQ_SNDMORE : 0); // last message part
 }
 
-void I3CLSimServer::ServerThread(const std::string &bindAddress)
+void I3CLSimServer::impl::ServerThread(const std::string &bindAddress)
 {
     zmq::socket_t frontend(context_, ZMQ_ROUTER);
     zmq::socket_t backend(context_, ZMQ_ROUTER);
@@ -331,7 +359,7 @@ void I3CLSimServer::ServerThread(const std::string &bindAddress)
     }
 }
 
-void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
+void I3CLSimServer::impl::WorkerThread(unsigned index, unsigned buffer_id)
 {
     // Listen for work
     zmq::socket_t backend(context_, ZMQ_DEALER);
@@ -549,7 +577,7 @@ void I3CLSimServer::WorkerThread(unsigned index, unsigned buffer_id)
     }
 }
 
-std::map<std::string, double> I3CLSimServer::GetStatistics() const
+std::map<std::string, double> I3CLSimServer::impl::GetStatistics() const
 {
     std::map<std::string, double> summary;
     
@@ -684,7 +712,42 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
 
 }
 
-I3CLSimClient::I3CLSimClient(const std::string &server_address) : context_(1),
+class I3CLSimClient::impl {
+public:
+    impl(const std::string &server_address);
+    ~impl();
+
+    /// @brief Submit steps for propagation
+    ///
+    /// This function will block until the server is ready to handle more steps
+    void EnqueueSteps(I3CLSimStepSeriesConstPtr steps, uint32_t identifier);
+    /// @brief Flush any steps held by the server
+    ///
+    /// This function will block until the server is ready to handle more steps
+    void EnqueueBarrier();
+    /// @brief Retrieve propagated photons from the next step bunch
+    ///
+    /// Bunches will be returned in the order they were enqueued.
+    /// barrierWasJustReset will be set to `true` when the last bunch enqueued
+    /// before the barrier is returned.
+    ///
+    /// This function will block until results are available
+    I3CLSimStepToPhotonConverter::ConversionResult_t GetConversionResultWithBarrierInfo(bool &barrierWasJustReset);
+
+    std::size_t GetWorkgroupSize() const { return workgroupSize_; }
+    std::size_t GetMaxNumWorkitems() const { return maxBunchSize_; }
+    
+private:
+    zmq::context_t context_;
+    zmq::socket_t inbox_, outbox_, control_;
+    std::size_t workgroupSize_, maxBunchSize_;
+
+    SET_LOGGER("I3CLSimClient");
+
+    std::future<void> clientTask_;
+};
+
+I3CLSimClient::impl::impl(const std::string &server_address) : context_(1),
     inbox_(context_, ZMQ_PUSH), outbox_(context_, ZMQ_PULL), control_(context_, ZMQ_PUB),
     workgroupSize_(0), maxBunchSize_(0)
 {
@@ -715,7 +778,7 @@ I3CLSimClient::I3CLSimClient(const std::string &server_address) : context_(1),
     log_trace_stream("connected! granularity "<<workgroupSize_<<" maxSize "<<maxBunchSize_);
 }
 
-I3CLSimClient::~I3CLSimClient()
+I3CLSimClient::impl::~impl()
 {
     control_.send(zmq::message_t("kbye", 4));
     try {
@@ -728,14 +791,14 @@ I3CLSimClient::~I3CLSimClient()
     }
 }
 
-void I3CLSimClient::EnqueueSteps(I3CLSimStepSeriesConstPtr steps, uint32_t identifier)
+void I3CLSimClient::impl::EnqueueSteps(I3CLSimStepSeriesConstPtr steps, uint32_t identifier)
 {
     log_trace_stream("enqueue steps");
     inbox_.send(serialize(steps), ZMQ_SNDMORE);
     inbox_.send(serialize(identifier), 0);
 }
 
-void I3CLSimClient::EnqueueBarrier()
+void I3CLSimClient::impl::EnqueueBarrier()
 {
     log_trace_stream("enqueue barrier");
     zmq::message_t barrier;
@@ -744,7 +807,7 @@ void I3CLSimClient::EnqueueBarrier()
 }
 
 I3CLSimStepToPhotonConverter::ConversionResult_t
-I3CLSimClient::GetConversionResultWithBarrierInfo(bool &barrierWasJustReset)
+I3CLSimClient::impl::GetConversionResultWithBarrierInfo(bool &barrierWasJustReset)
 {
     I3CLSimStepToPhotonConverter::ConversionResult_t result;
     std::deque<zmq::message_t> body;
@@ -775,4 +838,82 @@ I3CLSimClient::GetConversionResultWithBarrierInfo(bool &barrierWasJustReset)
     i3_assert( body.size() == 0 );
     
     return result;
+}
+
+#else // #defined HAS_ZMQ
+
+namespace {
+
+struct no_zmq {
+    no_zmq() { throw std::runtime_error("CLSim was built without ZMQ support. I3CLSimClient cannot function."); }
+};
+
+}
+
+class I3CLSimServer::impl : no_zmq {
+public:
+    impl(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) {}
+
+    std::map<std::string, double> GetStatistics() const { return std::map<std::string, double>(); }
+};
+
+class I3CLSimClient::impl : no_zmq {
+public:
+    impl(const std::string &server_address) {};
+
+    void EnqueueSteps(I3CLSimStepSeriesConstPtr steps, uint32_t identifier) {}
+    void EnqueueBarrier() {}
+    I3CLSimStepToPhotonConverter::ConversionResult_t GetConversionResultWithBarrierInfo(bool &barrierWasJustReset) { return I3CLSimStepToPhotonConverter::ConversionResult_t(); }
+    std::size_t GetWorkgroupSize() const { return 0; }
+    std::size_t GetMaxNumWorkitems() const { return 0; }
+};
+
+#endif // #defined HAS_ZMQ
+
+///////////////////////// I3CLSimServer interface /////////////////////////////
+
+I3CLSimServer::I3CLSimServer(
+    const std::string &address,
+    const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) : 
+    impl_(new impl(address, converters))
+{}
+
+// Define special functions here, where the implementation type is complete
+I3CLSimServer::~I3CLSimServer() = default;
+I3CLSimServer::I3CLSimServer(I3CLSimServer &&) = default;
+I3CLSimServer& I3CLSimServer::operator=(I3CLSimServer &&) = default;
+
+std::map<std::string, double> I3CLSimServer::GetStatistics() const
+{
+    return impl_->GetStatistics();
+}
+
+///////////////////////// I3CLSimCleint interface /////////////////////////////
+
+I3CLSimClient::I3CLSimClient(const std::string &server_address)
+    : impl_(new impl(server_address))
+{}
+
+// Define special functions here, where the implementation type is complete
+I3CLSimClient::~I3CLSimClient() = default;
+I3CLSimClient::I3CLSimClient(I3CLSimClient &&) = default;
+I3CLSimClient& I3CLSimClient::operator=(I3CLSimClient &&) = default;
+
+std::size_t I3CLSimClient::GetWorkgroupSize() const { return impl_->GetWorkgroupSize(); }
+std::size_t I3CLSimClient::GetMaxNumWorkitems() const { return impl_->GetMaxNumWorkitems(); }
+
+void I3CLSimClient::EnqueueSteps(I3CLSimStepSeriesConstPtr steps, uint32_t identifier)
+{
+    impl_->EnqueueSteps(steps, identifier);
+}
+
+void I3CLSimClient::EnqueueBarrier()
+{
+    impl_->EnqueueBarrier();
+}
+
+I3CLSimStepToPhotonConverter::ConversionResult_t
+I3CLSimClient::GetConversionResultWithBarrierInfo(bool &barrierWasJustReset)
+{
+    return impl_->GetConversionResultWithBarrierInfo(barrierWasJustReset);
 }
