@@ -21,4 +21,15 @@ The Modules
 * :cpp:class:`I3OMSelection` - Seems to perform a similar task to I3DOMLaunchCleaning except it has instantiatons for both I3DOMLaunches and I3RecoPulses, though it's not used for I3DOMLaunches.
 * :cpp:class:`I3Coincify` -  This module applies Hard Local Coincidence to all time-like responses : I3RecoPulse, I3RecoHit, I3MCHit, and I3DOMLaunch.
 
+Utilities
+~~~~~~~~~
+
+* :cpp:class:`I3DistanceMap` - Creates a vector of squared distances between each OM.  Useful for optimizing CPU at the expense of memory.
+* :cpp:class:`I3ResponseIter` - Template class which allows for the iteration over map::<OMKey, vecotr<T>> of various response types: I3RecoHit, I3RecoPulse, I3DOMLaunch, I3MCHit.
+
+The following function overloads are implemented for use in templates to provide a uniform interface between the "signal types" I3RecoHit, I3RecoPulse, I3DOMLaunch, I3MCHit.
+* GetTime
+* GetWidth
+* GetAmplitude
+
 
