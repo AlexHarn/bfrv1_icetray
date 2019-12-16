@@ -14,7 +14,7 @@
  * @brief Creates a very large vector that contains a map of the distance squared between each OM.
  *
  * This class trades memory for speed by creating ~300M vector. As distances are requested 
- * they are added to the vector. This generated an approximate 5 fold increace in speed.
+ * they are added to the vector. This generated an approximate 5 fold increase in speed.
  */
 
 class I3DistanceMap
