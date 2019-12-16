@@ -7,7 +7,8 @@ Release Notes
 
 trunk
 -----
-
+- (r176200) Allow I3PropagatorService implementations to consume their own secondaries.
+- (r172144) Add the option to I3PropagatorModule to skip NaN length nodes.
 - Add `I3CosmicEventGenerator`, an interface for using CORSIKA as a service in mulitprocess-server clsim
 
 June 20, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
