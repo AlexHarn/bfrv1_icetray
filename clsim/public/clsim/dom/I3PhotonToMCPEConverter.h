@@ -161,7 +161,7 @@ class I3CLSimPhotonToMCPEConverterForDOMs : public I3CLSimPhotonToMCPEConverter 
 public:
     I3CLSimPhotonToMCPEConverterForDOMs(I3RandomServicePtr, boost::shared_ptr<const std::map<OMKey, I3CLSimFunctionConstPtr>>, I3CLSimFunctionConstPtr);
     virtual ~I3CLSimPhotonToMCPEConverterForDOMs();
-    virtual std::tuple<OMKey,I3MCPE,bool> Convert(const ModuleKey&, const I3CompressedPhoton &) const;
+    virtual boost::optional<std::tuple<OMKey,I3MCPE>> Convert(const ModuleKey&, const I3CompressedPhoton &) const override;
 private:
     I3RandomServicePtr randomService_;
     boost::shared_ptr<const std::map<OMKey, I3CLSimFunctionConstPtr>> wavelengthAcceptance_;

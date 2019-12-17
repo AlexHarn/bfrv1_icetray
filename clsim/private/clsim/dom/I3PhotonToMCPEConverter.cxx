@@ -609,12 +609,13 @@ I3CLSimPhotonToMCPEConverterForDOMs::I3CLSimPhotonToMCPEConverterForDOMs(I3Rando
 
 I3CLSimPhotonToMCPEConverterForDOMs::~I3CLSimPhotonToMCPEConverterForDOMs() {}
 
-std::tuple<OMKey,I3MCPE,bool>
+boost::optional<std::tuple<OMKey,I3MCPE>>
 I3CLSimPhotonToMCPEConverterForDOMs::Convert(const ModuleKey &mkey, const I3CompressedPhoton &photon) const
 {
+    boost::optional<std::tuple<OMKey,I3MCPE>> hit;
     double hitProbability = photon.GetWeight();
     if (hitProbability < 0.) log_fatal("Photon with negative weight found.");
-    if (hitProbability == 0.) return std::make_tuple(OMKey(),I3MCPE(),false);
+    if (hitProbability == 0.) return hit;
     
     // Only treat DOM-sized DOMs for now
     const double domRadius = 165.1*I3Units::mm;
@@ -671,9 +672,9 @@ I3CLSimPhotonToMCPEConverterForDOMs::Convert(const ModuleKey &mkey, const I3Comp
     }
     
     // does it survive?
-    if (hitProbability <= randomService_->Uniform()) return std::make_tuple(OMKey(),I3MCPE(),false);
+    if (hitProbability <= randomService_->Uniform()) return hit;
     
     // FIXME: roll arrival time correction into kernel
-    
-    return std::make_tuple(omkey,I3MCPE(photon.GetParticleID(), 1, photon.GetTime()),true);
+    hit.emplace(omkey,I3MCPE(photon.GetParticleID(), 1, photon.GetTime()));
+    return hit;
 }

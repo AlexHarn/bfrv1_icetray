@@ -400,12 +400,9 @@ void AddPhotonsToFrames(const I3CLSimPhotonSeries &photons,
         }
         
         if (frame->hits) {
-            OMKey omkey;
-            I3MCPE hit;
-            bool survived;
-            std::tie(omkey, hit, survived) = mcpeGenerator->Convert(key, outputPhoton);
-            if (survived) {
-                if ((*frame->hits)[omkey].insert(hit))
+            auto hit = mcpeGenerator->Convert(key, outputPhoton);
+            if (hit) {
+                if ((*frame->hits)[std::get<0>(*hit)].insert(std::get<1>(*hit)))
                     ++nhits_unique;
                 ++nhits;
             }
