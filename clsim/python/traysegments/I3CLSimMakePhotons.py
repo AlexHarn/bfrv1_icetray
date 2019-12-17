@@ -504,4 +504,21 @@ def I3CLSimMakePhotonsWithServer(tray, name,
         **clsimModuleArgs
     )
 
+    if MCPESeriesName:
+        class GatherStatistics(icetray.I3Module):
+            """Mimick the summary stage of I3PhotonToMCPEConverter::Finish()"""
+            def __init__(self, ctx):
+                icetray.I3Module.__init__(self, ctx)
+                self.nhits = 0
+            def DAQ(self, frame):
+                self.nhits += sum((h.npe for hits in frame[MCPESeriesName].values() for h in hits))
+                self.PushFrame(frame)
+            def Finish(self):
+                if not 'I3SummaryService' in self.context:
+                    return
+                summary = self.context['I3SummaryService']
+                prefix = 'I3PhotonToMCPEConverter_'+name+'_makeHitsFromPhotons_clsim_make_hits_'
+                summary[prefix+'NumGeneratedHits'] = self.nhits
+        tray.Add(GatherStatistics)
+
     return clsimModuleArgs
