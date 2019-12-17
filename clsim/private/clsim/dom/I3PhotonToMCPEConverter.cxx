@@ -632,7 +632,7 @@ I3CLSimPhotonToMCPEConverterForDOMs::Convert(const ModuleKey &mkey, const I3Comp
                   );
     }
     
-    double photonCosAngle = -photon.GetDir().GetZ();
+    double photonCosAngle = photon.GetDir().GetZ();
     photonCosAngle = std::max(-1., std::min(1., photonCosAngle));
     
     OMKey omkey(mkey.GetString(),mkey.GetOM());
