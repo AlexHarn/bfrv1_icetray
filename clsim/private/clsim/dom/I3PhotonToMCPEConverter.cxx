@@ -117,7 +117,12 @@ I3PhotonToMCPEConverter::I3PhotonToMCPEConverter(const I3Context& context)
     AddParameter("OnlyWarnAboutInvalidPhotonPositions",
                  "Make photon position/radius check a warning only (instead of a fatal condition)",
                  onlyWarnAboutInvalidPhotonPositions_);
-    
+
+    photonPositionsAreRelative_=false;
+    AddParameter("PhotonPositionsAreRelative",
+                 "Assume that photon positions are relative to modules rather than in detector coordinates",
+                 photonPositionsAreRelative_);
+
     mergeHits_=false;
     AddParameter("MergeHits",
                  "Merge photoelectrons which are very close in time in the output.",
@@ -157,7 +162,8 @@ void I3PhotonToMCPEConverter::Configure()
     GetParameter("IgnoreDOMsWithoutDetectorStatusEntry", ignoreDOMsWithoutDetectorStatusEntry_);
 
     GetParameter("OnlyWarnAboutInvalidPhotonPositions", onlyWarnAboutInvalidPhotonPositions_);
-    
+    GetParameter("PhotonPositionsAreRelative", photonPositionsAreRelative_);
+
     GetParameter("MergeHits",mergeHits_);
 
     if (DOMOversizeFactor_ != DOMPancakeFactor_)
@@ -398,12 +404,16 @@ I3PhotonToMCPEConverter::Convert(I3FramePtr frame)
             if (hitProbability < 0.) log_fatal("Photon with negative weight found.");
             if (hitProbability == 0.) continue;
 
+            const I3Position pos =
+                photonPositionsAreRelative_ ?
+                photon.GetPos()+module.GetPos() : photon.GetPos();
             const double dx=photon.GetDir().GetX();
             const double dy=photon.GetDir().GetY();
             const double dz=photon.GetDir().GetZ();
-            const double px=om.position.GetX()-photon.GetPos().GetX();
-            const double py=om.position.GetY()-photon.GetPos().GetY();
-            const double pz=om.position.GetZ()-photon.GetPos().GetZ();
+            i3_assert(photonPositionsAreRelative_);
+            const double px=om.position.GetX()-pos.GetX();
+            const double py=om.position.GetY()-pos.GetY();
+            const double pz=om.position.GetZ()-pos.GetZ();
             const double pr2 = px*px + py*py + pz*pz;
             
             double photonCosAngle = -(dx * DOMDir_x +
@@ -426,9 +436,9 @@ I3PhotonToMCPEConverter::Convert(I3FramePtr frame)
                                  distFromDOMCenter/I3Units::mm,
                                  (distFromDOMCenter-DOMOversizeFactor_*DOMRadiusWithoutOversize_)/I3Units::mm,
                                  key.GetString(), key.GetOM(),
-                                 photon.GetPos().GetX()/I3Units::m,
-                                 photon.GetPos().GetY()/I3Units::m,
-                                 photon.GetPos().GetZ()/I3Units::m,
+                                 pos.GetX()/I3Units::m,
+                                 pos.GetY()/I3Units::m,
+                                 pos.GetZ()/I3Units::m,
                                  om.position.GetX()/I3Units::m,
                                  om.position.GetY()/I3Units::m,
                                  om.position.GetZ()/I3Units::m
@@ -441,9 +451,9 @@ I3PhotonToMCPEConverter::Convert(I3FramePtr frame)
                                   distFromDOMCenter/I3Units::mm,
                                   (distFromDOMCenter-DOMOversizeFactor_*DOMRadiusWithoutOversize_)/I3Units::mm,
                                   key.GetString(), key.GetOM(),
-                                  photon.GetPos().GetX()/I3Units::m,
-                                  photon.GetPos().GetY()/I3Units::m,
-                                  photon.GetPos().GetZ()/I3Units::m,
+                                  pos.GetX()/I3Units::m,
+                                  pos.GetY()/I3Units::m,
+                                  pos.GetZ()/I3Units::m,
                                   om.position.GetX()/I3Units::m,
                                   om.position.GetY()/I3Units::m,
                                   om.position.GetZ()/I3Units::m

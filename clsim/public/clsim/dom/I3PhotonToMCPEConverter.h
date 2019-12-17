@@ -131,7 +131,11 @@ private:
 
     /// Parameter: Make photon position/radius check a warning only (instead of a fatal condition)
     bool onlyWarnAboutInvalidPhotonPositions_;
-    
+
+    /// Parameter: Assume that photon positions are relative to modules rather
+    /// than absolute
+    bool photonPositionsAreRelative_;
+
     /// Parameter: Compress the output I3MCPEs
     bool mergeHits_;
 

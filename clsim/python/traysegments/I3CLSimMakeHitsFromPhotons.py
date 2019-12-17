@@ -62,6 +62,7 @@ def I3CLSimMakeHitsFromPhotons(tray, name,
                                HoleIceParameterization=expandvars("$I3_BUILD/ice-models/resources/models/angsens/as.h2-50cm"),
                                MergeHits=False,
                                GCDFile= None,
+                               PhotonPositionsAreRelative = False,
                                If=lambda f: True
                                ):
     """
@@ -149,6 +150,7 @@ def I3CLSimMakeHitsFromPhotons(tray, name,
                    DOMPancakeFactor = DOMOversizeFactor,
                    WavelengthAcceptance = domAcceptance,
                    AngularAcceptance = domAngularSensitivity,
+                   PhotonPositionsAreRelative = PhotonPositionsAreRelative,
                    IgnoreDOMsWithoutDetectorStatusEntry = False, # in icesim4 it is the job of the DOM simulation tools to cut out these DOMs
                    MergeHits=MergeHits,
                    If=If)
