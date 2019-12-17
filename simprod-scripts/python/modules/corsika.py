@@ -16,6 +16,11 @@ from ..util import ReadI3Summary, WriteI3Summary
 
 
 def SetAtmosphereWeight(frame, atmosphere = 13):
+      if frame.Has("I3CorsikaInfo"):
+         info = frame["I3CorsikaInfo"]   
+         info.atmosphere = atmosphere
+         frame.Delete("I3CorsikaInfo")
+         frame.Put("I3CorsikaInfo",info)      
       if frame.Has("CorsikaWeightMap"):
          weightmap = frame["CorsikaWeightMap"]
          weightmap["Atmosphere"] = atmosphere
@@ -125,7 +130,7 @@ def CorsikaReaderTraySegment(tray,name,
         )
 
       tray.AddModule(SetAtmosphereWeight,"atmo", atmosphere = cors.atmod,
-          Streams = [icetray.I3Frame.DAQ] ) 
+          Streams = [icetray.I3Frame.Simulation,icetray.I3Frame.DAQ] ) 
 
 
 def configure_corsika(params):

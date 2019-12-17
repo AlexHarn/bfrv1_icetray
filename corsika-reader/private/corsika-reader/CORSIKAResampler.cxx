@@ -14,6 +14,7 @@
 #include <dataclasses/physics/I3MCTreeUtils.h>
 #include <dataclasses/physics/I3Particle.h>
 #include <dataclasses/I3Double.h>
+#include <simclasses/I3CorsikaInfo.h>
 #include <simclasses/I3CorsikaShowerInfo.h>
 #include <phys-services/I3RandomService.h>
 #include <phys-services/surfaces/Cylinder.h>
@@ -37,6 +38,7 @@ class CORSIKAResampler : public I3Module
   public:
 	CORSIKAResampler(const I3Context& context);
 	void Configure();
+	void Simulation(I3FramePtr frame);
 	void DAQ(I3FramePtr frame);
 
   private:
@@ -96,6 +98,19 @@ void CORSIKAResampler::Configure()
 	if (rng_ == NULL)
 		log_fatal("No I3RandomService in context!");
 	
+}
+
+void CORSIKAResampler::Simulation(I3FramePtr frame)
+{
+  const I3CorsikaInfo old_info = frame->Get<I3CorsikaInfo>();
+  I3CorsikaInfoPtr new_info(new I3CorsikaInfo(old_info));
+  new_info->cylinder_height = surface_.GetLength();  
+  new_info->cylinder_radius = surface_.GetRadius();
+  new_info->oversampling = oversampling_;
+  frame->Delete("I3CorsikaInfo");
+  frame->Put(new_info);
+  log_info_stream (GetName() << " " << __PRETTY_FUNCTION__ << " " << *new_info);
+  PushFrame(frame);
 }
 
 void CORSIKAResampler::DAQ(I3FramePtr frame)

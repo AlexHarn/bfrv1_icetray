@@ -41,6 +41,7 @@ void register_I3WimpParams();
 void register_I3ParticleIDMap();
 void register_I3CylinderMap();
 void register_I3NuGenInfo();
+void register_I3CorsikaInfo();
 
 BOOST_PYTHON_MODULE(simclasses)
 {
@@ -54,6 +55,7 @@ BOOST_PYTHON_MODULE(simclasses)
   register_I3ParticleIDMap();
   register_I3CylinderMap();
   register_I3NuGenInfo();  
+  register_I3CorsikaInfo();
   BOOST_PP_SEQ_FOR_EACH(I3_REGISTER, ~, REGISTER_THESE_THINGS);
 }
 

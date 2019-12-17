@@ -14,6 +14,7 @@
 #include <dataclasses/physics/I3MCTreeUtils.h>
 #include <dataclasses/physics/I3Particle.h>
 #include <dataclasses/I3Double.h>
+#include <simclasses/I3CorsikaInfo.h>
 #include <simclasses/I3CorsikaShowerInfo.h>
 #include <phys-services/I3RandomService.h>
 
@@ -50,6 +51,7 @@ class I3CORSIKAReader : public I3Module
 	    I3MCTreePtr mctree, I3ParticleIDMapPtr weights,
 	    const I3Particle &primary, double core_displace[2]);
 
+        I3CorsikaInfoPtr info_;
 	I3RandomServicePtr rng_;
 	I3FileStagerPtr file_stager_;
 	I3::dataio::shared_filehandle current_filename_;
@@ -86,7 +88,7 @@ class I3CORSIKAReader : public I3Module
 I3_MODULE(I3CORSIKAReader);
 
 I3CORSIKAReader::I3CORSIKAReader(const I3Context& context)
-    : I3Module(context)
+  : I3Module(context), info_(new I3CorsikaInfo)
 {
 
 	AddParameter("FilenameList", "Paths to CORSIKA DAT files", filenames_);
@@ -187,6 +189,17 @@ void I3CORSIKAReader::Process()
 	if (FillFrameFromCORSIKA(frame) != 0)
 		return;
 
+        if (info_){         
+          //create one S-Frame at the begining of the stream
+          log_info_stream("Instering I3CorsikaInfo into S-Frame:\n" << *info_);
+          I3FramePtr sframe(new I3Frame(I3Frame::Simulation));
+          sframe->Put(info_);
+          PushFrame(sframe);                            
+          
+          //delete the info object so we don't write to it again
+          info_.reset();
+        }
+          
 	PushFrame(frame);
 }
 
@@ -225,17 +238,31 @@ I3CORSIKAReader::ProcessEventHeader(float *corsika_block, I3FramePtr frame,
 	double time_to_intersection; 
 	double detection_altitude;
 	double entry_altitude = 0;
-
-
-
 	double interaction_height = corsika_block[7]*I3Units::cm;
 	double entry_height = corsika_block[158]*I3Units::cm;
+	double thetaMin = corsika_block[81]*I3Units::deg;
+	double thetaMax = corsika_block[82]*I3Units::deg;
+        double min_energy = corsika_block[59]*I3Units::GeV;
+        double max_energy = corsika_block[60]*I3Units::GeV;
+        double power_law_index = corsika_block[58];
+        double n_events = nevents_*legacy_oversampling_;         
 
 	if (interaction_height < 0) {
 		// TMARGIN option set, times relative to entrance into the
 		// atmosphere
 		interaction_height = -interaction_height;
 	}
+        
+        if (info_){          
+          info_->run_id = run_number_;
+          info_->n_events = n_events;
+          info_->primary_type=primary.GetType();
+          info_->min_zenith = thetaMin;
+          info_->max_zenith = thetaMax;
+          info_->min_energy = min_energy;
+          info_->max_energy = max_energy;
+          info_->power_law_index=power_law_index;
+        }        
 	
 	I3CorsikaShowerInfoPtr shower_info(new I3CorsikaShowerInfo());
 	shower_info->curvedObs = curved_obs_;
@@ -271,13 +298,12 @@ I3CORSIKAReader::ProcessEventHeader(float *corsika_block, I3FramePtr frame,
 	}
 	I3MapStringDoublePtr weightdict(new I3MapStringDouble(weightMap_));
 
-	double thetaMin = corsika_block[81]*I3Units::deg;
-	double thetaMax = corsika_block[82]*I3Units::deg;
 	(*weightdict)["ThetaMin"] = thetaMin;
 	(*weightdict)["ThetaMax"] = thetaMax;
 	(*weightdict)["PrimaryEnergy"] = primary.GetEnergy();
 	(*weightdict)["PrimaryType"] = (double)primary.GetType();
 	(*weightdict)["OverSampling"] = (double)legacy_oversampling_;
+        (*weightdict)["GeneratorID"] = (double)eventID_;
 
 	frame->Put(weightdictname_, weightdict);
 }

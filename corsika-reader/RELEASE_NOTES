@@ -8,6 +8,9 @@ Release Notes
 On the trunk
 ------------
 
+* I3CORSIKAReader will now emit an S-Frame with a I3CorsikaInfo object 
+  to be used for weighting
+
 Nov 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 -----------------------------------------------------------------
 V00-02-00
