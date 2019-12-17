@@ -19,6 +19,7 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/simclasses/I3ExtraGeometryItemUnion.cxx   
   private/simclasses/I3ExtraGeometryItemMove.cxx   
   private/simclasses/I3ExtraGeometryItemCylinder.cxx
+  private/simclasses/I3NuGenInfo.cxx  
   
   # tableio converters
   private/simclasses/converter/I3PhotonConverter.cxx
@@ -63,7 +64,8 @@ i3_add_pybindings(simclasses
   private/pybindings/I3CylinderMap.cxx
   private/pybindings/I3ExtraGeometryItem.cxx
   private/pybindings/const_ptr_helpers.h  
-  private/pybindings/python_gil_holder.h
+  private/pybindings/python_gil_holder.h 
+  private/pybindings/I3NuGenInfo.cxx 
   USE_TOOLS boost python
   USE_PROJECTS simclasses icetray tableio
   )

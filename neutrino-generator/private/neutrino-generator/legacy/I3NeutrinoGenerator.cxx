@@ -18,7 +18,7 @@
 #include "dataclasses/physics/I3MCTree.h"
 #include "dataclasses/physics/I3MCTreeUtils.h"
 #include "dataclasses/I3Map.h"
-#include "dataclasses/simulation/I3NuGenInfo.h"
+#include "simclasses/I3NuGenInfo.h"
 #include "neutrino-generator/legacy/MemoryInfo.h"
 //I3NeutrinoGenerator classes 5 basic classes and one utility class
 #include "neutrino-generator/legacy/I3NeutrinoGenerator.h"

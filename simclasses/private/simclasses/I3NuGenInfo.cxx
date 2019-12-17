@@ -1,5 +1,5 @@
 #include <icetray/serialization.h>
-#include <dataclasses/simulation/I3NuGenInfo.h>
+#include <simclasses/I3NuGenInfo.h>
 
 template <class Archive>
 void 
@@ -28,7 +28,7 @@ std::ostream& I3NuGenInfo::Print(std::ostream& oss) const{
   oss << "[ I3NuGenInfo" << std::endl
       << "            run_id : " << run_id << std::endl
       << "          n_events : " << n_events << std::endl
-      << "      primary_type : " << primary_type << std::endl
+      << "      primary_type : " << i3particle_type_string(primary_type) << std::endl
       << "      flavor_ratio : " << flavor_ratio << std::endl    
       << "   cylinder_height : " << cylinder_height << std::endl
       << "   cylinder_radius : " << cylinder_radius << std::endl

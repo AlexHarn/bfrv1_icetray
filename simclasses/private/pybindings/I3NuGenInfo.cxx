@@ -1,4 +1,4 @@
-#include <dataclasses/simulation/I3NuGenInfo.h>
+#include <simclasses/I3NuGenInfo.h>
 #include <icetray/python/dataclass_suite.hpp>
 
 namespace bp=boost::python;
