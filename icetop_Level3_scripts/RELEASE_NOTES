@@ -1,0 +1,11 @@
+Release Notes
+=============
+
+trunk
+-----------------------------
+- Updated in-situ snow-measurement file, and associated elements in scripts
+- Modified scripts to use STTools instead of SeededRT
+- Added two-station filter functionality for 2016 and beyond
+- Miscellaneous small tweaks to stay functional with the rest of combo
+
+
