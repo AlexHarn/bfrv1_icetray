@@ -251,12 +251,9 @@ def setupDetector(GCDFile,
         if UnWeightedPhotonsScalingFactor is not None:
             raise RuntimeError("UnWeightedPhotonsScalingFactor should not be set when UnWeightedPhotons is not set")
     else:
-        if UnWeightedPhotonsScalingFactor is not None:
-            logging.log_info("***** running unweighted simulation with a photon pre-scaling of {}".format(UnWeightedPhotonsScalingFactor), unit="clsim")
-            wavelengthGenerationBias = clsim.I3CLSimFunctionConstant(UnWeightedPhotonsScalingFactor)
-        else:
-            wavelengthGenerationBias = None
-    
+        logging.log_info("***** running unweighted simulation with a photon pre-scaling of {}".format(UnWeightedPhotonsScalingFactor), unit="clsim")
+        wavelengthGenerationBias = clsim.I3CLSimFunctionConstant(1. if UnWeightedPhotonsScalingFactor is None else UnWeightedPhotonsScalingFactor)
+
     # create wavelength generators
     wavelengthGenerators = [clsim.makeCherenkovWavelengthGenerator(wavelengthGenerationBias, UnWeightedPhotons, mediumProperties)]
     

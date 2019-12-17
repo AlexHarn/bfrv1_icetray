@@ -24,6 +24,8 @@ parser.add_argument("--type", default="EMinus",
                   dest="PARTICLE_TYPE", help="Particle type")
 parser.add_argument("--icemodel", default=expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
+parser.add_argument("--unweighted-photons", action="store_true",
+                  help="Propagate all Cherenkov photons. This is ~13x slower than downsampling first.")
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--minimal-gcd",  action="store_true", default=False,
@@ -314,7 +316,7 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     UseOnlyDeviceNumber=options.DEVICE,
     IceModelLocation=options.ICEMODEL,
     DOMOversizeFactor=options.OVERSIZE,
-    EnableDoubleBuffering=options.DOUBLE_BUFFERING
+    UnWeightedPhotons=options.unweighted_photons
     )
 
 icetray.logging.set_level_for_unit('I3CLSimServer', 'INFO')
