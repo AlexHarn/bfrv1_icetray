@@ -3,45 +3,41 @@
 
 from __future__ import print_function
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 from os.path import expandvars
 
 usage = "usage: %prog [options] inputfile"
-parser = OptionParser(usage)
-parser.add_option("-n", "--numevents", type="int", default=1,
+parser = ArgumentParser(usage)
+parser.add_argument("-n", "--numevents", type=int, default=1,
                   dest="NUMEVENTS", help="The number of events per run")
-parser.add_option("-s", "--seed",type="int",default=12345,
+parser.add_argument("-s", "--seed",type=int,default=12345,
                   dest="SEED", help="Initial seed for the random number generator")
-parser.add_option("-r", "--runnumber", type="int", default=1,
+parser.add_argument("-r", "--runnumber", type=int, default=1,
                   dest="RUNNUMBER", help="The run number for this simulation")
-parser.add_option("-x", "--xmlfile", default="benchmark.xml",
-                  dest="XMLFILE", help="Write statistics to XMLFILE")
-parser.add_option("--oversize", default=1,
+parser.add_argument("-x", "--xmlfile", default=None,
+                  dest="JSONFILE", help="Write statistics to JSONFILE")
+parser.add_argument("--oversize", default=1,
                   dest="OVERSIZE", help="DOM oversize factor")
-parser.add_option("--energy", default=1e3, type=float,
+parser.add_argument("--energy", default=1e3, type=float,
                   dest="ENERGY", help="Particle energy in GeV")
-parser.add_option("--type", default="EMinus",
+parser.add_argument("--type", default="EMinus",
                   dest="PARTICLE_TYPE", help="Particle type")
-parser.add_option("--icemodel", default=expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
+parser.add_argument("--icemodel", default=expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
-parser.add_option("--use-cpu",  action="store_true", default=False,
-                  dest="USECPU", help="simulate using CPU instead of GPU")
-parser.add_option("--double-buffering", action="store_true", default=False,
-                  dest="DOUBLE_BUFFERING", help="Interleave data movement and execution")
-parser.add_option("--minimal-gcd",  action="store_true", default=False,
-                  dest="MINIMALGCD", help="generate a trivial GCD from scratch with only 24 DOMs. There are fewer collision checks, so usually things are faster, but unrealistic.")
 
-parser.add_option("-d", "--device", type="int", default=None,
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--minimal-gcd",  action="store_true", default=False,
+                  dest="MINIMALGCD", help="generate a trivial GCD from scratch with only 24 DOMs. There are fewer collision checks, so usually things are faster, but unrealistic.")
+group.add_argument("-g", "--gcd-file",
+                  default="/cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_AVG_55697-57531_PASS2_SPE_withStdNoise.i3.gz", dest="GCDFILE")
+
+parser.add_argument("-d", "--device", type=int, default=None,
                   dest="DEVICE", help="device number")
+parser.add_argument("--use-cpu",  action="store_true", default=False,
+                  dest="USECPU", help="simulate using CPU instead of GPU")
 
 # parse cmd line args, bail out if anything is not understood
-(options,args) = parser.parse_args()
-if len(args) != 0:
-        crap = "Got undefined options:"
-        for a in args:
-                crap += a
-                crap += " "
-        parser.error(crap)
+options = parser.parse_args()
 
 if options.DEVICE is not None:
     print(" ")
@@ -281,10 +277,8 @@ if options.MINIMALGCD:
         # ZCoord = zCoord,
         )
 else:
-    # use a real GCD file for a real-world test
-    GCDFile = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
     tray.AddModule("I3InfiniteSource","streams",
-        Prefix = GCDFile,
+        Prefix = options.GCDFILE,
         Stream=icetray.I3Frame.DAQ)
 
 tray.AddModule("I3MCEventHeaderGenerator","gen_header",
@@ -309,7 +303,7 @@ MCTreeName="I3MCTree"
 photonSeriesName = None
 
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
-    GCDFile = GCDFile,
+    GCDFile = options.GCDFILE,
     PhotonSeriesName = photonSeriesName,
     MCTreeName = MCTreeName,
     RandomService = randomService,
@@ -333,8 +327,10 @@ walltime_in_execute = ((datetime.now() - t0).total_seconds())*1e9
 
 del tray
 
-import pprint
-pprint.pprint(dict(summary))
+if options.JSONFILE:
+    import json
+    with open(options.JSONFILE, 'w') as f:
+        json.dump(dict(summary), f, indent=1)
 
 ########### this is optional and just parses the generated summary
 import numpy as np
