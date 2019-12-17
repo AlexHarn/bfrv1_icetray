@@ -88,6 +88,23 @@ def parseIceModel(IceModelLocation, disableTilt=False):
     
     return mediumProperties
 
+def memoize(func):
+    cache = {}
+    def memof(*args):
+        key = args
+        try:
+            return cache[key]
+        except KeyError:
+            cache[key] = result = func(*args)
+            return result
+    try:
+        memof.__name__ = func.__name__
+    except AttributeError:
+        pass
+    memof.__doc__ = func.__doc__
+    memof.__wrapped__ = func
+    return memof
+
 def setupDetector(GCDFile,
                   SimulateFlashers=False,
                   IceModelLocation=expandvars("$I3_SRC/clsim/resources/ice/spice_mie"),
@@ -153,19 +170,15 @@ def setupDetector(GCDFile,
             )
         
         rde = dict()
-        max_compensation_factor = -float('inf')
+        spe_compensation_factor = dict()
         for k, domcal in pluck_calib.frame['I3Calibration'].dom_cal.iteritems():
             rde[k] = domcal.relative_dom_eff
-            max_compensation_factor = max(max_compensation_factor,
-                domcal.combined_spe_charge_distribution.compensation_factor)
-        if math.isinf(max_compensation_factor):
-            logging.log_warn("No SPE charge distribution compensation factor found in {}. Assuming 1.".format(GCDFile), unit="clsim")
-            max_compensation_factor = 1
+            spe_compensation_factor[k] = domcal.combined_spe_charge_distribution.compensation_factor
 
-        return geometry, rde, max_compensation_factor
+        return geometry, rde, spe_compensation_factor
     
-    geometry, rde, max_compensation_factor = harvest_detector_parameters(GCDFile)
-    
+    geometry, rde, spe_compensation_factor = harvest_detector_parameters(GCDFile)
+
     # ice properties
     if isinstance(IceModelLocation, str):
         mediumProperties = parseIceModel(IceModelLocation, disableTilt=DisableTilt)
@@ -177,37 +190,54 @@ def setupDetector(GCDFile,
 
     # detector properties
     if WavelengthAcceptance is None:
-        # the hole ice acceptance curve peaks at a value different than 1
-        peak = numpy.loadtxt(HoleIceParameterization)[0] # The value at which the hole ice acceptance curve peaks
-        domEfficiencyCorrection = UnshadowedFraction*peak*max_compensation_factor*icemodel_efficiency_factor
+        # Combine all global factors that enter only the wavelength acceptance
+        domEfficiencyCorrection = UnshadowedFraction*icemodel_efficiency_factor
         assert domEfficiencyCorrection > 0
-        
-        acceptance = {
-            'IceCube': clsim.GetIceCubeDOMAcceptance(domRadius = DOMRadius*DOMOversizeFactor, efficiency=domEfficiencyCorrection),
-            'DeepCore': clsim.GetIceCubeDOMAcceptance(domRadius = DOMRadius*DOMOversizeFactor, efficiency=domEfficiencyCorrection, highQE=True),
-        }
-        
-        domAcceptanceEnvelope = clsim.I3CLSimFunctionFromTable(acceptance['IceCube'].GetMinWlen(), acceptance['IceCube'].GetWavelengthStepping(), [max((f.GetEntryValue(i) for f in acceptance.values())) for i in range(acceptance['IceCube'].GetNumEntries())])
+        # The hole ice acceptance curve peaks at a value different than 1. Use
+        # this in the wavelength generation 
+        maxAngularAcceptance = numpy.loadtxt(HoleIceParameterization)[0]
+        assert maxAngularAcceptance > 0
 
+        @memoize
+        def getWavelengthAcceptance(rde, spe_comp, efficiency_scale):
+            """
+            Construct a wavelength acceptance
+            
+            This is memoized to create only one instance per combination of
+            parameters, e.g. one for IceCube and one for DeepCore.
+            """
+            kwargs = {}
+            if round(rde, 6) == 1.35:
+                kwargs['highQE'] = True
+            elif rde != 1:
+                raise ValueError("Relative DOM efficiency {} is neither 1 nor 1.35. You probably need to add support for individual DOM efficiencies".format(rde)) 
+            if not math.isfinite(spe_comp):
+                raise ValueError("SPE compensation factor is {}. Fix your GCD file.".format(spe_comp))
+            return clsim.GetIceCubeDOMAcceptance(domRadius = DOMRadius*DOMOversizeFactor, efficiency=rde*spe_comp*efficiency_scale, **kwargs)
+        def getEnvelope(functions, scale=1):
+            """Construct the supremum of a set of I3CLSimFunctionFromTable"""
+            first = functions[0]
+            return clsim.I3CLSimFunctionFromTable(
+                first.GetMinWlen(),
+                first.GetWavelengthStepping(),
+                [scale*max((f.GetEntryValue(i) for f in functions)) for i in range(first.GetNumEntries())]
+            )
 
+        # Wavelength acceptance of individual DOMs
         domAcceptance = clsim.I3CLSimFunctionMap()
-        #loop over every event in the geometry and determine what type of DOM it is
-        #based on the relative efficiency in the detector status
         for string_id,dom_id in zip(geometry.stringIDs,geometry.domIDs):
             k = icetray.OMKey(string_id,dom_id,0)
-            releff = rde.get(k,float('nan'))
-            if releff == 1:
-                domAcceptance[k] = acceptance['IceCube']
-            elif round(releff, 6) == 1.35:
-                domAcceptance[k] = acceptance['DeepCore']
-            elif math.isnan(releff):
-                #DOMs where rde is nan are bad DOMs which are unplugged
-                #call them IceCube for now, hits generated by them will be
-                #removed later by detector simulation 
-                domAcceptance[k] = acceptance['IceCube']                            
-            else:
-                raise ValueError("Relative DOM efficiency is neither 1 nor 1.35. You probably need to add support for individual DOM efficiencies") 
-
+            if math.isnan(rde.get(k,float('nan'))):
+                continue
+            try:
+                domAcceptance[k] = getWavelengthAcceptance(rde.get(k,float('nan')), spe_compensation_factor.get(k,float('nan')), domEfficiencyCorrection)
+            except ValueError as e:
+                raise ValueError(str(k)+' '+e.args[0])
+        # The wavelength generation bias is the maximum possible value of
+        # the product of wavelength acceptance (wvl) and angular acceptance
+        # (ang), such that the PE conversion probability, given by 
+        # wvl*ang/bias, is never > 1
+        domAcceptanceEnvelope = getEnvelope(list(set(domAcceptance.values())), maxAngularAcceptance)
 
     else:
         domAcceptance = WavelengthAcceptance

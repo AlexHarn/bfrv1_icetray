@@ -637,8 +637,10 @@ I3CLSimPhotonToMCPEConverterForDOMs::Convert(const ModuleKey &mkey, const I3Comp
     
     OMKey omkey(mkey.GetString(),mkey.GetOM());
     auto domAcceptance = wavelengthAcceptance_->find(omkey);
-    if (domAcceptance == wavelengthAcceptance_->end())
-        log_fatal_stream("No wavelength acceptance configured for "<<omkey);
+    if (domAcceptance == wavelengthAcceptance_->end()) {
+        log_debug_stream("No wavelength acceptance configured for "<<omkey);
+        return hit;
+    }
     hitProbability *= domAcceptance->second->GetValue(photon.GetWavelength());
     log_trace("After wlen acceptance: prob=%g (wlen acceptance is %f)",
              hitProbability, domAcceptance->second->GetValue(photon.GetWavelength()));
