@@ -6,6 +6,13 @@ plot the generated tracks to illustrate the part of the detector
 volume that goes un-simulated.
 """
 
+from argparse import ArgumentParser
+from os.path import expandvars
+parser = ArgumentParser()
+parser.add_argument("-g", "--gcd", default=expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'))
+parser.add_argument("outfile", help="save plot to file")
+args = parser.parse_args()
+
 from icecube import icetray, dataclasses, dataio
 from icecube import phys_services, simclasses, MuonGun
 from I3Tray import I3Tray
@@ -23,7 +30,7 @@ model = MuonGun.load_model('GaisserH4a_atmod12_SIBYLL')
 generator = MuonGun.EnergyDependentSurfaceInjector(outer, model.flux, spectrum, model.radius,
     MuonGun.ConstantSurfaceScalingFunction(inner))
 tray.AddSegment(GenerateBundles, 'BundleGen', NEvents=1000, Generator=generator,
-    GCDFile=expandvars('$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz'))
+    GCDFile=expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'))
 
 
 class Harvest(icetray.I3ConditionalModule):
@@ -47,6 +54,8 @@ class Harvest(icetray.I3ConditionalModule):
 			return Circle((cyl.center.x, cyl.center.y), radius=cyl.radius, **kwargs)
 	
 	def Finish(self):
+		import matplotlib
+		matplotlib.use('agg')
 		import pylab
 		
 		fig = pylab.figure(figsize=(10, 4))
@@ -83,7 +92,7 @@ class Harvest(icetray.I3ConditionalModule):
 		ax.set_xlim((-1000, 1000))
 		
 		
-		pylab.show()
+		pylab.savefig(args.outfile)
 tray.AddModule(Harvest)
 
 

@@ -5,8 +5,16 @@ Use muon flux weights to calculate an effective livetime for combined
 CORSIKA samples as a function of energy.
 """
 
+from argparse import ArgumentParser
+from os.path import expandvars
+parser = ArgumentParser()
+parser.add_argument("outfile", help="save plot to file")
+args = parser.parse_args()
+
+import matplotlib
+matplotlib.use('agg')
 import pylab, numpy
-from icecube import MuonGun
+from icecube import dataclasses, MuonGun
 
 surface = MuonGun.Cylinder(1600, 800)
 area = numpy.pi**2*surface.radius*(surface.radius+surface.length)
@@ -35,7 +43,6 @@ gun = 1e5*MuonGun.EnergyDependentSurfaceInjector(surface, model.flux, spectrum, 
 
 
 def get_weight(weighter, energy, zenith=numpy.pi/8, scale=True):
-# def get_weight(weighter, energy, zenith=0, z=0):	
 	shape = energy.shape
 	if scale:
 		x = numpy.array([gun.target_surface(e).radius - 1 for e in energy])
@@ -58,7 +65,20 @@ def get_weight(weighter, energy, zenith=numpy.pi/8, scale=True):
 	e = numpy.zeros(shape + (mmax,), dtype=numpy.float32)
 	e[:,0] = energy
 	r = numpy.zeros(shape + (mmax,), dtype=numpy.float32)
-	return weighter(x, y, z, zenith, azimuth, multiplicity, e, r)
+	try:
+		return weighter(x, y, z, zenith, azimuth, multiplicity, e, r)
+	except:
+		# work around lack of vectorized pybindings
+		@numpy.vectorize
+		def weight(x,y,z,zenith,azimuth,multiplicity,e,r):
+			axis = dataclasses.I3Particle()
+			axis.pos = dataclasses.I3Position(x,y,z)
+			axis.dir = dataclasses.I3Direction(zenith,azimuth)
+			assert multiplicity == 1
+			bundle = MuonGun.BundleConfiguration()
+			bundle.append(MuonGun.BundleEntry(float(r),float(e)))
+			return weighter(axis, bundle)
+		return weight(x, y, z, zenith, azimuth, multiplicity, e[:,0], r[:,0])
 
 e = numpy.logspace(1, 7, 101)
 
@@ -89,4 +109,4 @@ pylab.ylabel('Single-muon livetime [years]')
 pylab.xlabel('Muon energy at sampling surface [GeV]')
 pylab.grid()
 
-pylab.show()
+pylab.savefig(args.outfile)

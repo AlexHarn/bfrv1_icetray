@@ -22,8 +22,12 @@ def main(output_file="./floodlight.i3.gz", num_events=100,
          coszen_min=-1., coszen_max=1.):
     tray = I3Tray()
 
-    tray.context["I3RandomService"] =\
-        icecube.phys_services.I3SPRNGRandomService(1, 10000, 1)
+    try:
+        tray.context["I3RandomService"] =\
+            icecube.phys_services.I3SPRNGRandomService(1, 10000, 1)
+    except AttributeError:
+        tray.context["I3RandomService"] =\
+            icecube.phys_services.I3GSLRandomService(1)
 
     surface = icecube.MuonGun.Cylinder(
         length=1600.*icecube.icetray.I3Units.m,

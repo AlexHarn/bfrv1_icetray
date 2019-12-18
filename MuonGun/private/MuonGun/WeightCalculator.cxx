@@ -163,6 +163,9 @@ MuonBundleConverter::FillRows(const I3MCTree &mctree, I3TableRowPtr rows)
 	log_trace("%zu total tracks", Track::Harvest(mctree, *mmctracks).size());
 	
 	BOOST_FOREACH(const Track &track, Track::Harvest(mctree, *mmctracks)) {
+		// MuonGun bundles are attached directly to the primary
+		if (mctree.depth(track) > 1)
+			continue;
 		std::pair<double, double> steps =
 		    surface_->GetIntersection(track.GetPos(), track.GetDir());
 		float energy = float(track.GetEnergy(steps.first));

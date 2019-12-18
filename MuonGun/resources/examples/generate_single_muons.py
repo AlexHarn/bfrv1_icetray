@@ -1,22 +1,28 @@
 #!/usr/bin/env python
 
+from argparse import ArgumentParser
+from os.path import expandvars
+parser = ArgumentParser()
+parser.add_argument("-g", "--gcd", default=expandvars('$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'))
+parser.add_argument("outfile")
+args = parser.parse_args()
+
 from icecube import icetray, dataclasses, dataio, phys_services
 from I3Tray import I3Tray
 from os.path import expandvars
 
-gcd = expandvars('$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC80_DC6.54655.i3.gz')
-
-import sys
-outfile = sys.argv[1]
-
 tray = I3Tray()
 
-randomService = phys_services.I3SPRNGRandomService(1, 10000, 1)
+try:
+    randomService = phys_services.I3SPRNGRandomService(1, 10000, 1)
+except AttributeError:
+    randomService = phys_services.I3GSLRandomService(1)
 tray.context['I3RandomService'] = randomService
 
 from icecube.icetray import I3Units
 from icecube.MuonGun import load_model, StaticSurfaceInjector, Cylinder, OffsetPowerLaw
 from icecube.MuonGun.segments import GenerateBundles
+from icecube.simprod.segments import PropagateMuons
 
 # Use Hoerandel as a template for generating muons
 model = load_model('Hoerandel5_atmod12_SIBYLL')
@@ -30,31 +36,15 @@ spectrum = OffsetPowerLaw(2, 1*I3Units.TeV, 10*I3Units.TeV, 10*I3Units.PeV)
 # Set up the generator. This gets stored in a special frame for later reference
 generator = StaticSurfaceInjector(surface, model.flux, spectrum, model.radius)
 
-tray.AddSegment(GenerateBundles, 'MuonGenerator', Generator=generator, NEvents=10000, GCDFile=gcd)
+tray.AddSegment(GenerateBundles, 'MuonGenerator', Generator=generator, NEvents=10, GCDFile=args.gcd)
 
 icetray.logging.set_level_for_unit("I3PropagatorService", "TRACE")
-icetray.logging.set_level_for_unit("I3PropagatorMMC", "TRACE")
-icetray.logging.set_level_for_unit("I3PropagatorServiceMMC", "TRACE")
-
-# The usual propagation foo
-def make_propagators():
-	from icecube.sim_services import I3ParticleTypePropagatorServiceMap
-	from icecube.PROPOSAL import I3PropagatorServicePROPOSAL
-	from icecube.cmc import I3CascadeMCService
-	propagators = I3ParticleTypePropagatorServiceMap()
-	muprop = I3PropagatorServicePROPOSAL(type=dataclasses.I3Particle.MuMinus, cylinderHeight=1200, cylinderRadius=700)
-	cprop = I3CascadeMCService(phys_services.I3GSLRandomService(1)) # dummy RNG
-	for pt in 'MuMinus', 'MuPlus':
-		propagators[getattr(dataclasses.I3Particle.ParticleType, pt)] = muprop
-	for pt in 'DeltaE', 'Brems', 'PairProd', 'NuclInt', 'Hadrons', 'EMinus', 'EPlus':
-		propagators[getattr(dataclasses.I3Particle.ParticleType, pt)] = cprop
-	return propagators
-tray.AddModule('I3PropagatorModule', 'propagator', PropagatorServices=make_propagators(),
-    RandomService=randomService, RNGStateName="RNGState")
+tray.Add("Rename", Keys=["I3MCTree", "I3MCTree_preMuonProp"])
+tray.Add(PropagateMuons, RandomService=randomService)
 
 tray.AddModule('I3Writer', 'writer',
     Streams=list(map(icetray.I3Frame.Stream, "SQP")),
-    filename=outfile)
+    filename=args.outfile)
 
 
 tray.Execute()
