@@ -15,9 +15,9 @@
 rootwriter
 ==========
 
-A tableio backend for writing root files. This project is maintained by
-Giuliano Maggi <giuliano.maggi.olmedo@gmail.com>.
-
+A tableio backend for writing root files. 
+Authors: Fabian Kislat, Giuliano Maggi.
+Current maintainer: Katherine Rawlins <krawlins@alaska.edu>.
 
 .. toctree::
    :maxdepth: 1
