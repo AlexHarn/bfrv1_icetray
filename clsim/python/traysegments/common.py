@@ -173,7 +173,8 @@ def setupDetector(GCDFile,
         spe_compensation_factor = dict()
         for k, domcal in pluck_calib.frame['I3Calibration'].dom_cal.iteritems():
             rde[k] = domcal.relative_dom_eff
-            spe_compensation_factor[k] = domcal.combined_spe_charge_distribution.compensation_factor
+            comp = domcal.combined_spe_charge_distribution.compensation_factor
+            spe_compensation_factor[k] = comp if not math.isnan(comp) else 1.
 
         return geometry, rde, spe_compensation_factor
     
