@@ -313,15 +313,22 @@ i3_add_library(${PROJECT_NAME}
 
 if(NOT BUILD_CLSIM_DATACLASSES_ONLY)
   # run python tests if in full-build mode
-  i3_test_scripts(resources/tests/testCableShadow.py
+  set(TEST_SCRIPTS
+    resources/tests/testCableShadow.py
     resources/tests/testCascadeExtension.py
     resources/tests/testMakePhotons.py
     resources/tests/testScalarFieldIceTiltZShift.py
     resources/tests/testScalarFields.py
     resources/tests/testSpiceLeaTransforms.py
-    resources/tests/testVectorTransforms.py
-    resources/tests/testCLSimServer.py
-    )
+    resources/tests/testVectorTransforms.py)
+
+  # the clsim server still seems to deadlock in coverage builds
+  # 
+  if (NOT CMAKE_BUILD_TYPE EQUAL "Coverage")
+    list(APPEND TEST_SCRIPTS resources/tests/testCLSimServer.py)
+  endif()
+
+  i3_test_scripts(${TEST_SCRIPTS})
 endif(NOT BUILD_CLSIM_DATACLASSES_ONLY)
 
 # the make-safeprimes tool needs gmp, so only compile it if that tool is available
