@@ -8,6 +8,11 @@ Release Notes
 On the trunk
 ------------
 
+* (r171368): Enforce minimum bin width in BinSigma mode
+* (r171365): Fix an initialization bug in bayesian blocks rebinning
+* (r170477): Use all OMTypes except IceTop and scintillators (Upgrade support)
+* (r170476): Promote invalid DOM noise rate to a fatal error
+
 June 12, 2018 Kevin Meagher
 ---------------------------
 Release V02-01-06
