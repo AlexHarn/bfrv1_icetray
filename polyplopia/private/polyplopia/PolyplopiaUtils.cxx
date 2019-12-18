@@ -6,6 +6,7 @@
 #include "dataclasses/physics/I3ParticleID.h"
 #include "dataclasses/physics/I3MCTreeUtils.h"
 #include <sim-services/I3CombineMCPE.h>
+#include <phys-services/I3Calculator.h>
 
 #include <boost/function.hpp>
 
@@ -20,9 +21,15 @@ namespace{
    * Assume that the particle is travelling to the origin
    */
   double TimeAtDetector(const I3Particle& p){ 
-	  double distance = sqrt(p.GetX()*p.GetX() + p.GetY()*p.GetY() + p.GetZ()*p.GetZ()); 
-	  return p.GetTime() + distance/p.GetSpeed();
+
+	  I3Position appos,appos2;
+	  I3Position origin(0.,0.,0.);
+	  double apdist,apdist2;
+
+	  I3Calculator::ClosestApproachCalc(p,origin,appos2,apdist2,appos,apdist);
+	  return p.GetTime() + apdist/p.GetSpeed();
   }
+
 
   bool Earliest(const I3Particle& a, const I3Particle& b){
     
