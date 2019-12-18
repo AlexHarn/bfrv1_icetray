@@ -119,7 +119,7 @@ def generate_histogram_configuration_list(i3files):
             corrupt_filelist.append(filename)
 
     histogram_list = list()
-    for frame_key, hl in histograms.iteritems():
+    for frame_key, hl in histograms.items():
         histogram_list.extend(hl) 
     return histogram_list, good_filelist, corrupt_filelist
 
