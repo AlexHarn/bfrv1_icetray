@@ -40,7 +40,7 @@ def RandomWaveforms(fr):
             # ATWD Waveform
             atwd0_wf = dataclasses.I3Waveform()
             atwd0_wf.waveform = [ \
-                random.normalvariate(0, 0.3)*I3Units.mV for \
+                random.normalvariate(0, 0.2)*I3Units.mV for \
                 i in range(0, 128)]
             atwd0_wf.digitizer = dataclasses.I3Waveform.ATWD
             atwd0_wf.bin_width = 3.3
@@ -67,6 +67,9 @@ def RandomWaveforms(fr):
                 if not slc:
                     pulse.time = launchtime + \
                         random.gammavariate(2.5, 80)
+                    if (pulse.time > (launchtime + 125 * atwd0_wf.bin_width)):
+                        # We missed it
+                        continue
                     pulse.flags = pulse.PulseFlags.LC
                 else:
                     pulse.time = launchtime + \
