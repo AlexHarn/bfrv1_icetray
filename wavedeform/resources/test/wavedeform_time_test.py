@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 from I3Tray import *
-import os, math
+import os, math, random
 from icecube import icetray, dataio, dataclasses
 from icecube import phys_services, wavedeform
 from os.path import expandvars
 from wavedeform_random_waveform_generator import RandomWaveforms
+
+random.seed(0)
 
 tray = I3Tray()
 
@@ -19,29 +21,25 @@ import unittest
 class TimeCheck(unittest.TestCase):
 	fakePulseKey = "RandomPulses"
 	pulseKey = "WavedeformPulses"
-
-	def testMeanTime(self):
-		diffs = []
+	
+	
+	def testCorrespondingPulses(self):
+		
+		def timeCorrespondence(fakePulse, pulse, margin):
+			frac = math.fabs((pulse.time - fakePulse.time)/pulse.width)
+			return frac < margin
+		
 		for om in self.frame[self.fakePulseKey].keys():
-			try:
-				meanrecotime = sum([p.time*p.charge for p in \
-				    self.frame[self.pulseKey][om]])/ \
-				    sum([p.charge for p in \
-				    self.frame[self.pulseKey][om]])
-				meansimtime = sum([p.time*p.charge for p in \
-				    self.frame[self.fakePulseKey][om]])/ \
-				    sum([p.charge for p in \
-				    self.frame[self.fakePulseKey][om]])
-			except ZeroDivisionError:
+			if len(self.frame[self.fakePulseKey][om]) == 0:
 				continue
-
-			diffs.append(meanrecotime - meansimtime)
-			self.assert_(math.fabs(meanrecotime - meansimtime) < 700,
-			    ("Mean sim time (%f) and reco time (%f) match to " +
-			     "within 10 ns in OM %s") % (meansimtime, \
-			    meanrecotime, om))
-		self.assert_(math.fabs(sum(diffs)/len(diffs)) < 30,
-		    ("Mean mean sim time and reco time not within 30 ns"))
+			
+			margin = 10
+			
+			for fakePulse in self.frame[self.fakePulseKey][om]:
+				cond = any(x for x in self.frame[self.pulseKey][om] if
+						            timeCorrespondence(fakePulse, x, margin))
+				self.assert_(cond, ("Reco pulse time within "
+								    "%d sigma of fake pulse time" % margin))
 
 	def testLeadingEdgeTime(self):
 		fracdiffs = []
@@ -54,7 +52,7 @@ class TimeCheck(unittest.TestCase):
 				recofirst = pulse.time
 				recowidth = pulse.width
 				# Get a for-sure real pulse
-				if pulse.charge > 0.6: break
+				if pulse.charge > 0.4: break
 
 			margin = 10 # sigma -- this is a crappy test, so it's
 			            # big (better test below)
