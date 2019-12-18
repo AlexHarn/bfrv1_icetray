@@ -84,7 +84,12 @@ the Fisher information matrix can be written as
 .. math::
    I_{mk}(\vec{\theta})=\sum_{i=1}^{NCh}\underbrace{-\left\langle \left(\frac{\partial^2}{(\partial d_i)^2}\ln p(t_i;d(\vec{\theta}))\right)\right\rangle}_{T(d_i)} \underbrace{\frac{1}{4d_i^2}\frac{\partial d_i^2}{\partial\theta_m}\frac{\partial d_i^2}{\partial\theta_k}}_{D_{mk}(\vec{\theta})}
 
-(more information will follow)
+Note that we can write :math:`T(d_i)` as:
+
+.. math::
+   T(d_i) = - \frac{\int_{0}^{\infty} dt' (\frac{\partial ^2}{(\partial d_i)^2} \ln p(t_i; \vec{\theta})) p(t_i; \vec{\theta})}{\int_{0}^{\infty} dt' p(t_i; \vec{\theta})} = \frac{\psi (d/\lambda)}{\lambda^2}
+   
+where :math:`\psi` is the Digamma function: :math:`\psi(x) = \Gamma'(x)/\Gamma(x)`.
 
 
 References
