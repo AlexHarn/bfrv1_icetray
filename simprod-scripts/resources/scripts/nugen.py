@@ -35,6 +35,9 @@ def add_args(parser):
     arguments.add_proposalparams(parser)
     arguments.add_propagatemuons(parser, False)
 
+    parser.add_argument("--runid", dest="runid",
+                        default=None, type=int, required=False,
+                        help='Run number to use in S-Frame')    
     parser.add_argument("--SimMode", dest="simmode",
                         default='FULL', type=str, required=False,
                         help='simulation mode')
@@ -129,6 +132,7 @@ def configure_tray(tray, params, stats, logger):
 
     tray.AddSegment(segments.GenerateNeutrinos, 'generator',
                     RandomService=tray.context['I3RandomService'],
+                    RunID=params['runid'],
                     NumEvents=params['nevents'],
                     SimMode=params['simmode'],
                     VTXGenMode=params['vtxgenmode'],

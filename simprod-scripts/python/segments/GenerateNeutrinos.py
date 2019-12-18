@@ -9,6 +9,7 @@ import math
 @icetray.traysegment
 def GenerateNeutrinos(tray, name,
     RandomService=None,
+    RunID=None,
     NumEvents=100,                
     SimMode='Full',                
     VTXGenMode='NuGen',         # currently only NuGen is supported
@@ -218,6 +219,9 @@ def GenerateNeutrinos(tray, name,
         propmode = neutrino_generator.to_propagation_mode(params["propagationweightmode"])
         nugenArgs['PropagationWeightMode'] = propmode
 
+    if RunID is not None:
+        nugenArgs['RunID']=RunID
+        
     tray.AddModule("I3NeutrinoGenerator",name+"_neutrino",
         SteeringName=steering,
         InjectorName=injector,
