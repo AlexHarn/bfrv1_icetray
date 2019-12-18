@@ -5,6 +5,15 @@
 Release Notes
 =============
 
+December 18, 2019 Chujie Chen
+---------------------------
+Release V00-03-03
+
+- Review the code for upgrade
+- Add more detials in documentation
+- Write a new example file and mark old one as deprecated
+
+
 June 12, 2018 Kevin Meagher
 ---------------------------
 Release V00-03-02
