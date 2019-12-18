@@ -7,6 +7,9 @@ Release Notes
 
 trunk
 -----
+* r171768, r177779 Sometimes steering parameters are stored as strings in the
+  iceprod1 database. Explicitly cast to desired type.
+* r171604, r175937 Detect primary in more kinds of CORSIKA simulation
 
 Sep. 17, 2018 Kotoyo Hoshina (hoshina@icecube.wisc.edu)
 ---------------------------------------------------------------------
