@@ -211,9 +211,15 @@ def setupDetector(GCDFile,
             if round(rde, 6) == 1.35:
                 kwargs['highQE'] = True
             elif rde != 1:
-                raise ValueError("Relative DOM efficiency {} is neither 1 nor 1.35. You probably need to add support for individual DOM efficiencies".format(rde)) 
-            if not math.isfinite(spe_comp):
-                raise ValueError("SPE compensation factor is {}. Fix your GCD file.".format(spe_comp))
+                raise ValueError("Relative DOM efficiency {} is neither 1 nor 1.35. You probably need to add support for individual DOM efficiencies".format(rde))
+            try:
+                if not math.isfinite(spe_comp):
+                    raise ValueError("SPE compensation factor is {}. Fix your GCD file.".format(spe_comp))
+            except AttributeError:
+                # likely Python2 isfinite is python3.
+                if math.isnan(spe_comp) or math.isinf(spe_comp):
+                    raise ValueError("SPE compensation factor is {}. Fix your GCD file.".format(spe_comp))
+                
             return clsim.GetIceCubeDOMAcceptance(domRadius = DOMRadius*DOMOversizeFactor, efficiency=rde*spe_comp*efficiency_scale, **kwargs)
         def getEnvelope(functions, scale=1):
             """Construct the supremum of a set of I3CLSimFunctionFromTable"""
