@@ -16,7 +16,7 @@ input = sys.argv[1:]
 
 if not input:
     testdata = expandvars("$I3_TESTDATA")
-    input = [testdata + "/exp/IceCube/2015/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"]
+    input = [testdata + "/daq-decode/PFFilt_PhysicsFiltering_Run00126598_Subrun00000000_00000028_slim.i3.gz"]
 
 for i in input:
     print("will read in file ... %s" % i)
