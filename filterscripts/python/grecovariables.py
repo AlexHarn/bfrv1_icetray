@@ -63,7 +63,7 @@ def GetHitInformation(geometry,
 
     # Start looping over the pulse map
     current = 0
-    for pmt, pulses in hitmap.iteritems():
+    for pmt, pulses in hitmap.items():
         # Get the hit information
         position = geometry.omgeo[pmt].position
         times, charges = np.array(map(lambda pulse: [pulse.time, pulse.charge], pulses)).T
@@ -859,6 +859,6 @@ def DeepCoreCuts(tray, name,
 def DCL3MasterSegment(tray, name, year='12'):
   #
   tray.AddModule(PassedDCFilter, year=year)
-  print "WARNING! Checking the DeepCore L2 filter! Use  \"DeepCoreCuts\" module directly if you want to keep other filters"
+  print("WARNING! Checking the DeepCore L2 filter! Use  \"DeepCoreCuts\" module directly if you want to keep other filters")
   tray.AddSegment(DeepCoreCuts, "L3DeepCoreCuts",splituncleaned='SplitInIcePulses', year=year)
 

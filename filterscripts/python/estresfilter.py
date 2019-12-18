@@ -28,6 +28,7 @@ def ESTReSFilter(tray, name,
     zenith_angle_cut = 180.
     '''
 
+    import sys
     import math
     import os.path
     from icecube.filterscripts import filter_globals
@@ -41,7 +42,11 @@ def ESTReSFilter(tray, name,
 
     # share the spline with SplineMPE and StartingTrackVeto
     PreJitter = 4
-    inf_muon_service_name = "BareMuSplineJitter" + str(PreJitter) + SplineRecoAmplitudeTable.translate(string.maketrans("",""), string.punctuation) + SplineRecoTimingTable.translate(string.maketrans("",""), string.punctuation)
+    if sys.version_info >= (3, 0):        
+        inf_muon_service_name = "BareMuSplineJitter" + str(PreJitter) + SplineRecoAmplitudeTable.translate(str.maketrans("","", string.punctuation)) + SplineRecoTimingTable.translate(str.maketrans("","", string.punctuation))
+    else:
+        inf_muon_service_name = "BareMuSplineJitter" + str(PreJitter) + SplineRecoAmplitudeTable.translate(string.maketrans("",""), string.punctuation) + SplineRecoTimingTable.translate(string.maketrans("",""), string.punctuation)
+        
     existing_services = tray.context.keys()
     if inf_muon_service_name in existing_services:
         inf_muon_service = tray.context[inf_muon_service_name]

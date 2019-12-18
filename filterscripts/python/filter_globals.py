@@ -39,7 +39,7 @@ SLOPSplitter = 'SLOPSplit'
 
 def print_split(frame):
     if frame.Stop == icetray.I3Frame.Physics:
-        print(frame['I3EventHeader'].sub_event_stream)
+        print((frame['I3EventHeader'].sub_event_stream))
 
 
 #

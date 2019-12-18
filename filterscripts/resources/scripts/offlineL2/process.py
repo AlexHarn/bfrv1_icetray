@@ -211,7 +211,7 @@ def main(options, stats={}):
 ### iceprod stuff ###
 try:
     from iceprod.modules import ipmodule
-except ImportError, e:
+except ImportError:
     print('Module iceprod.modules not found. Will not define IceProd Class')
 else:
     Level2Filter = ipmodule.FromOptionParser(make_parser(),main)

@@ -58,7 +58,7 @@ def OnlineCalibration(tray, name, simulation = False,
 	# InIce WaveCalibrator.
 	# and Feature Extraction: wavedform
 	if not simulation:
-		print('Wavecalibrator for data selected, SPE_corr: ', WavedeformSPECorrections)
+		print(('Wavecalibrator for data selected, SPE_corr: ', WavedeformSPECorrections))
 		tray.AddModule('I3WaveCalibrator', name + '_wavecal',
 			       Launches=CleanInIceRawData,
 			       )

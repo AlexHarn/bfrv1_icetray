@@ -90,7 +90,7 @@ def ShadowFilter(tray, name, mcseed=0, If=lambda f: True):
             WhichShadow=kwargs.pop("WhichShadow","Moon")
         )
         if len(kwargs)>0:
-            print("Unknown shadowfilter options: %s " % kwargs)
+            print(("Unknown shadowfilter options: %s " % kwargs))
             raise RuntimeError("Unknown shadowfilter options")
 
     if mc:
@@ -113,7 +113,7 @@ def ShadowFilter(tray, name, mcseed=0, If=lambda f: True):
         imonth=mcseed%len(MCmonths)
         monthname=MCmonths[imonth][0]
         (cstart,cend)=MCmonths[imonth][1]
-        print("simulated month for the Moon shadow filter: %s (mjd %f-%f" % (monthname,cstart,cend))
+        print(("simulated month for the Moon shadow filter: %s (mjd %f-%f" % (monthname,cstart,cend)))
         if abs(max_moon_zenith-90.*deg)>0.1:
             print("WARNING: unsupported MaximumZenith for the Moon in corsika mode")
         add_shadowfilter(tray,label=filter_globals.MoonFilter,
