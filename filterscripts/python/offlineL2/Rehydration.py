@@ -5,6 +5,7 @@ from I3Tray import *
 from icecube import icetray
 from icecube.icetray import I3PacketModule
 from icecube.filterscripts import filter_globals
+from icecube import trigger_splitter
 
 @icetray.traysegment
 def Dehydration(tray, name):
