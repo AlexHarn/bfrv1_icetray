@@ -8,6 +8,8 @@ Release Notes
 Since last release:
 -------------------
 
+* (r173060): Added Spencer Axani's changes for SPE correction
+
 January 15, 2019 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 ---------------------------------------------------------------------
 * Update (r167078): Make new unfolding the default
