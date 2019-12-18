@@ -283,14 +283,14 @@ void I3NeutrinoGenerator::DAQ(I3FramePtr frame)
          info->cylinder_height=steer_->GetCylinderHeight();
          info->cylinder_radius=steer_->GetCylinderRadius();
 
-         info->flavor_ratio    = 0.5;
+         info->flavor_fraction = 0.5;
          info->primary_type    = injector_->GetNuType();         
          info->min_zenith      = injector_->GetFluxZenithMin();
          info->max_zenith      = injector_->GetFluxZenithMax();
          info->min_azimuth     = injector_->GetFluxAzimuthMin();  
          info->max_azimuth     = injector_->GetFluxAzimuthMax();
-         info->min_energy_log  = injector_->GetFluxEnergyMinLog();
-         info->max_energy_log  = injector_->GetFluxEnergyMaxLog();
+         info->min_energy      = pow(10.0,injector_->GetFluxEnergyMinLog());
+         info->max_energy      = pow(10.0,injector_->GetFluxEnergyMaxLog());
          info->power_law_index = injector_->GetPowerLawIndex();
          
          info_frame->Put(info);         

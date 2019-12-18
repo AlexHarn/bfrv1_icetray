@@ -12,15 +12,15 @@ I3NuGenInfo::serialize(Archive& ar, unsigned version)
   ar & make_nvp("run_id", run_id);
   ar & make_nvp("n_events",n_events);  
   ar & make_nvp("primary_type",primary_type);
-  ar & make_nvp("flavor_ratio",flavor_ratio);  
+  ar & make_nvp("flavor_fraction",flavor_fraction);  
   ar & make_nvp("cylinder_height",cylinder_height);
   ar & make_nvp("cylinder_radius",cylinder_radius);
   ar & make_nvp("min_zenith",min_zenith);
   ar & make_nvp("min_azimuth",min_azimuth);
   ar & make_nvp("max_zenith",max_zenith);  
   ar & make_nvp("max_azimuth", max_azimuth);
-  ar & make_nvp("min_energy_log",min_energy_log);  
-  ar & make_nvp("max_energy_log",max_energy_log);
+  ar & make_nvp("min_energy",min_energy);  
+  ar & make_nvp("max_energy",max_energy);
   ar & make_nvp("power_law_index",power_law_index);
 }
 
@@ -29,15 +29,15 @@ std::ostream& I3NuGenInfo::Print(std::ostream& oss) const{
       << "            run_id : " << run_id << std::endl
       << "          n_events : " << n_events << std::endl
       << "      primary_type : " << i3particle_type_string(primary_type) << std::endl
-      << "      flavor_ratio : " << flavor_ratio << std::endl    
+      << "   flavor_fraction : " << flavor_fraction << std::endl    
       << "   cylinder_height : " << cylinder_height << std::endl
       << "   cylinder_radius : " << cylinder_radius << std::endl
       << "        min_zenith : " << min_zenith << std::endl
       << "        max_zenith : " << max_zenith << std::endl
       << "       min_azimuth : " << min_azimuth << std::endl    
       << "       max_azimuth : " << max_azimuth << std::endl
-      << "    min_energy_log : " << min_energy_log << std::endl    
-      << "    max_energy_log : " << max_energy_log << std::endl
+      << "        min_energy : " << min_energy << std::endl    
+      << "        max_energy : " << max_energy << std::endl
       << "   power_law_index : " << power_law_index << std::endl
       << "]" ;
   return oss;

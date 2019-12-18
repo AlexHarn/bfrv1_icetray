@@ -11,15 +11,15 @@ struct I3NuGenInfo : public I3FrameObject{
   uint32_t run_id;
   uint32_t n_events;  
   I3Particle::ParticleType primary_type;
-  double flavor_ratio;  
+  double flavor_fraction;  
   double cylinder_height;
   double cylinder_radius;
   double min_zenith;  
   double max_zenith;
   double min_azimuth;  
   double max_azimuth;
-  double min_energy_log;
-  double max_energy_log;
+  double min_energy;
+  double max_energy;
   double power_law_index;
 
   std::ostream& Print(std::ostream&) const override;
