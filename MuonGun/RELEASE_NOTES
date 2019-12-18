@@ -7,6 +7,11 @@ Release Notes
 
 trunk
 -----
+* MuonGun.Track handles sliced MCTrees
+* MuonGun.MuonBundleConverter ignores secondary muons in MCTree
+* EnergyDistribution and friends integrate over energy in log space for better
+  numerical stability
+* Update MuonPropagator to use restructured PROPOSAL API
 
 Release V00-02-03
 -----------------
