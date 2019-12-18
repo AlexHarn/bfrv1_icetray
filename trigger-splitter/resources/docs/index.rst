@@ -4,7 +4,7 @@
 trigger-splitter
 ================
 
- **Maintainer** : Alex Olivas
+ **Maintainer** : Erik Blaufuss
 
 .. toctree::
    :titlesonly:
@@ -33,9 +33,10 @@ It requires the following parameters set properly:
 * **ReadoutWindowPlus** - Readout window buffer after trigger (default +6us)
 * **WriteoutFrameTimes** - Write out the start and end of the readout times in each P-frame (default false)
 * **WriteTimeWindow** - Write into p-frames the time window of trigger times.
+  **SubEventStreamName** - name to assign to the split in the I3EventHeader.  Currently uses the instance name.
 * **UpdateTriggerHierarchy** 
 
  - NONE : Don't update.
- - UPDATE : Write a new triggerhierachy in the P-frame.
+ - UPDATE : Write a new triggerhierachy in the P-frame. (Default)
  - REPLACE : UPDATE and rename the q-frame trigger hierarchy.
 
