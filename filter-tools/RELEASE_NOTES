@@ -5,7 +5,9 @@ Release Notes
 trunk
 -----
 
-* Converted `FilterMaskMaker` to C++ for speed up on L2 processing
+December 18, 2019, E. Blaufuss   (blaufuss @ umd.edu)
+----------------------------------------------------
+* Converted `FilterMaskMaker` to C++ for speed up on L2 processing + test (thanks @kjm)
 
 June 13, 2018, Alex Olivas  (olivas@icecube.umd.edu)
 ----------------------------------------------------
