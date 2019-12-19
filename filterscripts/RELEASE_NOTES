@@ -9,6 +9,7 @@ Combo release: December 18, 2019 E. Blaufuss (blaufuss @ umd.edu)
 * several python3 compatiblity changes (print(print))
 * add first version of pass3 processing scripts.
 * rewritten monopole filter and L2 processing scripts (cleanups)
+* #2347: Shadow filter in simulations does not vary moon/sun position
 
 2019 Season
 -----------
