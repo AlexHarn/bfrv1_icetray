@@ -15,11 +15,7 @@ cable_map = I3CylinderMap()
 outfile = 'test_shadow.i3'
 seed = 10
 
-randomService = phys_services.I3SPRNGRandomService(
-    seed = 1,
-    nstreams = 100000,
-    streamnum = seed)
-
+randomService = phys_services.I3GSLRandomService(seed = seed)
 
 gcd_file = os.getenv('I3_TESTDATA') + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
 
