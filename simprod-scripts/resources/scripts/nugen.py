@@ -19,7 +19,7 @@ def add_args(parser):
     Args:
         parser (argparse.ArgumentParser): the command-line parser
     """
-    arguments.add_gcdfile(parser)
+    arguments.add_gcdfile(parser,required=False)
     arguments.add_outputfile(parser)
     arguments.add_summaryfile(parser)
     arguments.add_enablehistogram(parser)

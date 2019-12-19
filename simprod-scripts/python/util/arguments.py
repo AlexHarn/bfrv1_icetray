@@ -23,9 +23,9 @@ def str_comma_list(arg_list):
     
 
 # common arguments    
-def add_gcdfile(parser):
+def add_gcdfile(parser,required=False):
     parser.add_argument("--gcdfile", dest="gcdfile",
-                        default='', type=str, required=True,
+                        default='', type=str, required=required,
                         help='GeoCalibDetStatus filename')
                         
 def add_inputfile(parser):
