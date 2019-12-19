@@ -34,6 +34,7 @@
 #include <cmath>
 #include <set>
 
+#include <icetray/I3Logging.h>
 #include "dataclasses/I3Constants.h"
 
 #include <boost/lexical_cast.hpp>
@@ -43,7 +44,6 @@
 #include "clsim/cl.hpp"
 
 #include "clsim/I3CLSimHelperToFloatString.h"
-
 
 namespace I3CLSimHelper
 {
@@ -263,7 +263,7 @@ namespace I3CLSimHelper
         
         
         if (assignedStringNums.size()!=numberOfStrings) {
-            std::cerr << "Internal error in cell division algorithm." << std::endl;
+            log_error_stream("Internal error in cell division algorithm.");
         }
         
         return true;
@@ -725,14 +725,14 @@ namespace I3CLSimHelper
         typedef std::vector<int>::size_type sizeType;
         
         sizeType numEntries=stringIDs.size();
-        if (numEntries==0) {std::cerr << "Empty geometry provided." << std::endl; return false;}
+        if (numEntries==0) {log_error("Empty geometry provided."); return false;}
         if ((domIDs.size() != numEntries) ||
             (posX.size() != numEntries) ||
             (posY.size() != numEntries) ||
             (posZ.size() != numEntries) ||
             (subdetectors.size() != numEntries))
             return false;
-        if (omRadius < 0.) {std::cerr << "Zero or negative OM radius." << std::endl; return false;}
+        if (omRadius < 0.) {log_error_stream("Zero or negative OM radius."); return false;}
         
         typedef std::pair<int, std::string> intStringPair_t;
         std::set<intStringPair_t> stringIDSet;
@@ -745,13 +745,13 @@ namespace I3CLSimHelper
         
         #define MAX_SUPPORTED_NUM_STRINGS 0xFFFF-1
         if (stringIDSet.size() >= MAX_SUPPORTED_NUM_STRINGS) {
-            std::cerr << "More than " << MAX_SUPPORTED_NUM_STRINGS << " strings are not supported." << std::endl;
+            log_error_stream("More than " << MAX_SUPPORTED_NUM_STRINGS << " strings are not supported.");
             return false;
         }
 
         #define MAX_SUPPORTED_NUM_SUBDETECTORS 0xFFFF-1
         if (subdetectorSet.size() >= MAX_SUPPORTED_NUM_SUBDETECTORS) {
-            std::cerr << "More than " << MAX_SUPPORTED_NUM_SUBDETECTORS << " subdetectors are not supported." << std::endl;
+            log_error_stream("More than " << MAX_SUPPORTED_NUM_SUBDETECTORS << " subdetectors are not supported.");
             return false;
         }
         log_trace("Number of subdetectors is %zu:", subdetectorSet.size());

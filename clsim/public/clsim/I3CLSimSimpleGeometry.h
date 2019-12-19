@@ -27,39 +27,65 @@
 #ifndef I3CLSIMSIMPLEGEOMETRY_H_INCLUDED
 #define I3CLSIMSIMPLEGEOMETRY_H_INCLUDED
 
-#include "icetray/I3TrayHeaders.h"
-
 #include <vector>
 #include <string>
+#include <cstdint>
+#include <limits>
+
+#include <icetray/I3PointerTypedefs.h>
 
 /**
- * @brief Describes a detector geometry (abstract base class)
+ * @brief Describes a detector geometry.
+ *
+ * The DOM properties have to be explicitly set by the user.
  */
 
-class I3CLSimSimpleGeometry 
+class I3CLSimSimpleGeometry
 {
     
 public:
-    virtual std::size_t size() const = 0;
-    
-    /// This is the radius *with* oversizing applied!
-    virtual double GetOMRadius() const = 0;
+    I3CLSimSimpleGeometry(double OMRadius)
+        : OMRadius_(OMRadius)
+    {}
 
-    virtual const std::vector<int32_t> &GetStringIDVector() const = 0;
-    virtual const std::vector<uint32_t> &GetDomIDVector() const = 0;
-    virtual const std::vector<double> &GetPosXVector() const = 0;
-    virtual const std::vector<double> &GetPosYVector() const = 0;
-    virtual const std::vector<double> &GetPosZVector() const = 0;
-    virtual const std::vector<std::string> &GetSubdetectorVector() const = 0;
+    std::size_t size() const {return stringIDs_.size(); }
+
+    /// This is the radius *with* oversizing applied!
+    double GetOMRadius() const {return OMRadius_;}
+
+    const std::vector<int32_t> &GetStringIDVector() const {return stringIDs_;}
+    const std::vector<uint32_t> &GetDomIDVector() const {return domIDs_;}
+    const std::vector<double> &GetPosXVector() const {return posX_;}
+    const std::vector<double> &GetPosYVector() const {return posY_;}
+    const std::vector<double> &GetPosZVector() const {return posZ_;}
+    const std::vector<std::string> &GetSubdetectorVector() const {return subdetectors_;}
+
+    int32_t GetStringID(std::size_t pos) const {return stringIDs_.at(pos);}
+    uint32_t GetDomID(std::size_t pos) const {return domIDs_.at(pos);}
+    double GetPosX(std::size_t pos) const {return posX_.at(pos);}
+    double GetPosY(std::size_t pos) const {return posY_.at(pos);}
+    double GetPosZ(std::size_t pos) const {return posZ_.at(pos);}
+    std::string GetSubdetector(std::size_t pos) const {return subdetectors_.at(pos);}
+
+    void AddModule(int32_t string, uint32_t om, double x, double y, double z, const std::string &subdetector)
+    {
+        stringIDs_.push_back(string);
+        domIDs_.push_back(om);
+        posX_.push_back(x);
+        posY_.push_back(y);
+        posZ_.push_back(z);
+        subdetectors_.push_back(subdetector);
+    }
+
+private:
+    double OMRadius_;
     
-    virtual int32_t GetStringID(std::size_t pos) const = 0;
-    virtual uint32_t GetDomID(std::size_t pos) const = 0;
-    virtual double GetPosX(std::size_t pos) const = 0;
-    virtual double GetPosY(std::size_t pos) const = 0;
-    virtual double GetPosZ(std::size_t pos) const = 0;
-    virtual std::string GetSubdetector(std::size_t pos) const = 0;
-    
-    
+    std::vector<int32_t> stringIDs_;
+    std::vector<uint32_t> domIDs_;
+    std::vector<double> posX_;
+    std::vector<double> posY_;
+    std::vector<double> posZ_;
+    std::vector<std::string> subdetectors_;
 };
 
 I3_POINTER_TYPEDEFS(I3CLSimSimpleGeometry);

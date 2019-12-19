@@ -30,6 +30,7 @@
 #include <inttypes.h>
 
 #include <icetray/I3Units.h>
+#include <icetray/I3Logging.h>
 #include "clsim/I3CLSimSimpleGeometryFromI3Geometry.h"
 
 #include "dataclasses/geometry/I3Geometry.h"
@@ -43,18 +44,21 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
-const std::set<int> I3CLSimSimpleGeometryFromI3Geometry::default_ignoreStrings;
-const std::set<unsigned int> I3CLSimSimpleGeometryFromI3Geometry::default_ignoreDomIDs;
-const std::set<std::string> I3CLSimSimpleGeometryFromI3Geometry::default_ignoreSubdetectors;
-const int32_t I3CLSimSimpleGeometryFromI3Geometry::default_ignoreStringIDsSmallerThan = 1;
-const int32_t I3CLSimSimpleGeometryFromI3Geometry::default_ignoreStringIDsLargerThan = std::numeric_limits<int32_t>::max();
-const uint32_t I3CLSimSimpleGeometryFromI3Geometry::default_ignoreDomIDsSmallerThan = 1;
-const uint32_t I3CLSimSimpleGeometryFromI3Geometry::default_ignoreDomIDsLargerThan = 60;
-const bool I3CLSimSimpleGeometryFromI3Geometry::default_splitIntoPartsAccordingToPosition=false;
-const bool I3CLSimSimpleGeometryFromI3Geometry::default_useHardcodedDeepCoreSubdetector=false;
+namespace clsim { namespace defaults {
 
+const std::set<int> I3CLSimSimpleGeometryFromI3Geometry::ignoreStrings;
+const std::set<unsigned int> I3CLSimSimpleGeometryFromI3Geometry::ignoreDomIDs;
+const std::set<std::string> I3CLSimSimpleGeometryFromI3Geometry::ignoreSubdetectors;
+const int32_t I3CLSimSimpleGeometryFromI3Geometry::ignoreStringIDsSmallerThan = 1;
+const int32_t I3CLSimSimpleGeometryFromI3Geometry::ignoreStringIDsLargerThan = std::numeric_limits<int32_t>::max();
+const uint32_t I3CLSimSimpleGeometryFromI3Geometry::ignoreDomIDsSmallerThan = 1;
+const uint32_t I3CLSimSimpleGeometryFromI3Geometry::ignoreDomIDsLargerThan = 60;
+const bool I3CLSimSimpleGeometryFromI3Geometry::splitIntoPartsAccordingToPosition=false;
+const bool I3CLSimSimpleGeometryFromI3Geometry::useHardcodedDeepCoreSubdetector=false;
 
-I3CLSimSimpleGeometryFromI3Geometry::
+}}
+
+I3CLSimSimpleGeometry
 I3CLSimSimpleGeometryFromI3Geometry(double OMRadius,
                                     double oversizeFactor,
                                     const I3FramePtr &frame,
@@ -68,26 +72,15 @@ I3CLSimSimpleGeometryFromI3Geometry(double OMRadius,
                                     // keep here for backwards compatibility - it's unused, so don't warn
                                     __attribute__((__unused__)) bool splitIntoPartsAccordingToPosition,
                                     bool useHardcodedDeepCoreSubdetector)
-:
-OMRadius_(OMRadius),
-oversizeFactor_(oversizeFactor),
-ignoreStrings_(ignoreStrings),
-ignoreDomIDs_(ignoreDomIDs),
-ignoreSubdetectors_(ignoreSubdetectors),
-ignoreStringIDsSmallerThan_(ignoreStringIDsSmallerThan),
-ignoreStringIDsLargerThan_(ignoreStringIDsLargerThan),
-ignoreDomIDsSmallerThan_(ignoreDomIDsSmallerThan),
-ignoreDomIDsLargerThan_(ignoreDomIDsLargerThan),
-useHardcodedDeepCoreSubdetector_(useHardcodedDeepCoreSubdetector)
 {
+    I3CLSimSimpleGeometry simpleGeo(OMRadius*oversizeFactor);
+
     if (!frame) throw std::runtime_error("Received NULL frame pointer!");
     
     log_debug("Ignoring StringNum<%" PRIi32 ", StringNum>%" PRIi32 ", OMNum<%" PRIu32 ", OMNum>%" PRIu32 ".",
               ignoreStringIDsSmallerThan, ignoreStringIDsLargerThan,
               ignoreDomIDsSmallerThan, ignoreDomIDsLargerThan);
-    
-    numOMs_=0;
-    
+
     I3ModuleGeoMapConstPtr moduleGeoMap = frame->Get<I3ModuleGeoMapConstPtr>("I3ModuleGeoMap");
     
     if (!moduleGeoMap) {
@@ -120,7 +113,7 @@ useHardcodedDeepCoreSubdetector_(useHardcodedDeepCoreSubdetector)
         int32_t string=key.GetString();
         uint32_t dom=key.GetOM();
 
-        if (useHardcodedDeepCoreSubdetector_) {
+        if (useHardcodedDeepCoreSubdetector) {
             // special hack for DeepCore
             if ((subdetectorName=="IceCube") || (subdetectorName=="DeepCore"))
             {
@@ -138,36 +131,26 @@ useHardcodedDeepCoreSubdetector_(useHardcodedDeepCoreSubdetector)
             }
         }
         
-        if ((string < ignoreStringIDsSmallerThan_) ||
-            (string > ignoreStringIDsLargerThan_) ||
-            (dom < ignoreDomIDsSmallerThan_) ||
-            (dom > ignoreDomIDsLargerThan_))
+        if ((string < ignoreStringIDsSmallerThan) ||
+            (string > ignoreStringIDsLargerThan) ||
+            (dom < ignoreDomIDsSmallerThan) ||
+            (dom > ignoreDomIDsLargerThan))
             continue;
 
-        if (ignoreStrings_.count(string)!=0) continue;
-        if (ignoreDomIDs_.count(dom)!=0) continue;
-        if (ignoreSubdetectors_.count(subdetectorName)!=0) continue;
+        if (ignoreStrings.count(string)!=0) continue;
+        if (ignoreDomIDs.count(dom)!=0) continue;
+        if (ignoreSubdetectors.count(subdetectorName)!=0) continue;
 
         
         // sanity check
-        if (std::abs(geo.GetRadius()-OMRadius_) > 0.001*I3Units::mm)
+        if (std::abs(geo.GetRadius()-OMRadius) > 0.001*I3Units::mm)
             log_fatal("This version of clsim does only support DOMs with one single size. Configured size=%fmm, size in geometry=%fmm",
-                      OMRadius_/I3Units::mm, geo.GetRadius()/I3Units::mm);
-        
-        stringIDs_.push_back(string);
-        domIDs_.push_back(dom);
-        posX_.push_back(geo.GetPos().GetX());
-        posY_.push_back(geo.GetPos().GetY());
-        posZ_.push_back(geo.GetPos().GetZ());
-        subdetectors_.push_back(subdetectorName);
+                      OMRadius/I3Units::mm, geo.GetRadius()/I3Units::mm);
 
-        ++numOMs_;
+        simpleGeo.AddModule(string,dom, geo.GetPos().GetX(), geo.GetPos().GetY(), geo.GetPos().GetZ(), subdetectorName);
     }
-    
+
+    return simpleGeo;
 }
 
-I3CLSimSimpleGeometryFromI3Geometry::
-~I3CLSimSimpleGeometryFromI3Geometry()
-{
-    
-}
+

@@ -27,7 +27,6 @@
 #include <sstream>
 
 #include <clsim/I3CLSimSimpleGeometry.h>
-#include <clsim/I3CLSimSimpleGeometryUserConfigurable.h>
 #include <clsim/I3CLSimSimpleGeometryTextFile.h>
 #include <clsim/I3CLSimSimpleGeometryFromI3Geometry.h>
 
@@ -60,7 +59,7 @@ struct I3CLSimSimpleGeometryWrapper : I3CLSimSimpleGeometry, bp::wrapper<I3CLSim
 
 };
 
-static boost::shared_ptr<I3CLSimSimpleGeometryFromI3Geometry>
+static boost::shared_ptr<I3CLSimSimpleGeometry>
 MakeSimpleGeometrySimply(double OMRadius, double oversizeFactor,
                          const I3FramePtr &frame,
                          const std::vector<int> &ignoreStrings,
@@ -76,7 +75,7 @@ MakeSimpleGeometrySimply(double OMRadius, double oversizeFactor,
 	std::set<int> ignoreStringss(ignoreStrings.begin(), ignoreStrings.end());
 	std::set<unsigned int> ignoreDomIDss(ignoreDomIDs.begin(), ignoreDomIDs.end());
 	std::set<std::string> ignoreSubdetectorss(ignoreSubdetectors.begin(), ignoreSubdetectors.end());
-	return I3CLSimSimpleGeometryFromI3GeometryPtr(new I3CLSimSimpleGeometryFromI3Geometry(
+	return boost::make_shared<I3CLSimSimpleGeometry>(I3CLSimSimpleGeometryFromI3Geometry(
 		OMRadius, oversizeFactor,
 		frame,
 		ignoreStringss,
@@ -94,18 +93,18 @@ void register_I3CLSimSimpleGeometry()
 {
     {
         bp::scope I3CLSimSimpleGeometry_scope = 
-        bp::class_<I3CLSimSimpleGeometryWrapper, boost::shared_ptr<I3CLSimSimpleGeometryWrapper>, boost::noncopyable>("I3CLSimSimpleGeometry", bp::no_init)
+        bp::class_<I3CLSimSimpleGeometry, boost::shared_ptr<I3CLSimSimpleGeometry>, boost::noncopyable>("I3CLSimSimpleGeometry", bp::init<double,double>((bp::arg("DOMRadius"), "CableRadius")))
         .def("size", bp::pure_virtual(&I3CLSimSimpleGeometry::size))
         .def("__len__", bp::pure_virtual(&I3CLSimSimpleGeometry::size))
         
         .def("GetOMRadius", bp::pure_virtual(&I3CLSimSimpleGeometry::GetOMRadius))
 
-        .def("GetStringIDVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetStringIDVector), bp::return_value_policy<bp::copy_const_reference>())
-        .def("GetDomIDVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetDomIDVector), bp::return_value_policy<bp::copy_const_reference>())
-        .def("GetPosXVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosXVector), bp::return_value_policy<bp::copy_const_reference>())
-        .def("GetPosYVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosYVector), bp::return_value_policy<bp::copy_const_reference>())
-        .def("GetPosZVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosZVector), bp::return_value_policy<bp::copy_const_reference>())
-        .def("GetSubdetectorVector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetSubdetectorVector), bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetStringIDVector", &I3CLSimSimpleGeometry::GetStringIDVector, bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetDomIDVector", &I3CLSimSimpleGeometry::GetDomIDVector, bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetPosXVector", &I3CLSimSimpleGeometry::GetPosXVector, bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetPosYVector", &I3CLSimSimpleGeometry::GetPosYVector, bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetPosZVector", &I3CLSimSimpleGeometry::GetPosZVector, bp::return_value_policy<bp::copy_const_reference>())
+        .def("GetSubdetectorVector", &I3CLSimSimpleGeometry::GetSubdetectorVector, bp::return_value_policy<bp::copy_const_reference>())
 
         .add_property("stringIDs", bp::make_function(&I3CLSimSimpleGeometry::GetStringIDVector, bp::return_value_policy<bp::copy_const_reference>()))
         .add_property("domIDs", bp::make_function(&I3CLSimSimpleGeometry::GetDomIDVector, bp::return_value_policy<bp::copy_const_reference>()))
@@ -114,116 +113,55 @@ void register_I3CLSimSimpleGeometry()
         .add_property("posZ", bp::make_function(&I3CLSimSimpleGeometry::GetPosZVector, bp::return_value_policy<bp::copy_const_reference>()))
         .add_property("subdetectors", bp::make_function(&I3CLSimSimpleGeometry::GetSubdetectorVector, bp::return_value_policy<bp::copy_const_reference>()))
         
-        .def("GetStringID", bp::pure_virtual(&I3CLSimSimpleGeometry::GetStringID))
-        .def("GetDomID", bp::pure_virtual(&I3CLSimSimpleGeometry::GetDomID))
-        .def("GetPosX", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosX))
-        .def("GetPosY", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosY))
-        .def("GetPosZ", bp::pure_virtual(&I3CLSimSimpleGeometry::GetPosZ))
-        .def("GetSubdetector", bp::pure_virtual(&I3CLSimSimpleGeometry::GetSubdetector))
-        ;
-    }
-    
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryWrapper>, boost::shared_ptr<const I3CLSimSimpleGeometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryWrapper>, boost::shared_ptr<I3CLSimSimpleGeometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryWrapper>, boost::shared_ptr<const I3CLSimSimpleGeometryWrapper> >();
-    
-    // I3CLSimSimpleGeometryUserConfigurable
-    {
-        bp::class_<
-        I3CLSimSimpleGeometryUserConfigurable, 
-        boost::shared_ptr<I3CLSimSimpleGeometryUserConfigurable>, 
-        bases<I3CLSimSimpleGeometry>,
-        boost::noncopyable
-        >
-        (
-         "I3CLSimSimpleGeometryUserConfigurable",
-         bp::init<
-         double, std::size_t
-         >(
-           (
-            bp::arg("OMRadius"),
-            bp::arg("numOMs")
-           )
-          )
-        )
-        .def("SetStringID", &I3CLSimSimpleGeometryUserConfigurable::SetStringID)
-        .def("SetDomID", &I3CLSimSimpleGeometryUserConfigurable::SetDomID)
-        .def("SetPosX", &I3CLSimSimpleGeometryUserConfigurable::SetPosX)
-        .def("SetPosY", &I3CLSimSimpleGeometryUserConfigurable::SetPosY)
-        .def("SetPosZ", &I3CLSimSimpleGeometryUserConfigurable::SetPosZ)
-        .def("SetSubdetector", &I3CLSimSimpleGeometryUserConfigurable::SetSubdetector)
-        ;
-    }
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryUserConfigurable>, boost::shared_ptr<const I3CLSimSimpleGeometryUserConfigurable> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryUserConfigurable>, boost::shared_ptr<I3CLSimSimpleGeometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryUserConfigurable>, boost::shared_ptr<const I3CLSimSimpleGeometry> >();
+        .def("GetStringID", &I3CLSimSimpleGeometry::GetStringID)
+        .def("GetDomID", &I3CLSimSimpleGeometry::GetDomID)
+        .def("GetPosX", &I3CLSimSimpleGeometry::GetPosX)
+        .def("GetPosY", &I3CLSimSimpleGeometry::GetPosY)
+        .def("GetPosZ", &I3CLSimSimpleGeometry::GetPosZ)
+        .def("GetSubdetector", &I3CLSimSimpleGeometry::GetSubdetector)
 
+        .def("AddModule", &I3CLSimSimpleGeometry::AddModule, (bp::arg("string"), "dom", "x", "y", "z", "subdetector"))
+        ;
+    }
+    
+    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometry>, boost::shared_ptr<const I3CLSimSimpleGeometry> >();
     
     // I3CLSimSimpleGeometryTextFile
     {
-        bp::class_<
-        I3CLSimSimpleGeometryTextFile, 
-        boost::shared_ptr<I3CLSimSimpleGeometryTextFile>, 
-        bases<I3CLSimSimpleGeometry>,
-        boost::noncopyable
-        >
-        (
-         "I3CLSimSimpleGeometryTextFile",
-         bp::init<
-         double, const std::string &,
-         int32_t, int32_t,
-         uint32_t, uint32_t
-         >(
-           (
+        bp::def("I3CLSimSimpleGeometryTextFile",
+            &I3CLSimSimpleGeometryTextFile,
+            (
             bp::arg("OMRadius"),
             bp::arg("filename"),
-            bp::arg("ignoreStringIDsSmallerThan")=I3CLSimSimpleGeometryTextFile::default_ignoreStringIDsSmallerThan,
-            bp::arg("ignoreStringIDsLargerThan")=I3CLSimSimpleGeometryTextFile::default_ignoreStringIDsLargerThan,
-            bp::arg("ignoreDomIDsSmallerThan")=I3CLSimSimpleGeometryTextFile::default_ignoreDomIDsSmallerThan,
-            bp::arg("ignoreDomIDsLargerThan")=I3CLSimSimpleGeometryTextFile::default_ignoreDomIDsLargerThan
+            bp::arg("ignoreStringIDsSmallerThan")=clsim::defaults::I3CLSimSimpleGeometryTextFile::ignoreStringIDsSmallerThan,
+            bp::arg("ignoreStringIDsLargerThan")=clsim::defaults::I3CLSimSimpleGeometryTextFile::ignoreStringIDsLargerThan,
+            bp::arg("ignoreDomIDsSmallerThan")=clsim::defaults::I3CLSimSimpleGeometryTextFile::ignoreDomIDsSmallerThan,
+            bp::arg("ignoreDomIDsLargerThan")=clsim::defaults::I3CLSimSimpleGeometryTextFile::ignoreDomIDsLargerThan
             )
-           )
-         )
-        ;
+        );
     }
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryTextFile>, boost::shared_ptr<const I3CLSimSimpleGeometryTextFile> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryTextFile>, boost::shared_ptr<I3CLSimSimpleGeometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryTextFile>, boost::shared_ptr<const I3CLSimSimpleGeometry> >();
 
-    
     // I3CLSimSimpleGeometryFromI3Geometry
     {
-        bp::class_<
-        I3CLSimSimpleGeometryFromI3Geometry, 
-        boost::shared_ptr<I3CLSimSimpleGeometryFromI3Geometry>, 
-        bases<I3CLSimSimpleGeometry>,
-        boost::noncopyable
-        >
-        (
-         "I3CLSimSimpleGeometryFromI3Geometry", bp::no_init)
-        .def("__init__", bp::make_constructor(MakeSimpleGeometrySimply, bp::default_call_policies(),
-           (
+        bp::def("I3CLSimSimpleGeometryFromI3Geometry",
+            &MakeSimpleGeometrySimply,
+            (
             bp::arg("OMRadius"),
             bp::arg("oversizeFactor"),
             bp::arg("frame"),
-#define default(name, type) std::vector<type>(I3CLSimSimpleGeometryFromI3Geometry::default_##name.begin(), I3CLSimSimpleGeometryFromI3Geometry::default_##name.end()) 
+#define default(name, type) std::vector<type>(clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::name.begin(), clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::name.end()) 
             bp::arg("ignoreStrings")=default(ignoreStrings, int),
             bp::arg("ignoreDomIDs")=default(ignoreDomIDs, unsigned),
             bp::arg("ignoreSubdetectors")=default(ignoreSubdetectors, std::string),
 #undef default
-            bp::arg("ignoreStringIDsSmallerThan")=I3CLSimSimpleGeometryFromI3Geometry::default_ignoreStringIDsSmallerThan,
-            bp::arg("ignoreStringIDsLargerThan")=I3CLSimSimpleGeometryFromI3Geometry::default_ignoreStringIDsLargerThan,
-            bp::arg("ignoreDomIDsSmallerThan")=I3CLSimSimpleGeometryFromI3Geometry::default_ignoreDomIDsSmallerThan,
-            bp::arg("ignoreDomIDsLargerThan")=I3CLSimSimpleGeometryFromI3Geometry::default_ignoreDomIDsLargerThan,
-            bp::arg("splitIntoPartsAccordingToPosition")=I3CLSimSimpleGeometryFromI3Geometry::default_splitIntoPartsAccordingToPosition,
-            bp::arg("useHardcodedDeepCoreSubdetector")=I3CLSimSimpleGeometryFromI3Geometry::default_useHardcodedDeepCoreSubdetector
+            bp::arg("ignoreStringIDsSmallerThan")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::ignoreStringIDsSmallerThan,
+            bp::arg("ignoreStringIDsLargerThan")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::ignoreStringIDsLargerThan,
+            bp::arg("ignoreDomIDsSmallerThan")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::ignoreDomIDsSmallerThan,
+            bp::arg("ignoreDomIDsLargerThan")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::ignoreDomIDsLargerThan,
+            bp::arg("splitIntoPartsAccordingToPosition")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::splitIntoPartsAccordingToPosition,
+            bp::arg("useHardcodedDeepCoreSubdetector")=clsim::defaults::I3CLSimSimpleGeometryFromI3Geometry::useHardcodedDeepCoreSubdetector
             )
-           )
-         )
-        ;
+        );
     }
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryFromI3Geometry>, boost::shared_ptr<const I3CLSimSimpleGeometryFromI3Geometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryFromI3Geometry>, boost::shared_ptr<I3CLSimSimpleGeometry> >();
-    bp::implicitly_convertible<boost::shared_ptr<I3CLSimSimpleGeometryFromI3Geometry>, boost::shared_ptr<const I3CLSimSimpleGeometry> >();
 
 }

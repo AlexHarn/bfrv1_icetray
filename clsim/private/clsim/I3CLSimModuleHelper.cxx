@@ -302,7 +302,7 @@ namespace I3CLSimModuleHelper {
     
     I3CLSimStepToPhotonConverterOpenCLPtr initializeOpenCL(const I3CLSimOpenCLDevice &device,
                                                            I3RandomServicePtr rng,
-                                                           I3CLSimSimpleGeometryFromI3GeometryPtr geometry,
+                                                           I3CLSimSimpleGeometryConstPtr geometry,
                                                            I3CLSimMediumPropertiesConstPtr medium,
                                                            I3CLSimFunctionConstPtr wavelengthGenerationBias,
                                                            const std::vector<I3CLSimRandomValueConstPtr> &wavelengthGenerators,

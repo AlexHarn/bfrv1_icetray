@@ -215,7 +215,6 @@ if(NOT BUILD_CLSIM_DATACLASSES_ONLY)
     private/clsim/random_value/I3CLSimRandomValueUniform.cxx
     private/clsim/I3CLSimSimpleGeometryFromI3Geometry.cxx
     private/clsim/I3CLSimSimpleGeometryTextFile.cxx
-    private/clsim/I3CLSimSimpleGeometryUserConfigurable.cxx
     private/clsim/I3CLSimStep.cxx
     private/clsim/function/I3CLSimFunctionAbsLenIceCube.cxx
     private/clsim/function/I3CLSimFunctionConstant.cxx

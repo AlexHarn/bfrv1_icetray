@@ -24,6 +24,7 @@
  * @author Claudio Kopper
  */
 
+#include <icetray/I3Logging.h>
 #include "clsim/I3CLSimSimpleGeometryTextFile.h"
 
 #include <stdexcept>
@@ -32,12 +33,14 @@
 
 #include <boost/lexical_cast.hpp>
 
-const int32_t I3CLSimSimpleGeometryTextFile::default_ignoreStringIDsSmallerThan = 1;
-const int32_t I3CLSimSimpleGeometryTextFile::default_ignoreStringIDsLargerThan = std::numeric_limits<int32_t>::max();
-const uint32_t I3CLSimSimpleGeometryTextFile::default_ignoreDomIDsSmallerThan = 1;
-const uint32_t I3CLSimSimpleGeometryTextFile::default_ignoreDomIDsLargerThan = 60;
+namespace clsim { namespace defaults {
+const int32_t I3CLSimSimpleGeometryTextFile::ignoreStringIDsSmallerThan = 1;
+const int32_t I3CLSimSimpleGeometryTextFile::ignoreStringIDsLargerThan = std::numeric_limits<int32_t>::max();
+const uint32_t I3CLSimSimpleGeometryTextFile::ignoreDomIDsSmallerThan = 1;
+const uint32_t I3CLSimSimpleGeometryTextFile::ignoreDomIDsLargerThan = 60;
+}}
 
-I3CLSimSimpleGeometryTextFile::
+I3CLSimSimpleGeometry
 I3CLSimSimpleGeometryTextFile(double OMRadius,
                               const std::string &filename,
                               int32_t ignoreStringIDsSmallerThan,
@@ -45,13 +48,9 @@ I3CLSimSimpleGeometryTextFile(double OMRadius,
                               uint32_t ignoreDomIDsSmallerThan,
                               uint32_t ignoreDomIDsLargerThan
                               )
-:
-OMRadius_(OMRadius),
-ignoreStringIDsSmallerThan_(ignoreStringIDsSmallerThan),
-ignoreStringIDsLargerThan_(ignoreStringIDsLargerThan),
-ignoreDomIDsSmallerThan_(ignoreDomIDsSmallerThan),
-ignoreDomIDsLargerThan_(ignoreDomIDsLargerThan)
 {
+    I3CLSimSimpleGeometry simplegeo(OMRadius);
+
     std::ifstream inFile;
     inFile.open(filename.c_str(), std::ifstream::in);
 
@@ -61,7 +60,6 @@ ignoreDomIDsLargerThan_(ignoreDomIDsLargerThan)
     int64_t readDom;    // 1 - 60
     double readx, ready, readz;  // dom x, y, z read from file
 
-    numOMs_=0;
     while (inFile >> readString >> readDom >> readx >> ready >> readz)
     {
         int32_t string;
@@ -83,26 +81,16 @@ ignoreDomIDsLargerThan_(ignoreDomIDsLargerThan)
             throw std::runtime_error("Read error (numeric conversion)!");
         }
 
-        if ((string < ignoreStringIDsSmallerThan_) ||
-            (string > ignoreStringIDsLargerThan_) ||
-            (dom < ignoreDomIDsSmallerThan_) ||
-            (dom > ignoreDomIDsLargerThan_))
+        if ((string < ignoreStringIDsSmallerThan) ||
+            (string > ignoreStringIDsLargerThan) ||
+            (dom < ignoreDomIDsSmallerThan) ||
+            (dom > ignoreDomIDsLargerThan))
             continue;
 
-        stringIDs_.push_back(string);
-        domIDs_.push_back(dom);
-        posX_.push_back(x);
-        posY_.push_back(y);
-        posZ_.push_back(z);
-        subdetectors_.push_back("default"); // just some default name
-        ++numOMs_;
+        simplegeo.AddModule(string, dom, x, y, z, "default");
     }
 
     inFile.close();
-}
 
-I3CLSimSimpleGeometryTextFile::
-~I3CLSimSimpleGeometryTextFile()
-{
-
+    return simplegeo;
 }
