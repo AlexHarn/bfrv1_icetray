@@ -5,6 +5,14 @@
 Release Notes
 =============
 
+Dec 18, 2019 Yang Lyu (yanglyu@lbl.gov)
+------------------------------------------
+Release V01-01-12
+
+- Added dEdxVector to the Bins method that stores muon energy losses as a vector
+- Modified example and test scripts: changed file paths 
+
+
 June 12, 2018 Kevin Meagher
 ---------------------------
 Release V00-01-11
