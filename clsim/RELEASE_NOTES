@@ -7,8 +7,41 @@ Release Notes
 
 trunk
 -----
-
-* Merge multiprocess-server branch
+* Merge multiprocess-server branch. This is a major restructing of clsim.
+  - I3CLSimServer accepts steps over a ZMQ socket and distributes them to
+    instances of I3CLSimStepToPhotonConverter. Multiple clients can share a
+    server, allowing M:N CPU:GPU ratios rather than only 1:N.
+  - I3CLSimModule is replaced by I3CLSimClientModule. I3CLSimClientModule only
+    emits I3CompressedPhotons, so no pretty photon histories.
+  - MaxParallelEvents and MaxEnergyToProcess options are gone; internal queues
+    are filled dynamically to create complete propagator kernel invocations.
+  - I3CLSimLightSourceToStepConverterGeant4 is factored into
+    I3CLSimLightSourceToStepConverterAsync and
+    I3CLSimLightSourcePropagatorGeant4. The latter is truly optional, making it
+    possible to use clsim without initializing Geant4.
+  - I3CLSimLightSourcePropagatorFromI3PropagatorService allows e.g. PROPOSAL
+    to be run in a thread in I3CLSimClientModule. This can be used to save
+    memory by discarding stochastic losses as soon as their light yield has been
+    simulated.
+  - Both I3CLSimLightSourcePropagatorGeant4 and 
+    I3CLSimLightSourcePropagatorFromI3PropagatorService can optionally record
+    the secondaries they produce in an MCTree.
+  - I3CompressedPhoton positions are relative to the module they hit, and have
+    oversizing removed.
+  - Photons are converted directly to (coalesced) I3MCPE in the collector
+    thread of I3CLSimClientModule. This can save significant memory for
+    high-energy events.
+* Merge spe-template branch.
+* I3CLSimLightSourcePropagatorGeant4 can be reinitialized, making it possible
+  to change the wavelength bias without starting a new process. This is useful
+  for implementing a hobo SnowStorm simulaton where systematic parameters change
+  every N frames.
+* Removed MMCTrackListName option from I3CLSimMakePhotons. PROPOSAL now emits 
+  muon track segments directly, and they do not need to be reverse-engineered 
+  by I3MuonSlicer.
+* Direct, in-kernel cable shadow simulation is enabled by default. This reduces
+  isotropic efficiency by ~10%, but in a directionally specific way.
+  
 
 Nov. 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)
 ------------------------------------------------------------------
