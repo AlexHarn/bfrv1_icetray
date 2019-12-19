@@ -4,7 +4,7 @@
 filterscripts
 =============
 
-* Maintainer: Erik Blaufuss (Blaufuss@icecube.umd.edu)
+* Maintainer: Erik Blaufuss (blaufuss @ umd.edu)
 
 .. toctree::
    :maxdepth: 3
@@ -54,6 +54,11 @@ analysis groups and operations. Changes to triggers or filters
 go through annual review.
 
 See the wiki pages:
+2018 :
+  https://drive.google.com/open?id=1a5LRRn8faCpTF0DVJtqk0XvQlQ-oF7ka
+
+2016 :
+  http://wiki.icecube.wisc.edu/index.php/TFT_2016_Season_Planning
 
 2015 :
   http://wiki.icecube.wisc.edu/index.php/TFT_2015_Season_Planning
