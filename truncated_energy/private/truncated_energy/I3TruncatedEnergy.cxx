@@ -612,11 +612,15 @@ I3TruncatedEnergy::Physics(I3FramePtr frame)
     std::vector<double> BINMethod_NPEsBinRatios(BINMethod_N_bins, 0.);
     std::vector<double> BINMethod_NPEsBinRatios_AllDOMs(BINMethod_N_bins, 0.);
     unsigned BINMethod_N_NPEsBinRatios_entries_greater_zero = 0;
+
+    I3VectorDouble I3BINMethod_NPEsBinRatios;
+
     for(unsigned bin_index=0; bin_index < BINMethod_N_bins; ++bin_index)
     {
         // zero expected charge is possible because of cylinder restriction
         if(BINMethod_ExpNPEsBins[bin_index] > 0.) {
             BINMethod_NPEsBinRatios[bin_index] = BINMethod_MesNPEsBins[bin_index] / BINMethod_ExpNPEsBins[bin_index];
+            I3BINMethod_NPEsBinRatios.push_back(BINMethod_MesNPEsBins[bin_index] / BINMethod_ExpNPEsBins[bin_index]); 
         }
         if(BINMethod_ExpNPEsBins_AllDOMs[bin_index] > 0.) {
             BINMethod_NPEsBinRatios_AllDOMs[bin_index] = BINMethod_MesNPEsBins[bin_index] / BINMethod_ExpNPEsBins_AllDOMs[bin_index];
@@ -870,6 +874,10 @@ I3TruncatedEnergy::Physics(I3FramePtr frame)
         I3ParticlePtr i3particle_result_nu_BINS(new I3Particle(*reco_particle));
         i3particle_result_nu_BINS->SetEnergy(nu_energy_BINS);
         frame->Put(ResultParticleName_+"_BINS_Neutrino", i3particle_result_nu_BINS);
+
+        // output vector for dE/dx 
+        I3VectorDoublePtr i3vector_dedx_BINS(new I3VectorDouble(I3BINMethod_NPEsBinRatios)); 
+        frame->Put(ResultParticleName_+"_BINS_dEdxVector", i3vector_dedx_BINS);        
     }
 
     // repeat the if to get a new scope; those equations might be error-prone
