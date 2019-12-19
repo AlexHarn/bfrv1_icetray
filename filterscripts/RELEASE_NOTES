@@ -4,6 +4,26 @@ Release Notes
 On the trunk
 ------------
 
+Combo release: December 18, 2019 E. Blaufuss (blaufuss @ umd.edu)
+""""""""""""""""""""""""""""""""""""""""""""""""""
+* several python3 compatiblity changes (print(print))
+* add first version of pass3 processing scripts.
+* rewritten monopole filter and L2 processing scripts (cleanups)
+
+2019 Season
+-----------
+
+V19-07-00 
+""""""""" 
+* include Alert short message copy in serialized frame data sent from pole
+* Added GRECOOnlineFilter for online LE track candidate detection
+* Added IceACT trigger/filter
+* Removed some unneeded BSM group reconstructions
+
+
+2018 Season
+-----------
+
 V18-12-01
 """""""""
 * Fixed undefined stats variable
@@ -11,9 +31,6 @@ V18-12-01
 * Fixed undefined variable in alerteventfollowup.py
 * Added track length in detector to GFU messages (needed for high-energy muon alerts)
 * Fix IceACT trigger filter (properly decode the trigger information for this trigger)
-
-2018 Season
------------
 
 V18-06-00
 """""""""
