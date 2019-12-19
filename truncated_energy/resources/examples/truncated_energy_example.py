@@ -9,7 +9,7 @@ load( "libtruncated_energy" )
 #   Input files
 gcdfile = ["/cvmfs/icecube.opensciencegrid.org/standard/RHEL_6_x86_64/i3ports/test-data/sim/GeoCalibDetectorStatus_2013.56429_V1.i3.gz"]
 infile  = ["/cvmfs/icecube.opensciencegrid.org/standard/RHEL_6_x86_64/i3ports/test-data/sim/Level2_IC86.2011_corsika.010281.001664.00.i3.bz2"]
-
+ 
 files = gcdfile + infile
 
 tray = I3Tray( )
