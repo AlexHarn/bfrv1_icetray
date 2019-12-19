@@ -3,6 +3,12 @@ Release Notes
 
 trunk
 -----
+December 19, 2019, Torsten Schmidt (torsten.schmidt@hightech-consulting.de)
+
+* pointing input files of test and example scripts/code to the new locations
+  within the test data (cp. make rsync) 
+
+
 
 June 13, 2018, Alex Olivas  (olivas@icecube.umd.edu)
 -----------------------------------------------------
