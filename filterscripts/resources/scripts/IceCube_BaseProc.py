@@ -120,9 +120,9 @@ def rename_bad_DOM_lists(frame):
 tray.AddModule(rename_bad_DOM_lists, "rename_bad_DOM_lists",
                Streams=[icetray.I3Frame.DetectorStatus])
 
-
-tray.AddModule(I3SPEFitInjector, "fixspe", 
-               Filename = spe_file)
+# if you data file is very old, and GCD file doesn't have it, you can inject the SPE corrections
+#tray.AddModule(I3SPEFitInjector, "fixspe", 
+#               Filename = spe_file)
 
 # shim the D frame with IceTop Bad Doms.
 def shim_bad_icetopdoms(frame):
