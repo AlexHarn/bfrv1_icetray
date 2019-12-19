@@ -2,6 +2,8 @@ from I3Tray import *
 from icecube import icetray, dataclasses, dataio
 from icecube.icetray import I3Frame
 from icecube.icetray import traysegment
+from icecube import ppc
+from icecube.simclasses import I3MCPESeriesMap
 import os
 import os.path
 from os.path import expandvars

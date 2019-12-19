@@ -3,18 +3,15 @@
 """
  GPU Photon propagation
 """
+import argparse
 
-import os
-from os.path import expandvars
 from I3Tray import I3Tray, I3Units
 from icecube.simprod.util import ReadI3Summary, WriteI3Summary
 from icecube.simprod.util import simprodtray, arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
-import argparse
 from icecube import icetray, dataclasses, simclasses, sim_services
 from icecube import polyplopia
 from icecube import ppc
-from icecube.simclasses import I3MCPESeriesMap
 from icecube import dataio, phys_services, interfaces
 from icecube.simprod import segments
 from icecube.production_histograms import ProductionHistogramModule
@@ -48,7 +45,6 @@ def add_args(parser):
     arguments.add_propagatemuons(parser, True)
 
     arguments.add_photonseriesname(parser)
-    
     arguments.add_gpu(parser)
     arguments.add_usegpus(parser, True)
 

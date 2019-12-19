@@ -4,15 +4,15 @@
 Add background coincidences to signal MC
 """
 
-from os.path import expandvars
+import argparse
+
 from I3Tray import I3Tray, I3Units
 from icecube import icetray, dataclasses, simclasses, dataio
-from icecube.icetray import I3Frame
+#from icecube.icetray import I3Frame
 from icecube.simprod import segments
-from icecube.simprod.util import simprodtray, arguments
+from icecube.simprod.util import arguments
 from icecube.simprod.util.simprodtray import RunI3Tray
-import argparse
-from icecube import earthmodel_service, PROPOSAL, cmc, phys_services
+from icecube import PROPOSAL, phys_services
 from icecube import polyplopia
 from icecube.production_histograms import ProductionHistogramModule
 from icecube.production_histograms.histogram_modules.simulation.mcpe_module import I3MCPEModule
@@ -45,7 +45,7 @@ def add_args(parser):
 
     arguments.add_gpu(parser)
     arguments.add_usegpus(parser, True)
-    
+
     parser.add_argument("--backgroundfile", dest="backgroundfile",
                         default='', type=str, required=False,
                         help='Background filename')
