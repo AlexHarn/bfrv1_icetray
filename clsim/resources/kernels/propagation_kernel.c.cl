@@ -335,8 +335,13 @@ inline void saveHit(
 #endif
 
         // Emit photon position relative to the hit DOM
+#ifndef CABLE_RADIUS
         floating_t domPosX, domPosY, domPosZ;
         geometryGetDomPosition(hitOnString, hitOnDom, &domPosX, &domPosY, &domPosZ);
+#else
+        floating_t domPosX, domPosY, domPosZ, cableOrientation;
+        geometryGetDomPosition(hitOnString, hitOnDom, &domPosX, &domPosY, &domPosZ, &cableOrientation);
+#endif
 #ifdef PANCAKE_FACTOR
         {
             // undo pancaking by scaling the distance of closest approach to the

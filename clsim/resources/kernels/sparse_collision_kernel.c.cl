@@ -102,9 +102,14 @@ inline void checkForCollision_OnString(
         if (dom_bitmask[stringNum/64] & (1 << convert_ulong(domNum%64))) continue;  // already check this string
         dom_bitmask[stringNum/64] |= (1 << convert_ulong(domNum%64));               // mark this string as checked
 #endif
-        
+
+#ifndef CABLE_RADIUS
         floating_t domPosX, domPosY, domPosZ;
         geometryGetDomPosition(stringNum, domNum, &domPosX, &domPosY, &domPosZ);
+#else
+        floating_t domPosX, domPosY, domPosZ, cableOrientation;
+        geometryGetDomPosition(stringNum, domNum, &domPosX, &domPosY, &domPosZ, &cableOrientation);
+#endif
 
         floating_t urdot, discr;
         {
@@ -118,7 +123,27 @@ inline void checkForCollision_OnString(
             discr   = sqr(urdot) - dr2 + OM_RADIUS*OM_RADIUS;   // (discr)^2
         }
         
+#ifdef CABLE_RADIUS
+        // Check intersection with cable
+        floating_t discr_cable;
+        {
+            // check intersection with infinite cylinder
+            const floating4_t drvec = (const floating4_t)(domPosX + (OM_RADIUS+CABLE_RADIUS)*cos(cableOrientation) - photonPosAndTime.x,
+                                                          domPosY + (OM_RADIUS+CABLE_RADIUS)*sin(cableOrientation) - photonPosAndTime.y,
+                                                          ZERO,
+                                                          ZERO);
+            const floating_t dr2 = dot(drvec,drvec);
+
+            const floating_t h_norm = hypot(photonDirAndWlen.x,photonDirAndWlen.y);
+            const floating_t urdot = h_norm > ZERO ? dot(drvec, photonDirAndWlen/h_norm) : ZERO; // this assumes drvec.w==0
+            discr_cable = sqr(urdot) - dr2 + CABLE_RADIUS*CABLE_RADIUS;   // (discr)^2
+        }
+
+        // no intersection, or blocked by cable
+        if (discr < ZERO || discr_cable >= ZERO) continue; 
+#else
         if (discr < ZERO) continue; // no intersection with this DOM
+#endif
         
 #ifdef PANCAKE_FACTOR        
         discr = my_sqrt(discr)/PANCAKE_FACTOR;

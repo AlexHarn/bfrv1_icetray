@@ -120,7 +120,7 @@ void register_I3CLSimSimpleGeometry()
         .def("GetPosZ", &I3CLSimSimpleGeometry::GetPosZ)
         .def("GetSubdetector", &I3CLSimSimpleGeometry::GetSubdetector)
 
-        .def("AddModule", &I3CLSimSimpleGeometry::AddModule, (bp::arg("string"), "dom", "x", "y", "z", "subdetector"))
+        .def("AddModule", &I3CLSimSimpleGeometry::AddModule, (bp::arg("string"), "dom", "x", "y", "z", "subdetector", bp::arg("cableAngle")=NAN))
         ;
     }
     

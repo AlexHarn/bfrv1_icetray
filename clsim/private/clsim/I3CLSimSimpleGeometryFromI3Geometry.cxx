@@ -35,8 +35,8 @@
 
 #include "dataclasses/geometry/I3Geometry.h"
 #include "dataclasses/geometry/I3OMGeo.h"
-
 #include "dataclasses/geometry/I3ModuleGeo.h"
+#include "simclasses/I3ExtraGeometryItemCylinder.h"
 
 #include <stdexcept>
 #include <limits>
@@ -93,7 +93,11 @@ I3CLSimSimpleGeometryFromI3Geometry(double OMRadius,
 
     I3MapModuleKeyStringConstPtr subdetectors = frame->Get<I3MapModuleKeyStringConstPtr>("Subdetectors");
     if (!subdetectors) log_error("No subdetector configuration in frame. Missing a \"Subdetectors\" object. Assuming all modules are on the same detector.");
-    
+
+    typedef I3Map<ModuleKey, I3ExtraGeometryItemCylinder> I3MapModuleKeyCylinder;
+    auto cableShadow = frame->Get<boost::shared_ptr<const I3MapModuleKeyCylinder>>("CableShadow");
+
+    double cableRadius = 0;
     BOOST_FOREACH(const I3ModuleGeoMap::value_type &i, *moduleGeoMap)
     {
         const ModuleKey &key = i.first;
@@ -146,8 +150,30 @@ I3CLSimSimpleGeometryFromI3Geometry(double OMRadius,
         if (std::abs(geo.GetRadius()-OMRadius) > 0.001*I3Units::mm)
             log_fatal("This version of clsim does only support DOMs with one single size. Configured size=%fmm, size in geometry=%fmm",
                       OMRadius/I3Units::mm, geo.GetRadius()/I3Units::mm);
+        // Every DOM has a cable, even if we don't know where it is. If no 
+        // position is given, assume the cable is along +x. 
+        double cableAngle = 0;
+        if (cableShadow) {
+            auto shadow = cableShadow->find(key);
+            if (shadow != cableShadow->end()) {
+                if (cableRadius == 0) {
+                    cableRadius = shadow->second.GetRadius();
+                } else if (shadow->second.GetRadius() != cableRadius) {
+                    log_fatal_stream("This version of clsim only supports a single cable radius. Configured "<<cableRadius<<" but "<<key<<" has radius "<<shadow->second.GetRadius());
+                }
+                double gap = shadow->second.GetCenter().Magnitude() - OMRadius - cableRadius;
+                if (std::abs(gap) > 1*I3Units::mm) {
+                    log_fatal_stream("This version of clsim assumes that the cable runs along the outside of the module, but it is "<<gap/I3Units::mm<<" mm from the surface.");
+                }
+                cableAngle = shadow->second.GetCenter().GetPhi();
+            }
+        } 
 
-        simpleGeo.AddModule(string,dom, geo.GetPos().GetX(), geo.GetPos().GetY(), geo.GetPos().GetZ(), subdetectorName);
+        simpleGeo.AddModule(string,dom, geo.GetPos().GetX(), geo.GetPos().GetY(), geo.GetPos().GetZ(), subdetectorName, cableAngle);
+    }
+
+    if (cableRadius > 0) {
+        simpleGeo.SetCableRadius(cableRadius*oversizeFactor);
     }
 
     return simpleGeo;

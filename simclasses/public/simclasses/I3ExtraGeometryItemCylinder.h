@@ -50,6 +50,9 @@ public:
 
     virtual std::ostream& operator<<(std::ostream& oss) const;
 
+    I3Position GetCenter() const { return 0.5*(from_+to_); }
+    double GetRadius() const { return radius_; }
+
 private:
     unsigned int FindIntersections(const I3Position &lineStart,
                                    const I3Position &lineEnd,

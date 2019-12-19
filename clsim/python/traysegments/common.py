@@ -122,6 +122,7 @@ def setupDetector(GCDFile,
                   HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
                   WavelengthAcceptance=None,
                   DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
+                  CableOrientation=expandvars("$I3_BUILD/ppc/resources/ice/dx.dat"),
                   IgnoreSubdetectors=['IceTop']):
     """
     Set up data structures used in N different places in clsim
@@ -132,6 +133,7 @@ def setupDetector(GCDFile,
     from icecube.clsim import GetDefaultParameterizationList
     from icecube.clsim import GetFlasherParameterizationList
     from icecube.clsim import GetHybridParameterizationList
+    from icecube.clsim.GetIceCubeCableShadow import GetIceCubeCableShadow
     import numpy
     
     def harvest_detector_parameters(GCDFile):
@@ -157,7 +159,10 @@ def setupDetector(GCDFile,
         tray.Add(pluck_calib, Streams=[icetray.I3Frame.Calibration])
         
         tray.Execute()
-        
+
+        if CableOrientation:
+            pluck_geo.frame['CableShadow'] = GetIceCubeCableShadow(CableOrientation)
+
         geometry = clsim.I3CLSimSimpleGeometryFromI3Geometry(
             DOMRadius, DOMOversizeFactor, pluck_geo.frame,
             ignoreSubdetectors=dataclasses.ListString(IgnoreSubdetectors),

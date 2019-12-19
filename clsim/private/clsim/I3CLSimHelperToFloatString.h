@@ -41,6 +41,7 @@ namespace I3CLSimHelper
         else if (val==1e-3) return "1e-3f";
         else if (val==1.) return "1.f";
         else if (val==0.) return "0.f";
+        else if (std::isnan(val)) return "NAN";
 
         std::ostringstream output(std::ostringstream::out);
         output.setf(std::ios::scientific,std::ios::floatfield);
@@ -66,6 +67,7 @@ namespace I3CLSimHelper
         else if (val==1e-3) return "1e-3";
         else if (val==1.) return "1.";
         else if (val==0.) return "0.";
+        else if (std::isnan(val)) return "NAN";
 
         std::ostringstream output(std::ostringstream::out);
         output.setf(std::ios::scientific,std::ios::floatfield);

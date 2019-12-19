@@ -55,8 +55,10 @@ namespace I3CLSimHelper
                                              const std::vector<double> &posX,
                                              const std::vector<double> &posY,
                                              const std::vector<double> &posZ,
+                                             const std::vector<double> &cableAngle,
                                              const std::vector<std::string> &subdetectors,
                                              const double omRadius,
+                                             const double cableRadius,
                                              std::vector<cl_ushort> &geoLayerToOMNumIndexPerStringSetBuffer,
                                              std::vector<int> &stringIndexToStringIDBuffer,
                                              std::vector<std::vector<unsigned int> > &domIndexToDomIDBuffer_perStringIndex
@@ -91,8 +93,10 @@ namespace I3CLSimHelper
                                                 geometry.GetPosXVector(),
                                                 geometry.GetPosYVector(),
                                                 geometry.GetPosZVector(),
+                                                geometry.GetCableAngleVector(),
                                                 geometry.GetSubdetectorVector(),
                                                 geometry.GetOMRadius(),
+                                                geometry.GetCableRadius(),
                                                 geoLayerToOMNumIndexPerStringSetBuffer,
                                                 stringIndexToStringIDBuffer,
                                                 domIndexToDomIDBuffer_perStringIndex
@@ -118,7 +122,7 @@ namespace I3CLSimHelper
     
     struct domStruct {
         unsigned int domID;
-        double posX, posY, posZ;
+        double posX, posY, posZ, cableAngle;
     };
     
     struct stringStruct {
@@ -496,7 +500,7 @@ namespace I3CLSimHelper
         
     }
     
-    std::string generate_get_dom_position_code(const std::vector<stringStruct> &strings)
+    std::string generate_get_dom_position_code(const std::vector<stringStruct> &strings, bool includeCable)
     {
         std::vector<double> stringMeanPosX(strings.size(), 0.);
         std::vector<double> stringMeanPosY(strings.size(), 0.);
@@ -527,6 +531,7 @@ namespace I3CLSimHelper
         std::vector<std::vector<double> > templatePositionsX;
         std::vector<std::vector<double> > templatePositionsY;
         std::vector<std::vector<double> > templatePositionsZ;
+        std::vector<std::vector<double> > templateCableAngle;
         
         for (std::size_t i=0;i<strings.size();++i)
         {
@@ -544,6 +549,7 @@ namespace I3CLSimHelper
             templatePositionsX.push_back(std::vector<double>(strings[i].doms.size(), NAN));
             templatePositionsY.push_back(std::vector<double>(strings[i].doms.size(), NAN));
             templatePositionsZ.push_back(std::vector<double>(strings[i].doms.size(), NAN));
+            templateCableAngle.push_back(std::vector<double>(strings[i].doms.size(), NAN));
             
             for (unsigned long j=0;j<strings[i].doms.size();++j)
             {
@@ -552,7 +558,8 @@ namespace I3CLSimHelper
                 templatePositionsX.back()[j] = currentDomStruct.posX-stringMeanPosX[i];
                 templatePositionsY.back()[j] = currentDomStruct.posY-stringMeanPosY[i];
                 templatePositionsZ.back()[j] = currentDomStruct.posZ;
-                
+                templateCableAngle.back()[j] = currentDomStruct.cableAngle;
+
                 stringInTemplate[i] = templatePositionsX.size()-1;
             }
         }
@@ -563,6 +570,7 @@ namespace I3CLSimHelper
         std::vector<double> templatePositionsX_flat;
         std::vector<double> templatePositionsY_flat;
         std::vector<double> templatePositionsZ_flat;
+        std::vector<double> templateCableAngle_flat;
         std::vector<std::size_t> templateIndexIntoFlatList(templatePositionsZ.size());
 
         for (std::size_t i=0;i<templatePositionsX.size();++i)
@@ -573,6 +581,7 @@ namespace I3CLSimHelper
                 templatePositionsX_flat.push_back(templatePositionsX[i][j]);
                 templatePositionsY_flat.push_back(templatePositionsY[i][j]);
                 templatePositionsZ_flat.push_back(templatePositionsZ[i][j]);
+                templateCableAngle_flat.push_back(templateCableAngle[i][j]);
 
                 double absX = std::abs(templatePositionsX[i][j]);
                 double absY = std::abs(templatePositionsY[i][j]);
@@ -599,7 +608,7 @@ namespace I3CLSimHelper
                 domPosBuffer[i*(maxNumDoms*4)+j*4 + 0] = currentDomStruct.posX;
                 domPosBuffer[i*(maxNumDoms*4)+j*4 + 1] = currentDomStruct.posY;
                 domPosBuffer[i*(maxNumDoms*4)+j*4 + 2] = currentDomStruct.posZ;
-                domPosBuffer[i*(maxNumDoms*4)+j*4 + 3] = NAN;
+                domPosBuffer[i*(maxNumDoms*4)+j*4 + 3] = currentDomStruct.cableAngle;
                 
                 //std::cout << "string=" << i << " dom=" << j << ": pos=(" << currentDomStruct.posX << "," << currentDomStruct.posY << "," << currentDomStruct.posZ << ")" << std::endl;
                 
@@ -661,6 +670,17 @@ namespace I3CLSimHelper
             output << "  " << templatePositionsZ_flat[i] << "f," << std::endl;
         }
         output << "};" << std::endl;
+
+        if (includeCable > 0) {
+            // Encode rotation as an unsigned byte. For an IceCube DOM and 
+            // cable, this discretizes the cable position to less than 10% of
+            // its diameter.
+            output << "__constant uchar geoDomPosTemplateCableAngle_flat[GEO_DOM_POS_NUM_FLAT_LIST_ENTRIES] = {" << std::endl;
+            for (std::size_t i=0;i<templateCableAngle_flat.size();++i){     
+                output << "  " << int(128*templateCableAngle_flat[i]/M_PI)%256 << "," << std::endl;
+            }
+            output << "};" << std::endl;
+        }
         
         output << "#define GEO_DOM_POS_NUM_STRINGS " << strings.size() << std::endl;
         output << "__constant unsigned int geoDomPosStringStartIndexInTemplateDomList[GEO_DOM_POS_NUM_STRINGS] = {" << std::endl;
@@ -682,8 +702,8 @@ namespace I3CLSimHelper
         output << "};" << std::endl;
 
         
-        output << "inline void geometryGetDomPosition(unsigned short stringNum, unsigned short domNum, floating_t *domPosX, floating_t *domPosY, floating_t *domPosZ);" << std::endl;
-        output << "inline void geometryGetDomPosition(unsigned short stringNum, unsigned short domNum, floating_t *domPosX, floating_t *domPosY, floating_t *domPosZ)" << std::endl;
+        // output << "inline void geometryGetDomPosition(unsigned short stringNum, unsigned short domNum, floating_t *domPosX, floating_t *domPosY, floating_t *domPosZ);" << std::endl;
+        output << "inline void geometryGetDomPosition(unsigned short stringNum, unsigned short domNum, floating_t *domPosX, floating_t *domPosY, floating_t *domPosZ "<<((includeCable > 0 ? ", floating_t *cableOrientation" : ""))<<")" << std::endl;
         output << "{" << std::endl;
         
         output << "    const unsigned int index = geoDomPosStringStartIndexInTemplateDomList[stringNum]+convert_uint(domNum);" << std::endl;
@@ -691,12 +711,15 @@ namespace I3CLSimHelper
         if (useShortsInsteadOfFloats) {
             output << "    *domPosX = convert_floating_t(geoDomPosTemplatePositionsX_flat[index])*GEO_DOM_POS_MAX_ABS_X_MULTIPLIER_IN_TEMPLATE + geoDomPosStringMeanPosX[stringNum];" << std::endl;
             output << "    *domPosY = convert_floating_t(geoDomPosTemplatePositionsY_flat[index])*GEO_DOM_POS_MAX_ABS_Y_MULTIPLIER_IN_TEMPLATE + geoDomPosStringMeanPosY[stringNum];" << std::endl;
-            output << "    *domPosZ = geoDomPosTemplatePositionsZ_flat[index];" << std::endl;
         } else {
             output << "    *domPosX = geoDomPosTemplatePositionsX_flat[index] + geoDomPosStringMeanPosX[stringNum];" << std::endl;
             output << "    *domPosY = geoDomPosTemplatePositionsY_flat[index] + geoDomPosStringMeanPosY[stringNum];" << std::endl;
-            output << "    *domPosZ = geoDomPosTemplatePositionsZ_flat[index];" << std::endl;
         }
+        output << "    *domPosZ = geoDomPosTemplatePositionsZ_flat[index];" << std::endl;
+        if (includeCable) {
+            output << "    *cableOrientation = (2*M_PI/256.f)*geoDomPosTemplateCableAngle_flat[index];" << std::endl;
+        }
+
         output << "}" << std::endl;
         output << std::endl;
         
@@ -708,15 +731,16 @@ namespace I3CLSimHelper
 
     }
     
-    
     bool write_geometry_code_and_fill_buffer(std::string &code, 
                                              const std::vector<int> &stringIDs,
                                              const std::vector<unsigned int> &domIDs,
                                              const std::vector<double> &posX,
                                              const std::vector<double> &posY,
                                              const std::vector<double> &posZ,
+                                             const std::vector<double> &cableAngle,
                                              const std::vector<std::string> &subdetectors,
                                              const double omRadius,
+                                             const double cableRadius,
                                              std::vector<cl_ushort> &geoLayerToOMNumIndexPerStringSetBuffer,
                                              std::vector<int> &stringIndexToStringIDBuffer,
                                              std::vector<std::vector<unsigned int> > &domIndexToDomIDBuffer_perStringIndex
@@ -840,6 +864,7 @@ namespace I3CLSimHelper
                 currentDomStruct.posX = posX[i];
                 currentDomStruct.posY = posY[i];
                 currentDomStruct.posZ = posZ[i];
+                currentDomStruct.cableAngle = cableAngle[i];
                 
                 ++numDoms;
             }
@@ -1146,12 +1171,15 @@ namespace I3CLSimHelper
         
 
         // the dom position lookup code (i.e. (stringNum,domNum)->(posX, posY, posZ) )
-        output << generate_get_dom_position_code(strings);
+        output << generate_get_dom_position_code(strings, cableRadius>0);
         
         
         // all the other data
         output << "#define NUM_STRINGS " << strings.size() << std::endl;
         output << "#define OM_RADIUS " << omRadius << "f" << std::endl;
+        if (cableRadius > 0) {
+            output << "#define CABLE_RADIUS " << I3CLSimHelper::ToFloatString(cableRadius) << std::endl;
+        }
         
         output << "#define GEO_LAYER_STRINGSET_NUM " << numStringSets << std::endl;
         output << "#define GEO_LAYER_STRINGSET_MAX_NUM_LAYERS " << maxLayerNum << std::endl;

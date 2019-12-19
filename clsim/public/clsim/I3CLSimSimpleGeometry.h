@@ -44,14 +44,17 @@ class I3CLSimSimpleGeometry
 {
     
 public:
-    I3CLSimSimpleGeometry(double OMRadius)
-        : OMRadius_(OMRadius)
+    I3CLSimSimpleGeometry(double OMRadius, double CableRadius=0)
+        : OMRadius_(OMRadius), CableRadius_(CableRadius)
     {}
 
     std::size_t size() const {return stringIDs_.size(); }
 
     /// This is the radius *with* oversizing applied!
     double GetOMRadius() const {return OMRadius_;}
+    double GetCableRadius() const {return CableRadius_;}
+    void SetOMRadius(double v) {OMRadius_ = v;}
+    void SetCableRadius(double v) {CableRadius_ = v;}
 
     const std::vector<int32_t> &GetStringIDVector() const {return stringIDs_;}
     const std::vector<uint32_t> &GetDomIDVector() const {return domIDs_;}
@@ -59,6 +62,7 @@ public:
     const std::vector<double> &GetPosYVector() const {return posY_;}
     const std::vector<double> &GetPosZVector() const {return posZ_;}
     const std::vector<std::string> &GetSubdetectorVector() const {return subdetectors_;}
+    const std::vector<double> &GetCableAngleVector() const {return cableAngles_;}
 
     int32_t GetStringID(std::size_t pos) const {return stringIDs_.at(pos);}
     uint32_t GetDomID(std::size_t pos) const {return domIDs_.at(pos);}
@@ -66,8 +70,9 @@ public:
     double GetPosY(std::size_t pos) const {return posY_.at(pos);}
     double GetPosZ(std::size_t pos) const {return posZ_.at(pos);}
     std::string GetSubdetector(std::size_t pos) const {return subdetectors_.at(pos);}
+    double GetCableAngle(std::size_t pos) const { return cableAngles_.at(pos);}
 
-    void AddModule(int32_t string, uint32_t om, double x, double y, double z, const std::string &subdetector)
+    void AddModule(int32_t string, uint32_t om, double x, double y, double z, const std::string &subdetector, double cableAngle=std::numeric_limits<double>::quiet_NaN())
     {
         stringIDs_.push_back(string);
         domIDs_.push_back(om);
@@ -75,16 +80,19 @@ public:
         posY_.push_back(y);
         posZ_.push_back(z);
         subdetectors_.push_back(subdetector);
+        cableAngles_.push_back(cableAngle);
     }
 
 private:
     double OMRadius_;
-    
+    double CableRadius_;
+
     std::vector<int32_t> stringIDs_;
     std::vector<uint32_t> domIDs_;
     std::vector<double> posX_;
     std::vector<double> posY_;
     std::vector<double> posZ_;
+    std::vector<double> cableAngles_;
     std::vector<std::string> subdetectors_;
 };
 
