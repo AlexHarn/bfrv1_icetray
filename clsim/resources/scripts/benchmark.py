@@ -26,6 +26,7 @@ parser.add_argument("--icemodel", default=expandvars("$I3_BUILD/ice-models/resou
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
 parser.add_argument("--unweighted-photons", action="store_true",
                   help="Propagate all Cherenkov photons. This is ~13x slower than downsampling first.")
+parser.add_argument("--no-cable-shadow", action="store_true")
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--minimal-gcd",  action="store_true", default=False,
@@ -304,6 +305,9 @@ tray.AddModule(generateEvent, "generateEvent",
 MCTreeName="I3MCTree"
 photonSeriesName = None
 
+kwargs = {}
+if options.no_cable_shadow:
+    kwargs['CableOrientation'] = None
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     GCDFile = options.GCDFILE,
     PhotonSeriesName = photonSeriesName,
@@ -316,7 +320,8 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     UseOnlyDeviceNumber=options.DEVICE,
     IceModelLocation=options.ICEMODEL,
     DOMOversizeFactor=options.OVERSIZE,
-    UnWeightedPhotons=options.unweighted_photons
+    UnWeightedPhotons=options.unweighted_photons,
+    **kwargs
     )
 
 icetray.logging.set_level_for_unit('I3CLSimServer', 'INFO')

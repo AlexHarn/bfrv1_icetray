@@ -122,7 +122,7 @@ def setupDetector(GCDFile,
                   HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
                   WavelengthAcceptance=None,
                   DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
-                  CableOrientation=expandvars("$I3_BUILD/ppc/resources/ice/dx.dat"),
+                  CableOrientation=expandvars("$I3_BUILD/ice-models/resources/models/cable_shadow/cable_orientation.txt"),
                   IgnoreSubdetectors=['IceTop']):
     """
     Set up data structures used in N different places in clsim

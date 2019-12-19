@@ -79,6 +79,7 @@ def I3CLSimMakePhotons(tray, name,
                        HoleIceParameterization=expandvars("$I3_BUILD/ice-models/resources/models/angsens/as.h2-50cm"),
                        WavelengthAcceptance=None,
                        DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
+                       CableOrientation=expandvars("$I3_BUILD/ice-models/resources/models/cable_shadow/cable_orientation.txt"),
                        OverrideApproximateNumberOfWorkItems=None,
                        IgnoreSubdetectors=['IceTop'],
                        ExtraArgumentsToI3CLSimClientModule=dict(),
@@ -236,6 +237,11 @@ def I3CLSimMakePhotons(tray, name,
         oversizing and angular acceptance.
     :param DOMRadius:
         Allow the DOMRadius to be set externally, for things like mDOMs.
+    :param CableOrientation:
+        Path to cable orientation file. If set, blocks photons that would have
+        to pass through the best-fit position of the cable to reach a DOM. This
+        reduces the isotropic efficiency by ~10%. Set to None to disable
+        simulation of the cable shadow.
     :param OverrideApproximateNumberOfWorkItems:
         Allows to override the auto-detection for the maximum number of parallel work items.
         You should only change this if you know what you are doing.
@@ -275,6 +281,7 @@ def I3CLSimMakePhotons(tray, name,
         HoleIceParameterization=HoleIceParameterization,
         WavelengthAcceptance=WavelengthAcceptance,
         DOMRadius=DOMRadius,
+        CableOrientation=CableOrientation,
         IgnoreSubdetectors=IgnoreSubdetectors,
     )
 
