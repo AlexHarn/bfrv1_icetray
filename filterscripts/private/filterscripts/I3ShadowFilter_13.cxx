@@ -429,6 +429,7 @@ bool I3ShadowFilter_13::CheckShadow(I3Frame &frame ){
         } else {
             // generating fake MJD, associated Moon variables will be computed later
             timeMJD_ = corsikaRandService_->Uniform(mjdStart_,mjdEnd_);
+	    eventtime = I3Time(timeMJD_);
             ++nGeneratedMJD_;
             corsika_store = true;
         }
