@@ -2,6 +2,8 @@ For StartingTrackVeto_example.py:
 ---------------------------------
 This script runs STV over a i3 file. You can check the STV outputs in the output file.
 
-To quickly test, you can try the following command after building your I3 environment:
+To quickly test, you can try the following commands after building your I3 environment:
 
 python StartingTrackVeto_example.py -i /cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_2012.56063_V1.i3.gz /data/sim/IceCube/2012/filtered/level2/neutrino-generator/11029/00000-00999/Level2_nugen_numu_IC86.2012.011029.000687.i3.bz2
+
+python StartingTrackVeto_example_segments.py -i /cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_2012.56063_V1.i3.gz /cvmfs/icecube.opensciencegrid.org/data/i3-test-data/sim/Level3_nugen_numu_IC86.2012.011069.000000_20events.i3.bz2 -f SplineMPE -p InIcePulses
