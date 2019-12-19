@@ -6,6 +6,12 @@ Release Notes
 =============
 trunk
 
+Dec 19, 2019 Juan Carlos Diaz Velez (juancarlos@icecube.umd.edu)
+-----------------------------------------------------------------
+Changed calculation of TimeAtDetecor to use I3Calculator::ClosestApproachCalc for an infinite track 
+for better estimation of arrival time.
+
+
 June 20, 2018 Juan Carlos Diaz Velez (juancarlos@icecube.umd.edu)
 -----------------------------------------------------------------
 Release V01-04-04
