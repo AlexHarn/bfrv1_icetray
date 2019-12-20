@@ -98,14 +98,14 @@ def main(options, stats={}):
     usagemap = tray.Usage()
 
     for mod in usagemap:
-        print mod
+        print (mod)
 
 
 ### iceprod stuff ###
 try:
     from iceprod.modules import ipmodule
-except ImportError, e:
-    print 'Module iceprod.modules not found. Will not define IceProd Class'
+except ImportError as e:
+    print ('Module iceprod.modules not found. Will not define IceProd Class')
 else:
     Level2Filter = ipmodule.FromOptionParser(make_parser(),main)
 ### end iceprod stuff ###
