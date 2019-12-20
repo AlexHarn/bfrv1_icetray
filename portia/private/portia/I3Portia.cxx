@@ -471,7 +471,7 @@ void I3Portia::Physics(I3FramePtr frame){
 	    break;//this is it
 	  }
 	}
-	if(!atwd_time_found) {log_error("No corresponding ATWD Waveforms %f to the launch %f", atwdSeries_iter->GetStartTime(), launchTimeOfThisDOM);atwdSeries_iter = atwdMap_iter->second.begin();} 
+	if(!atwd_time_found) {log_warn("No corresponding ATWD Waveforms %f to the launch %f", atwdSeries_iter->GetStartTime(), launchTimeOfThisDOM);atwdSeries_iter = atwdMap_iter->second.begin();} 
 	if(HLC_count>=1)log_debug("corresponding ATWD Waveforms %f to the launch %f", atwdSeries_iter->GetStartTime(), launchTimeOfThisDOM); 
       }
       log_trace("Atwd Start Time %f : Launch Time %f", atwdSeries_iter->GetStartTime(), launchTimeOfThisDOM);
@@ -511,7 +511,7 @@ void I3Portia::Physics(I3FramePtr frame){
 	      break;//this is it
 	    }
 	  }
-	  if(!fadc_time_found) {log_error("No corresponding FADC Waveforms %f to the launch %f", fadcSeries_iter->GetStartTime(), launchTimeOfThisDOM); 
+	  if(!fadc_time_found) {log_warn("No corresponding FADC Waveforms %f to the launch %f", fadcSeries_iter->GetStartTime(), launchTimeOfThisDOM); 
 	    fadcSeries_iter = fadcMap_iter->second.begin();}
 	  if(HLC_count>1)log_debug("corresponding FADC Waveforms %f to the launch %f", fadcSeries_iter->GetStartTime(),launchTimeOfThisDOM); 
 
