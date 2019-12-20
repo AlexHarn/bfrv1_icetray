@@ -8,6 +8,11 @@ Release Notes
 
 trunk
 -----
+December 19, 2019 Zelong Zhang (zelong.zhang.1@stonybrook.edu)
+------------------------------------------------------------------
+Release V01-07-02
+
+* Modify the test example script to fit with python3
 
 March 24, 2017 Kevin Meagher (kmeagher@ulb.ac.be)
 ------------------------------------------------------------------
