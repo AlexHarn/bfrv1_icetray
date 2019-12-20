@@ -26,13 +26,13 @@ from icecube.level3_filter_cascade.L3_monopod import L3_Monopod
 def maskify(frame):
     if frame.Has('SplitInIcePulses'): 
         frame['OfflinePulses']=frame['SplitInIcePulses']  # In IC86-2013 'SplitInIcePulses' is used as 'OfflinePulses' in IC86-2011
-	frame['OfflinePulsesTimeRange']=frame['SplitInIcePulsesTimeRange']
+        frame['OfflinePulsesTimeRange']=frame['SplitInIcePulsesTimeRange']
     else:
-	return True
+        return True
     if frame.Has('SRTInIcePulses'):
         frame['SRTOfflinePulses']=frame['SRTInIcePulses']
     else:
-	return True
+        return True
     return True
 
 
@@ -51,11 +51,11 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
     tray.AddModule("I3Reader", FilenameList=files)
 
     if not Year == "2011":
-	split_name = 'InIceSplit'
-	tray.AddModule(maskify,'maskify')
+        split_name = 'InIceSplit'
+        tray.AddModule(maskify,'maskify')
 
     else:
-	split_name = 'in_ice'
+        split_name = 'in_ice'
 
     tray.AddModule(label,'label_CascadeL2Stream',year=Year)
         
@@ -134,10 +134,10 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
 
     ## prepare pulses for monopod and crdo w/o satur. DOMs
     if MCbool :
-        print "This is Monte Carlo"
+        print ("This is Monte Carlo")
         tray.AddSegment(preparePulses, 'newPulses', Simulation=True,InIceCscd = lambda frame: which_split(frame, split_name) and frame['CscdL2'].value)
     else:
-        print "This is real data"
+        print ("This is real data")
         tray.AddSegment(preparePulses, 'newPulses',InIceCscd = lambda frame: which_split(frame, split_name) and frame['CscdL2'].value)
 
     # fitting SPE32/CscdLLH/Bayesian32/Monopod8 for all
@@ -148,9 +148,9 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
 
     tray.AddSegment(L3_Monopod, 'monopod',
                     Pulses='OfflinePulses',
-		    year=Year,
-		    AmplitudeTable = AmplitudeTable,
-	            TimingTable = TimingTable
+                    year=Year,
+                    AmplitudeTable = AmplitudeTable,
+                    TimingTable = TimingTable
                     )
     
     tray.AddSegment(TimeSplitFits, 'TimeSplit', Pulses="OfflinePulses")
