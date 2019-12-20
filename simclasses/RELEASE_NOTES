@@ -7,6 +7,11 @@ Release Notes
 
 trunk
 --------------
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 - Add I3NuGenInfo and I3CorsikaInfo for use in S-Frame weighting
 - Adding three remaining Gaisser-Hillas fit parameters (a, b, and c) to I3CorsikaShowerInfo.
 - Added CROSSTALK_PULSE to I3MCPulse

@@ -4,6 +4,10 @@ Release Notes
 On the trunk
 ------------
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 Combo release: December 18, 2019 E. Blaufuss (blaufuss @ umd.edu)
 """"""""""""""""""""""""""""""""""""""""""""""""""
 * several python3 compatiblity changes (print(print))

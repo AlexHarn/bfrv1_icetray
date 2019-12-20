@@ -7,6 +7,11 @@ Release Notes
 
 On the trunk
 ------------
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * Add in a pythonic module to handle multi-pmt simulation using pre-generated
   GEANT4 noise. It's slow enough that it can only be a temporary solution, but
   it should work in pinch.

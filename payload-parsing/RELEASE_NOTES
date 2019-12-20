@@ -3,13 +3,17 @@ Release Notes
 
 trunk
 -----
+
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 December 19, 2019, Torsten Schmidt (torsten.schmidt@hightech-consulting.de)
 
 * pointing input files of test and example scripts/code to the new locations
   within the test data (cp. make rsync) 
 * using new "target_link_libraries" for BSD in case GotoBLAS2 is used
-
-
 
 December 11, 2018, Alex Olivas (olivas@icecube.umd.edu)
 ------------------------------------------------------------

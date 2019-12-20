@@ -8,6 +8,10 @@ Release Notes
 trunk
 -----------------------------
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 - Modified Laputop so that it uses the X/Y/Z coordinates of the Tank that was hit 
   using StationGeo information, instead of the coordinates of the DOM inside the tank,
   like 61 or 63, which is off to one side.  Previous functionality can be restored

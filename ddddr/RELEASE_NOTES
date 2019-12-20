@@ -6,9 +6,11 @@
 # Project maintainer: Hape Bretz (hans-peter.bretz@desy.de)
 
 
-March 12, 20119 Michael Larson
---------------------------------------------------------------------
 Trunk
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
 
 - Swapped copied classes (FitParameterSpecs, MinimizerResult, 
   MuonEnergyFCNBase, MuonEnergyMinuit2) for the corresponding 

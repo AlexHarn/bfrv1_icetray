@@ -7,7 +7,12 @@ Release Notes
 
 trunk
 -----
- - New maintainer, Frederik Lauber
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
+- New maintainer, Frederik Lauber
  - added test script dependencies to CMakeFile to hopefully make tests run after only building double-muon
 
 June 12, 2018 Kevin Meagher

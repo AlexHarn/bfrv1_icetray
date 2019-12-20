@@ -8,6 +8,10 @@ Release Notes
 On the trunk
 ------------
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * (r171368): Enforce minimum bin width in BinSigma mode
 * (r171365): Fix an initialization bug in bayesian blocks rebinning
 * (r170477): Use all OMTypes except IceTop and scintillators (Upgrade support)

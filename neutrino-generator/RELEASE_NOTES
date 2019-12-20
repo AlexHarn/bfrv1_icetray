@@ -7,6 +7,10 @@ Release Notes
 trunk
 -----
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * I3NuGInjector now insert `I3NuGenInfo` objects into S-frames
 * Only convert string to neutrino type once per tray rather than every event
 

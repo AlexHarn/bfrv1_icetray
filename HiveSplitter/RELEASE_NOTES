@@ -9,6 +9,11 @@ Release Notes
 
 Trunk
 -----
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 - Use a read only stream to read datafiles to prevent crash if the data files 
   are on cvmfs, as well as switch to $I3_BUILD 
 

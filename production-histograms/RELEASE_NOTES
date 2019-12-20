@@ -8,6 +8,10 @@ Release Notes
 trunk
 -----
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * Bug fix for parameter conversion.  The module wasn't properly
   catching list objects that weren't of type Histogram or HistogramModule.
   Now it warns correctly and also sanely handles containers, so the

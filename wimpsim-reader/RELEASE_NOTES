@@ -5,9 +5,11 @@
 Release Notes
 =============
 
-March 22, 2019 Michael Larson (mlarson@icecube.wisc.edu)
---------------------------------------------------------------------
 Trunk
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
 
 * Cleaned up some of the file handling
 * Added the ability to read gzipped WimpSim files

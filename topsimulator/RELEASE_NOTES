@@ -7,6 +7,11 @@ Release Notes
 
 trunk
 -----
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * add `__bool__` to `ValidationReport` in addition to `__nonzero__`.
   python2 uses `__nonzero__` but python3 uses `__bool__`.
 * Fix GCD position for unit test

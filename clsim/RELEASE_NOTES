@@ -7,6 +7,11 @@ Release Notes
 
 trunk
 -----
+
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 * Merge multiprocess-server branch. This is a major restructing of clsim.
   - I3CLSimServer accepts steps over a ZMQ socket and distributes them to
     instances of I3CLSimStepToPhotonConverter. Multiple clients can share a

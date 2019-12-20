@@ -4,6 +4,10 @@ Release Notes
 trunk
 -----
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 Release V01-11-00
 -----------------
 * Added support for re(over) sampling of corsika showers in photon propagation stage.

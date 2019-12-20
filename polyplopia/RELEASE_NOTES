@@ -6,6 +6,10 @@ Release Notes
 =============
 trunk
 
+Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-00
+
 Dec 19, 2019 Juan Carlos Diaz Velez (juancarlos@icecube.umd.edu)
 -----------------------------------------------------------------
 Changed calculation of TimeAtDetecor to use I3Calculator::ClosestApproachCalc for an infinite track 
