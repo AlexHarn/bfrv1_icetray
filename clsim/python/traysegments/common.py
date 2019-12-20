@@ -161,6 +161,7 @@ def setupDetector(GCDFile,
         tray.Execute()
 
         if CableOrientation:
+            icetray.logging.log_warn("Explicitly simulating cable shadow. This will reduce overall DOM efficiency by ~10%.")
             pluck_geo.frame['CableShadow'] = GetIceCubeCableShadow(CableOrientation) if isinstance(CableOrientation, str) else CableOrientation
 
         geometry = clsim.I3CLSimSimpleGeometryFromI3Geometry(
