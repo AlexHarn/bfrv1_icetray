@@ -17,7 +17,7 @@ def runVeto_Singles(tray, suffix, pulses, If = lambda frame: True):
 
 @traysegment
 def runVeto_Coinc(tray, suffix, pulses, If = lambda frame: True):
-    for i in xrange(2):
+    for i in range(2):
         tray.AddModule("I3VetoModule", "Veto_Coinc%d" % i,
                        HitmapName='CscdL2_Topo_HLC%d' % i,
                        OutputName='Veto_%s%d' % (suffix,i),
