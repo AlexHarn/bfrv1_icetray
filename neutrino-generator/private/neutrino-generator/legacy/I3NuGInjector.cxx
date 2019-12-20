@@ -34,8 +34,6 @@ using namespace earthmodel;
 I3NuGInjector::I3NuGInjector(const I3Context &c)
  :I3ServiceBase(c),
   nu_flavor_("NuMu"),
-  nu_type_(I3Particle::NuMu),
-  anti_nu_type_(I3Particle::NuMu),
   gamma_(1),
   energy_min_log_(1),
   energy_max_log_(9),
@@ -113,8 +111,6 @@ I3NuGInjector::I3NuGInjector(I3RandomServicePtr random,
                              const string &name)
  :I3ServiceBase(name),
   nu_flavor_("NuMu"),
-  nu_type_(I3Particle::NuMu),
-  anti_nu_type_(I3Particle::NuMu),
   gamma_(1),
   energy_min_log_(1),
   energy_max_log_(9),
@@ -204,19 +200,6 @@ void I3NuGInjector::Configure()
   coszenMin_ = cos(zenith_max_);
   coszenMax_ = cos(zenith_min_);
   flat_zen_emulator_.Initialize(coszenMin_, coszenMax_);
-
-  if(nu_flavor_=="NuE"){
-    nu_type_      = I3Particle::NuE;
-    anti_nu_type_ = I3Particle::NuEBar;
-  } else if (nu_flavor_ == "NuMu"){
-    nu_type_      = I3Particle::NuMu;
-    anti_nu_type_ = I3Particle::NuMuBar;    
-  } else if(nu_flavor_ == "NuTau"){
-    nu_type_      = I3Particle::NuTau;
-    anti_nu_type_ = I3Particle::NuTauBar;    
-  } else {
-    log_fatal("This '%s' is not a valid neutino flavor", nu_flavor_.c_str());
-  }
 
 }
 
@@ -312,14 +295,25 @@ bool I3NuGInjector::InjectInitialNeutrino(I3FramePtr frame,
 /////////////////////////////////////////////////////  
 bool I3NuGInjector:: DecideFlavor(ParticlePtr neu_ptr){
   log_trace("==decide flavor==");
+ const string initial_neutrino_flavor = nu_flavor_;
+ I3Particle::ParticleType neutrinotype(I3Particle::unknown);
+ int flavor(0);
 
-  unsigned int coin_flip =  random_->Integer(2);
-  if (coin_flip == 0){
-    neu_ptr->SetType(nu_type_);
-  } else {
-    neu_ptr->SetType(anti_nu_type_);    
-  }
-  log_trace("flavor set to %d=%s", neu_ptr->GetType(), neu_ptr->GetTypeString().c_str());
+ random_->Uniform(-1,1)>0 ? flavor=1 : flavor=-1;
+
+ if ("NuMu" == initial_neutrino_flavor){
+   if(flavor==1)  neutrinotype = I3Particle::NuMu; 
+   if(flavor==-1) neutrinotype = I3Particle::NuMuBar; 
+ } else if("NuE" == initial_neutrino_flavor){
+   if(flavor==1)  neutrinotype = I3Particle::NuE; 
+   if(flavor==-1) neutrinotype = I3Particle::NuEBar; 
+ } else if("NuTau" == initial_neutrino_flavor){
+   if(flavor==1)  neutrinotype = I3Particle::NuTau; 
+   if(flavor==-1) neutrinotype = I3Particle::NuTauBar; 
+ } else log_fatal("This initial neutrino flavor %s doesn't exist", initial_neutrino_flavor.c_str());
+ 
+ neu_ptr->SetType(neutrinotype);
+ log_trace("flavor set to %d=%s", neu_ptr->GetType(), neu_ptr->GetTypeString().c_str());
 
   return true;
 }

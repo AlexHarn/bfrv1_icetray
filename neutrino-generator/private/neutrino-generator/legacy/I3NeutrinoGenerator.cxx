@@ -18,7 +18,6 @@
 #include "dataclasses/physics/I3MCTree.h"
 #include "dataclasses/physics/I3MCTreeUtils.h"
 #include "dataclasses/I3Map.h"
-#include "simclasses/I3NuGenInfo.h"
 #include "neutrino-generator/legacy/MemoryInfo.h"
 //I3NeutrinoGenerator classes 5 basic classes and one utility class
 #include "neutrino-generator/legacy/I3NeutrinoGenerator.h"
@@ -271,34 +270,6 @@ void I3NeutrinoGenerator::DAQ(I3FramePtr frame)
                   primary_nu_name_.c_str());
      }
 
-     if(eventCounter_ == 0 ){
-       if (injector_->GetSimulatePointSource()){
-         log_warn("No S-Sframe Support for Point Source Injector");
-       }else{       
-         I3FramePtr info_frame(new I3Frame(I3Frame::Simulation));
-         I3NuGenInfoPtr info(new I3NuGenInfo);
-    
-         info->run_id = runid_;
-         info->n_events = uint32_t(number_of_events_);
-         info->cylinder_height=steer_->GetCylinderHeight();
-         info->cylinder_radius=steer_->GetCylinderRadius();
-
-         info->flavor_fraction = 0.5;
-         info->primary_type    = injector_->GetNuType();         
-         info->min_zenith      = injector_->GetFluxZenithMin();
-         info->max_zenith      = injector_->GetFluxZenithMax();
-         info->min_azimuth     = injector_->GetFluxAzimuthMin();  
-         info->max_azimuth     = injector_->GetFluxAzimuthMax();
-         info->min_energy      = pow(10.0,injector_->GetFluxEnergyMinLog());
-         info->max_energy      = pow(10.0,injector_->GetFluxEnergyMaxLog());
-         info->power_law_index = injector_->GetPowerLawIndex();
-         
-         info_frame->Put(info);         
-         PushFrame(info_frame,"OutBox");       
-         log_info_stream("Adding S-Frame: \n" << *info );         
-       }
-     }
-     
      /**
       * Create a primary neutrino, store primary info to weight map
       */

@@ -86,7 +86,6 @@ class I3NuGInjector : public I3ServiceBase {
 
   // getters for injected particle
   const std::string GetInitialNuFlavor()   const {return nu_flavor_;}
-  const I3Particle::ParticleType GetNuType() const {return nu_type_;}
   const double GetPowerLawIndex()     const {return gamma_;}
   const double GetFluxEnergyMinLog()  const {return energy_min_log_;}
   const double GetFluxEnergyMaxLog()  const {return energy_max_log_;}
@@ -107,8 +106,6 @@ class I3NuGInjector : public I3ServiceBase {
   private:
 
   std::string nu_flavor_;
-  I3Particle::ParticleType nu_type_;
-  I3Particle::ParticleType anti_nu_type_;  
   double gamma_;
   double energy_min_log_;
   double energy_max_log_;
