@@ -13,7 +13,7 @@ def L3_Monopod(tray, name,year,Pulses='OfflinePulses',
     # fix waveform range: 
     from icecube import WaveCalibrator, DomTools
     kwargs = dict(Launches='InIceRawData', Waveforms='CalibratedWaveforms', Errata='CalibrationErrata')
-    	#tray.AddSegment(WaveCalibrator.DOMSimulatorCalibrator, name+'wavecal', If=lambda frame: frame.Has('InIceRawData'), **kwargs)
+        #tray.AddSegment(WaveCalibrator.DOMSimulatorCalibrator, name+'wavecal', If=lambda frame: frame.Has('InIceRawData'), **kwargs)
     tray.AddModule('I3WaveCalibrator',name+'wavecal', FADCSaturationMargin=1,If=lambda frame: not frame.Has('CalibratedWaveformRange') and frame.Has('InIceRawData'), **kwargs)
 
     tray.AddModule('I3WaveformTimeRangeCalculator', name+'Range', If=lambda frame: not frame.Has('CalibratedWaveformRange'))
@@ -36,20 +36,20 @@ def L3_Monopod(tray, name,year,Pulses='OfflinePulses',
     millipede_config = dict(Pulses=Pulses, CascadePhotonicsService=photonics_service,
         PartialExclusion=False,
         Parametrization='HalfSphere')
-	
+        
     #tray.AddSegment(MonopodFit, 'L3_MonopodFit4', Seed='CscdL3_Credo_SpiceMie',
     #    PhotonsPerBin=5, Iterations=4,DOMEfficiency=0.99,BinSigma=2,MintimeWidth=15,BadDOMs=exclusions,**millipede_config)
 
     #tray.AddSegment(MonopodFit, 'L3_MonopodFit4_CascadeSeed', Seed='CascadeSeed',
     #    PhotonsPerBin=5, Iterations=4,DOMEfficiency=0.99,BinSigma=2,MintimeWidth=15,BadDOMs=exclusions,**millipede_config)
 
-    if year == 	"2011":
-	AmpSeed= 'CascadeLlhVertexFit'
+    if year == "2011":
+        AmpSeed= 'CascadeLlhVertexFit'
     else:
-	AmpSeed= 'CascadeLlhVertexFit_L2'
+        AmpSeed= 'CascadeLlhVertexFit_L2'
 
     tray.AddSegment(MonopodFit, 'RedoMonopodAmpFit', Seed=AmpSeed,
-	PhotonsPerBin=-1, **millipede_config)
+        PhotonsPerBin=-1, **millipede_config)
 
     tray.AddSegment(MonopodFit, 'L3_MonopodFit4_AmptFit',Seed='RedoMonopodAmpFit',
         PhotonsPerBin=5, Iterations=4,DOMEfficiency=0.99,BinSigma=2,MintimeWidth=15,BadDOMs=exclusions,**millipede_config)
