@@ -47,8 +47,8 @@ for minimizer in minimizer_collection:
       
         if name == 'Vertex_Reco_Brent_HitNoHit' or name == 'Vertex_Reco_Brent_HitNoHitMpe':
             continue
-            print cscd_llh_name
-            print name
+            print (cscd_llh_name)
+            print (name)
             tray.AddModule("I3CscdLlhModule", cscd_llh_name)(
               ("InputType","RecoPulse"),
               ("RecoSeries","MaskedOfflinePulses"),
@@ -60,7 +60,7 @@ for minimizer in minimizer_collection:
               ("AmpWeightPower", 1.0),
               #("FirstLE", True),
               ("MinHits", 10),
-              ("HitNoHitNorm", 1.4),
+	      ("HitNoHitNorm", 1.4),
               ("HitNoHitLambdaAttn", 29.0),
               ("HitNoHitNoise", 5.0e-3),
               ("HitNoHitDistCutoff", 0.5),
@@ -68,8 +68,8 @@ for minimizer in minimizer_collection:
               ("HitNoHitSmallProb", 1.0e-40)
               )
         else:
-            print cscd_llh_name
-            print name
+            print (cscd_llh_name)
+            print (name)
             tray.AddModule("I3CscdLlhModule", cscd_llh_name)(
               ("InputType","RecoPulse"),
               ("RecoSeries","MaskedOfflinePulses"),
