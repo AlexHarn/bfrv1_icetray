@@ -9,7 +9,7 @@ reconstruct double muon events (or coincident muons, or whatever
 you'd like to call them). This can be for the purpose of eliminating
 background as well as finding interesting physics signatures.
 
-  **Maintainer** : Kevin Meagher
+  **Maintainer** : Frederik Lauber
 
 .. toctree::
    :maxdepth: 1
