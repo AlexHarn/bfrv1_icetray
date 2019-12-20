@@ -44,7 +44,7 @@ if options.gcdfile: files.append(options.gcdfile)
 files.append(options.inputfile)
 
 if not ".i3" in options.outputfile:
-  print "No .i3 in outputfile %s. Appending a .i3" % options.outputfile
+  print("No .i3 in outputfile %s. Appending a .i3" % options.outputfile)
   options.outputfile += ".i3"
 
 #---------------------------------------------------------------
