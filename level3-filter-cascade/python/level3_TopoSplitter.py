@@ -24,7 +24,7 @@ def TopologicalCounter(tray, name, pulses='OfflinePulsesHLC', InIceCscd = lambda
         """Select the first pulse in each DOM"""
         if not todo(frame):
             return
-	if not frame.Has(FirstPulses):
+        if not frame.Has(FirstPulses):
             pulsemap = dataclasses.I3RecoPulseSeriesMap.from_frame(frame, pulses)
             mask = dataclasses.I3RecoPulseSeriesMapMask(frame, pulses)
             mask.set_none()
