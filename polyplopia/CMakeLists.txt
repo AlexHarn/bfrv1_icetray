@@ -26,6 +26,7 @@ IF (IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sim-services AND IS_DIRECTORY ${CMAKE_SOURC
     USE_PROJECTS dataclasses polyplopia sim-services dataio trigger-sim 
     USE_TOOLS boost 
     )
+    i3_test_scripts(resources/test/*.py)
 ENDIF (IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sim-services AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/trigger-sim)
 
 add_subdirectory(private/pybindings)
