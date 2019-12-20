@@ -36,11 +36,11 @@ class RateTracker(I3PacketModule):
     
     def Finish(self):
         dt = self.livetime/I3Units.second
-        print '='*80
+        print ('='*80)
         if self.events_passed is not None and dt is not None:
-            print 'Passed %d/%d events (reduced by %g)' % (self.events_passed, self.events_seen, self.events_seen/float(self.events_passed))
-            print 'Rates: %g Hz / %g Hz' % (self.events_passed/dt, self.events_seen/dt)
-            print 'Total livetime: %.1f s' % (dt)
+            print ('Passed %d/%d events (reduced by %g)' % (self.events_passed, self.events_seen, self.events_seen/float(self.events_passed)))
+            print ('Rates: %g Hz / %g Hz' % (self.events_passed/dt, self.events_seen/dt))
+            print ('Total livetime: %.1f s' % (dt))
         else:
-            print 'None events survived the cuts\n'
-        print '='*80
+            print ('None events survived the cuts\n')
+        print ('='*80)
