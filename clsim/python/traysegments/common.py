@@ -122,7 +122,7 @@ def setupDetector(GCDFile,
                   HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.h2-50cm"),
                   WavelengthAcceptance=None,
                   DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
-                  CableOrientation=expandvars("$I3_BUILD/ice-models/resources/models/cable_shadow/cable_orientation.txt"),
+                  CableOrientation=None,
                   IgnoreSubdetectors=['IceTop']):
     """
     Set up data structures used in N different places in clsim
@@ -161,7 +161,7 @@ def setupDetector(GCDFile,
         tray.Execute()
 
         if CableOrientation:
-            pluck_geo.frame['CableShadow'] = GetIceCubeCableShadow(CableOrientation)
+            pluck_geo.frame['CableShadow'] = GetIceCubeCableShadow(CableOrientation) if isinstance(CableOrientation, str) else CableOrientation
 
         geometry = clsim.I3CLSimSimpleGeometryFromI3Geometry(
             DOMRadius, DOMOversizeFactor, pluck_geo.frame,

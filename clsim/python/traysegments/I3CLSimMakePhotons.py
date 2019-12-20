@@ -79,7 +79,7 @@ def I3CLSimMakePhotons(tray, name,
                        HoleIceParameterization=expandvars("$I3_BUILD/ice-models/resources/models/angsens/as.h2-50cm"),
                        WavelengthAcceptance=None,
                        DOMRadius=0.16510*icetray.I3Units.m, # 13" diameter
-                       CableOrientation=expandvars("$I3_BUILD/ice-models/resources/models/cable_shadow/cable_orientation.txt"),
+                       CableOrientation=None,
                        OverrideApproximateNumberOfWorkItems=None,
                        IgnoreSubdetectors=['IceTop'],
                        ExtraArgumentsToI3CLSimClientModule=dict(),

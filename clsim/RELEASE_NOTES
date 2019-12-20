@@ -39,8 +39,9 @@ trunk
 * Removed MMCTrackListName option from I3CLSimMakePhotons. PROPOSAL now emits 
   muon track segments directly, and they do not need to be reverse-engineered 
   by I3MuonSlicer.
-* Direct, in-kernel cable shadow simulation is enabled by default. This reduces
-  isotropic efficiency by ~10%, but in a directionally specific way.
+* Direct, in-kernel cable shadow simulation can be enabled by setting the
+  CableOrientation parameter in I3CLSimMakePhotons. This reduces isotropic
+  efficiency by ~10%, but in a directionally specific way.
   
 
 Nov. 12, 2018 Juan Carlos Diaz-Velez (juancarlos@icecube.wisc.edu)

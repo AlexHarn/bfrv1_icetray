@@ -8,7 +8,10 @@ from I3Tray import I3Units
 import numpy as np
 from os.path import expandvars
 
-def GetIceCubeCableShadow(CableAngles=expandvars("$I3_BUILD/ice-models/resources/models/cable_shadow/cable_orientation.txt"),
+from_cable_shadow = expandvars("$I3_BUILD/ice-models/resources/models/cable_position/orientation.cable_shadow.txt")
+from_led7 = expandvars("$I3_BUILD/ice-models/resources/models/cable_position/orientation.led7.txt")
+
+def GetIceCubeCableShadow(CableAngles=from_led7,
     DOMRadius=165.1*I3Units.mm, CableRadius=23*I3Units.mm, CableLength=1*I3Units.m):
     """
     Get a cylinder representing the position of the cable at each DOM

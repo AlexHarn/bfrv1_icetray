@@ -1,3 +1,4 @@
+# old cable shadow analysis-based directions to cable
 # string, om, cable angle (degrees, w.r.t. x axis), angle error
 1 1 131.844 90.9856
 1 2 6.56821 106.915

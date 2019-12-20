@@ -26,7 +26,8 @@ parser.add_argument("--icemodel", default=expandvars("$I3_BUILD/ice-models/resou
                   dest="ICEMODEL", help="A clsim ice model file/directory (ice models *will* affect performance metrics, always compare using the same model!)")
 parser.add_argument("--unweighted-photons", action="store_true",
                   help="Propagate all Cherenkov photons. This is ~13x slower than downsampling first.")
-parser.add_argument("--no-cable-shadow", action="store_true")
+parser.add_argument("--cable-position", help='explicitly simulate cable shadow in given position',
+                  choices=('cable_shadow','led7'))
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--minimal-gcd",  action="store_true", default=False,
@@ -306,8 +307,9 @@ MCTreeName="I3MCTree"
 photonSeriesName = None
 
 kwargs = {}
-if options.no_cable_shadow:
-    kwargs['CableOrientation'] = None
+if options.cable_position:
+    from icecube.clsim import GetIceCubeCableShadow
+    kwargs['CableOrientation'] = GetIceCubeCableShadow.GetIceCubeCableShadow(getattr(GetIceCubeCableShadow, 'from_{}'.format(options.cable_position)))
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     GCDFile = options.GCDFILE,
     PhotonSeriesName = photonSeriesName,
