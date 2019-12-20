@@ -36,9 +36,9 @@ def cutBranches(frame,year):
     
     contTag    = frame['CscdL3_Cont_Tag'].value
     if not year == "2011":
-    	fill_ratio = frame['CascadeFillRatio_L2'].fill_ratio_from_mean
+        fill_ratio = frame['CascadeFillRatio_L2'].fill_ratio_from_mean
     else:
-	fill_ratio = frame['CascadeFillRatio'].fill_ratio_from_mean
+        fill_ratio = frame['CascadeFillRatio'].fill_ratio_from_mean
     
     L3_Branch0 = False
     L3_Branch1 = False
@@ -79,5 +79,5 @@ def cutBranches(frame,year):
     else :
         frame['CscdL3'] = icetray.I3Bool(False)
         return False
-	#return True
+        #return True
 
