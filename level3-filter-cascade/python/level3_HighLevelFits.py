@@ -94,6 +94,7 @@ def HighLevelFits(tray, name, pulses, InIceCscd = lambda frame: True):
                     CosZenithRange= [ -1, 1 ],                             # Default
                     Minimizer= "Minuit",                                   # ! Name of minimizer service
                     If = InIceCscd,
+                    OutputName="CscdL3_SPEFit16",
                     )
 
     ## Cascade LLH reconstruction
@@ -161,6 +162,7 @@ def HighLevelFits(tray, name, pulses, InIceCscd = lambda frame: True):
                     CosZenithRange=              [ 0, 1 ],                 # ! This is a downgoing hypothesis
                     Minimizer=                   "Minuit",                 # ! Name of minimizer service
                     If = InIceCscd,
+                    OutputName = "CscdL3_Bayesian16",
                     )
 
 
