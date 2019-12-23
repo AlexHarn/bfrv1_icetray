@@ -28,6 +28,7 @@ class MuonGunBackgroundService: public I3GeneratorService
                 I3RandomServicePtr rng_; 
                 double rate_; 
                 std::string mctreeName_;
+                bool configured_;
 
 };
 

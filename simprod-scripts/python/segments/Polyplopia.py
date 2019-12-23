@@ -48,8 +48,7 @@ def PolyplopiaSegment(tray, name,
 
       #tray.AddModule("ParticleMapper","mapprimary") 
       if bgfile: # merge bg into signal
-          background = polyplopia.CoincidentI3ReaderService()
-          background.open(bgfile)
+          background = polyplopia.CoincidentI3ReaderService(bgfile)
 
       else:
           # Use MuonGun

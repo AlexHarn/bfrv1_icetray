@@ -22,7 +22,8 @@ MuonGunBackgroundService::MuonGunBackgroundService  (
             generator_(generator), 
             rng_(rng),
             rate_(NAN),
-            mctreeName_("I3MCTree")
+            mctreeName_("I3MCTree"),
+            configured_(false)
 	{
 	}
 
@@ -58,8 +59,9 @@ MuonGunBackgroundService::Init()
 		if (!generator_)
 			log_fatal("No Generators configured!");
 		if (std::isnan(rate_)) {
-		   log_warn("Automatic rate calculation not implemented and has not been manually configured");
+		   log_fatal("Automatic rate calculation not implemented and has not been manually configured");
         }
+        configured_ = true;
 }
 
 double 
@@ -72,6 +74,9 @@ MuonGunBackgroundService::GetRate()
 I3MCTreePtr 
 MuonGunBackgroundService::GetNextEvent()
 {
+	        if (!configured_) { 
+			Init(); 
+		}
 		I3MCTreePtr mctree = boost::make_shared<I3MCTree>();
 		I3MuonGun::BundleConfiguration bundlespec;
 

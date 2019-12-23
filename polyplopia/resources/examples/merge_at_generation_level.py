@@ -54,8 +54,7 @@ tray.context['I3SummaryService'] = dataclasses.I3MapStringDouble()
 if options.BACKGROUNDFILE:
    # Read pre-generated CORSIKA file with CR showers. Assumed that events inf i3
    # files follow natural spectrum (e.g. Hoerandel)
-   background = polyplopia.CoincidentI3ReaderService()
-   background.open(options.BACKGROUNDFILE)
+   background = polyplopia.CoincidentI3ReaderService(options.BACKGROUNDFILE)
 
 else: # No background file
    # Default: use Hoerandel as a template for generating muons.

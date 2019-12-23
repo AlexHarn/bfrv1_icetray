@@ -32,7 +32,7 @@ def ExtractDST13(tray, name,
                                    master= "dst", #Default name: "MasterTree".
                                    #mode=RECREATE,     
                                    )
-	elif dst_output_filename.endswith('.hdf5'):
+	elif dst_output_filename.endswith('.hdf5') or dst_output_filename.endswith('.hd5'):
 	   table_service = I3HDFTableService(dst_output_filename, 6)
 
 	if "I3RandomService" not in tray.context:
