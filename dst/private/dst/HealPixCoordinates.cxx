@@ -102,7 +102,7 @@ uint32_t HealPixCoordinate::GetIndex(double theta, double phi)
 	return floatpair(theta,phi);
 }
 
-uint8_t HealPixCoordinate::NumberOfBins() 
+uint32_t HealPixCoordinate::NumberOfBins() 
 { 
 	HealpixMapDbl& skyMap = *( (HealpixMapDbl*) skyMap_);
     return skyMap.Npix(); 

@@ -79,7 +79,7 @@ class HealPixCoordinate {
 	  /**
        * @return the size of the skymap
        */
-	  uint8_t NumberOfBins();
+	  uint32_t NumberOfBins();
 
 	  inline void SetRNG(I3RandomServicePtr rand) { rand_ = rand; }
 
