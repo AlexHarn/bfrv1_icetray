@@ -45,10 +45,6 @@ class NoiseTriggerTest(unittest.TestCase):
 		#self.assertEqual(nfound, 3)
 		self.assertGreater(nfound,1)
 	
-	#def test_nhits(self):
-	#	expected = [33, 47, 38]
-	#	self.assertEqual(nhits, expected)
-		
 	# Test the triggers. We shouldn't get any SMT8s, but should get a bunch of SMT3s.
 	def test_triggers(self):
 		expected = {1011: [True for i in range(nfound)],
@@ -198,15 +194,20 @@ tray.AddModule("Delete", "del",
 if options.TEST:
 	def collectInfo(frame):
 		global nfound, triggers, nhits
-		nfound += 1
-		nhits.append( len(frame["InIceRawData"]) )
 		
 		# Collect trigger info as well. We only care about SMT8 and SMT3
 		triggerhierarchy = frame["I3TriggerHierarchy"]
 		smt8, smt3 = False, False
 		for t in triggerhierarchy:
-			if t.key.config_id == 1006: smt8 = True
-			if t.key.config_id == 1011: smt3 = True
+                    if t.key.config_id == 1006: smt8 = True
+                    if t.key.config_id == 1011: smt3 = True
+
+                # We only want to include SMT3 and SMT8 here
+		if (not smt8) and (not smt3):
+                    return  
+                    
+		nfound += 1
+		nhits.append( len(frame["InIceRawData"]) )
 
 		triggers[1006].append(smt8)
 		triggers[1011].append(smt3)
@@ -224,10 +225,7 @@ if options.OUTFILE:
 		       #SkipKeys = ["MCHitSeriesMap"],
 		       )
 
-
-
 tray.Execute(options.NUMEVENTS + 4) # 4 for IGCD
-
 
 # If we're doing a test, make sure we have the correct number of frames and hits in each frame
 if options.TEST:
