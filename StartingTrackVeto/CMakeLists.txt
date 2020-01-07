@@ -13,6 +13,6 @@ i3_add_library(StartingTrackVeto
   USE_TOOLS boost python
 )
 
-i3_test_scripts(StartingTrackVeto
+i3_test_scripts(
   resources/test/*.py
 )
