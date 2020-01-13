@@ -18,7 +18,7 @@ def OnlineFilter(tray, name, simulation=False, decode = False, If=lambda f: True
         slop_split_enabled = True,
         vemcal_enabled=True, 
         gfu_enabled=True,
-        needs_wavedeform_spe_corr = False,
+        needs_wavedeform_spe_corr = True,
         alert_followup=True,
         alert_followup_omit_GCD_diff=False,
         alert_followup_base_GCD_path="",

@@ -38,7 +38,7 @@ def DOMCleaning(tray, name,
 
 @icetray.traysegment
 def OnlineCalibration(tray, name, simulation = False,
-    WavedeformSPECorrections = False,
+    WavedeformSPECorrections = True,
     CleanInIceRawData=filter_globals.CleanInIceRawData,
     CleanIceTopRawData=filter_globals.CleanIceTopRawData,
     InIcePulses=filter_globals.UncleanedInIcePulses,

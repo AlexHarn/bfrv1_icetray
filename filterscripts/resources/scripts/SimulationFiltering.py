@@ -48,6 +48,9 @@ def make_parser():
     parser.add_option("--log-filename",
         default=None, dest="logfn",
         help="If set logging is redirected to the specified file.")
+    parser.add_argument("--needs_wavedeform_spe_corr",
+        type=str2bool, dest="needs_wavedeform_spe_corr",
+        help="apply_spe_corection in wavedeform.")
 
     return parser
 
@@ -125,6 +128,7 @@ def main(options, stats={}):
                     decode=False, simulation=True,
                     vemcal_enabled=False,
                     alert_followup=False,
+                    needs_wavedeform_spe_corr=options["needs_wavedeform_spe_corr"],
                     **online_kwargs
                     )
     
