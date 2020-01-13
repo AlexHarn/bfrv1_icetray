@@ -19,7 +19,15 @@ except ImportError:
     import sys
     sys.exit(0)
 
+    
+import platform
+if 'icecube.wisc.edu' not in platform.node():
+    print("This is known not to work outside of the WIPAC firewall")
+    print("Disabling this test for now.")
+    import sys
+    sys.exit(0)
 
+    
 from icecube import icetray, dataclasses, dataio
 from icecube.hdfwriter import I3HDFWriter
 from icecube.weighting import weighting

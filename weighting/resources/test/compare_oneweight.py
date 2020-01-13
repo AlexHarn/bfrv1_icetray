@@ -40,6 +40,13 @@ def get_random_filename(dataset):
     return url
 
 def check_oneweight(dataset):
+
+    import platform
+    if 'icecube.wisc.edu' not in platform.node():
+        icetray.logging.log_warn("This is known not to work outside of the WIPAC firewall")
+        icetray.logging.log_warn("Disabling this test for now.")
+        return
+    
     generator = weighting.from_simprod(dataset)
 
     url = get_random_filename(dataset)
