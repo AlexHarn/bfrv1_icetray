@@ -48,7 +48,7 @@ def make_parser():
     parser.add_option("--log-filename",
         default=None, dest="logfn",
         help="If set logging is redirected to the specified file.")
-    parser.add_argument("--needs_wavedeform_spe_corr", action="store_true",
+    parser.add_option("--needs_wavedeform_spe_corr", action="store_true",
         default=False, dest="needs_wavedeform_spe_corr",
         help="apply_spe_corection in wavedeform.")
 
