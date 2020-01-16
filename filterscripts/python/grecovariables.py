@@ -66,7 +66,7 @@ def GetHitInformation(geometry,
     for pmt, pulses in hitmap.items():
         # Get the hit information
         position = geometry.omgeo[pmt].position
-        times, charges = np.array(map(lambda pulse: [pulse.time, pulse.charge], pulses)).T
+        times, charges = np.array([[pulse.time, pulse.charge] for pulse in pulses]).T
 
         # What is the current ID? This needs to be based on the hitMode
         if (hitMode == 0): 
