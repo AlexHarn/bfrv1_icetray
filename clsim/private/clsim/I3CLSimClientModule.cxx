@@ -886,7 +886,19 @@ void I3CLSimClientModule::Finish()
     // Flush step generator and wait for collector thread to stop
     stepGenerator_->EnqueueBarrier();
     StopThreads();
-    
+
+    // Finalize frame cache in the edge case where no frames contained work
+    // NB: we are the only thread alive at this point; no need for locks
+    if (framesInKernel_ == 0 && !frameCache_.empty()) {
+        log_warn_stream("The last "<<frameCache_.size()<<" frames had no"
+            " photons to propagate. Check your settings! Is the MCTree name"
+            " correct, does the MCTree contain particles with Shape!=Dark,"
+            " LocationType==InIce, intersecting the detector hull, etc.? ");
+        i3_assert(framesForBunches_.empty());
+        newFramesAvailable_ = true;
+        framesInKernel_ = frameCache_.size();
+    }
+
     // Emit any frames still in flight
     FlushFrameCache();
     if (!frameCache_.empty()) {
