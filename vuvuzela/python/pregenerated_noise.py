@@ -1,7 +1,7 @@
 import glob, numpy as np
 
 import icecube
-from icecube import icetray, dataclasses, simclasses
+from icecube import icetray, dataclasses, simclasses, phys_services
 from icecube.dataclasses import I3ModuleGeo, ModuleKey
 from icecube.simclasses import I3MCPE, I3MCPESeries, I3MCPESeriesMap 
 from icecube.icetray import I3Units, OMKey
