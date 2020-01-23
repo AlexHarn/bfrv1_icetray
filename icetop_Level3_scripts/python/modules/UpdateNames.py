@@ -85,7 +85,7 @@ class UpdateNames(I3ConditionalModule):
         """
         # rename (will not overwrite)
         
-        for old, new in self.names.iteritems():
+        for old, new in self.names.items():
             if old in frame and not new in frame:
                 log_trace('%s: %s -> %s'%(tag, old, self.names[old]))
                 frame.Rename(old, self.names[old])
