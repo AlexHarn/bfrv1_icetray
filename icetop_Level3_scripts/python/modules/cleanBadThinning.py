@@ -31,7 +31,7 @@ class cleanBadThinning(icetray.I3ConditionalModule):
             geo = frame['I3Geometry']
             self.omg = geo.omgeo
         else:
-            print 'No geometry found'
+            print( 'No geometry found')
         self.PushFrame(frame,"OutBox")
     
     def Physics(self, frame):
@@ -80,11 +80,11 @@ class cleanBadThinning(icetray.I3ConditionalModule):
                           else:
                               outputPulses.set(om, ind, True)
                   else:
-                      print "OM not found in omgeo, wtf? : ", om
+                      print( "OM not found in omgeo, wtf? : ", om)
                         
             # outputting!
             frame[self.outpulseName] = outputPulses
             frame[self.exclpulseName] = excludedPulses
         else:
-            print "Missing inputITpulses : ", self.itpulses
+            print( "Missing inputITpulses : ", self.itpulses)
         self.PushFrame(frame,"OutBox")

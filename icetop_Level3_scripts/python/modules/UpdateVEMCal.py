@@ -17,7 +17,7 @@ class UpdateVEMCal(icetray.I3Module):
         self.AddParameter('Day', 'Day for VEMcal determination')
         self.AddParameter('Month', 'Month for VEMcal determination')
         self.AddParameter('Year', 'Year for VEMcal determination')
-	self.AddParameter('XMLDir', 'Manual listing of the directory containing XML file (not necessary in Madison)')
+        self.AddParameter('XMLDir', 'Manual listing of the directory containing XML file (not necessary in Madison)')
         self.AddOutBox('OutBox')
     
     def Configure(self):
@@ -29,16 +29,16 @@ class UpdateVEMCal(icetray.I3Module):
         self.vemcal_l3  = dataclasses.I3VEMCalibrationMap()
 
 	## Did the user specify a directory by hand?
-	xmlfilename = self.GetParameter('XMLDir')
-	if (xmlfilename is None):
-		icetray.logging.log_info('Using the default XML-file directory.')
-        	self.vemcal_files=glob.glob('/data/exp/IceCube/201?/calibration/VEMCal/VEM_calibration_*.xml')
-	else:
-		icetray.logging.log_info('Using user-defined XML-file directory: %s'%xmlfilename)
-		self.vemcal_files=glob.glob(xmlfilename+'/VEM_calibration_*.xml') 
+        xmlfilename = self.GetParameter('XMLDir')
+        if (xmlfilename is None):
+            icetray.logging.log_info('Using the default XML-file directory.')
+            self.vemcal_files=glob.glob('/data/exp/IceCube/201?/calibration/VEMCal/VEM_calibration_*.xml')
+        else:
+            icetray.logging.log_info('Using user-defined XML-file directory: %s'%xmlfilename)
+            self.vemcal_files=glob.glob(xmlfilename+'/VEM_calibration_*.xml') 
 
-	if (len(self.vemcal_files)==0):
-		icetray.logging.log_fatal('Your VEMcal XML-file directory seems to be empty! Use --VEMCal-dir option if not running in Madison.')
+        if (len(self.vemcal_files)==0):
+            icetray.logging.log_fatal('Your VEMcal XML-file directory seems to be empty! Use --VEMCal-dir option if not running in Madison.')
         self.vemcal_files.sort()
         
     def Calibration(self, frame):

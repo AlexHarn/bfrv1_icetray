@@ -1,5 +1,1 @@
-import icetop_globals
-import functions
-import modules
-import segments
-import histograms
+from icecube.icetop_Level3_scripts import icetop_globals,functions,modules,segments,histograms

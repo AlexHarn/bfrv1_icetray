@@ -45,7 +45,7 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
             frame.Delete('I3Geometry')
             frame['I3Geometry'] = geom
         else:
-            print 'No geometry found'
+            print( 'No geometry found')
         self.PushFrame(frame,"OutBox")
 
     def _convertDate(self, i, s):
@@ -119,5 +119,5 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
                 elif id == 'B':
                     newheights[station][1] = height
                 else:
-                    print 'unknown tankid'
+                    print( 'unknown tankid')
         return newheights

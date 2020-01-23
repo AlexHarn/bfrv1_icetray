@@ -1,5 +1,5 @@
-from getLivetime import Livetime
-from PulsesHistograms import IndividualTankPulses
+from .getLivetime import Livetime
+from .PulsesHistograms import IndividualTankPulses
 
 from icecube import dataclasses, toprec, recclasses, phys_services
 

@@ -24,7 +24,7 @@ def find_L2_GCD_from_date(runnumber, day, month, year):
         if with_icetray:
             icetray.logging.log_fatal('No suitable GCD file found (looking for {0})'.format(' '.join(gcd_glob)))
         else:
-            print 'No suitable GCD file found (looking for {0})'.format(' '.join([gcd_glob,gcd_glob_L2a]))
+            print( 'No suitable GCD file found (looking for {0})'.format(' '.join([gcd_glob,gcd_glob_L2a])))
             return None
     verified_gcd = [g for g in gcd if re.search('VerifiedGCD', g)]
     # take the latest verified GCD, whatever that means...

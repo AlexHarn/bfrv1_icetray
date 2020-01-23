@@ -20,7 +20,7 @@ class StationDensity(icetray.I3Module):
             geom = frame['I3Geometry']
             self.stageo = geom.stationgeo
         else:
-            print 'No geometry found'
+            print( 'No geometry found')
         self.PushFrame(frame,"OutBox")
     
     def Physics(self, frame):
@@ -67,9 +67,9 @@ class StationDensity(icetray.I3Module):
                     else :
                         staDens = float(nstation)/float(nTotalSta)
                     if staDens > 1.:
-                        print nTotalSta
-                        print nstation, largeDist
-                        print sorted(R_om)
+                        print( nTotalSta)
+                        print( nstation, largeDist)
+                        print( sorted(R_om))
                     #print 'StationDensity is ',staDens
                     frame["StationDensity"] = dataclasses.I3Double(staDens)
         self.PushFrame(frame,"OutBox")
