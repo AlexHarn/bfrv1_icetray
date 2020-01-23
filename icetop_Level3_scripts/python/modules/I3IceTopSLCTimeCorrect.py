@@ -38,16 +38,16 @@ class I3IceTopSLCTimeCorrect(icetray.I3ConditionalModule):
         self.AddOutBox("OutBox")
 
     def Configure(self):
-        import cPickle as pickle # make python3 happy
+        import pickle # make python3 happy
         self.slc_name = self.GetParameter("SLCPulses")
         self.slc_name_out = self.GetParameter("SLCPulsesOut")
         self.slc_time_corr = self.GetParameter('SLCTimeCorrectionPickle')
         if self.slc_name_out == "":
             self.slc_name_out = self.slc_name
 
-        f=open(self.slc_time_corr,'r')
-        self.mean_slc_charge = np.array( pickle.load(f) )
-        self.median_time_diff = np.array( pickle.load(f) )
+        f=open(self.slc_time_corr,'rb')
+        self.mean_slc_charge = np.array( pickle.load(f,encoding='latin1') )
+        self.median_time_diff = np.array( pickle.load(f,encoding='latin1') )
         # Not used
         # variance_time = np.array( pickle.load(f) )
         f.close()
