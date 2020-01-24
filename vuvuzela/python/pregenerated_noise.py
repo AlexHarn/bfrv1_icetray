@@ -97,7 +97,7 @@ class PregeneratedSampler(icetray.I3Module):
             self.random = phys_services.I3SPRNGRandomService(seed = np.random.randint(10000000),
                                                              nstreams = 10000,
                                                              streamnum = np.random.randint(10000))
-        self.random = self.random.integer
+        self.random = self.random
 
         if self.output_map_name == None and self.physics_map_name == None:
             icetray.logging.log_fatal("Cannot be missing both PhysicsHitMap and OutputHitMap. Define at least one!",
@@ -117,17 +117,16 @@ class PregeneratedSampler(icetray.I3Module):
         
         # Pick one of the files
         files.sort()
-        i = self.random(len(files))
+        i = self.random.integer(len(files))
 
         icetray.logging.log_info("Loading {}".format(files[i]))
         self.input_path = files[i]
-        self.input_data = np.load(files[i])
-        icetray.logging.log_info("File contains {} seconds of total livetime".format(np.sum(self.input_data[:,0])))
+        input_data = np.load(files[i])
+        icetray.logging.log_info("File contains {} seconds of total livetime".format(np.sum(input_data[:,0])))
 
         # Convert the times to I3Units
-        self.input_data[:,0] *= icetray.I3Units.second
-        self.dt = self.input_data[:,0]
-        self.pmts = self.input_data[:,1].astype(int)
+        self.times = np.cumsum(input_data[:,0]) * icetray.I3Units.second
+        self.pmts = input_data[:,1].astype(int)
 
         return
 
@@ -183,37 +182,32 @@ class PregeneratedSampler(icetray.I3Module):
             physics_map = frame[self.physics_map_name]
 
         # Find the first and last hit in the physics PEs
-        times = []
+        physics_times = []
         for pulses in physics_map.values():
-            times.extend([p.time for p in pulses])
+            physics_times.extend([p.time for p in pulses])
 
         t0, tf = self.start_time, self.end_time
-        if len(times) > 0:
-            t0 += min(times)
-            tf += max(times)
+        if len(physics_times) > 0:
+            t0 += min(physics_times)
+            tf += max(physics_times)
 
         # We now have the hits. Time to start producing MCPEs
         for module in self.modules_to_run:
             omk = OMKey(module.string, module.om)
             
             # Pick a starting index
-            i = self.random(self.input_data.shape[0])
+            sample_t0 = self.random.uniform(self.times.min(), self.times.max() - (tf-t0))
+            sample = (self.times >= sample_t0) & (self.times < sample_t0 + (tf-t0))
 
             # Begin pushing pulses
-            current_time = t0
-            while (current_time + self.dt[i]) < tf:
-                current_time += self.dt[i]
-                omk.pmt = self.pmts[i]
-                mcpe = I3MCPE(1, current_time)
-
+            for t, pmt in zip(self.times[sample]-sample_t0+t0, self.pmts[sample]):
+                omk.pmt = pmt
+                mcpe = I3MCPE(1, t)
+                
                 # Try to put this into the map
                 try: physics_map[omk].append(mcpe)
                 except: physics_map[omk] = [mcpe,]
                 
-                # Increment my counter, wrapping if necessary
-                i += 1
-                if i >= self.input_data.shape[0]: i = 0
-
         # We're done. I probably should sort these.
         # This currently takes up ~1/4 of the total time.
         for omk in physics_map.keys():
