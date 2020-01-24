@@ -128,6 +128,9 @@ class PregeneratedSampler(icetray.I3Module):
         self.times = np.cumsum(input_data[:,0]) * icetray.I3Units.second
         self.pmts = input_data[:,1].astype(int)
 
+        self.min_time = self.times.min()
+        self.max_time = self.times.max()
+
         return
 
 
@@ -190,29 +193,31 @@ class PregeneratedSampler(icetray.I3Module):
         if len(physics_times) > 0:
             t0 += min(physics_times)
             tf += max(physics_times)
-
+            
         # We now have the hits. Time to start producing MCPEs
         for module in self.modules_to_run:
             omk = OMKey(module.string, module.om)
             
             # Pick a starting index
-            sample_t0 = self.random.uniform(self.times.min(), self.times.max() - (tf-t0))
-            sample = (self.times >= sample_t0) & (self.times < sample_t0 + (tf-t0))
+            sample_t0 = self.random.uniform(self.min_time, self.max_time - (tf-t0))
+            i = np.searchsorted(self.times, sample_t0)
 
-            # Begin pushing pulses
-            for t, pmt in zip(self.times[sample]-sample_t0+t0, self.pmts[sample]):
-                omk.pmt = pmt
-                mcpe = I3MCPE(1, t)
+            while (self.times[i] - sample_t0 + t0) < tf:
+                omk.pmt = self.pmts[i]
+                mcpe = I3MCPE(1, self.times[i])
                 
                 # Try to put this into the map
                 try: physics_map[omk].append(mcpe)
                 except: physics_map[omk] = [mcpe,]
                 
+                i += 1
+                if i >= self.times.shape[0]: i = 0
+
         # We're done. I probably should sort these.
         # This currently takes up ~1/4 of the total time.
         for omk in physics_map.keys():
             physics_map[omk] = sorted(physics_map[omk], key = lambda a: a.time)
-
+        
         # Now all that's left is to write it out
         if frame.Has(self.output_map_name): del frame[self.output_map_name]
         frame[self.output_map_name] = physics_map
