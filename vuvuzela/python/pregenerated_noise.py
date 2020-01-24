@@ -201,7 +201,7 @@ class PregeneratedSampler(icetray.I3Module):
 
             # Begin pushing pulses
             current_time = t0
-            while current_time < tf:
+            while (current_time + self.dt[i]) < tf:
                 current_time += self.dt[i]
                 omk.pmt = self.pmts[i]
                 mcpe = I3MCPE(1, current_time)
