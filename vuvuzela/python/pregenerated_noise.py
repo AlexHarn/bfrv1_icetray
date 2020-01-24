@@ -204,7 +204,7 @@ class PregeneratedSampler(icetray.I3Module):
 
             while (self.times[i] - sample_t0 + t0) < tf:
                 omk.pmt = self.pmts[i]
-                mcpe = I3MCPE(1, self.times[i])
+                mcpe = I3MCPE(1, self.times[i] - sample_t0 + t0)
                 
                 # Try to put this into the map
                 try: physics_map[omk].append(mcpe)
