@@ -28,8 +28,11 @@ class I3IceTopSLCCalibrator(I3ConditionalModule):
         if self.slc_name_out == "":
             self.slc_name_out = self.slc_name
         self.waveforms_name = self.GetParameter("InputWaveforms")
-        f = open(self.GetParameter("Config"))
-        self.parameters = pickle.load(f)
+	## The "rb" to read as binary, and the "latin-1" to translate the ASCII
+	## are necessary to make a pickle file from python2 readable by python3.
+	## (This may be able to go away in the future.)
+        f = open(self.GetParameter("Config"),"rb")
+        self.parameters = pickle.load(f,encoding="latin-1")
         f.close()
 
     def DAQ(self, frame):
