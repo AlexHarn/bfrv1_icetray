@@ -25,52 +25,69 @@ namespace {
 
 void configure(CorsikaClientImpl &impl, const CorsikaClient::config_type &config, boost::process::opstream &steering)
 {
-	steering
-	    << "RUNNR " << 17 << "\n" // run number
-	    << "EVTNR " << 1 << "\n" // number of first shower event
-	    << "NSHOW " << INT_MAX << "\n" // number of showers to generate
-	    << "ATMOD " << config.atmosphere << "\n"; // atmospheric model
-	for (auto &stream : config.rng) {
-		steering << "SEED " << stream.seed
-		    << " " << stream.ncalls%1000000000
-		    << " " << stream.ncalls/1000000000 << "\n";
-	}
-	steering
-	    << "PRMPAR 14\n" // primary type (not used)
-	    << "ESLOPE -1\n" // slope of primary energy spectrum (not used)
-	    << "ERANGE 1.E6  1.E6\n" // energy range of primary particle (not used)
-	    << "THETAP  0.  0.\n" // range of zenith angle (degree, not used)
-	    << "PHIP -180.  180.\n" //range of azimuth angle (degree, not used)
-	    << "OBSLEV  283199\n" // observation level (in cm)
-	    << "MAGNET  16.4  -53.4\n" // magnetic field south pole
-	    << "HADFLG  0  1  0  1  0  2\n"; // flags hadr.interact.&fragmentation
-	{
-		steering << "ECUTS ";
-		for (int i=0; i < 4; i++)
-			steering << config.elcuts[i] << " ";
-		steering << "\n";
-	}
-	steering
-	    << "*MUADDI  T        \n" // additional info for muons
-	    << "*NUADDI  T       \n" // additional info for neutrinos
-	    << "MUMULT  T        \n" // muon multiple scattering angle
-	    << "ELMFLG  F   T    \n" // em. interaction flags (NKG,EGS)
-	    << "STEPFC  1.0      \n" // mult. scattering step length fact.
-	    << "RADNKG  200.E2   \n" // outer radius for NKG lat.dens.distr.
-	    << "LONGI F 1.E10 F F\n" // longit.distr. & step size & fit & out
-	    << "ECTMAP  1.E21    \n" // cut on gamma factor for printout
-	    << "MAXPRT  0        \n" // max. number of printed events
-	    << "DATBAS  F        \n" // write .dbase file
-	    << "PAROUT  F F      \n" // suppress DAT file
-	    << "DIRECT  ./       \n" // output directory
-	    << "USER    you      \n" // user 
-	    << "DEBUG   F  6  F  1000000\n" // debug flag and log.unit for out
-	    << "DYNSTACK 1024    \n"
-	    << "DYNSTACK_P bias_target mu bias_factor " << 1 << "\n"
-	    << "REMOTE_CONTROL 127.0.0.1 " << impl.acceptor_.local_endpoint().port() << "\n"
-	    << "EXIT" << std::endl;
-	// send an EOF to start argument processing
-	steering.pipe().close();
+  steering
+    << "RUNNR " << 17 << "\n"      // run number
+    << "EVTNR " << 1 << "\n"       // number of first shower event
+    << "NSHOW " << INT_MAX << "\n" // number of showers to generate
+    << "PRMPAR 14\n"               // primary type (not used)
+    << "ESLOPE -1\n"               // slope of primary energy spectrum (not used)
+    << "ERANGE 1.E6  1.E6\n"       // energy range of primary particle (not used)
+    << "THETAP  0.  0.\n"          // range of zenith angle (degree, not used)
+    << "PHIP -180.  180.\n"        //range of azimuth angle (degree, not used)
+    ;
+  for (auto &stream : config.rng) {
+    steering << "SEED " << stream.seed
+             << " " << stream.ncalls%1000000000
+             << " " << stream.ncalls/1000000000 << "\n";
+  }
+  steering
+    << "OBSLEV  283199\n"           // observation level (in cm)
+    << "ELMFLG  F   T    \n"        // em. interaction flags (NKG,EGS)
+    //ARRANG
+    //FIXHEI
+    //FIXCHI
+    << "MAGNET  16.4  -53.4\n"      // magnetic field south pole
+    << "HADFLG  0  1  0  1  0  2\n" // flags hadr.interact.&fragmentation
+    //SIBYLL
+    //SIBSIG
+    ;
+  /*
+  {
+    steering << "ECUTS ";
+    for (int i=0; i < 4; i++){
+      steering << config.elcuts[i] << " ";      
+    }
+    steering << "\n";
+    }*/
+
+  steering << "ECUTS   273.0000 273.0000 0.0030 0.0030\n";
+  
+  steering
+    << "*MUADDI  T        \n"       // additional info for muons
+    << "*NUADDI  T       \n"        // additional info for neutrinos
+    << "MUMULT  T        \n"        // muon multiple scattering angle
+    << "LONGI F 1.E10 F F\n"        // longit.distr. & step size & fit & out
+    << "MAXPRT  0        \n"        // max. number of printed events
+    << "ECTMAP  1.E21    \n"        // cut on gamma factor for printout
+    << "STEPFC  1.0      \n"        // mult. scattering step length fact.
+    << "DEBUG   F  6  F  1000000\n" // debug flag and log.unit for out
+    //PIPE
+    //DETCFG
+    << "ATMOD " << config.atmosphere << "\n" // atmospheric model
+    << "DIRECT  ./       \n"        // output directory
+    
+    //options not in simprod card
+    << "RADNKG  200.E2   \n"        // outer radius for NKG lat.dens.distr.
+    << "DATBAS  F        \n"        // write .dbase file
+    << "PAROUT  F F      \n"        // suppress DAT file
+    << "USER    you      \n"        // user 
+    << "DYNSTACK 1024    \n"
+    << "DYNSTACK_P bias_target mu bias_factor " << 1 << "\n"
+    << "REMOTE_CONTROL 127.0.0.1 " << impl.acceptor_.local_endpoint().port() << "\n"
+    << "EXIT" << std::endl
+    ;
+  // send an EOF to start argument processing
+  steering.pipe().close();
 }
 
 
