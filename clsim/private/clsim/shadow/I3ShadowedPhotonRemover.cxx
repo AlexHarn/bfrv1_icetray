@@ -62,11 +62,11 @@ I3ShadowedPhotonRemover::~I3ShadowedPhotonRemover()
 //This is a boolean that will return if the photon hits the cable or cylinder
 bool I3ShadowedPhotonRemover::IsPhotonShadowed(const I3CompressedPhoton &photon) 
 {
-  direction_azimuth = photon.GetDir().GetAzimuth();
-  direction_zenith = photon.GetDir().GetZenith();
-  dx = distance_ * sin ( direction_zenith ) * cos ( direction_azimuth );
-  dy = distance_ * sin ( direction_zenith ) * sin ( direction_azimuth );
-  dz = distance_ * cos ( direction_zenith );
+  direction_phi = photon.GetDir().CalcPhi();
+  direction_theta = photon.GetDir().CalcTheta();
+  dx = distance_ * sin ( direction_theta ) * cos ( direction_phi );
+  dy = distance_ * sin ( direction_theta ) * sin ( direction_phi );
+  dz = distance_ * cos ( direction_theta );
   start_position = photon.GetPos() - I3Position(dx , dy , dz);
   bool check = false;
   I3CylinderMap::const_iterator it = cylinder_map_.begin();
