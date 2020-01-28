@@ -94,9 +94,11 @@ def main(options, stats={}):
     
     # test access to input and output files
     for f in infiles:
+        import os
         if not os.access(f,os.R_OK):
             raise Exception('Cannot read from %s'%f)
     def test_write(f):
+        import os
         if f:
             try:
                 open(f,'w')
@@ -196,6 +198,7 @@ def main(options, stats={}):
         stats[entry.key()] = entry.data().usertime
 
     if bzip2_files:
+        import os
         # now do bzip2
         if os.path.exists('/usr/bin/bzip2'):
            subprocess.check_call(['/usr/bin/bzip2', '-f']+bzip2_files)   

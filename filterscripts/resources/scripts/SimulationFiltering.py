@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 ### The simulation L1 processing script ###
 
-import os, sys, time
+import os
+import sys 
+import time
 import subprocess, logging
 
 from I3Tray import *
