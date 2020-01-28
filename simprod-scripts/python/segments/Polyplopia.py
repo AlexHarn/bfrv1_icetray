@@ -107,6 +107,7 @@ def PolyplopiaSegment(tray, name,
 def PolyplopiaPhotons(tray, name,
                     mctype='CORSIKA',
                     RandomService=None,
+                    RandomServiceForPropagators=None,
                     mctree_name = "I3MCTree",
                     bgfile = None,
                     GCDFile = None,
@@ -140,9 +141,12 @@ def PolyplopiaPhotons(tray, name,
 
         tray.AddModule("Rename","rename_mmc", Keys=['MMCTrackList','SignalMMCTrackList'])
 
+        if RandomServiceForPropagators is None: 
+            RandomServiceForPropagators = RandomService
+
         tray.AddSegment(segments.PropagateMuons, 'propagator',
-               RandomService= RandomService,
-               SaveState=False,
+               RandomService= RandomServiceForPropagators,
+               SaveState=True,
                InputMCTreeName="BackgroundI3MCTree_preMuonProp",
                OutputMCTreeName="BackgroundI3MCTree",
                **PROPOSALParams) 

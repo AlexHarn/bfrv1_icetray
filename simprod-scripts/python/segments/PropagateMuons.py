@@ -68,7 +68,7 @@ def PropagateMuons(tray, name,
         propagator_map = propagators
 
     if SaveState:
-        rng_state = "RNGState"
+        rng_state = InputMCTreeName+"_RNGState"
     else:
         rng_state = ""
 
