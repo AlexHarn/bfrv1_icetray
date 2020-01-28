@@ -53,8 +53,8 @@ public:
      * returns true if the photon hits any of the extra geometry
      */
     bool IsPhotonShadowed(const I3CompressedPhoton &photon);
-    double direction_azimuth;
-    double direction_zenith;
+    double direction_phi;
+    double direction_theta;
     double dx;
     double dy;
     double dz;
