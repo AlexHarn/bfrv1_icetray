@@ -311,7 +311,7 @@ def I3CLSimMakePhotons(tray, name,
         if UseI3PropagatorService:
             logging.log_warn("Propagating muons and photons in the same process. This may starve your GPU.")
         if UseGeant4:
-            loggin.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
+            logging.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
 
     module_config = \
     tray.Add(I3CLSimMakePhotonsWithServer, name,
