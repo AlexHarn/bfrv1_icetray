@@ -4,6 +4,8 @@ Release Notes
 On the trunk
 ------------
 * Added option to enable SPE correction (Pass2) for simulation.
+** NOTE ** Default behavior of "all_filters" changed to apply SPECorrections
+	(needs_wavedeform_spe_corr = True).   This has been the standard for several years now.
 * Set default value of SPE correction to true
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
