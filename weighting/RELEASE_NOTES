@@ -7,6 +7,8 @@ Release Notes
 
 trunk
 -----
+* r178421 Disable tests when running on non-Madison hosts. The Iceprod1
+  database is not accessible outside the firewall.
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
