@@ -3,6 +3,8 @@ Release Notes
 
 On the trunk
 ------------
+* Added option to enable SPE correction (Pass2) for simulation.
+* Set default value of SPE correction to true
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
