@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--infile", type=str,
-                   help="File in whioch coincidences will be inserted")
+                   help="File in which coincidences will be inserted")
 parser.add_argument("-o", "--outfile", type=str,
                     help="Output filename")
 parser.add_argument("-s", "--seed", type=int, default=0,
@@ -71,17 +71,20 @@ tray.context['I3SummaryService'] = dataclasses.I3MapStringDouble()
 # Configure tray
 tray.AddSegment(dataio.I3Reader, "reader", filenamelist=[infile])
 
+#nugen labels all initial neutrinos before reaching interaction volume as primaries
+#other generators can be combined with background to begin with
 def check_if_neut_inice(frame,mctree_name="I3MCTree"):
+    if "nugen" not in infile.lower():
+        return True
     tree = frame[mctree_name]
     most_energy_inice = dataclasses.get_most_energetic_inice(tree)
     if most_energy_inice is not None:
         return True
     else:
-        print tree
         return False
 tray.Add(check_if_neut_inice,"check_inice",
          mctree_name = MCTreeName,
-         Streams=[icetray.I3Frame.DAQ])
+         Streams=[icetray.I3Frame.DAQ,icetray.I3Frame.Physics])
 
 tray.AddSegment(segments.PolyplopiaSegment,"merge",
                mctype = MCtype,
