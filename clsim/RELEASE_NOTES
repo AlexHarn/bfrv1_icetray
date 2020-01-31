@@ -12,6 +12,7 @@ trunk
   (prevents crashes in edge cases)  Fixes #2402. -jvs
 * Minor changes to the shadowed photon remover -amedina
 * Correct typo. Fixes #2404 -jvs
+* Gracefully shut down if photon->PE conversion raises an exception -jvs
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------

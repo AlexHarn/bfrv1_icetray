@@ -266,13 +266,17 @@ void I3CLSimServer::impl::ServerThread(const std::string &bindAddress)
             return;
         }
         log_trace_stream("returning request "<<deserialize<uint32_t>(destination->second[1]));
-        
-        frontend.send(destination->second[0], ZMQ_SNDMORE);
-        frontend.send(zmq::message_t(), ZMQ_SNDMORE);
-        for (auto &packet : body)
-            frontend.send(packet, ZMQ_SNDMORE);
-        frontend.send(destination->second[1], 0);
-        
+
+        try {
+            frontend.send(destination->second[0], ZMQ_SNDMORE);
+            frontend.send(zmq::message_t(), ZMQ_SNDMORE);
+            for (auto &packet : body)
+                frontend.send(packet, ZMQ_SNDMORE);
+            frontend.send(destination->second[1], 0);
+        } catch (zmq::error_t &err) {
+            log_error_stream("returning request "<<deserialize<uint32_t>(destination->second[1])<<": "<<err.what());
+        }
+
         clients.erase(destination);
     };
 
@@ -637,7 +641,8 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
     // poll separately for output to avoid busy-waiting when only the output
     // queue is empty
     zmq::pollitem_t outitems[] = {
-      { static_cast<void *>(server), 0, ZMQ_POLLOUT, 0 }
+      { static_cast<void *>(server), 0, ZMQ_POLLOUT, 0 },
+      { static_cast<void *>(outbox), 0, ZMQ_POLLOUT, 0 }
     };
     auto pollout = [](zmq::pollitem_t *item, long timeout=0) {
         zmq::poll(item, 1, timeout);
@@ -653,7 +658,7 @@ void ClientWorker(zmq::context_t &context, const std::string &serverAddress, int
 
         zmq::poll(&items[0], 3, -1);
 
-        if (items[0].revents & ZMQ_POLLIN) {
+        if ((items[0].revents & ZMQ_POLLIN) && pollout(&outitems[1], 1)) {
             zmq::message_t address;
             std::list<zmq::message_t> body;
             std::tie(address, body) = read_message(server);
