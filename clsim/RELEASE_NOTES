@@ -13,6 +13,7 @@ trunk
 * Minor changes to the shadowed photon remover -amedina
 * Correct typo. Fixes #2404 -jvs
 * Gracefully shut down if photon->PE conversion raises an exception -jvs
+* Tolerate weight*acceptance of up to 1+1e-6 -jvs
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
