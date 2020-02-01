@@ -8,6 +8,12 @@ Release Notes
 trunk
 -----
 
+- fixed the "uncompress" tray segment so that it re-loads
+  baseline files in case they change from GCD to GCD.
+  It would silently apply the wrong baseline file before.
+
+  -- Claudio Kopper
+
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
 Combo Release V00-00-00
