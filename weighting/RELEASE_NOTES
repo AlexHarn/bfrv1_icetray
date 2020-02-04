@@ -2,11 +2,18 @@
 .. $Author: olivas $
 .. $Date: 2014-07-11 06:37:08 -0600 (Fri, 11 Jul 2014) $
 
+.. _weighting-release-notes:
+   
 Release Notes
 =============
 
 trunk
 -----
+
+Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-01
+
 * r178421 Disable tests when running on non-Madison hosts. The Iceprod1
   database is not accessible outside the firewall.
 

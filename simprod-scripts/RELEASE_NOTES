@@ -1,9 +1,15 @@
 Release Notes
 =============
 
+.. _simprod-scripts-release-notes:
+
 trunk
 -----
 Added repoly example to merge events prior to photon propagation
+
+Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-01
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------

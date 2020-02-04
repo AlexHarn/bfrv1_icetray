@@ -2,18 +2,19 @@
 .. $Author: olivas $
 .. $Date: 2012-06-27 $
 
+.. _cmc-release-notes:
+
 Release Notes
 =============
 
 trunk
 -----
 
-Jan. 30, 2020 Brian Clark (baclark@msu.edu)
+Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
-Combo Release V00-00-01 - Incremental Release
+Combo Release V00-00-01
 
-* Migrate wikipedia documentation to rst files in combo
-
+* Merged docs from the wiki into proper project rst docs.
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------

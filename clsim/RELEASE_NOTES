@@ -2,11 +2,17 @@
 .. $Author$
 .. $Date$
 
+.. _clsim-release-notes:
+  
 Release Notes
 =============
 
 trunk
 -----
+
+Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
+-------------------------------------------
+Combo Release V00-00-01
 
 * Finalize frame cache in the edge case where no frames contained work 
   (prevents crashes in edge cases)  Fixes #2402. -jvs
