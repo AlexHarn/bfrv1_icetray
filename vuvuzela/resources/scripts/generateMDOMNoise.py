@@ -125,7 +125,5 @@ if options.OUTFILE:
 		       #SkipKeys = ["MCHitSeriesMap"],
 		       )
 
-
-
 tray.Execute(options.NUMEVENTS + 4) # 4 for IGCD
 

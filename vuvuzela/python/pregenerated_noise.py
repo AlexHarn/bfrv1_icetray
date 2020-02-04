@@ -179,6 +179,8 @@ class PregeneratedSampler(icetray.I3Module):
             if self.n_warn_physics == self.max_warn_physics:
                 icetray.logging.log_warn("Issued warning {} times. Shutting up.".format(self.max_warn_physics), 
                                          "PregeneratedSampler")
+                self.n_warn_physics += 1
+                
             physics_map = simclasses.I3MCPESeriesMap()
         
         else:
