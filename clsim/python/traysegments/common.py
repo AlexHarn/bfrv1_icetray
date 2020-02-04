@@ -216,6 +216,8 @@ def setupDetector(GCDFile,
             kwargs = {}
             if round(rde, 6) == 1.35:
                 kwargs['highQE'] = True
+                # reset RDE to 1; highQE curve is already scaled
+                rde = 1
             elif rde != 1:
                 raise ValueError("Relative DOM efficiency {} is neither 1 nor 1.35. You probably need to add support for individual DOM efficiencies".format(rde))
             try:

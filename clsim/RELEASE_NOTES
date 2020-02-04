@@ -14,6 +14,8 @@ trunk
 * Correct typo. Fixes #2404 -jvs
 * Gracefully shut down if photon->PE conversion raises an exception -jvs
 * Tolerate weight*acceptance of up to 1+1e-6 -jvs
+* Fix a bug that double-counted DeepCore DOM efficiency. In combo release
+  V00-00-00, all high-QE DOMs detected 35% too many photons. -jvs
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
