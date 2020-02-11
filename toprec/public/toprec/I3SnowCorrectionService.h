@@ -173,9 +173,42 @@ class I3BORSSnowCorrectionService : public I3SnowCorrectionServiceBase {
 
 };
 
+//---------------- RADE ---------------------
+/**
+ * @class I3RadeBasicSnowCorrectionService
+ * @brief This one implements Kath's second attempt at a radius-dependent function
+ *
+ */
+class I3RadeBasicSnowCorrectionService : public I3SnowCorrectionServiceBase {
+ public:
+  
+  /// default constructor/destructors for unit tests
+  I3RadeBasicSnowCorrectionService(const std::string& name);
+  I3RadeBasicSnowCorrectionService(const I3Context &c);
+  virtual ~I3RadeBasicSnowCorrectionService(){}
+  
+  void Configure(){}  // Nothing special
+
+  /// Standard functions
+  virtual double AttenuationFactor(const I3Position&,
+                                   double snowDepth,
+                                   const I3Particle&,
+                                   const I3LaputopParams&) const;
+
+  virtual void FillSnowDiagnostics(SnowCorrectionDiagnosticsPtr diag,
+                                   I3ParticleConstPtr hypoth,
+                                   I3LaputopParamsConstPtr paramPtr) const;
+
+  // Additional functions
+  double Lambda(double r, double s125) const;
+
+ private:
+    // (none)
+};
 
 I3_POINTER_TYPEDEFS( I3SnowCorrectionServiceBase );
 I3_POINTER_TYPEDEFS( I3SimpleSnowCorrectionService );
 I3_POINTER_TYPEDEFS( I3BORSSnowCorrectionService );
+I3_POINTER_TYPEDEFS( I3RadeBasicSnowCorrectionService );
 
 #endif
