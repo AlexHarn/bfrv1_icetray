@@ -109,81 +109,83 @@ MPHitFilter::DAQ(I3FramePtr frame)
 	    } 
     }
 
-    if (removeBackgroundOnly_ && filter_){ 
-	    I3ParticleConstPtr primaryptr = 
-		    frame->Get<I3ParticleConstPtr>("PolyplopiaPrimary"); 
-	    if (!primaryptr) 
-		    log_fatal("PolyplopiaPrimary not found in I3Frame");
-
-	    I3ParticleID pid = primaryptr->GetID();
-	    if ( !primarymap.count(pid) || primarymap[pid] < threshold_ )
-	    { 
-		    log_info("Only found %d hits (threshold=%d). filtering frame.", 
-				    hitcount, threshold_); 
-		    rejectedEvents_++; 
-		    return; // don't push frame. Primary has not produced any hits 
-	    }
+   
+    I3MapStringIntPtr newPolyplopiaInfo; 
+    // if polyplopia info present, replace weights with updated hitcount
+    if (frame->Has(polyplopiaInfoMap_)) { 
+	    polyplopiaInfo = frame->Get<I3MapStringIntConstPtr>(polyplopiaInfoMap_); 
+	    newPolyplopiaInfo = I3MapStringIntPtr(new I3MapStringInt(*polyplopiaInfo)); 
+    } else { 
+	    log_trace("PolyplopiaInfoMap '%s' not found in I3Frame", polyplopiaInfoMap_.c_str()); 
+	    newPolyplopiaInfo = I3MapStringIntPtr(new I3MapStringInt()); 
     } 
     
-    
-
-    if (pruneTree) 
-    { 
-	    I3MapStringIntPtr newPolyplopiaInfo;
-	    // replace weights with updated hitcount
-	    if (frame->Has(polyplopiaInfoMap_)) {
-                 polyplopiaInfo = frame->Get<I3MapStringIntConstPtr>(polyplopiaInfoMap_); 
-		 newPolyplopiaInfo = I3MapStringIntPtr(new I3MapStringInt(*polyplopiaInfo)); 
-	    } else {
-                 log_trace("PolyplopiaInfoMap '%s' not found in I3Frame", polyplopiaInfoMap_.c_str());
-		 newPolyplopiaInfo = I3MapStringIntPtr(new I3MapStringInt()); 
-	    }
-
-	    I3MapUnsignedUnsignedPtr primHits = 
+    I3MapUnsignedUnsignedPtr primHits = 
 		    I3MapUnsignedUnsignedPtr(new I3MapUnsignedUnsigned());
-	   
 
-	    // Now clean up the MCTree and remove dead branches
-	    std::vector<I3Particle>::iterator p;
-	    std::vector<I3Particle> primaries = mctree_ptr->get_heads();
-	    for (p = primaries.begin(); p != primaries.end(); p++)
+    // Now clean up the MCTree and remove dead branches
+    std::vector<I3Particle>::iterator p; 
+    std::vector<I3Particle> primaries = mctree_ptr->get_heads(); 
+    for (p = primaries.begin(); p != primaries.end(); p++) 
+    { 
+	    I3ParticleID pid = p->GetID(); 
+	    if ( ( !primarymap.count(pid) || primarymap[pid] < threshold_ ) && (pruneTree) ) 
 	    { 
-		    I3ParticleID pid = p->GetID();
-		    if ( !primarymap.count(pid) || primarymap[pid] < threshold_ ) 
-		    {
-			    if (!mctree_ptr->at(*p))
-			       log_fatal("Trying to delete a primary that is not in the tree");
-
-			    mctree_ptr->erase(*p);
-			    removedBranches_++;
-			    if (mctree_ptr->at(*p))
-			       log_fatal("Primary is still in tree after deletion");
-		    } else { 
-			    (*primHits)[pid.minorID] = primarymap[p->GetID()]; 
-		    }
-		    
+		    if (!mctree_ptr->at(*p)) 
+			    log_fatal("Trying to delete a primary that is not in the tree"); 
+		    mctree_ptr->erase(*p); 
+		    removedBranches_++; 
+		    if (mctree_ptr->at(*p)) 
+			    log_fatal("Primary is still in tree after deletion"); 
+	    } else { 
+		    (*primHits)[pid.minorID] = primarymap[p->GetID()]; 
 	    }
-	    frame->Delete(mcTreeName_);
-	    frame->Put(mcTreeName_,mctree_ptr);
-
-	    (*newPolyplopiaInfo)[hitSeriesMapName_ + "Count"] = hitcount;
-	    (*newPolyplopiaInfo)[mcTreeName_+ "Primaries"] = mctree_ptr->get_heads().size();
-
-	    // Replace object in frame
-	    if (frame->Has(polyplopiaInfoMap_))  
-	        frame->Delete(polyplopiaInfoMap_);
-	    frame->Put(polyplopiaInfoMap_,newPolyplopiaInfo);
-
-	    if (frame->Has(mcTreeName_+"PEcounts"))
-	        frame->Delete(mcTreeName_+"PEcounts");
-	    frame->Put(mcTreeName_+"PEcounts",primHits);
     }
+    
+    if (pruneTree) { 
+		    frame->Delete(mcTreeName_); 
+		    frame->Put(mcTreeName_,mctree_ptr);
+	    
+    }
+	    
+    (*newPolyplopiaInfo)[hitSeriesMapName_ + "Count"] = hitcount; 
+    (*newPolyplopiaInfo)[mcTreeName_+ "Primaries"] = mctree_ptr->get_heads().size();
+
+    // Replace object in frame 
+    if (frame->Has(polyplopiaInfoMap_))  
+	    frame->Delete(polyplopiaInfoMap_); 
+    frame->Put(polyplopiaInfoMap_,newPolyplopiaInfo); 
+    if (frame->Has(mcTreeName_+"PEcounts")) 
+	    frame->Delete(mcTreeName_+"PEcounts"); 
+    frame->Put(mcTreeName_+"PEcounts",primHits); 
 
     
-    if ( hitcount >= threshold_ ) { 
+    // Filter and clean up sub-threshold tracks
+    if ( hitcount >= threshold_ ) 
+    { 
 	    eventCount_++; 
+
+	    // remove events with no primary
+	    if (removeBackgroundOnly_ && filter_)
+	    {  
+		    I3ParticleConstPtr primaryptr = 
+			    frame->Get<I3ParticleConstPtr>("PolyplopiaPrimary"); 
+		    if (!primaryptr) 
+			    log_fatal("PolyplopiaPrimary not found in I3Frame");
+
+		    I3ParticleID pid = primaryptr->GetID(); 
+		    if ( !primarymap.count(pid) || primarymap[pid] < threshold_ ) 
+		    { 
+			    log_info("Only found %d hits (threshold=%d). filtering frame.",
+					    hitcount, threshold_); 
+			    rejectedEvents_++; 
+			    return; // don't push frame. Primary has not produced any hits 
+		    } 
+
+	    }  
+	    keptEvents_++; 
 	    PushFrame(frame,"OutBox"); 
-	    keptEvents_++;
+
     } else { 
 	    log_debug("Only found %d hits (threshold=%d). filtering frame.", 
 		    hitcount, threshold_); 

@@ -66,6 +66,7 @@ void ParticleInserter::DAQ(I3FramePtr frame)
             I3MCPE pe(secondary2);
             peseries.push_back(pe);
 	}
+
         om = OMKeyPtr(new OMKey(21,30));
         (*pemap)[*om] = peseries;
 
@@ -76,6 +77,7 @@ void ParticleInserter::DAQ(I3FramePtr frame)
         (*weights)["Weight"] = 1.0;
         (*weights)["TimeScale"] = 1.0;
         frame->Put("CorsikaWeightMap",weights);
+        frame->Put("PolyplopiaPrimary",I3ParticlePtr(new I3Particle(primary2)));
 
         PushFrame(frame);
 }
@@ -113,6 +115,9 @@ void CheckMPHitFilter::DAQ(I3FramePtr frame)
 
         ENSURE(primarylist.front().GetType() == I3Particle::PMinus,
 			"The only primary left should be a PMinus\n" + I3MCTreeUtils::Dump(mctree));
+        ENSURE(frame->Has("PolyplopiaPrimary"), "No PolyplopiaPrimary found");
+        ENSURE(frame->Has("PolyplopiaInfo"), "No Polyplopia info found in frame");
+        ENSURE(frame->Has("I3MCTreePEcounts"), "No I3MCTreePEcounts object found");
 }
 
 TEST(CleanHits)
@@ -125,7 +130,7 @@ TEST(CleanHits)
 		("Prefix", gcdfile);
 	tray.AddModule("ParticleInserter","insert");
 	tray.AddModule("MPHitFilter","filter")
-		("RemoveBackgroundOnly", false);
+		("RemoveBackgroundOnly", true);
 	tray.AddModule("CheckMPHitFilter","check");
 	tray.Execute(100);
 }

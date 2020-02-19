@@ -98,6 +98,7 @@ class ClSim(ipmodule.ParsingModule):
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
         self.AddParameter('KeepMCTree','Delete propagated MCTree otherwise',True)
+        self.AddParameter('KeepPureBackground','Keep events without signal hits',False)
         self.AddParameter("UseGSLRNG","Use I3GSLRandomService",False) 
 
    def Configure(self,tray):
@@ -180,7 +181,7 @@ class ClSim(ipmodule.ParsingModule):
             from icecube import polyplopia
             tray.AddModule("MPHitFilter","hitfilter",
                  HitOMThreshold=1,
-                 RemoveBackgroundOnly=False,
+                 RemoveBackgroundOnly= not self.keeppurebackground,
                  I3MCPESeriesMapName=self.photonseriesname)
 
         if self.enablehistogram and self.histogramfilename:         

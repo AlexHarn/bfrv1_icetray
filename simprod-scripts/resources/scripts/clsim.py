@@ -67,6 +67,9 @@ def add_args(parser):
     parser.add_argument("--no-KeepMCTree", dest="keepmctree",
                         default=True, action="store_false", required=False,
                         help='Delete propagated MCTree')
+    parser.add_argument("--keep-pure-background", dest="keeppurebackground",
+                        default=False, action="store_false", required=False,
+                        help='Keep events without primary hits')
 
 
 def configure_tray(tray, params, stats, logger):
@@ -113,7 +116,7 @@ def configure_tray(tray, params, stats, logger):
     if params['runmphitfilter']:
         tray.AddModule("MPHitFilter", "hitfilter",
                        HitOMThreshold=1,
-                       RemoveBackgroundOnly=False,
+                       RemoveBackgroundOnly=not params['keeppurebackground'],
                        I3MCPESeriesMapName=params['photonseriesname'])
 
     if params['enablehistogram'] and params['histogramfilename']:
