@@ -466,9 +466,14 @@ double Sector::Propagate(double distance)
                             }
                             if (sector_def_.only_loss_inside_detector)
                             {
-                                if (sector_def_.location == Sector::ParticleLocation::InsideDetector)
+                                if (sector_def_.location == Sector::ParticleLocation::InsideDetector ||
+                                    sector_def_.location == Sector::ParticleLocation::InfrontDetector)
                                 {
                                     Output::getInstance().FillSecondaryVector(decay_products);
+                                }
+                                else
+                                {
+                    
                                 }
                             }
                             else
@@ -572,7 +577,8 @@ double Sector::Propagate(double distance)
             decay_products = particle_.GetDecayTable().SelectChannel().Decay(particle_);
             if (sector_def_.only_loss_inside_detector)
             {
-                if (sector_def_.location == Sector::ParticleLocation::InsideDetector)
+                if (sector_def_.location == Sector::ParticleLocation::InsideDetector ||
+                    sector_def_.location == Sector::ParticleLocation::InfrontDetector)
                 {
                     Output::getInstance().FillSecondaryVector(decay_products);
                 }
@@ -615,7 +621,8 @@ double Sector::Propagate(double distance)
         decay_products = particle_.GetDecayTable().SelectChannel().Decay(particle_);
         if (sector_def_.only_loss_inside_detector)
         {
-            if (sector_def_.location == Sector::ParticleLocation::InsideDetector)
+            if (sector_def_.location == Sector::ParticleLocation::InsideDetector ||
+                sector_def_.location == Sector::ParticleLocation::InfrontDetector)
             {
                 Output::getInstance().FillSecondaryVector(decay_products);
             }

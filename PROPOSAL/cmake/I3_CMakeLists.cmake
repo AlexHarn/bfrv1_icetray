@@ -147,3 +147,5 @@ i3_test_executable(test
     USE_TOOLS boost gsl python
     USE_PROJECTS PROPOSAL icetray dataclasses phys-services
 )
+
+i3_test_scripts(resources/test/test_tau_secondaries.py)
