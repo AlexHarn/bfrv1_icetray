@@ -100,12 +100,18 @@ class GenerationProbability(object):
 	def __idiv__(self, factor):
 		self.nevents /= factor
 		return self
-		
+
+	def __itruediv(self, factor):
+		return self.__idiv__(factor)
+
 	def __div__(self, factor):
 		t = copy.deepcopy(self)
 		t /= factor
 		return t
-		
+
+	def __truediv__(self, factor):
+		return self.__div__(factor)
+
 	def __iadd__(self, other):
 		if isinstance(other, type(self)):
 			if self.is_compatible(other):
@@ -222,7 +228,6 @@ class GenerationProbabilityCollection(object):
 				except: raise Exception("E, particle_type and cos_theta can not be broadcasted. Shapes: %s, %s, %s"%(str(E.shape), str(particle_type.shape), str(cos_theta.shape)))
 			E = numpy.asarray(E)
 			if numpy.ndim(particle_type) == 0:
-				self.spectra[int(particle_type)]
 				return sum([prob(E, cos_theta=cos_theta) for prob in self.spectra[int(particle_type)]])
 			count = numpy.zeros(E.shape)
 			for ptype in numpy.unique(particle_type):
@@ -245,15 +250,21 @@ class GenerationProbabilityCollection(object):
 	def __idiv__(self, factor):
 		self *= (1./factor)
 		return self
-	
+
+	def __itruediv__(self, factor):
+		return self.__idiv__(factor)
+
 	def __mul__(self, factor):
 		clone = copy.deepcopy(self)
 		clone *= factor
 		return clone
-	
+
 	def __div__(self, factor):
 		return self*(1./factor)
-	
+
+	def __truediv__(self, factor):
+		return self.__div__(factor)
+
 	def __rmul__(self, factor):
 		return self*factor
 	
