@@ -668,6 +668,8 @@ class AngularGenerationDistribution(object):
 		geometric weight (NOT exactly the cross-sectional area).
 		"""
 		# all this juggling is just to guarantee one can handle different input shapes, including ()
+		if cth is None:
+			raise TypeError("cos(zenith) can't be None in angular acceptance weighting")
 		shape = numpy.array(cth).shape
 		cth = numpy.atleast_1d(cth)
 		norm = numpy.where( (cth>=self.costhmin)*(cth<=self.costhmax), self.etendue(), 0. )
