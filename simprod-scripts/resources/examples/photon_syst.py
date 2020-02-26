@@ -24,11 +24,14 @@ parser.add_argument("-o","--output", default="generator_output.i3", dest="OUTPUT
 parser.add_argument("--domeff", type=float, default=1.17, dest="DOMEFF", help="dom efficiency")
 parser.add_argument("--domos", type=int, default=1, dest="DOMOS", help="dom oversizing")
 parser.add_argument("--mcpeseriesname", default="I3MCPESeriesMap", dest="MCPES", help="Name of I3MCPESeriesMap in frame")
-parser.add_argument("--relativedompos", default=True, action="store_false",dest="relativedompos", help="PhotonPositionsAreRelative")
+parser.add_argument("--disable-rel-dom-pos", default=True, action="store_false",dest="relativedompos", help="PhotonPositionsAreRelative")
 parser.add_argument("--runnumber", type=int, default=0, dest="RUNNUMBER", help="Run number")
 parser.add_argument("--holeice",
         default="/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/metaprojects/simulation/V06-01-02/ice-models/resources/models/angsens/as.h2-50cm", 
         dest="HOLEICE", help="Holeice file")
+parser.add_argument("--icemodellocation",
+        default="/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/metaprojects/simulation/V06-01-02/ice-models/resources/models/spice_3.2.1", 
+        dest="icemodellocation", help="Holeice file")
 parser.add_argument("-i","--input", default="generator_output.i3", dest="INPUT", help="output file name")
 # parse cmd line args, bail out if anything is not understood
 args = parser.parse_args()
@@ -68,6 +71,7 @@ tray.AddSegment(clsim.I3CLSimMakeHitsFromPhotons,"makePhotons",
             PhotonSeriesName="PhotonSeriesMap",
             MCPESeriesName=args.MCPES,
             RandomService='I3RandomService',
+            IceModelLocation=args.icemodellocation,
             DOMOversizeFactor=args.DOMOS,
             GCDFile=args.GCDFILE,
             UnshadowedFraction=args.DOMEFF,
