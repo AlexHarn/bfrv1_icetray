@@ -54,7 +54,8 @@ DecayChannel::DecayProducts TwoBodyPhaseSpace::Decay(const Particle& particle)
     products[1]->SetDirection(opposite_direction);
     products[1]->SetMomentum(momentum);
 
-    Boost(products, particle.GetDirection(), particle.GetEnergy() / particle.GetMass(), particle.GetMomentum() / particle.GetMass());
+    // Boost all products in Lab frame (the reason, why the boosting goes in the negative direction of the particle)
+    Boost(products, -particle.GetDirection(), particle.GetEnergy() / particle.GetMass(), particle.GetMomentum() / particle.GetMass());
 
     CopyParticleProperties(products, particle);
 
