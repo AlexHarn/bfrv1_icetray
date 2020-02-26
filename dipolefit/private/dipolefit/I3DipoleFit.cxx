@@ -195,7 +195,8 @@ void I3DipoleFit::Physics(I3FramePtr frame)
     double zdiff = (hits[i2].z - hits[i1].z);   
     t_mean += ampValue*0.5 * (hits[i2].t + hits[i1].t);
     double distance = sqrt(xdiff*xdiff + ydiff*ydiff + zdiff*zdiff);
-    if (distance == 0.) {
+
+    if (distance == 0) {
       log_debug ("Dipole Fit not converging. Distance=0 ");
       continue;
     }
@@ -211,20 +212,13 @@ void I3DipoleFit::Physics(I3FramePtr frame)
     rz += 0.5 * (hits[i2].z + hits[i1].z)*ampValue; 
     nPairs ++;
     ampsum=ampsum+ampValue;
+
   }
   
   params->nPairs = nPairs;
 
-
-  if (ampsum <= 0.) {
-    log_info("Reconstruction not converged, ampsum<=0. Exiting");
-    track->SetFitStatus(I3Particle::FailedToConverge);
-    frame->Put(fitName_, track);
-    PushFrame(frame,"OutBox");
-    return;
-  }
-  
   double magnet = sqrt(vx*vx + vy*vy + vz*vz);
+
   if (magnet <= 0.) {
     log_info("Reconstruction not converged, magnet<=0. vx=%f, vy=%f, vz=%f."
 	      "Exiting.",vx,vy,vz);
@@ -234,6 +228,15 @@ void I3DipoleFit::Physics(I3FramePtr frame)
     return;
   }
 
+  if (ampsum <= 0.) {
+    log_info("Reconstruction not converged, ampsum<=0. Exiting");
+    track->SetFitStatus(I3Particle::FailedToConverge);
+    frame->Put(fitName_, track);
+    PushFrame(frame,"OutBox");
+    return;
+  }
+
+  
   track->SetShape(I3Particle::InfiniteTrack);
   track->SetFitStatus(I3Particle::OK);
   track->SetTime(t_mean/ampsum);
