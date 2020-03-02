@@ -259,7 +259,7 @@ def dumpI3OmDb(geoInserter, calInserter, omdb):
 
     # IceTop tanks.  Map by string/tank.  We need to get this from
     # the OM database because the station database is incomplete
-    for (stringID, tanks) in iceTopTanks.iteritems():
+    for (stringID, tanks) in iceTopTanks.items():
         for tankLabel in tanks:
             name = G.getTankName(stringID, tankLabel)
             o = G.GeometryObject(name, G.ObjectType.ICE_TOP_TANK,

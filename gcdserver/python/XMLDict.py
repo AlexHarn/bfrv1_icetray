@@ -23,7 +23,7 @@ def XMLDict(element):
             (map[child.tag]).append(value)
     # Prepend '@' to attribute names since these can be
     # the same as child element names
-    for (key, value) in element.attrib.iteritems():
+    for (key, value) in element.attrib.items():
         map['@%s' % key] = value
     # If we have text, we need to parse it.
     if len(text) > 0:

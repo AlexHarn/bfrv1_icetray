@@ -175,7 +175,7 @@ def finishDomCalResult(result, name, date):
                                   globalDOMCal[date][name]["temperature"]
     except KeyError:
         print "Test key: %s" % date
-        print "Keys: %s" % [x for x in globalDOMCal.keys()]
+        print "Keys: %s" % [x for x in list(globalDOMCal.keys())]
         sys.exit(1)
         # Handle data in ChargeOmATWDChannels table
         # without a corresponding entry in ChargeOm
@@ -267,7 +267,7 @@ def importChargeOmAtwdRows(geoDB, date, rows):
                                           float(row[7]), float(row[8]))
 
     ret = []
-    for (name, data) in results.iteritems():
+    for (name, data) in results.items():
         result = G.DataObject(name, C.ObjectType.ATWD_FREQ_CAL)
         result.data = data.getdict()
         ret.append(finishDomCalResult(result, name, str(date)))
@@ -287,7 +287,7 @@ def importChargeOmAtwdChannels(geoDB, date, rows):
                                        i, float(row[i+134]))
 
     ret = []
-    for (name, data) in results.iteritems():
+    for (name, data) in results.items():
         result = G.DataObject(name, C.ObjectType.ATWD_CAL)
         result.data = data.getdict()
         ret.append(finishDomCalResult(result, name, str(date)))

@@ -16,7 +16,7 @@ def importFile(geoDB, inserter, inputFile):
     # Parse the JSON file
     with open(inputFile) as file:
         data = json.load(file)
-        for (id, rate) in data.iteritems():
+        for (id, rate) in data.items():
             stringID = int(id.split(",")[0])
             positionID = int(id.split(",")[1])
             name = geoDB.omKeyMap(stringID, positionID)

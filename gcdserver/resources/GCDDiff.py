@@ -102,7 +102,7 @@ def checkAttr(objs, attr, compare=typeCompare):
     same = True
 
     if type(attr) is dict:
-        key = attr.keys()[0]
+        key = list(attr.keys())[0]
         with appendAttr(key):
             newObjs = [x.__getattribute__(key) for x in objs]
             for newAttr in attr[key]:
@@ -346,13 +346,13 @@ def compareStatus(objs):
         # Needs to be a list in order to have a 'pass by reference' behavior
         error = [False]
 
-        keys = [x.trigger_status.keys() for x in objs]
+        keys = [list(x.trigger_status.keys()) for x in objs]
         # Must check for missing keys using equality
         for key in checkAndIntersectKeysDirect(keys, error):
             with appendAttr(key):
                 values = [x.trigger_status[key] for x in objs]
                 checkAttr(values, 'trigger_name')
-                readoutKeys = [x.readout_settings.keys() for x in values]
+                readoutKeys = [list(x.readout_settings.keys()) for x in values]
                 with appendAttr('readout_settings'):
                     for key in checkAndIntersectKeysDirect(readoutKeys, error):
                         with appendAttr(str(key)):
@@ -363,7 +363,7 @@ def compareStatus(objs):
                                 if not checkAttr(rd, attr):
                                     same_frame = False
 
-                triggerKeys = [x.trigger_settings.keys() for x in values]
+                triggerKeys = [list(x.trigger_settings.keys()) for x in values]
                 with appendAttr('trigger_settings'):
                     for key in checkAndIntersectKeysDirect(triggerKeys, error):
                         with appendAttr(str(key)):

@@ -215,7 +215,7 @@ def importChargeOmAtwd(geoDB, omdb, runStartTime, calInserter):
             results[name].setFit(int(row[4]), float(row[5]), float(row[6]),
                                               float(row[7]), float(row[8]))
 
-    for (name, data) in results.iteritems():
+    for (name, data) in results.items():
         result = G.DataObject(name, C.ObjectType.ATWD_FREQ_CAL)
         result.data = data.getdict()
         finishDomCalResult(result, name, calInserter, runStartTime)
@@ -237,7 +237,7 @@ def importChargeOmAtwdChannels(geoDB, omdb, runStartTime, calInserter):
                 results[name].setSlope(int(row[4]), int(row[5]),
                                        i, float(row[i+134]))
 
-    for (name, data) in results.iteritems():
+    for (name, data) in results.items():
         result = G.DataObject(name, C.ObjectType.ATWD_CAL)
         result.data = data.getdict()
         finishDomCalResult(result, name, calInserter, runStartTime)

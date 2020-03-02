@@ -99,7 +99,7 @@ class I3MSSubscriber(I3MSBase):
     def __init__(self, handler, host, **kwargs):
         super(I3MSSubscriber, self).__init__(zmq.SUB, host,
                                              I3MS_SUB_PORT, **kwargs)
-        self._socket.setsockopt(zmq.SUBSCRIBE, "")
+        self._socket.setsockopt(zmq.SUBSCRIBE, "".encode())
         self.__event = threading.Event()
 
         def task_function():
@@ -134,7 +134,7 @@ class DBReceiver():
         self.__inserter = QuickInserter(db)
 
         def handler(data):
-            for (collection, docs) in data.iteritems():
+            for (collection, docs) in iter(data.items()):
                 for m in docs:
                     # Revert the ObjectID stringification
                     m['_id'] = bson.ObjectId(m['_id'])
@@ -196,7 +196,7 @@ class DBInsertHandler(object):
             # document is dictionary with collection name as key and
             # a list of DB documents as each value.  Convert the '_id'
             # field to string type
-            for docs in data.itervalues():
+            for docs in data.values():
                 for m in docs:
                     m['_id'] = str(m['_id'])
             # Forward the messages

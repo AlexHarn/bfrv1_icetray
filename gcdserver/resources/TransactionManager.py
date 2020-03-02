@@ -33,7 +33,7 @@ def replay(db, i3msHost, transaction):
     # document is dictionary with collection name as key and
     # a list of DB documents as each value.  Convert the '_id'
     # field to string type
-    for docs in data.itervalues():
+    for docs in data.values():
         for m in docs:
             m['_id'] = str(m['_id'])
     try:

@@ -22,7 +22,7 @@ def getFitType(s):
 
 
 def parseSpencerFit(name, fits, inserter):
-    for (fit, data) in fits.iteritems():
+    for (fit, data) in fits.items():
         if fit == "SLC_fit":
             # Just issue a FADC_SPE_CORRECTION record
             result = G.DataObject(name, C.ObjectType.FADC_SPE_CORR)
@@ -50,7 +50,7 @@ def parseSpencerFit(name, fits, inserter):
 
 
 def parseMeanSPEFit(name, fits, inserter):
-    for (fit, data) in fits.iteritems():
+    for (fit, data) in fits.items():
         result = G.DataObject(name, getFitType(fit))
         result.data[C.Keys.CHI_2] = data["chi2"]
         result.data[C.Keys.ERROR] = data["error"]
@@ -71,7 +71,7 @@ def importFile(geoDB, inserter, inputFile):
     # Parse the JSON file
     with open(inputFile) as file:
         data = json.load(file)
-        for (id, fits) in data.iteritems():
+        for (id, fits) in data.items():
             stringID = None
             positionID = None
             try:
@@ -81,7 +81,7 @@ def importFile(geoDB, inserter, inputFile):
                 # Not an OM entry.  Skip.
                 continue
             name = geoDB.omKeyMap(stringID, positionID)
-            if "SLC_fit" in fits.keys():
+            if "SLC_fit" in list(fits.keys()):
                 # This is one of Spencer's 2019- files
                 parseSpencerFit(name, fits, inserter)
             else:

@@ -102,7 +102,7 @@ class SimCursor(object):
         # Support both list and son.SON objects
         (k, v) = (None, None)
         try:
-            for (k, v) in match.iteritems():
+            for (k, v) in match.items():
                 pass
             match.pop(k)
         except:
@@ -160,7 +160,7 @@ def simDoMatch(doc, k, v):
 
     if type(v) is dict and any(key.startswith("$") for key in v):
         # Handle $lte, $gte, $in, etc. Logically AND by convention.
-        for (nk, nv) in v.iteritems():
+        for (nk, nv) in v.items():
             if nk == "$lte":
                 if not x <= nv:
                     return False
@@ -186,7 +186,7 @@ def simDoMatch(doc, k, v):
 
 
 def simMatch(x, match):
-    return all(simDoMatch(x, k, v) for (k, v) in match.iteritems())
+    return all(simDoMatch(x, k, v) for (k, v) in match.items())
 
 
 def simFind(data, match):
@@ -217,7 +217,7 @@ class SimCollection(object):
             self._check_unique(doc)
             newdoc = copy.deepcopy(doc)
             if "_id" not in newdoc:
-                newdoc['_id'] = binascii.hexlify(bson.ObjectId(os.urandom(12)))
+                newdoc['_id'] = bson.ObjectId(os.urandom(12))
             self.__data.append(newdoc)
             self.find()
             return newdoc['_id']
@@ -237,7 +237,7 @@ class SimCollection(object):
             # Only handle $set
             docs = simFind(self.__data, match)
             mod = update["$set"]
-            for (k,v) in mod.iteritems():
+            for (k,v) in mod.items():
                 for doc in docs:
                     simKeyRecursion(doc, k, v)
             return SimUpdateResult(len(docs))
@@ -266,7 +266,7 @@ class SimCollection(object):
             def getKey(doc):
                 # This is super inefficient but clean and good enough
                 ret = []
-                for (k, v) in ink.iteritems():
+                for (k, v) in ink.items():
                     ret.append(simKeyRecursion(doc, v.strip('$')))
                 return tuple(ret)
 
@@ -275,18 +275,18 @@ class SimCollection(object):
             # will break if it is changed.
             data.pop("_id")
             assert len(data) == 1
-            outk = data.keys()[0]
+            outk = list(data.keys())[0]
             # Aggregate
             out = {}
             for doc in result:
                 out[getKey(doc)] = doc
-            return SimCursor([{outk: x} for x in out.itervalues()])
+            return SimCursor([{outk: x} for x in out.values()])
     
     def aggregate(self, pipeline, allowDiskUse=False, cursor={}):
         with self.__lock:
             result = SimCursor(self.__data)
             for entry in pipeline:
                 assert len(entry) == 1
-                (cmd, data) = next(copy.deepcopy(entry).iteritems())
+                (cmd, data) = next(iter(copy.deepcopy(entry).items()))
                 result = self._doAggregate(result, cmd, data)
             return result

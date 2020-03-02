@@ -437,7 +437,7 @@ class GeoDBInserter(DBInserter):
         # Get map of documents with name as key
         docMap = getUniqueDocumentMap(self._docs, getName)
         for r in self._collection.find(
-                                {OBJECT_NAME_KEY: {"$in": docMap.keys()}}):
+                          {OBJECT_NAME_KEY: {"$in": list(docMap.keys())}}):
             dbMsgName = r[OBJECT_KEY][G.DataObject.OBJECT_NAME_KEY]
             # Increase the revision number by 1
             docMap[dbMsgName][REVISION_KEY] = r[REVISION_KEY] + 1
@@ -494,7 +494,7 @@ class StatusDBInserter(DBInserter):
         docMap = getUniqueDocumentMap(self._docs, getName)
         # Now check the database for duplicates
         for r in self._collection.find(
-                        {OBJECT_NAME_KEY: {"$in": docMap.keys()}}):
+                        {OBJECT_NAME_KEY: {"$in": list(docMap.keys())}}):
             dbMsgData = r[OBJECT_KEY]
             dbMsgName = dbMsgData[G.DataObject.OBJECT_NAME_KEY]
             if docMap[dbMsgName][OBJECT_KEY] != dbMsgData:

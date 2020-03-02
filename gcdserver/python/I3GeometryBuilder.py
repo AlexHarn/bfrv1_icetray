@@ -203,7 +203,7 @@ def buildI3Geometry(db):
                               "tank %s" % cal.name)
 
     # Build TankGeo objects one tank at a time.
-    for ((stringID, tankLabel), data) in iceTopData.iteritems():
+    for ((stringID, tankLabel), data) in iceTopData.items():
         try:
             # Build the I3TankGeo object
             tankGeo = buildTankGeo(stringID, tankLabel, data)

@@ -14,13 +14,13 @@ def main():
     # Print the entrire I3FlasherSubrunMap object to see all the data
     #print flasherSubrunMap
     # Print the subruns for which we have data
-    print "Subruns available: %s" % [s for s in flasherSubrunMap.keys()]
+    print "Subruns available: %s" % [s for s in list(flasherSubrunMap.keys())]
     # Examine subrun 1:
     subrun = 1
     subrunData = flasherSubrunMap[subrun]
     # Print the OMKey for DOMs that were flashing during this subrun
     print ("DOMs available in subrun %s: %s" %
-                           (subrun, [k for k in subrunData.keys()]))
+                           (subrun, [k for k in list(subrunData.keys())]))
     # Examine OMKey(86, 41)
     omKey = icetray.OMKey(86, 41)
     domData = subrunData[omKey]
