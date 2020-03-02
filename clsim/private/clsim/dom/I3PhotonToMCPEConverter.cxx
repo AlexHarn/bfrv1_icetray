@@ -482,7 +482,7 @@ I3PhotonToMCPEConverter::Convert(I3FramePtr frame)
             log_trace("After efficiency from calibration: prob=%g (efficiency_from_calibration=%f)",
                       hitProbability, efficiency_from_calibration);
 
-            if (hitProbability > 1.+1e-6) {
+            if (hitProbability > 1.+1e-4) {
                 log_warn("hitProbability==%f > 1: your hit weights are too high. (hitProbability-1=%f)", hitProbability, hitProbability-1.);
 
                 double hitProbability = photon.GetWeight();
@@ -646,7 +646,7 @@ I3CLSimPhotonToMCPEConverterForDOMs::Convert(const ModuleKey &mkey, const I3Comp
     log_trace("After wlen&angular acceptance: prob=%g (angular acceptance is %f)",
               hitProbability, angularAcceptance_->GetValue(photonCosAngle));
 
-    if (hitProbability > 1.+1e-6) {
+    if (hitProbability > 1.+1e-4) {
         log_warn("hitProbability==%f > 1: your hit weights are too high. (hitProbability-1=%g)", hitProbability, hitProbability-1.);
 
         double hitProbability = photon.GetWeight();
