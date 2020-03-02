@@ -80,7 +80,12 @@ If you construct your weight from the scratch, do not forget to multiply I3MCWei
   Set float value from 0.1 to 1.9. Default is 1.0, which gives flat distribution in cos(zenith) or zenith (depending on the value in AngleSamplingMode).  A larger number gives more vertical events. 
   For details, see `ZenithSampler::SimpleSlopeSampler<http://code.icecube.wisc.edu/projects/icecube/browser/IceCube/projects/neutrino-generator/trunk/private/neutrino-generator/utils/ZenithSampler.h`.
 
-Followng figures show number of generated events in several injection modes, before weigting and after weighting.
+Followng figures show number of generated events in several injection modes, before weigting and after weighting. 
+
+BLUE    : using "COS" mode and ZenithWeightParam = 1.0
+GREEN   : using "COS" mode and setting ZenighWeightParam 0.1
+MAGENTA : using "ANGEMU" mode and ZenithWeightParam = 1.0
+BROWN   : (currently not supported)
 
 .. figure:: figs/ZenithWeightMethods.png
 .. figure:: figs/ZenithWeightMethods_weighted.png
@@ -237,12 +242,14 @@ The net interaction weight is then expressed as:
 If you want to calculate interaction weight by yourself, I3MCWeightsDict
 provides all information you need. See following parameters:
 
+Feb.2.2020 Part of the "Names in I3MCWeightDict" was fixed to correct value.
+
 ========================  ========================    ==========================
  Variables                    Units                    Names in I3MCWeightDict
 ========================  ========================    ==========================
-:math:`W_{interaction}`   (unit less)                 TotalWeight
+:math:`W_{interaction}`   (unit less)                 (not stored) << FIXED!
 :math:`P_{interaction}`   (unit less)                 InteractionWeight
-:math:`W_{pos}`           (unit less)                 PropagationWeight
+:math:`W_{pos}`           (unit less)                 InteractionPositionWeight  << FIXED!
 :math:`L_{d}`             :math:`g/cm^{2}`            TotalColumnDepthCGS
 :math:`X`                 :math:`g/cm^{2}`            InteractionColumnDepthCGS
 :math:`\sigma_{all}`      <s>mb</s> :math:`cm^{2}`    TotalXsectionCGS
@@ -250,3 +257,17 @@ provides all information you need. See following parameters:
 :math:`C`                                             If you use the valiables listed above, use 1.0
 ========================  ========================    ==========================
 
+
+
+Weights for physics analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to use simulation, users must multiply all production weights and initial flux, as well as weights defined by generation space. We usually use OneWeight or GenerationWeight for this purpose. 
+
+In I3MCWeightDict, all production weights listed above are multiplied into **TotalWeight**. So, basically, OneWeight is:
+
+.. code-block:: none
+
+ OneWeight = TotalWeight[unitless] * InjectionArea[cm^2] * SolidAngle[sr] * (IntegralOfEnergyFlux/GenerationEnergyFlux)[GeV]
+
+For more details see section "Parameters in I3MCWeightDict". 
