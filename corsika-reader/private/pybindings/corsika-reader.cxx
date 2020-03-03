@@ -10,6 +10,7 @@
  */
 
 #include "icetray/load_project.h"
+#include "corsika-reader/I3CORSIKAReaderUtils.h"
 #include "corsika-reader/I3CorsikaWeight.h"
 
 namespace bp=boost::python;
@@ -29,8 +30,9 @@ BOOST_PYTHON_MODULE(corsika_reader)
   bp::import("icecube.icetray");
   bp::import("icecube.sim_services");
 
-
-
+  bp::def("CorsikaToPDG",&I3CORSIKAReaderUtils::CorsikaToPDG);
+  bp::def("PDGToCorsika",&I3CORSIKAReaderUtils::PDGToCorsika);  
+  
   bp::class_<I3CorsikaWeight,
              bp::bases<I3FrameObject>,
              boost::shared_ptr<I3CorsikaWeight> >
