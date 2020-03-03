@@ -8,6 +8,9 @@ Release Notes
 trunk
 -----------------------------
 
+- Added a new experimental SnowCorrectionService ("RadeBasic")
+- Added unit tests for all of the SnowCorrectionServices 
+
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
 Combo Release V00-00-00

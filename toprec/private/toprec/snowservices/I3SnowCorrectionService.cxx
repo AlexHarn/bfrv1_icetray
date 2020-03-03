@@ -71,7 +71,12 @@ void I3SimpleSnowCorrectionService::FillSnowDiagnostics(SnowCorrectionDiagnostic
   const
 {
    log_debug("Attempting to fill Simple diagnostics...");
-
+   log_trace("Existing data here: ---\n");
+   log_trace("tstage = %f\n", diagnost->tstage);
+   log_trace("fEM_50m = %f\n", diagnost->fEM_50m);
+   log_trace("lambda_50m = %f\n", diagnost->lambda_EM_50m);
+   log_trace("snowdepth_39B = %f\n", diagnost->snowdepth_39B);
+    
    diagnost->tstage = -999;
    diagnost->tstage_restricted = -999;
    
@@ -108,7 +113,12 @@ void I3SimpleSnowCorrectionService::FillSnowDiagnostics(SnowCorrectionDiagnostic
    diagnost->lambda_EM_1000m_restricted = fLambda_;
 
    log_debug("Done filling Simple diagnostics...%f", fLambda_);
- }
+   log_trace("NEW data here: ---\n");
+   log_trace("tstage = %f\n", diagnost->tstage);
+   log_trace("fEM_50m = %f\n", diagnost->fEM_50m);
+   log_trace("lambda_50m = %f\n", diagnost->lambda_EM_50m);
+   log_trace("snowdepth_39B = %f\n", diagnost->snowdepth_39B);
+}
 
 typedef I3SingleServiceFactory< I3SimpleSnowCorrectionService, I3SnowCorrectionServiceBase > 
 I3SimpleSnowCorrectionServiceFactory;

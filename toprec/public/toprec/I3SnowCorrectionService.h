@@ -62,6 +62,17 @@ class I3SnowCorrectionServiceBase : public I3ServiceBase {
                                  I3LaputopParamsConstPtr paramPtr)
     const
   { return oldlogS + std::log10(AttenuationFactor(I3Position(tp.x, tp.y, tp.z), tp.snowdepth, *hypoth, *paramPtr)); }
+  
+  // A helper function for general use: (copied from somewhere else)
+  double DistToAxis(const I3Particle& part,
+                    const I3Position& pos)
+    const
+  {
+    I3Position v = pos - part.GetPos();
+    const double d_axis = v * part.GetDir();
+    const double ground_r2 = v.Mag2();
+    return sqrt(ground_r2 - d_axis * d_axis);
+  }
 
  protected:
 

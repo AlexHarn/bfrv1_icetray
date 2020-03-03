@@ -26,18 +26,6 @@
  * class for computing Kath's first attempt at an advanced snow correction: the BORS function
  */
 
-namespace {
-  // Helper
-  double DistToAxis(const I3Particle& part,
-                    const I3Position& pos)
-  {
-    I3Position v = pos - part.GetPos();
-    const double d_axis = v * part.GetDir();
-    const double ground_r2 = v.Mag2();
-    return sqrt(ground_r2 - d_axis * d_axis);
-  }
-}
-
 /// ----------- BORS SNOW CORRECTION --------------
 const std::string I3BORSSnowCorrectionService::EM_ONLY_TAG = "EMOnly";
 

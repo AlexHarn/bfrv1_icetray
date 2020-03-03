@@ -4,10 +4,10 @@
  * @brief implementaration of the I3RadeBasicFunctionService class
  *
  * (c) 2007 the IceCube Collaboration
- * $Id: I3BORSFunctionService.cxx 143395 2016-03-17 22:10:15Z hdembinski $
+ * $Id:  $
  *
- * @version $Revision: 143395 $
- * @date $Date: 2016-03-17 15:10:15 -0700 (Thu, 17 Mar 2016) $
+ * @version $Revision:  $
+ * @date $Date: $
  * @author kath
  *
  */
@@ -25,18 +25,6 @@
  * I3RadeBasicSnowCorrectionService
  * class for computing Kath's second attempt at a RAdius-DEpendent snow correction
  */
-
-namespace {
-  // Helper
-  double DistToAxis(const I3Particle& part,
-                    const I3Position& pos)
-  {
-    I3Position v = pos - part.GetPos();
-    const double d_axis = v * part.GetDir();
-    const double ground_r2 = v.Mag2();
-    return sqrt(ground_r2 - d_axis * d_axis);
-  }
-}
 
 /// ----------- KR'S LATEST SNOW CORRECTION --------------
 /// default constructor for unit tests
