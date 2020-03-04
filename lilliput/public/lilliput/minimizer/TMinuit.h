@@ -6,6 +6,9 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+//This will be hidden from test coverage since it is not our code
+//LCOV_EXCL_START
+
 #ifndef ROOT_TMinuit
 #define ROOT_TMinuit
 
@@ -243,3 +246,4 @@ public:
 
 #endif
 
+//LCOV_EXCL_STOP
