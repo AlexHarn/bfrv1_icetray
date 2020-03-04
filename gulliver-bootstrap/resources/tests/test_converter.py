@@ -23,9 +23,6 @@ def PutInFrame(frame):
     header.sub_event_stream = "TestStream"
     frame["I3EventHeader"] = header
 
-err1 = []
-err2 = []
-
 tray = I3Tray()
 
 tray.AddModule("BottomlessSource", "BS", Stream=icetray.I3Frame.Physics)
