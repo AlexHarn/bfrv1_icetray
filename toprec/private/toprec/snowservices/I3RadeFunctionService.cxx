@@ -28,8 +28,10 @@
 
 /// ----------- KR'S LATEST SNOW CORRECTION --------------
 /// default constructor for unit tests
-I3RadeBasicSnowCorrectionService::I3RadeBasicSnowCorrectionService(const std::string& name) :
-  I3SnowCorrectionServiceBase(name) {
+I3RadeBasicSnowCorrectionService::I3RadeBasicSnowCorrectionService(const std::string& name,
+                                                                   double rmin) :
+  I3SnowCorrectionServiceBase(name),
+  fRminimum_(rmin) {
   log_debug("Hello, I am a nearly empty RadeBasicFunctionService constructor for unit tests");
 }
 
@@ -37,11 +39,14 @@ I3RadeBasicSnowCorrectionService::I3RadeBasicSnowCorrectionService(const std::st
 I3RadeBasicSnowCorrectionService::I3RadeBasicSnowCorrectionService(const I3Context &c):
   I3SnowCorrectionServiceBase(c){
   log_debug("Entering the constructor");
+  fRminimum_ = 11.0;
+  AddParameter("RMinimum", "Minimum radius (should match the DynamicCoreTreatment radius from Laputop)", fRminimum_);
+
  }
 
-// Nothing special
-//void I3RadeBasicSnowCorrectionService::Configure(){
-//}
+void I3RadeBasicSnowCorrectionService::Configure(){
+  GetParameter("RMinimum", fRminimum_);
+}
 
 
 /// THIS IS THE MEATY FUNCTION!
@@ -67,7 +72,14 @@ double I3RadeBasicSnowCorrectionService::AttenuationFactor(const I3Position& pos
   double r = DistToAxis(hypoth, pos);
 
   // Attempt #1: a simple function
-  double l = Lambda(r, s125);
+  double l;
+  // Does this land inside the "11-meter cut" from Laputop?  If so, recompute it at the limit:
+  if (r < fRminimum_) {
+    log_debug("RADE: resetting the radius from %f to %f", r, fRminimum_);
+    l = Lambda(fRminimum_, s125);
+  } else
+    l = Lambda(r, s125);
+  
   double attfactor = exp(-slantdepth/l);
   return attfactor;
 }

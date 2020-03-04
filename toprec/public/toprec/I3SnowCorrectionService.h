@@ -194,11 +194,11 @@ class I3RadeBasicSnowCorrectionService : public I3SnowCorrectionServiceBase {
  public:
   
   /// default constructor/destructors for unit tests
-  I3RadeBasicSnowCorrectionService(const std::string& name);
+  I3RadeBasicSnowCorrectionService(const std::string& name, double rmin);
   I3RadeBasicSnowCorrectionService(const I3Context &c);
   virtual ~I3RadeBasicSnowCorrectionService(){}
   
-  void Configure(){}  // Nothing special
+  void Configure();
 
   /// Standard functions
   virtual double AttenuationFactor(const I3Position&,
@@ -214,7 +214,9 @@ class I3RadeBasicSnowCorrectionService : public I3SnowCorrectionServiceBase {
   double Lambda(double r, double s125) const;
 
  private:
-    // (none)
+    // Internal variables
+    double fRminimum_;
+
 };
 
 I3_POINTER_TYPEDEFS( I3SnowCorrectionServiceBase );

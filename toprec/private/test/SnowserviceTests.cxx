@@ -174,7 +174,7 @@ TEST(RadeBasicLambda)
     printf("RadeLambda test: Init! \n");
         
     // Create a SnowService for testing
-    I3RadeBasicSnowCorrectionServicePtr serv_rade(new I3RadeBasicSnowCorrectionService("My RADE service"));
+    I3RadeBasicSnowCorrectionServicePtr serv_rade(new I3RadeBasicSnowCorrectionService("My RADE service", 15.0));
     
     // Create the inputs
     const I3Position *pos = new I3Position(200, 100, 1970);  // a made-up location
@@ -208,6 +208,20 @@ TEST(RadeBasicLambda)
     ENSURE_DISTANCE(diag->lambda_EM_50m, serv_rade->Lambda(50, 1.234), tol_tight);
     ENSURE_DISTANCE(diag->lambda_EM_125m, serv_rade->Lambda(125, 1.234), tol_tight);
     ENSURE_DISTANCE(diag->lambda_EM_500m, serv_rade->Lambda(500, 1.234), tol_tight);
+
+    // Test another one, with a small radius: make sure it resets to "15.0" properly
+    const I3Position *pos2 = new I3Position(20, 15, 1740);  // a made-up location
+    double r2 = serv_rade->DistToAxis(*pc, *pos2);
+    ENSURE_DISTANCE(r2, 10.782225, tol_loose);
+    // Test the function itself: lambda
+    double l2 = serv_rade->Lambda(r2, 1.234);  //<-- NOT the one it should use
+    ENSURE_DISTANCE(l2, 3.4026621, tol_loose);
+    double latmin = serv_rade->Lambda(15.0, 1.234);  //<-- the one it should use
+    ENSURE_DISTANCE(latmin, 3.2295833, tol_loose);
+    // The one it should really use
+    double attf2 = serv_rade->AttenuationFactor(*pos2, sd, *pc, *par);
+    double expected2 = exp(-(1.5/cos(M_PI/6))/latmin); // <--- the expectation
+    ENSURE_DISTANCE(attf2, expected2, tol_loose);
 
 }
 
