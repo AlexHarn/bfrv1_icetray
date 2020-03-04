@@ -80,9 +80,7 @@ For cascades with an energy above 1PeV a simulation of the shower is performed (
 
 In the simulation, the particles are tracked down to a threshold energy, which can be of the order of 1TeV. When a particle falls below this limit, the energy loss profile is calculated according to the parametrization given above and the individual energy loss profiles are added up to obtain the total energy loss profile of full shower. The total energy loss profile is a histogram binned in radiation length.
 
-The following is the program flow the simulation:
-
-::
+The following is the program flow the simulation::
 	1. Determine interaction point:
 	   - calculate mean free path/radiation length for particle with given energy (integrate differential cross section)
 	   - draw number according to exp(-x/lamdba) distribution, where lambda is the mean free path/radiation length

@@ -58,9 +58,8 @@ Parameters
 Example
 -------
 
-The example shows the interplay of I3SimpleGenerator, the I3CascadeMCModule and the I3HitConstructorModule. The hit-constructor is configured to use the MCTree produced by the cmc module. The cmc module itself, splits cascade-like particles found in the MCList. It uses the simulation for particles above 500 TeV and produces sub-cascades every 6 radiation lengths. The original MCTree was initially put into the frame by the simple-generator module.
+The example shows the interplay of I3SimpleGenerator, the I3CascadeMCModule and the I3HitConstructorModule. The hit-constructor is configured to use the MCTree produced by the cmc module. The cmc module itself, splits cascade-like particles found in the MCList. It uses the simulation for particles above 500 TeV and produces sub-cascades every 6 radiation lengths. The original MCTree was initially put into the frame by the simple-generator module.::
 
-::
 	 # create particles with energies between 100 TeV and 10 EeV
 	 tray.AddModule("I3SimpleGenerator","generator") (
 	               ("NMuEvent", 0),
