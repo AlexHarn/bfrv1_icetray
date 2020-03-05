@@ -99,7 +99,8 @@ I3CORSIKAReader::I3CORSIKAReader(const I3Context& context)
 	    "the run number. If value is wrong, will fail (with a useful "
 	    "message) at run time. Negative values disable weight checking. ",
 	    0);
-	AddParameter("LegacyOverSampling", "(deprecated) number of times to oversample showers ",1);
+	AddParameter("LegacyOverSampling",
+	    "(deprecated) number of times to oversample showers ", 1);
 	particles_to_write_.push_back(I3Particle::MuMinus);
 	particles_to_write_.push_back(I3Particle::MuPlus);
 	particles_to_write_.push_back(I3Particle::NuE);
@@ -219,15 +220,19 @@ I3CORSIKAReader::ProcessEventHeader(float *corsika_block, I3FramePtr frame,
 	I3Direction dir(corsika_block[8], corsika_block[9],
 	    -corsika_block[10]);
 
-     if (ehistory_){
-         log_info("EHISTORY: Rotating Primary Direction by 119 deg i.e. std ARRANG value.");
-         //ARRANG keyword conflicts with EHISTORY option. 
-         //Hence rotation of Primary is being done in the corsika-reader.
-         //There is no need to apply rotation matrix on Primary position because it is derived using Primary Dir
-         dir.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*I3Units::rad);// -1*(2 pi - 119 degrees).
-     } else {
-         dir.RotateZ(-corsika_block[93]*I3Units::rad);
-     }
+	if (ehistory_){
+		log_debug("EHISTORY: Rotating Primary Direction by 119 deg "
+		    "(std ARRANG value).");
+		// ARRANG keyword conflicts with EHISTORY option. 
+		// Hence rotation of Primary is being done here.
+		// There is no need to apply rotation matrix on Primary
+		// position because it is derived using Primary Dir
+
+		// Rotate by -1*(2 pi - 119 degrees)
+		dir.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*I3Units::rad);
+	} else {
+		dir.RotateZ(-corsika_block[93]*I3Units::rad);
+	}
 
 	primary.SetDir(dir);
 	primary.SetEnergy(corsika_block[4]*I3Units::GeV);
@@ -336,8 +341,8 @@ IsEquivalent(const I3Particle &p1, const I3Particle &p2)
 I3MCTree::iterator
 EnsureNode(I3MCTreePtr mctree, I3MCTree::iterator root, I3Particle &child)
 {
-    // Check if a particle is a daughter. If not, add it.
-    // Use IsEquivalent for testing particle equality because CORSIKA
+	// Check if a particle is a daughter. If not, add it.
+	// Use IsEquivalent for testing particle equality because CORSIKA
 	if (IsEquivalent(*root, child))
 		return root;
 	I3MCTree::sibling_iterator i = mctree->end_sibling(), p_iter = mctree->end_sibling();
@@ -384,25 +389,28 @@ I3CORSIKAReader::ProcessParticleBlock(float *corsika_block, I3FramePtr frame,
 			part.SetLocationType(I3Particle::Anywhere);
 		}
 
-          I3Direction dir(corsika_block[start + 2],
-                  corsika_block[start + 3],
-                  -corsika_block[start + 4]);
+		I3Direction dir(corsika_block[start + 2],
+		    corsika_block[start + 3],
+		    -corsika_block[start + 4]);
 
-          if (ehistory_){
-             //ARRANG keyword conflicts with EHISTORY option. 
-             //Hence rotation of Primary is being done in the corsika-reader.
-              dir.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*I3Units::rad);
-          }
+		if (ehistory_){
+			// ARRANG keyword conflicts with EHISTORY option. 
+			// Hence rotation of Primary is being done in the
+			// corsika-reader.
+			dir.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*
+			    I3Units::rad);
+		}
 
 		part.SetDir(dir);
 
-          I3Position temp_pos(corsika_block[start+5]*I3Units::cm,
-                  corsika_block[start+6]*I3Units::cm, obs_level_);
-          if (ehistory_){
-              //ARRANG keyword conflicts with EHISTORY option. 
-              //Hence rotation of Primary is being done by hand here.
-              temp_pos.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*I3Units::rad);
-          }
+		I3Position temp_pos(corsika_block[start+5]*I3Units::cm,
+		corsika_block[start+6]*I3Units::cm, obs_level_);
+		if (ehistory_) {
+			// ARRANG keyword conflicts with EHISTORY option. 
+			// Hence rotation of Primary is being done by hand here.
+			temp_pos.RotateZ(-1.0*(2.0*I3Constants::pi - 2.076942)*
+			    I3Units::rad);
+		}
           
 		if (curved_obs_) {
 			double theta, phi, D;
@@ -450,13 +458,12 @@ I3CORSIKAReader::ProcessParticleBlock(float *corsika_block, I3FramePtr frame,
 		if (id < 0) {
 			// De-duplicate references to the primary that ignore
 			// the rest mass in the energy calculation
-		  if (std::abs(part.GetEnergy()-primary.GetEnergy()) < 1)
-		    part = primary;
-			if (ancestors_ == 1) {
+			if (std::abs(part.GetEnergy()-primary.GetEnergy()) < 1)
+				part = primary;
+			if (ancestors_ == 1)
 				mother_ = part;
-			}	
 			else if (ancestors_ == 2)
-			  grandmother_ = part;
+				grandmother_ = part;
 			continue;
 		}
 
@@ -484,8 +491,8 @@ I3CORSIKAReader::ProcessParticleBlock(float *corsika_block, I3FramePtr frame,
 			node = EnsureNode(mctree, node, mother_);
 			mctree->append_child(node, part);
 		} else {
-			log_fatal_stream("This particle claims to have " << ancestors_ <<
-			    " ancestors. This can't be.");
+			log_fatal_stream("This particle claims to have " <<
+			    ancestors_ << " ancestors. This can't be.");
 		}
 		
 		ancestors_ = 0;
@@ -616,3 +623,4 @@ I3CORSIKAReader::ReadNextBlock(float corsika_block[313], char type[5])
 
 	return 0;
 }
+
