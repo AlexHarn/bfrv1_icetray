@@ -76,7 +76,7 @@ The primary entry script for the Muon L3 is python/level3_Master.py. This script
 
 level3_Functions.CleanInputStreams
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Functions.py#L78`
+https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Functions.py#L78
 
 - Reject events which do not pass either the MuonFilter or the EHEFilter L1 processing. Accept only the InIceSplit event stream.
 
@@ -98,9 +98,9 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 
   - Remove any split frames produced solely from SLC hits. 
 
-  - Produce a set of time windows for the newly-split frames
+- Produce a set of time windows for the newly-split frames
 
-  - Run basic L2 track reconstructions (2 LineFits, a single-iteration SPE, a 2-iteration SPE, and an MPE track fit) on the newly-split frames
+- Run basic L2 track reconstructions (2 LineFits, a single-iteration SPE, a 2-iteration SPE, and an MPE track fit) on the newly-split frames
 
 level3_CalculateCutValues.CalculateCutValues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -166,5 +166,8 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 
 To Do:
 ---------------------------------------
-- Add some figures to explain this more visually
+- Add some figures to explain this more visually. Bullet points are really kind of ugly and the detail here doesn't convey the steps well for new users at a glance.
+- Show a usage example (ie, what does a typical user pass to the command line?)
+- Add some python unit tests where reasonable. This'll probably just be running and testing a few values using the full L3, since this is a (nearly) pure python script module
+- Add a verification file to I3_TESTDATA
 - Check whether the C++ modules are actually used anywhere. If they are not, then consider deleting them.
