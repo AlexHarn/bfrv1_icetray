@@ -4,7 +4,7 @@ find_library(LZMA_LIBRARIES lzma
       ENV LD_LIBRARY_PATH
 )
 
-i3_project(simprod_scripts
+i3_project(simprod-scripts
   PYTHON_DEST icecube/simprod
   PYTHON_DIR python 
   DOCS_DIR resources/docs
