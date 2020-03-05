@@ -11,7 +11,7 @@ load('wavedeform')
 
 compareWithRosencrantz = False
 
-GCDFN = expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
+GCDFN = expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz")
 
 usage = "usage: %prog [options] outputfile"
 parser = OptionParser(usage)

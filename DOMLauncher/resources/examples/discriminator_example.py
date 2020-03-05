@@ -14,7 +14,7 @@ from icecube import DOMLauncher
 import numpy as np
 tray = I3Tray()
 
-PATH = os.getenv('I3_TESTDATA') + '/sim/'
+PATH = os.getenv('I3_TESTDATA') + '/GCD/'
 GCD_FN = PATH + 'GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
 tray.AddModule("I3InfiniteSource","FrameMaker", Prefix= GCD_FN)
 

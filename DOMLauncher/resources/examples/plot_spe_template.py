@@ -12,7 +12,7 @@ from math import log10
 import numpy as np
 
 from os.path import expandvars
-PATH = expandvars("$I3_TESTDATA/sim")
+PATH = expandvars("$I3_TESTDATA/GCD")
 GCDFN = PATH + "/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"
 
 f = dataio.I3File(GCDFN)
@@ -128,5 +128,4 @@ for omkey, dc in domcal :
     pylab.plot(times,amps)
 
 pylab.savefig("spe_templates.png")
-pylab.show()
 
