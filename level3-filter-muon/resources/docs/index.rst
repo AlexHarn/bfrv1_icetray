@@ -38,7 +38,7 @@ The primary script for users of the muon L3 is python/level3_Master.py. This scr
 +---------------------------------+---------------------------------+--------------------+--------------------------------+
 | --rootoutput                    | ROOT file to write event info.  | None               | Yes                            |
 +---------------------------------+---------------------------------+--------------------+--------------------------------+
-| --gsiftp                        | URL to use for FPT transfers. If| None               | Yes, if processing             | 
+| --gsiftp                        | URL to use for FTP transfers. If| None               | Yes, if processing             | 
 |                                 | given, this will be prepended to|                    | files locally. If              |
 |                                 | the gcdfile, infile, outfile,   |                    | using the grid,                |
 |                                 | hd5output, and rootoutput paths.|                    | set this to                    |
@@ -145,7 +145,7 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 
 - Rerun the L2 reconstructions using the new event splits, including MuEx, Cramer-Rao, and Paraboloid
 
-- Run Cramer-Rao and Paraboloid as angular error estimators using the the first good fit from ["MPEFit",'a0"SPEFit2",'a0"SPEFitSingle",'a0"LineFit"].
+- Run Cramer-Rao and Paraboloid as angular error estimators using the the first good fit from ["MPEFit","SPEFit2","SPEFitSingle","LineFit"].
 
 - Run SplineMPE over the events
 
