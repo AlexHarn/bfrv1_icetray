@@ -119,8 +119,8 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 - If an event passes at least one of the previous three conditions, and has a reconstructed zenith of at least 85 degrees (ie, Northern hemisphere), the event satisfies the L3 processing.
 - If an event passes at least one of the previous three conditions, has a reconstructed zenith of less than 85 degrees (Southern hemisphere + horizon), and the event satisfies a 2d cut in zenith and log10(total charge), the event satisfies the L3 processing.
 
-level3_Reconstruct.DoReconstructions 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+level3_Reconstruct.DoReconstructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Reconstruct.py#L268
 - Rerun the L2 reconstructions using the new event splits, including MuEx, Cramer-Rao, and Paraboloid
 - Run Cramer-Rao and Paraboloid as angular error estimators using the the first good fit from ["MPEFit",'a0"SPEFit2",'a0"SPEFitSingle",'a0"LineFit"].
