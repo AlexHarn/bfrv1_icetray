@@ -39,7 +39,9 @@ class NPulsesCheck(unittest.TestCase):
 				frac = math.fabs((float(nreco) - nsim)/denom)
 			margin = 0.60
 			fracdiffs.append(frac)
-			self.assert_(frac < margin, \
+			condition = (frac < margin or
+                                     math.fabs(nreco - nsim) < 1.1)
+			self.assert_(condition, \
 			    ("Sim npulses (%d) and reco (%d) match to " +
 			     "within %d%% in OM %s") % (nsim, \
 			    nreco, margin*100, om))
