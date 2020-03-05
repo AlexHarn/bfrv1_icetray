@@ -20,49 +20,51 @@ Usage
 --------------
 The primary script for users of the muon L3 is python/level3_Master.py. This scrip takes a number of arguments, most of which will not typically need to be changed by users. The options most likely to be modified by users are as follows:
 
-+---------------------------------+---------------------------------+--------------------+---------------+
-| Parser Option                   | Description                     | Default            | Good Default? |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --input, -i                     | I3 file to process. Include     | None               | No            |
-|                                 | multiple files by passing a     |                    |               |
-|                                 | comma-separated list            |                    |               |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --gcd, -g                       | GCD file to use for processing. | None               | No            |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --output, -o                    | Output file to write events to. | None               | No            |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --num, -n                       | Number of events to process. Set| -1 (all events)    | Yes           |
-|                                 | to -1 to process all events.    |                    |               |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --hd5output                     | HDF5 file to write event info.  | None               | Yes           |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --rootoutput                    | ROOT file to write event info.  | None               | Yes           |
-+---------------------------------+---------------------------------+--------------------+---------------+
-| --gsiftp                        | URL to use for FPT transfers. If| None               | Yes, if processing | 
-|                                 | given, this will be prepended to|                    | files locally. If |
-|                                 | the gcdfile, infile, outfile,   |                    | using the grid, |
-|                                 | hd5output, and rootoutput paths.|                    | set this to http://gsiftp.icecube.wisc.edu/ |
-+---------------------------------+---------------------------------+--------------------+---------------+
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| Parser Option                   | Description                     | Default            | Good Default?                  |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --input, -i                     | I3 file to process. Include     | None               | No                             |
+|                                 | multiple files by passing a     |                    |                                |
+|                                 | comma-separated list            |                    |                                |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --gcd, -g                       | GCD file to use for processing. | None               | No                             |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --output, -o                    | Output file to write events to. | None               | No                             |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --num, -n                       | Number of events to process. Set| -1 (all events)    | Yes                            |
+|                                 | to -1 to process all events.    |                    |                                |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --hd5output                     | HDF5 file to write event info.  | None               | Yes                            |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --rootoutput                    | ROOT file to write event info.  | None               | Yes                            |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
+| --gsiftp                        | URL to use for FPT transfers. If| None               | Yes, if processing             | 
+|                                 | given, this will be prepended to|                    | files locally. If              |
+|                                 | the gcdfile, infile, outfile,   |                    | using the grid,                |
+|                                 | hd5output, and rootoutput paths.|                    | set this to                    |
+|                                 |                                 |                    |http://gsiftp.icecube.wisc.edu/ |
++---------------------------------+---------------------------------+--------------------+--------------------------------+
 
 
 There are also a few options used to custom photonics tables and splines used in reconstructions. These are generally set to the correct options and don'92t need to be modified unless the user does not have access to IceCube'92s cvmfs repository.
-+---------------------------------+--------------------+
-| Parser Option                   | Default            | 
-+---------------------------------+--------------------+
-| --photonicsdir                  | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/SPICEMie/ |
-+---------------------------------+--------------------+
-| --photonicsdriverdir            | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/SPICEMie/driverfiles |
-+---------------------------------+--------------------+
-| --photonicsdriverfile           | mu_photorec.list | 
-+---------------------------------+--------------------+
-| --infmuonampsplinepath          | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/InfBareMu_mie_abs_z20a10_V2.fits | 
-+---------------------------------+--------------------+
+
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| Parser Option                   | Default                                                                                         | 
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --photonicsdir                  | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/SPICEMie/                                 |
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --photonicsdriverdir            | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/SPICEMie/driverfiles                      |
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --photonicsdriverfile           | mu_photorec.list                                                                                | 
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --infmuonampsplinepath          | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/InfBareMu_mie_abs_z20a10_V2.fits  | 
++---------------------------------+-------------------------------------------------------------------------------------------------+
 | --infmuonprobsplinepath         | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/InfBareMu_mie_prob_z20a10_V2.fits | 
-+---------------------------------+--------------------+
-| --cascadeampsplinepath          | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.abs.fits | 
-+---------------------------------+--------------------+
-| --cascadeprobsplinepath         | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.prob.fits | 
-+---------------------------------+--------------------+
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --cascadeampsplinepath          | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.abs.fits          | 
++---------------------------------+-------------------------------------------------------------------------------------------------+
+| --cascadeprobsplinepath         | /cvmfs/icecube.opensciencegrid.org/data/photon-tables/splines/ems_mie_z20_a10.prob.fits         | 
++---------------------------------+-------------------------------------------------------------------------------------------------+
 
 
 There is also one legacy option (-r or --restoretwformc), which was added to handle a bug present in some simulation sets where the SplitInIcePulsesTimeRange object was not written in the L2 processing. The bug is fixed in recent simulation sets, but is necessary for 2013+ simulation created before 2018. Enabling this option will add a TimeRange object into the frame if it is missing. Because the object is only added when missing, enabling this should not harm good events.
