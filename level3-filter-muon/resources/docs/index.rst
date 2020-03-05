@@ -85,7 +85,7 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 - Re-runs trigger-splitter in order to recreate the SplitInIcePulsestimeRange object if missing. If the key is already present in the frame, do nothing.
 
 level3_SplitHiveSplitter.SplitAndRecoHiveSplitter 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_SplitHiveSplitter.py#L34
 - Run the HiveSplitter module (Note: should be updated to use IceHive), which uses the geometry of the detector to efficiently split coincident events.
 - Remove afterpulses (which may have been split by HiveSplitter into a separate frame)
@@ -95,12 +95,12 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 - Run basic L2 track reconstructions (2 LineFits, a single-iteration SPE, a 2-iteration SPE, and an MPE track fit) on the newly-split frames
 
 level3_CalculateCutValues.CalculateCutValues
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_CalculateCutValues.py#L10
 - Calculate values using the CommonVariables project to get the number of total hits, direct hits, and some basic information about the `best fit track https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Functions.py#L7`.
 
 level3_Cuts.DoPrecuts
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Cuts.py#L88
 - Calculate the `average charge-weighted distance to the track https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Functions.py#L30` with and without DeepCore
 - Events with a total charge below 100 PE (ie, low energy events) or with an average charge-weighted distance above 90 PE*m (implying a poor fit) fail the precut
@@ -110,7 +110,7 @@ https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/com
 
 
 level3_Cuts.DoLevel3Cuts
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/level3-filter-muon/python/level3_Cuts.py#L51
 - Pass the event if at least 10,000 PE were observed, including hits from DeepCore.
 - Find the RlogL (reduced log-likelihood, logL/ndof) from the best fit. If the best-fit track is LineFit, set the RlogL to 1000. If RlogL < 9, pass the event.
