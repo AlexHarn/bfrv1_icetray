@@ -28,5 +28,5 @@ while i3file.more():
     particle = frame['SPEFit2_HV']
     for omkey,pulseseries in pulsemap:
         liklihood = pdf.get_likelihood(particle,omkey)
-        print "{!r:14} {:10.4e}".format(omkey, liklihood)
+        print ("{!r:14} {:10.4e}".format(omkey, liklihood))
 
