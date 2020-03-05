@@ -1,11 +1,11 @@
 /**
     copyright  (C) 2004
-    the icecube collaboration
-    $Id: I3CalculatorTest.cxx 9161 2005-06-14 16:44:58Z pretz $
+    The IceCube Collaboration
+    $Id$
 
-    @version $Revision: 1.2 $
-    @date $Date: 2005-06-14 12:44:58 -0400 (Tue, 14 Jun 2005) $
-    @author dule
+    @version $Revision$
+    @date $Date$
+    @author kath
 
     @todo
 */
@@ -105,7 +105,7 @@ TEST_GROUP(FillInput);
 
 TEST(FakeFill)
 {
-  printf("Init! \n");
+  log_debug("Fake Fill: Init!");
   std::string gcd(getenv("I3_TESTDATA"));
   gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
   // Create a fake frame, and put some stuff in it
@@ -131,7 +131,7 @@ TEST(FakeFill)
   frame->Put("I3DetectorStatus", detstat1, I3Frame::DetectorStatus);
 
   // Fake pulses
-  printf("About to call.. \n");
+  log_debug("Right number of pulses?...");
   I3RecoPulseSeriesMapConstPtr psmptr = testPSM_tweaked();
   ENSURE(psmptr->size() == 18);
 
@@ -154,9 +154,9 @@ TEST(FakeFill)
   std::vector<tankPulse> pempty = lservice.GetInputEmptyData();
   std::vector<tankPulse> psat = lservice.GetInputSaturatedData();
 
-  printf("pnorm %zu\n", pnorm.size());
-  printf("pempty %zu\n", pempty.size());
-  printf("psat %zu\n", psat.size());
+  log_debug("pnorm %zu", pnorm.size());
+  log_debug("pempty %zu", pempty.size());
+  log_debug("psat %zu", psat.size());
 
   ENSURE(pnorm.size() == 16);  // tanks
   ENSURE(pempty.size() == 63);  // stations  -- adds up to 72 because 39-61 is bad
@@ -239,7 +239,7 @@ TEST(BadStationBadTank)
 {
   // This is another test of the "FillInput" function.  Does it successfully remove stations when one
   // of the two tanks is in a "Bad Tank List" and the other is not hit?
-  printf("Init Bad Station/Tank test! \n");
+  log_debug("Init Bad Station/Tank test!");
   std::string gcd(getenv("I3_TESTDATA"));
   gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz";
   // Create a fake frame, and put some stuff in it
@@ -265,7 +265,7 @@ TEST(BadStationBadTank)
   frame->Put("I3DetectorStatus", detstat1, I3Frame::DetectorStatus);
 
   // Fake pulses
-  printf("About to call.. \n");
+  log_debug("Right number of pulses?...");
   I3RecoPulseSeriesMapConstPtr psmptr = testPSM_tweaked();
   ENSURE(psmptr->size() == 18);
   frame->Put("FakePulseSeriesMap",psmptr);
@@ -297,9 +297,9 @@ TEST(BadStationBadTank)
   std::vector<tankPulse> pempty = lservice.GetInputEmptyData();
   std::vector<tankPulse> psat = lservice.GetInputSaturatedData();
 
-  printf("pnorm %zu\n", pnorm.size());
-  printf("pempty %zu\n", pempty.size());
-  printf("psat %zu\n", psat.size());
+  log_debug("pnorm %zu", pnorm.size());
+  log_debug("pempty %zu", pempty.size());
+  log_debug("psat %zu", psat.size());
 
   ENSURE(pnorm.size() == 16);  // tanks
   ENSURE(pempty.size() == 62);  // stations  -- adds up to 71 because 39-61 is bad, and one in "BadStationList"

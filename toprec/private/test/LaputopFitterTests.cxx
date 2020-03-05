@@ -1,3 +1,15 @@
+/**
+    copyright  (C) 2004
+    The IceCube Collaboration
+    $Id$
+
+    @version $Rev$
+    @date $Date$
+    @author kath
+
+    @todo
+*/
+
 #include <I3Test.h>
 #include <icetray/I3Tray.h>
 #include "dataclasses/I3Constants.h"
@@ -112,7 +124,7 @@ class LaputopTest : public I3Module {
 
     // Test the results of the Laputop fit
     const I3Particle& track = frame->Get<I3Particle>("Laputop");
-    printf("(%f %f %f) %f %f, and %f\n", 
+    log_debug("Result of the fit: (%f %f %f) %f %f, and %f",
 	   track.GetX(), track.GetY(), track.GetZ(), track.GetZenith(), track.GetAzimuth(), track.GetTime());
     // KR 1/12/2014: Fit results change somewhat when I3RecoPulse time changes from float->double
     // Old values: (-225.574201 206.271926 1945.0) 0.793286, 0.778915, and 10232.538042
@@ -127,7 +139,7 @@ class LaputopTest : public I3Module {
     //const I3TopLateralFitParams& params = frame->Get<I3TopLateralFitParams>("LaputopParams");
     // New params:
     const I3LaputopParams& params = frame->Get<I3LaputopParams>("LaputopParams");
-    printf("[%f %f]\n", 
+    log_debug("Fit result parameters: [%f %f]",
 	   params.GetValue(Laputop::Parameter::Log10_S125), 
 	   params.GetValue(Laputop::Parameter::Beta));
     // Again, float->double in I3RecoPulse changes these slightly:

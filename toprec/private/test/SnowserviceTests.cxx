@@ -1,10 +1,10 @@
 /**
     copyright  (C) 2004
-    the icecube collaboration
-    $Id:$
+    The IceCube Collaboration
+    $Id$
 
-    @version $Revision:  $
-    @date $Date:  $
+    @version $Rev$
+    @date $Date$
     @author kath
 
     @todo
@@ -25,7 +25,7 @@ TEST_GROUP(Snowservices);
 
 TEST(SimpleLambda)
 {
-    printf("SimpleLambda test: Init! \n");
+    log_debug("SimpleLambda test: Init!");
         
     // Create a SnowService for testing
     I3SimpleSnowCorrectionServicePtr serv_simple(new I3SimpleSnowCorrectionService("My simple service", 2.1));
@@ -74,7 +74,7 @@ TEST(SimpleLambda)
 
 TEST(BORSLambda)
 {
-    printf("BORSLambda test: Init! \n");
+    log_debug("BORSLambda test: Init!");
         
     // Create a SnowService for testing
     I3BORSSnowCorrectionServicePtr serv_bors(new I3BORSSnowCorrectionService("My BORS service", 0));  // Set it up in "with muons" mode
@@ -125,7 +125,7 @@ TEST(BORSLambda)
     ENSURE_DISTANCE(diag->lambda_EM_50m, 2.63037, tol_loose);
     ENSURE_DISTANCE(diag->lambda_EM_125m, 2.346119, tol_loose);
     ENSURE_DISTANCE(diag->lambda_EM_500m, 2.016437, tol_loose);
-    printf("Try this: should be NAN: snowdepth_39B = %f\n", diag->snowdepth_39B);
+    ENSURE(std::isnan(diag->snowdepth_39B));
     
     //  ----- A second one, with the nose -------
     // For a different distance, just for testing...
@@ -171,7 +171,7 @@ TEST(BORSLambda)
 
 TEST(RadeBasicLambda)
 {
-    printf("RadeLambda test: Init! \n");
+    log_debug("RadeLambda test: Init!");
         
     // Create a SnowService for testing
     I3RadeBasicSnowCorrectionServicePtr serv_rade(new I3RadeBasicSnowCorrectionService("My RADE service", 15.0));

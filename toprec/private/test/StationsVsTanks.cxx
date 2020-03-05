@@ -1,11 +1,11 @@
 /**
     copyright  (C) 2004
-    the icecube collaboration
-    $Id: I3CalculatorTest.cxx 9161 2005-06-14 16:44:58Z pretz $
+    The IceCube Collaboration
+    $Id$
 
-    @version $Revision: 1.2 $
-    @date $Date: 2005-06-14 12:44:58 -0400 (Tue, 14 Jun 2005) $
-    @author dule
+    @version $Rev$
+    @date $Date$
+    @author kath
 
     @todo
 */
@@ -527,7 +527,7 @@ TEST_GROUP(Pnohit);
 
 TEST(StationwiseLikelihood)
 {
-  printf("Init! \n");
+  log_debug("Stationwise Likelihood test Init!");
   std::string gcd(getenv("I3_TESTDATA"));
   gcd = gcd+"/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz";
   // Create a fake frame, and put some stuff in it
@@ -555,7 +555,7 @@ TEST(StationwiseLikelihood)
   frame->Put("I3DetectorStatus", detstat1, I3Frame::DetectorStatus);
 
   // Fake pulses and excluded-tanks lists
-  printf("Creating pulseseries \n");
+  log_debug("Creating pulseseries...");
   I3RecoPulseSeriesMapConstPtr hlcpulses = testPSM_HLC();
   I3RecoPulseSeriesMapConstPtr slcpulses = testPSM_SLC();
   ENSURE(hlcpulses->size() == 62);    // Originally 64, but two removed by hand
@@ -581,9 +581,9 @@ TEST(StationwiseLikelihood)
   std::vector<tankPulse> psat = lservice.GetInputSaturatedData();
   //int mult = lservice.GetMultiplicity();
 
-  printf("pnorm %zu\n", pnorm.size());
-  printf("pempty %zu\n", pempty.size());
-  printf("psat %zu\n", psat.size());
+  log_debug("pnorm %zu", pnorm.size());
+  log_debug("pempty %zu", pempty.size());
+  log_debug("psat %zu", psat.size());
   //printf("multiplicity %d\n", mult);
 
   // Original event = 64 hit tanks, 3 of them saturated. (That's 32 stations.)

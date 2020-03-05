@@ -1,11 +1,11 @@
 /**
     copyright  (C) 2004
-    the icecube collaboration
-    $Id: I3CalculatorTest.cxx 9161 2005-06-14 16:44:58Z pretz $
+    The IceCube Collaboration
+    $Id$
 
-    @version $Revision: 1.2 $
-    @date $Date: 2005-06-14 12:44:58 -0400 (Tue, 14 Jun 2005) $
-    @author dule
+    @version $Revision$
+    @date $Date$
+    @author kath
 
     @todo
 */
@@ -31,7 +31,7 @@ TEST_GROUP(Seeds);
 
 TEST(FromCOGAndPlane)
 {
-  printf("Init! \n");
+  log_debug("Init COG/Plane seed test!");
   // This one has to make a "guess" at S125, which needs pulses and geometry, so
   // gotta fill that stuff. *sigh*
   std::string gcd(getenv("I3_TESTDATA"));
@@ -48,7 +48,6 @@ TEST(FromCOGAndPlane)
   // C and D not required here.
 
   // Fake pulses
-  printf("About to call.. \n");
   I3RecoPulseSeriesMapConstPtr psmptr = testPSM_tweaked();
   frame->Put("FakePulseSeriesMap",psmptr);
 
@@ -104,7 +103,7 @@ TEST(FromCOGAndPlane)
 
 TEST(FromOldI3TopLateralFitParams)
 {
-  printf("Init I3TopLateralFitParams test! \n");
+  log_debug("Init I3TopLateralFitParams test!");
   // Create a fake frame, and put some stuff in it
   I3FramePtr frame(new I3Frame(I3Frame::Physics));
 
@@ -144,7 +143,7 @@ TEST(FromOldI3TopLateralFitParams)
 
 TEST(FromNewLaputopParams)
 {
-  printf("Init I3LaputopParams test! \n");
+  log_debug("Init I3LaputopParams test!");
   // Create a fake frame, and put some stuff in it
   I3FramePtr frame(new I3Frame(I3Frame::Physics));
 
