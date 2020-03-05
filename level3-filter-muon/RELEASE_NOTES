@@ -1,8 +1,12 @@
 Release Notes
 =============
 
+
+March 5, 2020 Michael Larson (mlarson@icecube.wisc.edu)
+-------------------------------------------
 trunk
--------------------------------
+- Add some basic documentation to the module
+
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
