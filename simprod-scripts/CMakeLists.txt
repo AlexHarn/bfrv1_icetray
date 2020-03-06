@@ -86,13 +86,5 @@ add_custom_command(TARGET production-tarball
 )
 endif (BUILD_GENIE-ICETRAY)
 
-add_custom_command(TARGET production-tarball
-     PRE_BUILD
-     COMMAND mkdir -p ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}/python/bin
-     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_BINARY_DIR}/simprod-scripts/resources/scripts/install_python.py 
-             --prefix=${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}/python/ --lib=${PYTHON_LIBRARY}
-     COMMENT "Installing Python"
-)
-
 add_dependencies(production-tarball tarball-install)
 add_dependencies(tarball-install-tools production-tarball)
