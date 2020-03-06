@@ -3,6 +3,9 @@
 // hacked first by Claudio Kopper
 // hacked second (put TMinuit into lilliput namespace) by Kai Krings
 
+//Ignore this file in test coverage
+//LCOV_EXCL_START
+
 /*************************************************************************
  * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *
  * All rights reserved.                                                  *
@@ -7397,3 +7400,5 @@ void lilliput::TMinuit::mnwerr()
       }
    }
 } /* mnwerr_ */
+
+//LCOV_EXCL_STOP
