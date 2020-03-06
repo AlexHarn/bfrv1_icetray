@@ -70,7 +70,7 @@ struct I3SeedServiceWrapper : public I3SeedServiceBase, public bp::wrapper<I3See
 
 struct I3ParametrizationWrapper : public I3ParametrizationBase, public bp::wrapper<I3ParametrizationBase> {
     I3ParametrizationWrapper(const std::string &name) :
-        I3ParametrizationBase(I3EventHypothesisPtr()), name_(name) {};
+        I3ParametrizationBase(I3EventHypothesisPtr(new I3EventHypothesis)), name_(name) {};
     virtual void UpdatePhysicsVariables()
     {
         this->get_override("UpdatePhysicsVariables")();
