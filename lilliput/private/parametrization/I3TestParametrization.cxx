@@ -4,17 +4,19 @@
 
 I3TestParametrization::I3TestParametrization():
   I3ServiceBase("I3TestParametrization"),
-  I3ParametrizationBase(I3EventHypothesisPtr()),
+  I3ParametrizationBase(I3EventHypothesisPtr(new I3EventHypothesis)),
   setDiagnostics_(false),
-  setNonStd_(false) {
+  setNonStd_(false),
+  initChainRule_(false) {
 
 }
 
 I3TestParametrization::I3TestParametrization(const I3Context& context):
   I3ServiceBase(context),
-  I3ParametrizationBase(I3EventHypothesisPtr()),
+  I3ParametrizationBase(I3EventHypothesisPtr(new I3EventHypothesis)),
   setDiagnostics_(false),
-  setNonStd_(false) {
+  setNonStd_(false),
+  initChainRule_(false) {
   AddParameter("SetDiagnostics", "If true diagnostics will be returned", setDiagnostics_);
   AddParameter("SetNonStd", "If true a nonstd will be added to the hypothesis", setNonStd_);
 }
@@ -35,6 +37,8 @@ void I3TestParametrization::Configure() {
 void I3TestParametrization::UpdatePhysicsVariables() {
   log_debug("Updating the physics variables");
 
+  assert(hypothesis_);
+
   I3Particle& particle = *(hypothesis_->particle);
 
   particle.SetPos(1, 2, 3);
@@ -48,6 +52,8 @@ void I3TestParametrization::UpdateParameters() {
   particle.SetPos(1, 2, 3);
   particle.SetDir(0.5, 0.5);
   particle.SetShape(I3Particle::Primary);
+
+  assert(hypothesis_);
 
   *hypothesis_->particle = particle;
 

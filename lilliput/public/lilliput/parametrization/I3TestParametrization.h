@@ -17,6 +17,7 @@ class I3TestParametrization : public I3ServiceBase,
   virtual void UpdateParameters();
   virtual const std::string GetName() const {return I3ServiceBase::GetName();}
   virtual I3FrameObjectPtr GetDiagnostics(const I3EventHypothesis &fitresult);
+  virtual bool InitChainRule(bool wantgradient){return initChainRule_;}
 
   virtual ~I3TestParametrization() {}
 
@@ -28,6 +29,7 @@ class I3TestParametrization : public I3ServiceBase,
 
   bool setDiagnostics_;
   bool setNonStd_;
+  bool initChainRule_;
 
   SET_LOGGER( "I3TestParametrization" );
 };

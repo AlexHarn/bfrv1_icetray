@@ -209,6 +209,7 @@ public:
      * update the parameters according to the current event hypothesis
      * then return a I3FitParameterInitSpecs object which contains
      * besides the parameter values also the ranges, stepsizes etc.
+     * Note: the default input to this fill is supposed to create a null pointer
      */
     const std::vector<I3FitParameterInitSpecs>& GetParInitSpecs( I3EventHypothesisPtr eh = I3EventHypothesisPtr() );
 
