@@ -193,7 +193,7 @@ bool I3Gulliver::Fit( const I3Frame &f, I3LogLikelihoodFitPtr fitptr ){
 
     // paranoid
     assert(fitptr);
-    // assert(eventllh_);
+    assert(eventllh_);
 
     // check number of degrees of freedom
     eventllh_->SetEvent(f);
@@ -238,6 +238,7 @@ bool I3Gulliver::AnglesInRange( I3Particle &p, const std::string &name ){
 }
 
 bool I3Gulliver::Fit( I3LogLikelihoodFitPtr fitptr ){
+    log_debug("Running the fit");
 
     // paranoia
     assert(fitptr);
@@ -342,7 +343,16 @@ void I3Gulliver::CheckGradientCompatibility(){
 
 void I3Gulliver::UseGradients(bool b){
     withGradient_ = b;
+
+    if (withGradient_)
+        log_debug("Gulliver will use gradients.");
+    else
+        log_debug("Gulliver will not use gradients.");
+
+    assert(parametrization_);
+    
     if ( withGradient_ ){
+        assert(eventllh_);
         if ( ! eventllh_->HasGradient() ){
             log_fatal( "(%s) minimizer \"%s\" wants to use gradients, "
                        "the likelihood service \"%s\" does not compute "
