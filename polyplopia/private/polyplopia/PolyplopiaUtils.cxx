@@ -21,7 +21,7 @@ namespace{
    * Assume that the particle is travelling to the origin
    */
   double TimeAtDetector(const I3Particle& p){ 
-      return p.GetTime() - std::min(0., ((p.GetDir()*p.GetPos())/ p.GetSpeed()));
+    return p.GetTime() - std::min(0., (p.GetPos()*p.GetDir())/p.GetSpeed());
   }
 
 
@@ -56,8 +56,13 @@ namespace{
   }
   
   bool IsInIce(const I3Particle& p){
-	  return (p.GetLocationType() == I3Particle::InIce) && 
-		  !PolyplopiaUtils::IsNeutrino(p.GetType()); 
+    return (p.GetLocationType() == I3Particle::InIce);
+  }
+
+  bool IsInIceandnotNeutrino(const I3Particle& p){
+    bool inice =  p.GetLocationType() == I3Particle::InIce; 
+    bool isneut = p.IsNeutrino();
+    return (inice && !isneut);
   }
 
 }
