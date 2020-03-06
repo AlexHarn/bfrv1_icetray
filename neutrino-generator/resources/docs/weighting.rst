@@ -76,16 +76,19 @@ If you construct your weight from the scratch, do not forget to multiply I3MCWei
     cos(zenith). 
 
 * **ZenithWeightParam** 
+
   This setting is active only when you select COS mode for AngleSamplingMode.
+
   Set float value from 0.1 to 1.9. Default is 1.0, which gives flat distribution in cos(zenith) or zenith (depending on the value in AngleSamplingMode).  A larger number gives more vertical events. 
-  For details, see `ZenithSampler::SimpleSlopeSampler<http://code.icecube.wisc.edu/projects/icecube/browser/IceCube/projects/neutrino-generator/trunk/private/neutrino-generator/utils/ZenithSampler.h`.
+
+  For details, see `ZenithSampler::SimpleSlopeSampler<http://code.icecube.wisc.edu/projects/icecube/browser/IceCube/projects/neutrino-generator/trunk/private/neutrino-generator/utils/ZenithSampler.h>`_.
 
 Followng figures show number of generated events in several injection modes, before weigting and after weighting. 
 
-BLUE    : using "COS" mode and ZenithWeightParam = 1.0
-GREEN   : using "COS" mode and setting ZenighWeightParam 0.1
-MAGENTA : using "ANGEMU" mode and ZenithWeightParam = 1.0
-BROWN   : (currently not supported)
+* BLUE    : using "COS" mode and ZenithWeightParam = 1.0
+* GREEN   : using "COS" mode and setting ZenighWeightParam 0.1
+* MAGENTA : using "ANGEMU" mode and ZenithWeightParam = 1.0
+* BROWN   : (currently not supported)
 
 .. figure:: figs/ZenithWeightMethods.png
 .. figure:: figs/ZenithWeightMethods_weighted.png
