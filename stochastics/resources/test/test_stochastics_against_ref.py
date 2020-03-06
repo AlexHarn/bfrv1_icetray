@@ -13,7 +13,7 @@ group.add_argument("--generate", action="store_true", help="Generate reference f
 group.add_argument("--force", action="store_true", help="Generate test file (otherwise it is not generated if it exists)", default=False)
 (args) = parser.parse_args()
 
-gcd = "$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz"
+gcd = "$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC79.55380_corrected.i3.gz"
 
 common = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".i3.gz"
 #refFile = os.path.expandvars("$I3_TESTDATA/icetop/ref." + common) # eventually reference should be here

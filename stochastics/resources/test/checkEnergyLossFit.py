@@ -17,12 +17,14 @@ parser.add_argument("-n", action="store", type=int, dest="n", help="number of fr
 (args) = parser.parse_args()
 
 if not len(args.inputFiles)>0:
-    parser.print_help()
-    icetray.logging.log_fatal("Specify input files.")
+    #parser.print_help()
+    #icetray.logging.log_fatal("Specify input files.")
+    args.inputFiles = [os.path.expandvars(os.path.dirname(os.path.realpath(__file__)) + "/test_data.i3")]
 
 if not args.losses:
-    parser.print_help()
-    icetray.logging.log_fatal("Specify vector of I3Particle containing energy losses.")
+    #parser.print_help()
+    #icetray.logging.log_fatal("Specify vector of I3Particle containing energy losses.")
+    args.losses = 'Millipede_dEdX'
 
 tray=I3Tray()
 

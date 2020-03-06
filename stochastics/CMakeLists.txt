@@ -12,7 +12,7 @@ i3_add_library(stochastics
   USE_PROJECTS serialization icetray dataclasses tableio lilliput
 )
 
-i3_test_scripts(resources/scripts/*.py)
+i3_test_scripts(resources/test/*.py)
 
 add_subdirectory(private/pybindings)
 

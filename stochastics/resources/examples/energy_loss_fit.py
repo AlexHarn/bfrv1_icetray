@@ -47,9 +47,8 @@ if args.true:
                    Verbose = False,
                    SelectionType = 'Type2')
     
-    tray.AddModule("Delete",Keys=["Stoch_Reco_TEST"])
-    tray.AddModule("Rename",
-                   Keys=['Stoch_Reco', 'Stoch_Reco_TEST'])
+    #tray.AddModule("Delete",Keys=["Stoch_Reco_TEST"])
+    #tray.AddModule("Rename", Keys=['Stoch_Reco', 'Stoch_Reco_TEST'])
 
 
 else:
@@ -66,11 +65,11 @@ else:
                    Verbose = False,
                    SelectionType = 'Type2')
 
-if args.minimal: tray.AddModule('Keep', Keys=['Stoch_Reco_TEST', 'Stoch_Reco_red_TEST',
+if args.minimal: tray.AddModule('Keep', Keys=['I3EventHeader','Stoch_Reco_TEST', 'Stoch_Reco_red_TEST',
                                               'Stoch_Reco', 'Stoch_Reco_red'])
 tray.AddModule('I3Writer',
                Filename = args.output,
-               Streams  = [icetray.I3Frame.Physics])
+               Streams  = [icetray.I3Frame.DAQ,icetray.I3Frame.Physics])
 
 
 if args.n:
