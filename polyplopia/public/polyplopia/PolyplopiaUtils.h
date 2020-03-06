@@ -115,6 +115,10 @@ GetFirstHitTime(const I3MCPESeriesMap& hitmap);
     }
     return start_time;
   }
+
+  bool IsChargedLepton(I3Particle::ParticleType particle);
+  bool IsNeutrino(I3Particle::ParticleType particle);
+
 } // namespace PolyplopiaUtils
 
 

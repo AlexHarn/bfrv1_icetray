@@ -86,6 +86,7 @@ MPHitFilter::DAQ(I3FramePtr frame)
 		    hitcount += om_iter->second.size(); 
 		    BOOST_FOREACH(const I3MCPE& pe, om_iter->second){ 
 			    temp_primary = I3MCTreeUtils::GetPrimaryPtr(mctree_ptr, pe.ID); 
+			    if (pe.ID.majorID == 0) continue;
 			    if (temp_primary) 
 			       ++primarymap[temp_primary->GetID()]; 
 			    else if (pe.npe > 1)
@@ -97,7 +98,7 @@ MPHitFilter::DAQ(I3FramePtr frame)
 					log_fatal_stream("No primary particle found for light emitting particle "
 					  << pe.ID << (!src_particle?"; this particle does not exist in the tree at all\n"
 					  "A common cause of this error is failure to run CLSim's I3MuonSliceRemoverAndPulseRelabeler "
-					  "before deleting the muon sliced I3MCTree":""));
+					  "before deleting the muon sliced I3MCTree":"") << I3MCTreeUtils::Dump(*mctree_ptr)); 
 			    }
 		    } 
 	    } 

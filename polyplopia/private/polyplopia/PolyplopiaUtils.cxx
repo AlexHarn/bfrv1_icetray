@@ -21,13 +21,7 @@ namespace{
    * Assume that the particle is travelling to the origin
    */
   double TimeAtDetector(const I3Particle& p){ 
-
-	  I3Position appos,appos2;
-	  I3Position origin(0.,0.,0.);
-	  double apdist,apdist2;
-
-	  I3Calculator::ClosestApproachCalc(p,origin,appos2,apdist2,appos,apdist);
-	  return p.GetTime() + apdist/p.GetSpeed();
+      return p.GetTime() - std::min(0., ((p.GetDir()*p.GetPos())/ p.GetSpeed()));
   }
 
 
@@ -61,7 +55,10 @@ namespace{
         return a_time > b_time;
   }
   
-  bool IsInIce(const I3Particle& p){return p.GetLocationType() == I3Particle::InIce; }
+  bool IsInIce(const I3Particle& p){
+	  return (p.GetLocationType() == I3Particle::InIce) && 
+		  !PolyplopiaUtils::IsNeutrino(p.GetType()); 
+  }
 
 }
 
@@ -263,5 +260,33 @@ void PolyplopiaUtils::MergeFrames(I3FramePtr frame1, const I3FramePtr frame2, co
   frame1->Put(mcTreeName,ctree1);
  
   return;
+}
+
+bool PolyplopiaUtils::IsChargedLepton(I3Particle::ParticleType particle) {
+  switch (particle) {
+	  case I3Particle::EMinus:
+	  case I3Particle::EPlus:
+	  case I3Particle::MuMinus:
+	  case I3Particle::MuPlus:
+	  case I3Particle::TauMinus:
+	  case I3Particle::TauPlus: 
+		  return true; 
+	  default: 
+		  return false; 
+  } 
+}
+
+bool PolyplopiaUtils::IsNeutrino(I3Particle::ParticleType particle) {
+  switch (particle) {
+	  case I3Particle::NuE:
+	  case I3Particle::NuEBar:
+	  case I3Particle::NuMu:
+	  case I3Particle::NuMuBar:
+	  case I3Particle::NuTau:
+	  case I3Particle::NuTauBar:
+		  return true; 
+	  default: 
+		  return false; 
+  }
 }
 
