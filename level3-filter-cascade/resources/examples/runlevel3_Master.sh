@@ -1,0 +1,2 @@
+#!/usr/bin/sh
+time /data/user/zzhang1/combo/trunk/build/env-shell.sh python /data/user/zzhang1/combo/trunk/src/level3-filter-cascade/python/level3_Master.py -i "/data/exp/IceCube/2015/filtered/level2pass2/0212/Run00126034/Level2pass2_IC86.2014_data_Run00126034_Subrun00000000_00000010.i3.zst" -g "/data/exp/IceCube/2015/filtered/level2pass2/0212/Run00126034/Level2pass2_IC86.2014_data_Run00126034_0212_54_145_GCD.i3.zst" -o "/data/user/zzhang1/combo/trunk/src/level3-filter-cascade/resources/examples/Level3pass2_IC86.2014_data_Run00126034.i3.bz2"
