@@ -3,6 +3,7 @@ from icecube.icetray.i3logging import log_fatal
 
 import csv
 import datetime
+from scipy import interpolate
 
 ###############################################################
 # Python snowservice :  interpolate from in-situ measurements #
@@ -25,14 +26,14 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
         self.filedate = datetime.date(year, month, day)
         self.snowfile = self.GetParameter('filename')
         self.newheights = self._readFile(self.snowfile, self.filedate)
-
+        
     def Geometry(self, frame):
         if 'I3Geometry' in frame:
             geom = frame['I3Geometry']
             stageo = geom.stationgeo
             for e,st in stageo:
                 updated_heights = dataclasses.I3StationGeo()
-                if not self.newheights.has_key(e):
+                if e not in self.newheights:
                     log_fatal( 'Did not find station ' + str(e)+ ' in new snowheight dictt')
                     continue
                 #ok we have I3TankGeo here... look it up
@@ -45,11 +46,12 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
             frame.Delete('I3Geometry')
             frame['I3Geometry'] = geom
         else:
-            print( 'No geometry found')
+            log_fatal( 'No geometry found')
         self.PushFrame(frame,"OutBox")
 
     def _convertDate(self, i, s):
         ## Need this function because the strings come in a couple different formats.
+        #print("Converting ", s[i])
         try:
             d = datetime.datetime.strptime(s[i].strip(),'%b-%y')
         except:
@@ -62,56 +64,63 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
         csvread = csv.reader(file,delimiter=',')
         #csvread = csv.reader(file, "rU")
         ## Skip the first line (no matter how many fields are in it) -- it's a header:
-        csvread.next()
+        csvread.__next__()
         ## Save the next line... it contains the dates for each column
-        ## Which column is "ours"?
-        strarray = csvread.next()
-        faftercol=0
-        fbeforecol=len(strarray)
-        for icol in range(10,len(strarray)):
-        #for icol in range(10,24):
-#            print strarray[icol]
-            coldate = self._convertDate(icol,strarray)
-#            print coldate
-            if (filedate > coldate):
-                faftercol = max(icol,faftercol)
-            if (filedate < coldate):
-                fbeforecol = min(icol,fbeforecol)
-
-        delta1 = filedate - self._convertDate(faftercol,strarray)
-        delta2 = fbeforedate = self._convertDate(fbeforecol,strarray) - self._convertDate(faftercol,strarray)
-        fractionalong = float(delta1.days)/float(delta2.days)
-#        print strarray[faftercol], " < ", filedate, " < ", strarray[fbeforecol], " ....", fractionalong 
-#        print faftercol, fbeforecol
-
-        ## OK, we know which columns to look for, now go get the snowheights
+        strarray = csvread.__next__()
+        
+        ### --- Kath replaces the clunky routine with a more graceful one using scipy.interpolate ---
+        ## Convert them all to "days since <reference date>"
+        refdate = datetime.date(2008,1,1)   # An arbitrary choice
+        istart = 10  # Where the "interesting" columns start
+        coldate = strarray[:]
+        for icol in range(istart,len(strarray)):
+            delta = self._convertDate(icol,strarray) - refdate
+            coldate[icol] = delta.days
+        origlength = len(strarray)
+        
         newheights = {}
+
         for row in csvread:
             if len(row) > 1 :        ## skips empty lines
-                #print row
-                ## Read strings
-                sheightfirst = row[faftercol]
-                sheightsecond = row[fbeforecol]
-                ## Convert to floats
-                if (sheightfirst == '-'):
-                    heightfirst = 0
-                else:
-                    heightfirst = float(sheightfirst)
-                if (sheightsecond == '-'):
-                    heightsecond = 0
-                else:
-                    heightsecond = float(sheightsecond)
-                ## Check for negative values, and these changed to zero
-                if (heightfirst < 0):
-                    heightfirst = 0
-                if (heightsecond < 0):
-                    heightsecond = 0
-                ## Now compute the interpolated snow height
-                height = heightfirst+fractionalong*(heightsecond-heightfirst)
+                #print(row)
+                ## First, make a copy of all the original headers and this row
+                x = coldate[:]
+                y = row[:]
+                
+                ## Replace "leading dashes" with zeros (but NOT holes in the middle), and
+                ## Convert everything else to floats
+                replacezeros = True
+                for i in range(istart,len(y)):
+                  if (y[i] == '-'):
+                    if replacezeros:
+                      y[i] = 0.0
+                  else:
+                    y[i] = float(y[i])
+                    replacezeros = False   ## Leave the holes there, from here on in.
+
+                ## Now, remove the holes, if there are any.  One at a time.
+                nholes = 0
+                while '-' in y:
+                    removeme = y.index('-')
+                    #print("I found a hole in this row.  Removing...")
+                    x.pop(removeme)
+                    y.pop(removeme)
+                    nholes += 1
+
+                ## Check the lengths of things
+                if (len(x) != len(y)) or (len(x) != origlength-nholes):
+                  log_fatal("SOMETHING WRONG WITH THE LENGTHS!! X=%d, Y=%d"%(len(x), len(y)))
+                  
+                ## Perform the interpolation
+                f = interpolate.interp1d(x[istart:], y[istart:])
+                xnew = (filedate - refdate).days
+                height = float(f(xnew))    ## So that it's just a number and not an array(<number>)
+
                 ## Grab the station/tank numbers, and load 'em into the result array
                 tank = row[0]
                 station = int(row[1])
                 id = row[2]
+                #print("St ", station, id, ": For ", xnewdt, ": Snow = ", height)
                 if station not in newheights:
                     newheights[station] = [0,0]
                 if id == 'A':
@@ -119,5 +128,7 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
                 elif id == 'B':
                     newheights[station][1] = height
                 else:
-                    print( 'unknown tankid')
+                    log_fatal('unknown tankid')
+
         return newheights
+

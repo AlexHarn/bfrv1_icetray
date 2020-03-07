@@ -28,7 +28,7 @@ class ChangeSnowHeight(icetray.I3ConditionalModule):
             stageo = geom.stationgeo
             for e,st in stageo:
                 updated_heights = dataclasses.I3StationGeo()
-                if not self.newheights.has_key(e):
+                if e not in self.newheights:
                     log_warn('Did not find station %s in new snowheight dict'%e)
                     continue
                 #ok we have I3TankGeo here... look it up
