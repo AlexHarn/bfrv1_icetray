@@ -1,5 +1,13 @@
+#!/usr/bin/env python
+#
+# @copyright (C) 2019 The IceCube Collaboration
+#
+# $Id$
+# @author Katherine Rawlins
+# @date $Date$
+
 '''
-Is there a big in the "ChangeSnowHeight_interpolated" function?
+Is there a bug in the "ChangeSnowHeight_interpolated" function?
 '''
 
 #import csv
@@ -28,6 +36,9 @@ tray.Add('I3Reader', 'reader', Filename = gcd)
 
 
 '''
+## What the spreadsheet will look like (after it's been read in, converted to floats,
+## and had a few columns removed, just for brevity here:
+-------------
 headers = ['Station', 'Tank', 'Jan-08', 'Jan-09', 'Jan-10', 'Feb-10', 'Dec-10', 'Feb-11', '16-Nov-11', '19-Feb-12', '21-Oct-12', '9-Jan-13', '21-Feb-13', '25-Oct-13', '11-Dec-13', '8-Mar-14', '3-Nov-14', '27-Feb-15', '28-Oct-15', '28-Dec-15', '1-Apr-16', '10-Oct-16', '22-Dec-16', '8-Mar-17', '13-Nov-17', '9-Mar-18', '4-Nov-18', '6-Mar-19']
 
 ## Example of a station that's been around forever
@@ -72,13 +83,31 @@ class TestTheChange(icetray.I3Module,unittest.TestCase):
         stageo = geom.stationgeo
         hA = {}
         hB = {}
+        xA = {}
+        xB = {}
         ## Let's pick a station:
         for e in [1, 17, 21, 36]:
           st = stageo[e]
+          # Get the snowheights (should be the new ones)
           hA[e] = st[0].snowheight
           hB[e] = st[1].snowheight
           print("St ", e, " heightA = ", hA[e], ", heightB = ", hB[e])
-        ## Test 'em:
+          # Get some coordinates (just to make sure these haven't changed)
+          xA[e] = st[0].position.x
+          xB[e] = st[1].position.x
+          print("St ", e, " xA = ", xA[e], ", xB = ", xB[e])
+
+        ## Test the coordinates (should be the same, unchanged by this module)
+        self.assertAlmostEqual(xA[1], -265.52999878)
+        self.assertAlmostEqual(xB[1], -255.69999695)
+        self.assertAlmostEqual(xA[17], -40.354999542)
+        self.assertAlmostEqual(xB[17], -30.989999771)
+        self.assertAlmostEqual(xA[21], 441.705001831)
+        self.assertAlmostEqual(xB[21], 432.964996338)
+        self.assertAlmostEqual(xA[36], 37.435001373)
+        self.assertAlmostEqual(xB[36], 29.180000305)
+        
+        ## Test the new snow:
         if (self.which <= 0):
           log_fatal("You have to enter a test number (1,2,etc)")
         elif (self.which == 1):  ## APRIL 1, 2016

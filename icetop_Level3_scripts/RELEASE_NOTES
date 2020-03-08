@@ -3,6 +3,12 @@ Release Notes
 
 trunk
 -----------------------------
+- Bugfix: ChangeSnowHeight_interpolated not behaving correctly for a) stations near where 
+there is a "hole" ('-') in the in-situ measurement spreadsheet, or b) days that exactly match
+the day of an in-situ measurement.  Routine reformulated to be more graceful.
+
+- Unit test added for ChangeSnowHeight_interpolated, and CMakeLists modified to include resources/test
+
 - python3 compatibility tweaks
 
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
