@@ -7,11 +7,8 @@ in Laputop.
 Snow Correction Services
 --------------------------------
 
-There are two kinds of snow correction service available:
-
-* I3SimpleSnowCorrectionServiceFactory, which has one user parameter: "Lambda" (the attenuation length; default = 2.1).
-* I3BORSSnowCorrectionServiceFactory, which has one user parameter: "EMOnly" (a boolean specifying whether the
-  service is being given a signal which is only electromagnetic; default = false).
+Details about the snow-correction options can be found here:
+:doc:`Snow Correction Services <snowservices>`
 
 Create one of these (with a name), and then identify it to the Likelihood service using the option "SnowServiceName"
 (described in the "LikelihoodService options" section, below).

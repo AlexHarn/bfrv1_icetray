@@ -1,7 +1,7 @@
 Laputop (the full reconstruction)
 **********************************************
 
-:authors: K. Rawlins (kath@uaa.alaska.edu), T. Feusels (tom.feusels@ugent.be)
+:authors: Katherine Rawlins (krawlins@alaska.edu), Tom Feusels (tom.feusels@ugent.be)
 
 What is Laputop?
 ====================
