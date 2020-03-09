@@ -78,7 +78,7 @@ void I3RecoLLHFactory::Configure() {
   double d;
   std::string s;
   GetParameter("AbsorptionLength",d);
-  if (!isnan(d)){
+  if (!std::isnan(d)){
     log_warn("Parameter \"AbsorptionLength\" was set for I3RecoLLH module \"%s\" "
              "It was only provided for backwards compatibility with I3GulliverIPDFPandelFactory. "
              "You can safely stop using it",name_.c_str());
@@ -98,7 +98,7 @@ void I3RecoLLHFactory::Configure() {
   }
 
   GetParameter("MPETimingError",d);
-  if (!isnan(d)){
+  if (!std::isnan(d)){
     log_warn("Parameter \"MPETimingError\" was set for I3RecoLLH module \"%s\" "
              "It was only provided for backwards compatibility with I3GulliverIPDFPandelFactory. "
              "You can safely stop using it",name_.c_str());
