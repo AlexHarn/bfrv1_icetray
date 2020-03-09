@@ -7,6 +7,7 @@
 Release Notes
 =============
 trunk
+Bug fix. New geometric arrival time for unpropagated particles was returning wrong times comparable to the speed of light diameter of the Earth.
 
 Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
