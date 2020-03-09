@@ -135,7 +135,9 @@ namespace xppc{
 	  opts+=" -cl-fast-relaxed-math";
 	  switch(vid){
 	  case 0x1002: mult=8; break;
-	  case 0x10de: opts+=" -cl-nv-verbose -cl-nv-maxrregcount=64"; break;
+	  case 0x10de:
+	    // opts+=" -cl-nv-maxrregcount=64";
+	    opts+=" -cl-nv-verbose"; break;
 	  }
 	}
 
@@ -204,8 +206,22 @@ namespace xppc{
 	cl_ulong lmem;
 	clGetKernelWorkGroupInfo(clkernel, devID, CL_KERNEL_LOCAL_MEM_SIZE, sizeof(cl_ulong), &lmem, NULL);
 
-	if(dtype!=CL_DEVICE_TYPE_GPU) nthr=1;  // appears necessary on CPUs and Intel Phi
 	cerr<<"Running on "<<nblk<<" MPs x "<<nthr<<" threads; Kernel uses: l="<<lmem<<endl;
+      }
+
+      if(dtype!=CL_DEVICE_TYPE_GPU) nthr=1;  // appears necessary on CPUs and Intel Phi
+      else{
+	unsigned int num=0;
+	checkError(clSetKernelArg(clkernel, 0, sizeof(unsigned int), &num));
+	for(int n=1; n<=6; n++) checkError(clSetKernelArg(clkernel, n, sizeof(cl_mem), NULL));
+
+	do nthr++; while(CL_SUCCESS==clEnqueueNDRangeKernel(cq, clkernel, 1, NULL, &nthr, &nthr, 0, NULL, &event));
+	nthr--;
+
+	checkError(clFlush(cq));
+      }
+      {
+	cerr<<"Running on "<<nblk<<" MPs x "<<nthr<<" threads; (corrected/verified)"<<endl;
       }
     }
 
@@ -330,7 +346,7 @@ namespace xppc{
 
       if(d.ab>0) cerr<<"Error: TOT was a nan or an inf "<<d.ab<<" times!"<<endl;
 
-      if(d.hidx>=d.hnum){ d.hidx=d.hnum; cerr<<"Error: data buffer overflow occurred!"<<endl; }
+      if(d.hidx>d.hnum){ cerr<<"Error: data buffer overflow occurred: "<<d.hidx<<">"<<d.hnum<<"!"<<endl; d.hidx=d.hnum; }
 
       if(d.hidx>0){
 	unsigned int size=d.hidx*sizeof(hit);
@@ -367,7 +383,21 @@ namespace xppc{
       if(cq) checkError(clReleaseCommandQueue(cq));
       if(ctx) checkError(clReleaseContext(ctx));
     }
+
+    void ini_f(unsigned int & c, unsigned int t, unsigned int div = 1){
+      unsigned int aux=pmax/div;
+      d.gini=c, d.gspc=aux, d.gtot=t/div; d.gdiv=div; c+=aux;
+
+      checkError(clEnqueueWriteBuffer(cq, ed, CL_TRUE, 0, 8*sizeof(int), &d, 0, NULL, NULL));
+
+      cerr<<" "<<d.gspc;
+    }
   };
+
+  int gcd(int a, int b){
+    if(a==0) return b;
+    return gcd(b%a, a);
+  }
 
   vector<gpu> gpus;
 
@@ -375,13 +405,21 @@ namespace xppc{
     d.hnum=0; d.gnum=gpus.size();
     pmax=0, pmxo=0, pn=0, pk=0;
 
+    unsigned int div=1;
     for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++){
       i->set();
       i->ini(); if(xgpu) sv++;
       d.hnum+=i->d.hnum;
       pmax+=i->pmax;
       if(pmxo==0 || pmxo>i->pmxo) pmxo=i->pmxo;
+
+      if(i->device==0) div=i->pmax;
+      else div=gcd(i->pmax, div);
     }
+
+    unsigned int gsum=0; cerr<<"Relative GPU loadings:";
+    for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++) i->ini_f(gsum, pmax, div);
+    d.gini=0; d.gspc=gsum; d.gtot=gsum; d.gdiv=div; cerr<<endl;
 
     {
       q.hits = new hit[d.hnum];
@@ -520,8 +558,12 @@ namespace xppc{
     }
 
     {
-      unsigned int n=num/d.gnum, r=num%d.gnum, j=0;
-      for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++, j++) i->num=n+(j<r?1:0);
+      unsigned int res=num/d.gspc;
+      for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++) i->num=res*i->d.gspc; res=num-res*d.gspc;
+      for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++){
+	unsigned int del=min(res, i->d.gspc);
+	i->num+=del; res-=del;
+      }
     }
 
     {

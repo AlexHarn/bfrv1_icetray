@@ -580,6 +580,7 @@ const DOM& flset(int str, int dom){
       }
     }
   }
+
   {
     char * FLDR=getenv("FLDR");
     p.fldr=FLDR==NULL?-1:atof(FLDR);

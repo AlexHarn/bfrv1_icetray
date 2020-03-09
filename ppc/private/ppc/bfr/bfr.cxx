@@ -12,7 +12,9 @@ using namespace std;
 bool verbose=false;
 bool girdle=true;
 bool orefr=false;
+bool orefl=false;
 bool loop=true; // guarantee interaction at every step
+double frac=0.0;
 double elong=1.0;
 double xx=1.e-10;
 
@@ -198,14 +200,26 @@ public:
     return r;
   }
 
-  myvect rand_c(){ // c-axis oriention
+  myvect r_sav;
+
+  myvect rand_c(bool reset=false){ // c-axis oriention
     myvect r;
-    if(girdle){
-      double ph=2*M_PI*xrnd();
-      double cp=cos(ph), sp=sin(ph);
-      r=p1*cp+p2*sp;
+    if(frac>0){
+      if(reset){
+	double ph=2*M_PI*xrnd();
+	double cp=cos(ph), sp=sin(ph);
+	r_sav=p1*cp+p2*sp;
+      }
+      r=xrnd()<frac?r_sav:rand();
     }
-    else r=rand();
+    else{
+      if(girdle){
+	double ph=2*M_PI*xrnd();
+	double cp=cos(ph), sp=sin(ph);
+	r=p1*cp+p2*sp;
+      }
+      else r=rand();
+    }
     return r;
   }
 };
@@ -570,6 +584,12 @@ bool interact(medium one, medium two, surface plane, photon & p){
     for(int i=refl; i<dim; i++) sum+=s[i];
   }
 
+  if(orefl){
+    sum=0;
+    for(int i=0; i<refl; i++) sum+=s[i];
+    for(int i=refl; i<dim; i++) s[i]=0;
+  }
+
   double y=sum*xrnd();
   sum=0;
 
@@ -673,7 +693,7 @@ void test2(double p, int num, int tot){
     medium one, two; // two media definitions
     surface plane; // interface between two media
 
-    one = flow.rand_c();
+    one = flow.rand_c(true);
     myvect r(0, 0, 0);
     photon o(r), e(r);
     one.set_k(k, o, e, true);
@@ -715,6 +735,13 @@ int main(int arg_c, char *arg_a[]){
       cerr<<"Only refraction; no reflection"<<endl;
     }
   }
+  {
+    char * bmp=getenv("ORFL");
+    if(bmp!=NULL && !(*bmp!=0 && atoi(bmp)==0)){
+      orefl=true;
+      cerr<<"Only reflection; no refraction"<<endl;
+    }
+  }
 
   if(arg_c>1){
     {
@@ -737,13 +764,14 @@ int main(int arg_c, char *arg_a[]){
       cerr<<"JNUM="<<jnum<<endl;
     }
 
-    if(arg_c>2) girdle=atof(arg_a[2])>0;
-    if(arg_c>3) elong=atof(arg_a[3]);
+    if(arg_c>2) girdle = atof(arg_a[2])>0;
+    if(arg_c>3)  elong = atof(arg_a[3]);
+    if(arg_c>4)   frac = atof(arg_a[4]);
 
     test2(atof(arg_a[1])*M_PI/180, inum, jnum);
   }
   else{
-    cerr<<"Usage: [SEED=0] [ORFR=0] [NOLO=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle] [elongation]"<<endl;
+    cerr<<"Usage: [SEED=0] [ORFR=0] [NOLO=0] [INUM=1000] [JNUM=100000] bfr [angle to flow] [girdle] [elongation] [unimodal]"<<endl;
     test();
   }
 }

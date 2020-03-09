@@ -61,6 +61,8 @@ typedef struct{
 typedef struct{
   cl_float k1;
   cl_float k2;
+  cl_float ra;
+  cl_float rb;
 } aniz;
 
 typedef struct{
@@ -79,9 +81,11 @@ typedef struct{
 
 typedef struct{
   cl_uint hidx;
+  cl_uint ab;    // if TOT was abnormal
   cl_uint gdev;  // number of this GPU
   cl_uint gnum;  // number of all GPUs
-  cl_uint ab;    // if TOT was abnormal
+
+  cl_uint gini, gspc, gtot, gdiv;
 
   cl_uint hnum;  // size of hits buffer
   cl_int size;   // size of kurt table
@@ -112,6 +116,8 @@ typedef struct{
   cl_float lp[LMAX][LYRS];
 
   cl_float k1, k2, kz, fr; // ice absorption anisotropy parameters
+
+  cl_float sum, bfr[12];
 
   cl_uchar is[CX][CY];
   cl_uchar ls[NSTR];
@@ -247,6 +253,8 @@ __kernel void propagate(__private uint num,
 			__constant DOM * oms){
 
   if(num==0){
+    if(get_global_size(0)>1) return;
+
     ed->hidx=0;
     ed->ab=0;
 
@@ -275,7 +283,7 @@ __kernel void propagate(__private uint num,
   float TOT=0, SCA;
 
   for(unsigned int i=idx, pj=-1U, pn=0; i<num; i+=get_global_size(0)){
-    while(e.gdev+e.gnum*i>=pn) pn+=ep[++pj].num;
+    while(e.gini+i%e.gspc+(i/e.gspc)*e.gtot>=pn) pn+=ep[++pj].num;
 
     unsigned int j=min(convert_int_sat_rtn(WNUM*xrnd(&s)), WNUM-1);
     w=&ez->w[j];
@@ -461,7 +469,7 @@ __kernel void propagate(__private uint num,
 
 	{ // new absorption anisotropy
 	  n1*=e.k1; n2*=e.k2; n3*=e.kz;
-	  nr/=sqrt(n1*n1 + n2*n2 + n3*n3);
+	  nr*=rsqrt(n1*n1+n2*n2+n3*n3);
 	}
 
 	TOT/=nr;
@@ -609,6 +617,35 @@ __kernel void propagate(__private uint num,
       r+=del*n;
     }
 
+    if(e.sum>0){ // birefringence
+      float dot=e.azx*n.x+e.azy*n.y;
+      float sdt=sqrt(1-dot*dot);
+      float cdt=fabs(dot);
+
+      aniz az=ez->az[J];
+      float ra=sqrt(az.ra*del), rb=az.ra*az.rb*del;
+      float sx=max(0.f, ra*e.bfr[0]*exp(-e.bfr[1]*pow(atan(e.bfr[3]*sdt), e.bfr[2])));
+      float sy=max(0.f, ra*e.bfr[4]*exp(-e.bfr[5]*pow(atan(e.bfr[7]*sdt), e.bfr[6])));
+      float mx=max(0.f, rb*e.bfr[8]*atan(e.bfr[11]*sdt*cdt)*exp(-e.bfr[9]*sdt+e.bfr[10]*cdt));
+
+      float dnx=sx*grnd(&s)+mx;
+      float dny=sy*grnd(&s);
+
+      dnx/=2, dny/=2;
+      float den=dnx*dnx+dny*dny;
+      float dnz=-den; den=2/(1+den);
+      dnx*=den, dny*=den, dnz*=den;
+
+      float3 flow=(float3)(e.azx, e.azy, 0);
+      float3 qz=n.xyz;
+      float3 qx=flow-dot*qz; if(dot<0) qx=-qx;
+      float qn=qx.x*qx.x+qx.y*qx.y+qx.z*qx.z;
+      if(qn>0) qx*=rsqrt(qn); else qx=(float3)(0, 0, 1);
+      float3 qy=(float3)(qz.y*qx.z-qz.z*qx.y, qz.z*qx.x-qz.x*qx.z, qz.x*qx.y-qz.y*qx.x);
+
+      n.xyz+=qx*dnx+qy*dny+qz*dnz; n=my_normalize(n);
+    }
+
     if(om!=-1){ // DOM collision was detected
       hit h; h.i=om; h.t=r.w; h.n=niw; h.z=w->wvl;
 
@@ -656,12 +693,11 @@ __kernel void propagate(__private uint num,
 
       if(xi>1) xi=1; else if(xi<-1) xi=-1;
 
-      float k1, k2, okz;
+      aniz az=ez->az[J];
+      float k1=az.k1, k2=az.k2;
+      float okz=k1*k2;
 
       if(!hole){ // if not in hole ice, rotate coordinate system for anisotropic scattering
-	aniz az=ez->az[J];
-	k1=az.k1, k2=az.k2; okz=k1*k2;
-
 	float n1=( e.azx*n.x+e.azy*n.y)*k1;
 	float n2=(-e.azy*n.x+e.azx*n.y)*k2;
 	n.x=n1*e.azx-n2*e.azy;

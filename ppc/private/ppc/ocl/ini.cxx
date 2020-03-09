@@ -136,10 +136,6 @@ struct ini{
       cerr<<"Configuring holeice from \""<<holeice<<"\""<<endl;
     }
 
-
-
-
-
     float dk1, dk2, dkz; // ice anisotropy parameters
 
     {
@@ -186,6 +182,38 @@ struct ini{
 	    cerr<<"Ice absorption anisotropy scaling is "<<d.fr<<endl;
 	  }
 	  else d.fr=1;
+
+	  if(v.size()>=28){
+	    for(int i=0; i<12; i++) d.bfr[i]=v[16+i];
+
+	    {
+	      char * BFRA=getenv("BFRA");
+	      float bfra=BFRA==NULL?1.0:atof(BFRA);
+
+	      char * BFRB=getenv("BFRB");
+	      float bfrb=BFRB==NULL?1.0:atof(BFRB);
+
+	      if(BFRA!=NULL || BFRB!=NULL) cerr<<"Setting BFRA="<<bfra<<" BFRB="<<bfrb<<endl;
+	      for(int i=0; i<12; i+=4) d.bfr[i]*=i<8?sqrt(bfra):bfra*bfrb;
+	    }
+
+	    {
+	      float step=0.01, sum=0;
+	      for(float x=step/2; x<1; x+=step){
+		float y=sqrt(1-x*x);
+		float sx=max(0.f, d.bfr[0]*exp(-d.bfr[1]*pow(atan(d.bfr[3]*y), d.bfr[2])));
+		float sy=max(0.f, d.bfr[4]*exp(-d.bfr[5]*pow(atan(d.bfr[7]*y), d.bfr[6])));
+		float mx=max(0.f, d.bfr[8]*atan(d.bfr[11]*y*x)*exp(-d.bfr[9]*y+d.bfr[10]*x));
+		sum+=sx*sx+sy*sy+mx*mx;
+	      }
+	      sum*=step/2; d.sum=sum;
+	    }
+	    cerr<<"Initialized BFR diffusion patterns; s_eff="<<d.sum<<" m^-1"<<endl;
+	  }
+	  else{
+	    d.sum=0;
+	    for(int i=0; i<12; i++) d.bfr[i]=i%4<1?0:1;
+	  }
 	}
 	else{ cerr<<"File cfg.txt did not contain valid data"<<endl; exit(1); }
 	inFile.close();
@@ -689,7 +717,7 @@ struct ini{
       float wv0=400;
       float A, B, D, E, a, k;
       float Ae, Be, De, Ee, ae, ke;
-      vector<float> dp, be, ba, td, k1, k2;
+      vector<float> dp, be, ba, td, k1, k2, ra, rb;
 
       {
 	bool flag=true, fail=false;
@@ -732,11 +760,11 @@ struct ini{
 	ifstream inFile((icedir+"icemodel.dat").c_str(), ifstream::in);
 	if(!inFile.fail()){
 	  size=0;
-	  float dpa, bea, baa, tda, k1a, k2a;
+	  float dpa, bea, baa, tda, k1a, k2a, bfra, bfrb;
 
 	  string in;
 	  while(getline(inFile, in)){
-	    int num=sscanf(in.c_str(), "%f %f %f %f %f %f", &dpa, &bea, &baa, &tda, &k1a, &k2a);
+	    int num=sscanf(in.c_str(), "%f %f %f %f %f %f %f %f", &dpa, &bea, &baa, &tda, &k1a, &k2a, &bfra, &bfrb);
 
 	    if(num>=4){
 	      dp.push_back(dpa);
@@ -745,6 +773,8 @@ struct ini{
 	      td.push_back(tda);
 	      k1.push_back(num>=5?exp(k1a):dk1);
 	      k2.push_back(num>=6?exp(k2a):dk2);
+	      ra.push_back(num>=7?bfra:1);
+	      rb.push_back(num>=8?bfrb:1);
 	      size++;
 	    }
 	  }
@@ -794,6 +824,7 @@ struct ini{
       for(int i=0; i<size; i++){
 	int j=size-1-i;
 	z.az[i].k1=k1[j]; z.az[i].k2=k2[j];
+	z.az[i].ra=ra[j]; z.az[i].rb=rb[j];
       }
 
       for(int n=0; n<WNUM; n++){
@@ -814,7 +845,7 @@ struct ini{
 	for(int i=0; i<size; i++){
 	  int j=size-1-i;
 	  float bbl=bble>0?dp[j]<bblz&&dp[j]<bbly?bble*(1-dp[j]/bblz)*(1-dp[j]/bbly):0:0;
-	  float sca=(bbl+be[j]*l_a)/(1-d.g), abs=(D*ba[j]+E)*l_k+ABl*(1+0.01*td[j]);
+	  float sca=(bbl+be[j]*l_a-ra[j]*d.sum)/(1-d.g), abs=(D*ba[j]+E)*l_k+ABl*(1+0.01*td[j]);
 	  if(sca>0 && abs>0) w.z[i].sca=sca, w.z[i].abs=abs;
 	  else{ cerr << "Invalid value of ice parameter, cannot proceed" << endl; exit(1); }
 	}

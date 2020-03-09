@@ -1,6 +1,5 @@
 ifdef I3_PORTS
-ver	=	gsl-1.14
-dir	=	-I$(I3_PORTS)/include/$(ver) -L$(I3_PORTS)/lib/$(ver)
+dir	=	-I$(I3_PORTS)/include -L$(I3_PORTS)/lib
 else
 dir	=
 endif
