@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 ### The main L2 processing script ###
 
-import os
 import sys
 import subprocess
 
@@ -80,6 +79,7 @@ def main(options, stats={}):
         icetray.set_log_level(icetray.I3LogLevel.LOG_WARN)
 
     if options['logfn']:
+        import os
         pid = os.getpid()
         icetray.logging.rotating_files("%s.%d" % (options['logfn'], pid))
         
