@@ -96,7 +96,6 @@ class MuonGunGenerator(ipmodule.ParsingModule):
         self.AddParameter('HistogramFilename', 'Histogram filename.', None)
         self.AddParameter('EnableHistogram', 'Write a SanityChecker histogram file.', False)
         self.AddParameter("natural_rate", "Sample natural rate muon bundles", False)
-
         self.AddParameter("GPU", 
                           "Graphics Processing Unit number (shoud default to environment if None)",
                           None)
@@ -194,7 +193,6 @@ class MuonGunGenerator(ipmodule.ParsingModule):
                        name="Generated Events",
                        Stats=stats)
 
-
         if self.propagate_photons:
             if not self.propagate_muons: 
                 raise BaseException("You have to propagate muons if you want to propagate photons")
@@ -241,7 +239,6 @@ class MuonGunGenerator(ipmodule.ParsingModule):
             self.logger.info("discarding %s" % (self.photonseriesname))
             tray.Add("Delete","clean_mctruth",
                      Keys=["I3MCTree",'I3MCTree_preSampling'])
-
 
 
         if self.enablehistogram and self.histogramfilename:         

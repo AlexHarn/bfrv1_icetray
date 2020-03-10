@@ -175,6 +175,28 @@ bool I3CLSimFunctionRefIndexQuanFry::CompareTo(const I3CLSimFunction &other) con
     
 }
 
+I3CLSimFunctionRefIndexQuanFryPtr I3CLSimFunctionRefIndexQuanFry::Scale(double coefficient) const
+{
+    return I3CLSimFunctionRefIndexQuanFryPtr(this->ScaleImpl(coefficient));
+}
+
+I3CLSimFunctionRefIndexQuanFry* I3CLSimFunctionRefIndexQuanFry::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionRefIndexQuanFry(*this);
+    other->n0_ *= coefficient;
+    other->n1_ *= coefficient;
+    other->n2_ *= coefficient;
+    other->n3_ *= coefficient;
+    other->n4_ *= coefficient;
+    other->n5_ *= coefficient;
+    other->n6_ *= coefficient;
+    other->n7_ *= coefficient;
+    other->n8_ *= coefficient;
+    other->n9_ *= coefficient;
+    other->n10_ *= coefficient;
+
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionRefIndexQuanFry::serialize(Archive &ar, unsigned version)

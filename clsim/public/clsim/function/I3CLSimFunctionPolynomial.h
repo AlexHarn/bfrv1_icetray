@@ -36,7 +36,9 @@
  */
 static const unsigned i3clsimfunctionpolynomial_version_ = 0;
 
-struct I3CLSimFunctionPolynomial : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionPolynomial);
+
+class I3CLSimFunctionPolynomial : public I3CLSimFunction
 {
 public:
     /**
@@ -108,10 +110,13 @@ public:
     
     // access to the internal state
     inline const std::vector<double> &GetCoefficients() const {return coefficients_;};
-    
+
+    I3CLSimFunctionPolynomialPtr Scale(double coefficient) const;
+
 private:
     I3CLSimFunctionPolynomial();
-    
+    virtual I3CLSimFunctionPolynomial* ScaleImpl(double coefficient) const;
+
     std::vector<double> coefficients_;
     
     double rangemin_, rangemax_; //The range for which the polynomial can be calculated
@@ -123,7 +128,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionPolynomial, i3clsimfunctionpolynomial_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionPolynomial);
 
 #endif //I3CLSIMFUNCTIONPOLYNOMIAL_H_INCLUDED

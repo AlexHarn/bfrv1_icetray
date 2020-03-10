@@ -38,7 +38,7 @@ class G4Event;
 class TrkEventAction : public G4UserEventAction
 {
 public:
-    TrkEventAction(double maxRefractiveIndex);
+    TrkEventAction();
     virtual ~TrkEventAction();
     
 public:
@@ -49,7 +49,7 @@ public:
     inline void SetExternalParticleID(uint32_t val) {currentExternalParticleID_=val;}
     inline void SetSecondaryCallback(const I3CLSimLightSourcePropagator::secondary_callback &callback) {emitSecondary_=callback;}
     inline void SetStepCallback(const I3CLSimLightSourcePropagator::step_callback &callback) {emitStep_=callback;}
-    
+    inline void SetMaxRefractiveIndex(double maxRefractiveIndex) {maxRefractiveIndex_=maxRefractiveIndex;}
 private:
     bool abortRequested_;
     

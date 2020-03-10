@@ -1,6 +1,6 @@
 The unified angular acceptance model is documented in more detail at: https://github.com/philippeller/angular_acceptance
 
-- the script unified_angular_acceptance.py produces icetray "as.*" like outputs (maximum + 10d polinomial coeffs) given two input paramters p0 and p1
+- the script /ice-models/python/angsens_unified/unified_angular_acceptance.py produces icetray "as.*" like outputs (maximum + 10d polinomial coeffs) given two input paramters p0 and p1
 - the sets as.set*_p0=*_p1=* are covering an interesting region over the parameter space and are intended to be used for systematics
 - these sets are to be used as systematics variations w.r.t. baeline (which is dima=0.3/p2=-1, or using the unified model given in the table below)
 

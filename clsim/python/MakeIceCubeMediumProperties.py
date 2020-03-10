@@ -205,6 +205,7 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
         m.SetDirectionalAbsorptionLengthCorrection(absLenScaling)
         m.SetPreScatterDirectionTransform(preScatterTransform)
         m.SetPostScatterDirectionTransform(postScatterTransform)
+        m.SetAnisotropyParameters(anisotropyDirAzimuth,magnitudeAlongDir,magnitudePerpToDir);
 
     if useTilt:
         # print("Tilt! Wheee!")

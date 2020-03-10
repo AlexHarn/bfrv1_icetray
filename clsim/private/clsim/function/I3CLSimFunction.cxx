@@ -26,6 +26,7 @@
 
 #include <icetray/serialization.h>
 #include <clsim/function/I3CLSimFunction.h>
+#include <dataclasses/I3Map.h>
 
 I3CLSimFunction::I3CLSimFunction()
 { 
@@ -42,7 +43,11 @@ void I3CLSimFunction::serialize(Archive &ar, unsigned version)
 {
     if (version>i3clsimfunction_version_)
         log_fatal("Attempting to read version %u from file but running version %u of I3CLSimFunction class.",version,i3clsimfunction_version_);
+    if (version>0)
+        ar & make_nvp("I3FrameObject", base_object<I3FrameObject>(*this));
 }     
 
 
 I3_SERIALIZABLE(I3CLSimFunction);
+typedef I3Map<OMKey, I3CLSimFunctionConstPtr> I3CLSimFunctionPtrMap;
+I3_SERIALIZABLE(I3CLSimFunctionPtrMap);

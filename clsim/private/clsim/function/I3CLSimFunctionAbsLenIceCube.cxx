@@ -116,6 +116,19 @@ bool I3CLSimFunctionAbsLenIceCube::CompareTo(const I3CLSimFunction &other) const
     
 }
 
+I3CLSimFunctionAbsLenIceCubePtr I3CLSimFunctionAbsLenIceCube::Scale(double coefficient) const
+{
+    return I3CLSimFunctionAbsLenIceCubePtr(this->ScaleImpl(coefficient));
+}
+
+I3CLSimFunctionAbsLenIceCube* I3CLSimFunctionAbsLenIceCube::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionAbsLenIceCube(*this);
+    other->aDust400_ /= coefficient;
+    other->A_ /= coefficient;
+
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionAbsLenIceCube::serialize(Archive &ar, unsigned version)

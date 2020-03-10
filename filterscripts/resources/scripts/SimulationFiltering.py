@@ -18,39 +18,39 @@ from os.path import expandvars
 
 def make_parser():
     """Make the argument parser"""
-    from optparse import OptionParser
-    parser = OptionParser()
-    parser.add_option("-i", "--input", action="store",
-        type="string", default="", dest="infile",
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", action="store",
+        type=str, default="", dest="infile",
         help="Input i3 file(s)  (use comma separated list for multiple files)")
-    parser.add_option("-g", "--gcd", action="store",
-        type="string", default="", dest="gcdfile",
+    parser.add_argument("-g", "--gcd", action="store",
+        type=str, default="", dest="gcdfile",
         help="GCD file for input i3 file")
-    parser.add_option("-o", "--output", action="store",
-        type="string", default="", dest="outfile",
+    parser.add_argument("-o", "--output", action="store",
+        type=str, default="", dest="outfile",
         help="Output i3 file")
-    parser.add_option("-n", "--num", action="store",
-        type="int", default=-1, dest="num",
+    parser.add_argument("-n", "--num", action="store",
+        type=int, default=-1, dest="num",
         help="Number of frames to process")
-    parser.add_option("--qify", action="store_true",
+    parser.add_argument("--qify", action="store_true",
         default=False, dest="qify",
         help="Apply QConverter, use if file is P frame only")
-    parser.add_option("--MinBiasPrescale", action="store",
-        type="int", default=None, dest="MinBiasPrescale",
+    parser.add_argument("--MinBiasPrescale", action="store",
+        type=int, default=None, dest="MinBiasPrescale",
         help="Set the Min Bias prescale to something other than default")
-    parser.add_option("--photonicsdir", action="store",
-        type="string", default="/cvmfs/icecube.opensciencegrid.org/data/photon-tables",
+    parser.add_argument("--photonicsdir", action="store",
+        type=str, default="/cvmfs/icecube.opensciencegrid.org/data/photon-tables",
         dest="photonicsdir", help="Directory with photonics tables")
-    parser.add_option("--enable-gfu", action="store_true",
+    parser.add_argument("--enable-gfu", action="store_true",
         default=False, dest="GFU",
         help="Do not run GFU filter")
-    parser.add_option("--log-level",
-        default="WARN", dest="LOG_LEVEL",
+    parser.add_argument("--log-level",
+        type=str, default="WARN", dest="LOG_LEVEL",
         help="Sets the logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
-    parser.add_option("--log-filename",
-        default=None, dest="logfn",
+    parser.add_argument("--log-filename",
+        type=str, default=None, dest="logfn",
         help="If set logging is redirected to the specified file.")
-    parser.add_option("--needs_wavedeform_spe_corr", action="store_true",
+    parser.add_argument("--needs_wavedeform_spe_corr", action="store_true",
         default=False, dest="needs_wavedeform_spe_corr",
         help="apply_spe_corection in wavedeform.")
 
@@ -114,7 +114,7 @@ def main(options, stats={}):
     tray = I3Tray()
     
     tray.Add(dataio.I3Reader, "reader", filenamelist=infiles)
-        
+    
     # run online filters
     online_kwargs = {}
     if options['photonicsdir']:
@@ -182,9 +182,11 @@ def main(options, stats={}):
             'I3MCTree_preMuonProp',
             'I3MCTree_preMuonProp_RNGState',
             'I3MCPESeriesMap',
-            'I3MCPulseSeriesMap',
             'I3MCPESeriesMapWithoutNoise',
+            'I3MCPESeriesMapParticleIDMap',
+            'I3MCPulseSeriesMap',
             'I3MCPulseSeriesMapParticleIDMap',
+            'I3MCPulseSeriesMapPrimaryIDMap',
             'I3MCWeightDict',
             'LeptonInjectorProperties',
             'MCHitSeriesMap',
@@ -348,7 +350,8 @@ def main(options, stats={}):
     tray.AddModule("I3Writer", "EventWriter",
                    filename=options['outfile'],
                    Streams=[icetray.I3Frame.DAQ,icetray.I3Frame.Physics,
-                            icetray.I3Frame.TrayInfo, icetray.I3Frame.Simulation]
+                            icetray.I3Frame.TrayInfo, icetray.I3Frame.Simulation,
+                            icetray.I3Frame.Stream('M')] # added M-frame
                    )
 
     
@@ -369,11 +372,11 @@ def main(options, stats={}):
     if bzip2_files:
         # now do bzip2
         if os.path.exists('/usr/bin/bzip2'):
-           subprocess.check_call(['/usr/bin/bzip2', '-f']+bzip2_files)   
+            subprocess.check_call(['/usr/bin/bzip2', '-f']+bzip2_files)   
         elif os.path.exists('/bin/bzip2'):
-           subprocess.check_call(['/bin/bzip2', '-f']+bzip2_files)   
+            subprocess.check_call(['/bin/bzip2', '-f']+bzip2_files)   
         else:
-           raise Exception('Cannot find bzip2')
+            raise Exception('Cannot find bzip2')
  
     # clean up forcefully in case we're running this in a loop
     del tray
@@ -388,15 +391,14 @@ else:
     Level1SimulationFilter = ipmodule.FromOptionParser(make_parser(),main)
 ### end iceprod stuff ###
 
-
 if __name__ == '__main__':
     # run as script from the command line
     # get parsed args
     parser = make_parser()
-    (options,args) = parser.parse_args()
+    args = parser.parse_args()
 
     # convert to dictionary
-    opts = vars(options)
+    opts = vars(args)
     opts['infile'] = opts['infile'].split(',')
 
     # call main function

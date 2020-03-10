@@ -43,7 +43,7 @@
  * ice) with all its properties like refractive index,
  * absorption length, scattering length, ..
  */
-static const unsigned i3clsimmediumproperties_version_ = 2;
+static const unsigned i3clsimmediumproperties_version_ = 3;
 
 class I3CLSimMediumProperties : public I3FrameObject
 {
@@ -81,6 +81,8 @@ public:
     I3CLSimScalarFieldConstPtr GetDirectionalAbsorptionLengthCorrection() const;
     I3CLSimVectorTransformConstPtr GetPreScatterDirectionTransform() const;
     I3CLSimVectorTransformConstPtr GetPostScatterDirectionTransform() const;
+    std::tuple<double,double,double> GetAnisotropyParameters() const;
+    
     I3CLSimScalarFieldConstPtr GetIceTiltZShift() const;
 
     void SetAbsorptionLength(uint32_t layer, I3CLSimFunctionConstPtr ptr);
@@ -91,6 +93,7 @@ public:
     void SetDirectionalAbsorptionLengthCorrection(I3CLSimScalarFieldConstPtr ptr);
     void SetPreScatterDirectionTransform(I3CLSimVectorTransformConstPtr ptr);
     void SetPostScatterDirectionTransform(I3CLSimVectorTransformConstPtr ptr);
+    void SetAnisotropyParameters(double anisotropyDirAzimuth, double magnitudeAlongDir, double magnitudePerpToDir);
     void SetIceTiltZShift(I3CLSimScalarFieldConstPtr ptr);
 
     double GetMinWavelength() const;
@@ -129,7 +132,11 @@ private:
     double forcedMaxWlen_;
 
     double efficiency_;
-    
+
+    double anisotropyDirAzimuth_;
+    double magnitudeAlongDir_;
+    double magnitudePerpToDir_;
+
     std::vector<I3CLSimFunctionConstPtr> absorptionLength_;
     std::vector<I3CLSimFunctionConstPtr> scatteringLength_;
     std::vector<I3CLSimFunctionConstPtr> phaseRefractiveIndex_;

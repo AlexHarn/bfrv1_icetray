@@ -100,79 +100,6 @@ public:
     }
 };
 
-I3CLSimLightSourcePropagatorGeant4::I3CLSimLightSourcePropagatorGeant4(std::string physicsListName,
-                                                                           double maxBetaChangePerStep,
-                                                                           uint32_t maxNumPhotonsPerStep,
-                                                                           bool collectParticleHistory
-                                                                           )
-:
-queueFromGeant4Messages_(new I3CLSimQueue<boost::shared_ptr<std::pair<const std::string, bool> > >(UINT_MAX)), // no maximum size
-physicsListName_(physicsListName),
-maxBetaChangePerStep_(maxBetaChangePerStep),
-maxNumPhotonsPerStep_(maxNumPhotonsPerStep),
-initialized_(false),
-collectParticleHistory_(collectParticleHistory)
-{
-    // Geant4 keeps LOTS of global state and is inherently non-thread-safe.
-    // To prevent users from using more than one instance of Geant4 within the
-    // same process, we throw an exception in case another instance
-    // of this class already exists.
-    
-    {
-        if (thereCanBeOnlyOneGeant4) 
-            throw I3CLSimLightSourceToStepConverter_exception("There can be only one! ...instance of I3CLSimLightSourcePropagatorGeant4.");
-        
-        thereCanBeOnlyOneGeant4=true;
-    }
-    
-    if ((maxBetaChangePerStep_<=0.) || (maxBetaChangePerStep_>1.))
-        throw I3CLSimLightSourceToStepConverter_exception("Invalid maxBetaChangePerStep.");
-
-    if ((maxNumPhotonsPerStep_<=0.))
-        throw I3CLSimLightSourceToStepConverter_exception("Invalid maxNumPhotonsPerStep.");
-
-    // check for the braindead Geant4 environment variables
-    if ((!getenv("G4LEVELGAMMADATA")) ||
-        (!getenv("G4RADIOACTIVEDATA")) ||
-        (!getenv("G4LEDATA")) ||
-        (!getenv("G4NEUTRONHPDATA")) ||
-        (!getenv("G4ABLADATA")))
-    {
-        log_info("Geant4 requires the following environment variables to be set: \"G4LEVELGAMMADATA\", \"G4RADIOACTIVEDATA\", \"G4LEDATA\", \"G4NEUTRONHPDATA\" and \"G4ABLADATA\"");
-    }
-
-    // geant 4.9.5 needs some more
-#if G4VERSION_NUMBER >= 950
-    if ((!getenv("G4NEUTRONXSDATA")) ||
-        (!getenv("G4PIIDATA")) ||
-        (!getenv("G4REALSURFACEDATA")))
-    {
-        log_info("Geant4.9.5 requires the following environment variables to be set: \"G4NEUTRONXSDATA\", \"G4PIIDATA\", \"G4REALSURFACEDATA\"");
-    }
-#endif
-    
-    // get the pointer to the UI manager and set our custom G4cout/G4cerr destination
-    G4UImanager* UI = G4UImanager::GetUIpointer();
-    TrkUISessionToQueue *theUISessionToQueue = new TrkUISessionToQueue(queueFromGeant4Messages_);
-    UI->SetCoutDestination(theUISessionToQueue);
-    
-    // keep this around to "catch" G4Eceptions and throw real exceptions
-    UserHookForAbortState *theUserHookForAbortState = new UserHookForAbortState();
-    G4StateManager *theStateManager = G4StateManager::GetStateManager();
-    theStateManager->RegisterDependent(theUserHookForAbortState);
-}
-
-I3CLSimLightSourcePropagatorGeant4::~I3CLSimLightSourcePropagatorGeant4()
-{
-    LogGeant4Messages();
-    
-    {
-        thereCanBeOnlyOneGeant4=false;
-    }
-
-    LogGeant4Messages();
-}
-
 namespace {
     static double GetMaxRIndex(I3CLSimMediumPropertiesConstPtr mProp)
     {
@@ -305,6 +232,112 @@ private:
 
 }
 
+I3CLSimLightSourcePropagatorGeant4::I3CLSimLightSourcePropagatorGeant4(std::string physicsListName,
+                                                                           double maxBetaChangePerStep,
+                                                                           uint32_t maxNumPhotonsPerStep,
+                                                                           bool collectParticleHistory
+                                                                           )
+:
+queueFromGeant4Messages_(new I3CLSimQueue<boost::shared_ptr<std::pair<const std::string, bool> > >(UINT_MAX)), // no maximum size
+physicsListName_(physicsListName),
+maxBetaChangePerStep_(maxBetaChangePerStep),
+maxNumPhotonsPerStep_(maxNumPhotonsPerStep),
+initialized_(false),
+collectParticleHistory_(collectParticleHistory)
+{
+    // Geant4 keeps LOTS of global state and is inherently non-thread-safe.
+    // To prevent users from using more than one instance of Geant4 within the
+    // same process, we throw an exception in case another instance
+    // of this class already exists.
+    
+    {
+        if (thereCanBeOnlyOneGeant4) 
+            throw I3CLSimLightSourceToStepConverter_exception("There can be only one! ...instance of I3CLSimLightSourcePropagatorGeant4.");
+        
+        thereCanBeOnlyOneGeant4=true;
+    }
+    
+    if ((maxBetaChangePerStep_<=0.) || (maxBetaChangePerStep_>1.))
+        throw I3CLSimLightSourceToStepConverter_exception("Invalid maxBetaChangePerStep.");
+
+    if ((maxNumPhotonsPerStep_<=0.))
+        throw I3CLSimLightSourceToStepConverter_exception("Invalid maxNumPhotonsPerStep.");
+
+    // check for the braindead Geant4 environment variables
+    if ((!getenv("G4LEVELGAMMADATA")) ||
+        (!getenv("G4RADIOACTIVEDATA")) ||
+        (!getenv("G4LEDATA")) ||
+        (!getenv("G4NEUTRONHPDATA")) ||
+        (!getenv("G4ABLADATA")))
+    {
+        log_info("Geant4 requires the following environment variables to be set: \"G4LEVELGAMMADATA\", \"G4RADIOACTIVEDATA\", \"G4LEDATA\", \"G4NEUTRONHPDATA\" and \"G4ABLADATA\"");
+    }
+
+    // geant 4.9.5 needs some more
+#if G4VERSION_NUMBER >= 950
+    if ((!getenv("G4NEUTRONXSDATA")) ||
+        (!getenv("G4PIIDATA")) ||
+        (!getenv("G4REALSURFACEDATA")))
+    {
+        log_info("Geant4.9.5 requires the following environment variables to be set: \"G4NEUTRONXSDATA\", \"G4PIIDATA\", \"G4REALSURFACEDATA\"");
+    }
+#endif
+    
+    // get the pointer to the UI manager and set our custom G4cout/G4cerr destination
+    G4UImanager* UI = G4UImanager::GetUIpointer();
+    TrkUISessionToQueue *theUISessionToQueue = new TrkUISessionToQueue(queueFromGeant4Messages_);
+    UI->SetCoutDestination(theUISessionToQueue);
+    
+    LogGeant4Messages();
+    
+    // keep this around to "catch" G4Eceptions and throw real exceptions
+    UserHookForAbortState *theUserHookForAbortState = new UserHookForAbortState();
+    G4StateManager *theStateManager = G4StateManager::GetStateManager();
+    theStateManager->RegisterDependent(theUserHookForAbortState);
+
+    // initialize the run manager
+    runManager_.reset(new G4RunManager);
+
+    // set up the "detector" (a lot of water)
+    runManager_->SetUserInitialization(new TrkDetectorConstruction());
+
+    // set up the physics list (something+Optical Physics)
+    std::unique_ptr<G4PhysListFactory> factory(new G4PhysListFactory);
+    G4VModularPhysicsList *physics = factory->GetReferencePhysList(physicsListName_.c_str());
+
+    physics->RegisterPhysics(new TrkOpticalPhysics("Optical",
+                                                   maxBetaChangePerStep_,
+                                                   maxNumPhotonsPerStep_
+                                                   ));
+    physics->SetDefaultCutValue(0.25*mm);
+    runManager_->SetUserInitialization(physics);
+
+    // instantiate some Geant4 helper classes
+    TrkPrimaryGeneratorAction *thePrimaryGenerator = new TrkPrimaryGeneratorAction();
+
+    runManager_->SetUserAction(thePrimaryGenerator);     // runManager now owns this pointer
+
+    runManager_->SetUserAction(new TrkStackingAction());   // runManager now owns this pointer
+
+    if (collectParticleHistory_)
+        runManager_->SetUserAction(new TrackingAction());
+
+    runManager_->SetUserAction(new TrkEventAction);      // runManager now owns this pointer
+
+    LogGeant4Messages();
+}
+
+I3CLSimLightSourcePropagatorGeant4::~I3CLSimLightSourcePropagatorGeant4()
+{
+    LogGeant4Messages();
+    
+    {
+        thereCanBeOnlyOneGeant4=false;
+    }
+
+    LogGeant4Messages();
+}
+
 void I3CLSimLightSourcePropagatorGeant4::Initialize()
 {
     LogGeant4Messages();
@@ -320,52 +353,56 @@ void I3CLSimLightSourcePropagatorGeant4::Initialize()
 
     if (!mediumProperties_)
         throw I3CLSimLightSourceToStepConverter_exception("MediumProperties not set!");
-    
-    // making a copy of the medium properties
-    {
-        I3CLSimMediumPropertiesConstPtr copiedMediumProperties(new I3CLSimMediumProperties(*mediumProperties_));
-        mediumProperties_ = copiedMediumProperties;
-    }
 
     LogGeant4Messages();
 
-    // initialize the run manager
-    runManager_.reset(new G4RunManager);
-    
-    // set up the "detector" (a lot of water)
-    runManager_->SetUserInitialization(new TrkDetectorConstruction(mediumProperties_));
-    
-    // set up the physics list (something+Optical Physics)
-    std::unique_ptr<G4PhysListFactory> factory(new G4PhysListFactory);
-    G4VModularPhysicsList *physics = factory->GetReferencePhysList(physicsListName_.c_str());
-    
-    physics->RegisterPhysics(new TrkOpticalPhysics("Optical",
-                                                   maxBetaChangePerStep_,
-                                                   maxNumPhotonsPerStep_,
-                                                   wlenBias_));
-    
-    physics->SetDefaultCutValue(0.25*mm);
-    runManager_->SetUserInitialization(physics);
-    
-    // instantiate some Geant4 helper classes
-    TrkPrimaryGeneratorAction *thePrimaryGenerator = new TrkPrimaryGeneratorAction();
-    
-    runManager_->SetUserAction(thePrimaryGenerator);     // runManager now owns this pointer
-    runManager_->SetUserAction(new TrkStackingAction());   // runManager now owns this pointer
-    if (collectParticleHistory_)
-        runManager_->SetUserAction(new TrackingAction());
+    // Distribute configuration objects to the components that need them
+    {
+        auto detectorConstruction = const_cast<TrkDetectorConstruction*>(
+            dynamic_cast<const TrkDetectorConstruction*>(
+                runManager_->GetUserDetectorConstruction()
+            )
+        );
+        if (!detectorConstruction)
+            throw I3CLSimLightSourceToStepConverter_exception("Detector construction is unset or of unknown type");
+        detectorConstruction->SetMediumProperties(mediumProperties_);
+    }
+    {
+        const double maxRefractiveIndex = GetMaxRIndex(mediumProperties_);
+        G4cout << "overall maximum refractive index is " << maxRefractiveIndex << G4endl;
+        if (std::isnan(maxRefractiveIndex)) log_fatal("No maximum refractive index could be found");
+        TrkEventAction *theEventAction = const_cast<TrkEventAction*>(
+            dynamic_cast<const TrkEventAction*>(
+                runManager_->GetUserEventAction()
+            )
+        );
+        if (!theEventAction)
+            throw I3CLSimLightSourceToStepConverter_exception("Event action is unset or of unknown type");
+        theEventAction->SetMaxRefractiveIndex(maxRefractiveIndex);
+    }
+    {
+        const G4VModularPhysicsList* thePhysicsList = 
+            dynamic_cast<const G4VModularPhysicsList*>(runManager_->GetUserPhysicsList());
+        if (!thePhysicsList)
+            throw I3CLSimLightSourceToStepConverter_exception("Physics list is unset or of unknown type");
+        TrkOpticalPhysics *thePhysics = const_cast<TrkOpticalPhysics*>(
+            dynamic_cast<const TrkOpticalPhysics*>(
+                thePhysicsList->GetPhysics("Optical")
+            )
+        );
+        if (!thePhysics)
+            throw I3CLSimLightSourceToStepConverter_exception("Physics constructor is unset or of unknown type");
+        thePhysics->SetWlenBiasFunction(wlenBias_);
+    }
 
-    const double maxRefractiveIndex = GetMaxRIndex(mediumProperties_);
-    G4cout << "overall maximum refractive index is " << maxRefractiveIndex << G4endl;
-    if (std::isnan(maxRefractiveIndex)) log_fatal("No maximum refractive index could be found");
-    
-    TrkEventAction *theEventAction = new TrkEventAction(maxRefractiveIndex);
-    runManager_->SetUserAction(theEventAction);      // runManager now owns this pointer
-    
     G4UImanager* UI = G4UImanager::GetUIpointer();
     //UI->ApplyCommand("/physics_engine/tailor/SyncRadiation on");
     //UI->ApplyCommand("/physics_engine/tailor/GammaNuclear on");
     UI->ApplyCommand("/physics_engine/tailor/MuonNuclear on");
+    
+    // Force reinitializatiion
+    runManager_->ReinitializeGeometry(true);
+    runManager_->PhysicsHasBeenModified();
     runManager_->Initialize();
 
     //UI->ApplyCommand("/run/particle/dumpCutValues");
@@ -380,10 +417,6 @@ I3MCTreePtr I3CLSimLightSourcePropagatorGeant4::Convert(I3CLSimLightSourceConstP
 {
     const I3Particle &particle = lightSource->GetParticle();
     I3MCTreePtr mctree;
-
-	// FIXME: this is a terrible way to clear the state
-    // delete runManager_->GetUserTrackingAction();
-	runManager_->SetUserAction(new TrackingAction());
 
     // configure the Geant4 particle gun
     {
@@ -449,20 +482,22 @@ void I3CLSimLightSourcePropagatorGeant4::SetWlenBias(I3CLSimFunctionConstPtr wle
 {
     LogGeant4Messages();
     
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourcePropagatorGeant4 already initialized!");
-    
     wlenBias_=wlenBias;
+    initialized_ = false;
 }
 
 void I3CLSimLightSourcePropagatorGeant4::SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties)
 {
     LogGeant4Messages();
 
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourcePropagatorGeant4 already initialized!");
+    // make a copy of the medium properties
+    {
+        I3CLSimMediumPropertiesConstPtr copiedMediumProperties(new I3CLSimMediumProperties(*mediumProperties));
+        mediumProperties_ = copiedMediumProperties;
+    }
 
-    mediumProperties_=mediumProperties;
+    LogGeant4Messages();
+    initialized_ = false;
 }
 
 void I3CLSimLightSourcePropagatorGeant4::LogGeant4Messages(bool allAsWarn) const

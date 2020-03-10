@@ -166,9 +166,6 @@ bool I3CLSimLightSourceToStepConverterFlasher::IsInitialized() const
 
 void I3CLSimLightSourceToStepConverterFlasher::SetBunchSizeGranularity(uint64_t num)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterFlasher already initialized!");
-    
     if (num<=0)
         throw I3CLSimLightSourceToStepConverter_exception("BunchSizeGranularity of 0 is invalid!");
 
@@ -176,41 +173,34 @@ void I3CLSimLightSourceToStepConverterFlasher::SetBunchSizeGranularity(uint64_t 
         throw I3CLSimLightSourceToStepConverter_exception("A BunchSizeGranularity != 1 is currently not supported!");
 
     bunchSizeGranularity_=num;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterFlasher::SetMaxBunchSize(uint64_t num)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterFlasher already initialized!");
-
     if (num<=0)
         throw I3CLSimLightSourceToStepConverter_exception("MaxBunchSize of 0 is invalid!");
 
     maxBunchSize_=num;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterFlasher::SetWlenBias(I3CLSimFunctionConstPtr wlenBias)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterFlasher already initialized!");
-    
     wlenBias_=wlenBias;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterFlasher::SetRandomService(I3RandomServicePtr random)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterFlasher already initialized!");
-    
     randomService_=random;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterFlasher::SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterFlasher already initialized!");
-
     mediumProperties_=mediumProperties;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterFlasher::EnqueueLightSource(const I3CLSimLightSource &lightSource, uint32_t identifier)

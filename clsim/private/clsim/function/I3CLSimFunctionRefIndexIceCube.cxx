@@ -268,6 +268,28 @@ bool I3CLSimFunctionRefIndexIceCube::CompareTo(const I3CLSimFunction &other) con
     
 }
 
+I3CLSimFunctionRefIndexIceCubePtr I3CLSimFunctionRefIndexIceCube::Scale(double coefficient) const
+{
+    return I3CLSimFunctionRefIndexIceCubePtr(this->ScaleImpl(coefficient));
+}
+
+I3CLSimFunctionRefIndexIceCube* I3CLSimFunctionRefIndexIceCube::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionRefIndexIceCube(*this);
+    other->n0_ *= coefficient;
+    other->n1_ *= coefficient;
+    other->n2_ *= coefficient;
+    other->n3_ *= coefficient;
+    other->n4_ *= coefficient;
+    other->g0_ *= coefficient;
+    other->g1_ *= coefficient;
+    other->g2_ *= coefficient;
+    other->g3_ *= coefficient;
+    other->g4_ *= coefficient;
+
+    return other;
+}
+
 
 template <class Archive>
 void I3CLSimFunctionRefIndexIceCube::serialize(Archive &ar, unsigned version)

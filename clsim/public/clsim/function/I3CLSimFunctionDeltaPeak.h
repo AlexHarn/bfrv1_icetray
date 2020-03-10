@@ -44,7 +44,9 @@
  */
 static const unsigned i3clsimfunctiondeltapeak_version_ = 0;
 
-struct I3CLSimFunctionDeltaPeak : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionDeltaPeak);
+
+class I3CLSimFunctionDeltaPeak : public I3CLSimFunction
 {
 public:
     
@@ -89,6 +91,8 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionDeltaPeakPtr Scale(double coefficient) const;
+    
     /**
      * Return internal state: the peak position
      */
@@ -96,7 +100,8 @@ public:
     
 private:
     I3CLSimFunctionDeltaPeak();
-    
+    virtual I3CLSimFunctionDeltaPeak* ScaleImpl(double coefficient) const;
+
     double peakPosition_;
     
     friend class icecube::serialization::access;
@@ -105,7 +110,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionDeltaPeak, i3clsimfunctiondeltapeak_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionDeltaPeak);
 
 #endif //I3CLSIMFUNCTIONDELTAPEAK_H_INCLUDED

@@ -39,7 +39,9 @@
  */
 static const unsigned i3clsimfunctionrefindexicecube_version_ = 0;
 
-struct I3CLSimFunctionRefIndexIceCube : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionRefIndexIceCube);
+
+class I3CLSimFunctionRefIndexIceCube : public I3CLSimFunction
 {
 public:
     static const std::string default_mode;
@@ -118,7 +120,11 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionRefIndexIceCubePtr Scale(double coefficient) const;
+    
 private:
+    virtual I3CLSimFunctionRefIndexIceCube* ScaleImpl(double coefficient) const;
+
     std::string mode_;
     double n0_;
     double n1_;
@@ -138,7 +144,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionRefIndexIceCube, i3clsimfunctionrefindexicecube_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionRefIndexIceCube);
 
 #endif //I3CLSIMFUNCTIONREFINDEXICECUBE_H_INCLUDED

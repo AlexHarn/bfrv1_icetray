@@ -74,7 +74,6 @@ class PolyplopiaModule(ipmodule.ParsingModule):
 
         # Instantiate a tray
         tray = I3Tray()
-
         randomService = phys_services.I3SPRNGRandomService(
              seed = self.seed, 
              nstreams = self.nproc, 
@@ -89,7 +88,6 @@ class PolyplopiaModule(ipmodule.ParsingModule):
         from .. import segments
         from I3Tray import I3Units
 
-        
         tray.AddSegment(segments.PolyplopiaPhotons,"coincifypes",
                RandomService=randomService,
                mctype=self.mctype,

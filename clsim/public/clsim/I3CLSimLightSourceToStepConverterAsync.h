@@ -62,16 +62,23 @@ public:
      * Sets the granularity of the bunch size for the
      * return vectors. The number of entries in a vector
      * will always be a multiple of this number.
-     * Will throw if used after the call to Initialize().
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
      */
     virtual void SetBunchSizeGranularity(uint64_t num);
 
     /**
      * Sets the maximum bunch size.
-     * Will throw if used after the call to Initialize().
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
      */
     virtual void SetMaxBunchSize(uint64_t num);
 
+    /**
+     * Sets the random service to use.
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
+     */
     virtual void SetRandomService(I3RandomServicePtr random);
 
     /**
@@ -80,26 +87,32 @@ public:
      * The Cherenkov spectrum will be multiplied by this
      * value at each wavelength.
      * This will influence the number of photons produced.
-     * Will throw if used after the call to Initialize().
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
      */
     virtual void SetWlenBias(I3CLSimFunctionConstPtr wlenBias);
 
     /**
      * Sets the medium properties.
-     * Will throw if used after the call to Initialize().
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
      */
     virtual void SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties);
-    
-    virtual void SetPropagators(const std::vector<I3CLSimLightSourcePropagatorPtr> &);
-    
+
     /**
-     * Initializes the simulation.
-     * Will throw if already initialized.
+     * Sets the propagators to use.
+     * This will stop the worker thread; restart it with
+     * a call to Initialize() before enqueuing steps.
+     */
+    virtual void SetPropagators(const std::vector<I3CLSimLightSourcePropagatorPtr> &);
+
+    /**
+     * Initialize the simulation and start the worker thread
      */
     virtual void Initialize();
 
     /**
-     * Returns true if initialized.
+     * Returns true if the worker thread has been started.
      * Never throws.
      */
     virtual bool IsInitialized() const;
@@ -175,6 +188,8 @@ private:
 
     void WorkerThread();
     void WorkerThread_impl(boost::this_thread::disable_interruption &di);
+    void StartThread();
+    void StopThread();
     boost::shared_ptr<boost::thread> thread_;
     boost::condition_variable_any threadStarted_cond_;
     boost::mutex threadStarted_mutex_;

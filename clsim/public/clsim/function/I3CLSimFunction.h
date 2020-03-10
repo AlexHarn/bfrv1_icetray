@@ -35,9 +35,11 @@
 /**
  * @brief A function value dependent on photon wavelength (or anything else)
  */
-static const unsigned i3clsimfunction_version_ = 0;
+static const unsigned i3clsimfunction_version_ = 1;
 
-struct I3CLSimFunction 
+I3_FORWARD_DECLARATION(I3CLSimFunction);
+
+class I3CLSimFunction : public I3FrameObject
 {
 public:
     
@@ -92,8 +94,24 @@ public:
      * Shall compare to another I3CLSimFunction object
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const = 0;
-    
+
+    /*
+     * NB: since shared_ptr<B> is unrelated to shared_ptr<A> even if B inherits
+     * from A, we can't return shared_ptr to derived types from overrides.
+     * Instead, we emulate the desired behavior by implementing a non-virtual
+     * method in each subclass that hides the superclass method and wraps a raw
+     * pointer in shared_ptr. This allows the caller to receive either a
+     * shared_ptr<I3CLSimFunction> or shared_ptr<Derived>, depending on the
+     * type of the pointer Scale() is called on.
+     */
+    I3CLSimFunctionPtr Scale(double coefficient) const { return I3CLSimFunctionPtr(this->ScaleImpl(coefficient)); };
+
 private:
+    /**
+     * Shall return a function whose evaluates are scaled by coeffiecient
+     */
+    virtual I3CLSimFunction* ScaleImpl(double coefficient) const = 0;
+
     friend class icecube::serialization::access;
     template <class Archive> void serialize(Archive & ar, unsigned version);
 };
@@ -108,9 +126,17 @@ inline bool operator!=(const I3CLSimFunction& a, const I3CLSimFunction& b)
     return (!a.CompareTo(b));
 }
 
+inline I3CLSimFunctionPtr operator*(const I3CLSimFunction& a, double b)
+{
+    return a.Scale(b);
+}
+
+inline I3CLSimFunctionPtr operator*(double b, const I3CLSimFunction& a)
+{
+    return a.Scale(b);
+}
+
 
 I3_CLASS_VERSION(I3CLSimFunction, i3clsimfunction_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunction);
 
 #endif //I3CLSIMFUNCTION_H_INCLUDED

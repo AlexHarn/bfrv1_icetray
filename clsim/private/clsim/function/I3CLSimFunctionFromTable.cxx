@@ -34,6 +34,8 @@
 #include <cmath>
 #include <math.h>
 #include <stdexcept>
+#include <algorithm>
+#include <functional>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -340,8 +342,18 @@ bool I3CLSimFunctionFromTable::CompareTo(const I3CLSimFunction &other) const
 
 }
 
+I3CLSimFunctionFromTablePtr I3CLSimFunctionFromTable::Scale(double coefficient) const
+{
+    return I3CLSimFunctionFromTablePtr(this->ScaleImpl(coefficient));
+}
 
-
+I3CLSimFunctionFromTable* I3CLSimFunctionFromTable::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionFromTable(*this);
+    std::transform(other->values_.begin(), other->values_.end(),
+        other->values_.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, coefficient));
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionFromTable::serialize(Archive &ar, unsigned version)

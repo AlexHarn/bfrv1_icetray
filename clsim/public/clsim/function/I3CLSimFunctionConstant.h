@@ -36,7 +36,9 @@
  */
 static const unsigned i3clsimfunctionconstant_version_ = 0;
 
-struct I3CLSimFunctionConstant : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionConstant);
+
+class I3CLSimFunctionConstant : public I3CLSimFunction
 {
 public:
     
@@ -91,10 +93,13 @@ public:
      * Shall compare to another I3CLSimFunction object
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
-    
+
+    I3CLSimFunctionConstantPtr Scale(double coefficient) const;
+
 private:
     I3CLSimFunctionConstant();
-    
+    virtual I3CLSimFunctionConstant* ScaleImpl(double coefficient) const;
+
     double value_;
     
     friend class icecube::serialization::access;
@@ -103,7 +108,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionConstant, i3clsimfunctionconstant_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionConstant);
 
 #endif //I3CLSIMFUNCTIONCONSTANT_H_INCLUDED

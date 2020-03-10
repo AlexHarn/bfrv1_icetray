@@ -52,12 +52,18 @@
 #include "icetray/I3Logging.h"
 #include "icetray/I3Units.h"
 
-TrkDetectorConstruction::TrkDetectorConstruction(I3CLSimMediumPropertiesConstPtr mediumProperties)
+TrkDetectorConstruction::TrkDetectorConstruction()
 :
-mediumProperties_(mediumProperties)
+updated(false)
 {
-    if (!mediumProperties_)
+}
+
+void TrkDetectorConstruction::SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties)
+{
+    if (!mediumProperties)
         log_fatal("MediumProperties are NULL!");
+    mediumProperties_ = mediumProperties;
+    updated=false;
 }
 
 TrkDetectorConstruction::~TrkDetectorConstruction()
@@ -340,7 +346,8 @@ G4VPhysicalVolume* TrkDetectorConstruction::ConstructDetector()
 }
 
 void TrkDetectorConstruction::UpdateGeometry(){
-    
+    if (updated)
+        return;
     // clean-up previous geometry
     G4GeometryManager::GetInstance()->OpenGeometry();
     

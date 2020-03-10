@@ -61,7 +61,10 @@ layersHeight_(layersHeight),
 rockZCoordinate_(rockZCoordinate),
 airZCoordinate_(airZCoordinate),
 forcedMinWlen_(-std::numeric_limits<double>::infinity()),
-forcedMaxWlen_(std::numeric_limits<double>::infinity())
+forcedMaxWlen_(std::numeric_limits<double>::infinity()),
+anisotropyDirAzimuth_(0),
+magnitudeAlongDir_(0),
+magnitudePerpToDir_(0)
 {
     if (layersNum_ <= 0) log_fatal("layersNum must be at least 1 during construction of I3CLSimMediumProperties.");
     
@@ -263,6 +266,11 @@ I3CLSimVectorTransformConstPtr I3CLSimMediumProperties::GetPostScatterDirectionT
     return postScatterDirectionTransform_;
 }
 
+std::tuple<double,double,double> I3CLSimMediumProperties::GetAnisotropyParameters() const
+{
+    return std::make_tuple(anisotropyDirAzimuth_, magnitudeAlongDir_, magnitudePerpToDir_);
+}
+
 I3CLSimScalarFieldConstPtr I3CLSimMediumProperties::GetIceTiltZShift() const
 {
     return iceTiltZShift_;
@@ -310,6 +318,11 @@ void I3CLSimMediumProperties::SetPreScatterDirectionTransform(I3CLSimVectorTrans
 void I3CLSimMediumProperties::SetPostScatterDirectionTransform(I3CLSimVectorTransformConstPtr ptr)
 {
     postScatterDirectionTransform_=ptr;
+}
+
+void I3CLSimMediumProperties::SetAnisotropyParameters(double anisotropyDirAzimuth, double magnitudeAlongDir, double magnitudePerpToDir)
+{
+    std::tie(anisotropyDirAzimuth_,magnitudeAlongDir_,magnitudePerpToDir_) = std::tie(anisotropyDirAzimuth,magnitudeAlongDir,magnitudePerpToDir);
 }
 
 void I3CLSimMediumProperties::SetIceTiltZShift(I3CLSimScalarFieldConstPtr ptr)
@@ -369,6 +382,12 @@ void I3CLSimMediumProperties::load(Archive &ar, unsigned version)
     } else {
         log_fatal("Cannot load version 0 of I3CLSimMediumProperties at this time.");
     }
+
+    if (version>=3) {
+        ar >> make_nvp("anisotropyDirAzimuth", anisotropyDirAzimuth_);
+        ar >> make_nvp("magnitudeAlongDir", magnitudeAlongDir_);
+        ar >> make_nvp("magnitudePerpToDir", magnitudePerpToDir_);
+    }
 }     
 
 
@@ -400,6 +419,11 @@ void I3CLSimMediumProperties::save(Archive &ar, unsigned version) const
     ar << make_nvp("preScatterDirectionTransform", preScatterDirectionTransform_);
     ar << make_nvp("postScatterDirectionTransform", postScatterDirectionTransform_);
     ar << make_nvp("iceTiltZShift", iceTiltZShift_);
+
+    // version 3:
+    ar << make_nvp("anisotropyDirAzimuth", anisotropyDirAzimuth_);
+    ar << make_nvp("magnitudeAlongDir", magnitudeAlongDir_);
+    ar << make_nvp("magnitudePerpToDir", magnitudePerpToDir_);
 
 }     
 

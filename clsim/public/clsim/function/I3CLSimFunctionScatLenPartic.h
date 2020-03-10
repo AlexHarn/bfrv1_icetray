@@ -37,7 +37,9 @@
  */
 static const unsigned i3clsimfunctionscatlenpartic_version_ = 0;
 
-struct I3CLSimFunctionScatLenPartic : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionScatLenPartic);
+
+class I3CLSimFunctionScatLenPartic : public I3CLSimFunction
 {
 public:
     static const double default_volumeConcentrationSmallParticles;
@@ -86,7 +88,11 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionScatLenParticPtr Scale(double coefficient) const;
+    
 private:
+    virtual I3CLSimFunctionScatLenPartic* ScaleImpl(double coefficient) const;
+
     double volumeConcentrationSmallParticles_;
     double volumeConcentrationLargeParticles_;
     
@@ -96,7 +102,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionScatLenPartic, i3clsimfunctionscatlenpartic_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionScatLenPartic);
 
 #endif //I3CLSIMFUNCTIONSCATLENPARTIC_H_INCLUDED

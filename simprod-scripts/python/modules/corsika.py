@@ -308,7 +308,6 @@ class CorsikaGenerator(ipmodule.ParsingModule):
             if self.oversampling > 1 and self.usepipe: 
                self.logger.fatal("LegacyOversampling is not compatible with UsePIPE at this time")
                sys.exit(1)
-
         from I3Tray import I3Tray
         from icecube import icetray,phys_services, dataio, dataclasses
         from ..util import BasicCounter

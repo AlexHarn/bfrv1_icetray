@@ -59,6 +59,11 @@ maxBunchSize_(512000)
 
 I3CLSimLightSourceToStepConverterAsync::~I3CLSimLightSourceToStepConverterAsync()
 {
+    StopThread();
+}
+
+void I3CLSimLightSourceToStepConverterAsync::StopThread()
+{
 
     if (thread_)
     {
@@ -76,6 +81,30 @@ I3CLSimLightSourceToStepConverterAsync::~I3CLSimLightSourceToStepConverterAsync(
         
         thread_.reset();
     }
+}
+
+void I3CLSimLightSourceToStepConverterAsync::StartThread()
+{
+    if (thread_)
+        I3CLSimLightSourceToStepConverter_exception("Thread is already started!");
+    log_debug("Starting the worker thread..");
+    threadStarted_=false;
+    barrier_is_enqueued_=false;
+
+    thread_ = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&I3CLSimLightSourceToStepConverterAsync::WorkerThread, this)));
+
+    // wait for startup
+    {
+        boost::unique_lock<boost::mutex> guard(threadStarted_mutex_);
+        for (;;)
+        {
+            if (threadStarted_) break;
+            threadStarted_cond_.wait(guard);
+        }
+    }        
+    
+    log_debug("Worker thread started.");
+
 }
 
 void I3CLSimLightSourceToStepConverterAsync::Initialize()
@@ -97,8 +126,11 @@ void I3CLSimLightSourceToStepConverterAsync::Initialize()
     
     if (maxBunchSize_%bunchSizeGranularity_ != 0)
         throw I3CLSimLightSourceToStepConverter_exception("MaxBunchSize is not a multiple of BunchSizeGranularity!");
-    
-    // make sure none of the parameterizations are initialized
+
+    // stop the worker thread
+    StopThread();
+
+    // distribute medium properties and bias factors
     const I3CLSimLightSourceParameterizationSeries &parameterizations = this->GetLightSourceParameterizationSeries();
     for (I3CLSimLightSourceParameterizationSeries::const_iterator it=parameterizations.begin();
          it!=parameterizations.end(); ++it)
@@ -106,57 +138,38 @@ void I3CLSimLightSourceToStepConverterAsync::Initialize()
         const I3CLSimLightSourceParameterization &parameterization = *it;
         if (!parameterization.converter) log_fatal("Internal error: parameteriation has NULL converter");
         
-        // all parameterizations could have the same converter,
-        // but nevertheless, none of them must be initialized yet.
-        if (parameterization.converter->IsInitialized())
-            log_fatal("A parameterization converter is already initialized. Do not call their Initialize() method yourself!");
+        parameterization.converter->SetMediumProperties(mediumProperties_);
+        parameterization.converter->SetWlenBias(wlenBias_);
+        parameterization.converter->SetRandomService(randomService_);
+        parameterization.converter->SetBunchSizeGranularity(1); // we do not send the bunches directly, the steps are integrated in the step store first, so granularity does not matter
+        parameterization.converter->SetMaxBunchSize(maxBunchSize_); // use the same bunch size for the parameterizations
     }
 
-    // now initialize them and set the medium properties and bias factors
+    // now initialize them, skipping those that are already initialized
     for (I3CLSimLightSourceParameterizationSeries::const_iterator it=parameterizations.begin();
          it!=parameterizations.end(); ++it)
     {
         const I3CLSimLightSourceParameterization &parameterization = *it;
-        if (parameterization.converter->IsInitialized()) continue; // skip initialized converters
-        
-        parameterization.converter->SetRandomService(randomService_);
-        parameterization.converter->SetMediumProperties(mediumProperties_);
-        parameterization.converter->SetWlenBias(wlenBias_);
-        parameterization.converter->SetBunchSizeGranularity(1); // we do not send the bunches directly, the steps are integrated in the step store first, so granularity does not matter
-        parameterization.converter->SetMaxBunchSize(maxBunchSize_); // use the same bunch size for the parameterizations
-        parameterization.converter->Initialize();
+
+        // skip initialized converters
+        if (!parameterization.converter->IsInitialized())
+            parameterization.converter->Initialize();
     }
-    
+
+    // do the same two-phase initialization for propagators
     for (auto &propagator : propagators_) {
         if (!propagator) log_fatal("Internal error: NULL propagator");
-        if (propagator->IsInitialized())
-            log_fatal("A propagator is already initialized. Do not call the Initialize() method yourself!");
-        
-        propagator->SetRandomService(randomService_);
         propagator->SetMediumProperties(mediumProperties_);
         propagator->SetWlenBias(wlenBias_);
-        
-        propagator->Initialize();
+        propagator->SetRandomService(randomService_);
+    }
+    for (auto &propagator : propagators_) {
+        if (!propagator->IsInitialized())
+            propagator->Initialize();
     }
 
-    
-    log_debug("Starting the worker thread..");
-    threadStarted_=false;
-    barrier_is_enqueued_=false;
-
-    thread_ = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&I3CLSimLightSourceToStepConverterAsync::WorkerThread, this)));
-
-    // wait for startup
-    {
-        boost::unique_lock<boost::mutex> guard(threadStarted_mutex_);
-        for (;;)
-        {
-            if (threadStarted_) break;
-            threadStarted_cond_.wait(guard);
-        }
-    }        
-    
-    log_debug("Worker thread started.");
+    // [re]start the worker thread
+    StartThread();
 
     initialized_=true;
 }
@@ -411,56 +424,50 @@ bool I3CLSimLightSourceToStepConverterAsync::IsInitialized() const
 
 void I3CLSimLightSourceToStepConverterAsync::SetBunchSizeGranularity(uint64_t num)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-    
     if (num<=0)
         throw I3CLSimLightSourceToStepConverter_exception("BunchSizeGranularity of 0 is invalid!");
-    
+
+    StopThread();
     bunchSizeGranularity_=num;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::SetMaxBunchSize(uint64_t num)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-
     if (num<=0)
         throw I3CLSimLightSourceToStepConverter_exception("MaxBunchSize of 0 is invalid!");
 
+    StopThread();
     maxBunchSize_=num;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::SetRandomService(I3RandomServicePtr random)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-    
+    StopThread();
     randomService_=random;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::SetWlenBias(I3CLSimFunctionConstPtr wlenBias)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-    
+    StopThread();
     wlenBias_=wlenBias;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-
+    StopThread();
     mediumProperties_=mediumProperties;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::SetPropagators(const std::vector<I3CLSimLightSourcePropagatorPtr> &propagators)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterAsync already initialized!");
-    
+    StopThread();
     propagators_ = propagators;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterAsync::EnqueueLightSource(const I3CLSimLightSource &lightSource, uint32_t identifier)

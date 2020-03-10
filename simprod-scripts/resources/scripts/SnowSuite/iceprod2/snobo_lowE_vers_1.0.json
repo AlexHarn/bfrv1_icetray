@@ -1,0 +1,441 @@
+{
+    "difplus": null,
+    "tasks": [
+        {
+            "depends": [],
+            "name": "GenProp",
+            "requirements": {
+                "gpu": 0,
+                "disk": 3.5,
+                "cpu": 1,
+                "memory": 1,
+                "time": 1
+            },
+            "trays": [
+                {
+                    "iterations": 2,
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py2)/src/simprod-scripts/resources/scripts/SnowSuite/1-process-Gen.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py2)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py2)/setup.sh $steering(metaproject_py2)/build/env-shell.sh",
+                            "args": {
+                                "seed": "$steering(seed)",
+                                "outfile": "gen_$steering(GENERATION::this_interaction).i3.zst",
+                                "outfile-lic": "gen_$steering(GENERATION::this_interaction).lic",
+                                "index": "$steering(GENERATION::gamma)",
+                                "Emin": "$steering(GENERATION::e_min)",
+                                "Emax": "$steering(GENERATION::e_max)",
+                                "nEvents": "$steering(GENERATION::n_events)",
+                                "Zmin": "$steering(GENERATION::zen_min)",
+                                "Zmax": "$steering(GENERATION::zen_max)",
+                                "radius": "$steering(GENERATION::radius)",
+                                "length": "$steering(GENERATION::length)",
+                                "type": "$steering(GENERATION::type)",
+                                "interaction": "$steering(GENERATION::this_interaction)",
+                                "ranged": true
+                            },
+                            "data": [
+                                {
+                                    "remote": "$steering(TARGET::GEN)/$steering(outfile).i3.zst",
+                                    "local": "gen_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::GEN)/$steering(outfile).lic",
+                                    "local": "gen_$steering(GENERATION::this_interaction).lic",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        },
+                        {
+                            "running_class": "icecube.simprod.modules.CorsikaGenerator",
+                            "src": "",
+                            "args": {
+                                "corsikaName": "dcorsika",
+                                "CORSIKAseed": "$steering(CORSIKA::seed)",
+                                "corsikaVersion": "$steering(CORSIKA::version)",
+                                "eprimarymin": "$steering(CORSIKA::eprimarymin)",
+                                "eprimarymax": "$steering(CORSIKA::eprimarymax)",
+                                "gcdfile": "$steering(gcdfile_pass2)",
+                                "EnableHistogram": false,
+                                "HistogramFilename": "histo.pkl",
+                                "MakeFIFO": false,
+                                "nproc": "$(jobs_submitted)",
+                                "nshowers": "$eval($steering(CORSIKA::showers))",
+                                "outputfile": "corsika_bg.i3.zst",
+                                "OverSampling": 5,
+                                "LegacyOverSampling": true,
+                                "procnum": "$(job)",
+                                "ranpri": 2,
+                                "RunCorsika": true,
+                                "seed": "$steering(seed)",
+                                "skipoptions": [
+                                    "compress"
+                                ],
+                                "summaryfile": "bgsummary.xml",
+                                "UsePipe": false,
+                                "UseGSLRNG": true
+                            },
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "env_clear": true,
+                            "name": "",
+                            "resources": [],
+                            "data": [],
+                            "classes": [],
+                            "parameters": {},
+                            "projects": []
+                        },
+                        {
+                            "src": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/2-Polyplopia.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "args": {
+                                "seed": "$steering(seed)",
+                                "infile": "gen_$steering(GENERATION::this_interaction).i3.zst",
+                                "outfile": "gen_poly_$steering(GENERATION::this_interaction).i3.zst",
+                                "backgroundfile": "corsika_bg.i3.zst"
+                            },
+                            "data": [
+                                {
+                                    "local": "gen_poly_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::GEN)/$steering(outfile)_poly.i3.zst",
+                                    "local": "gen_poly_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "SnowStorm",
+            "requirements": {
+                "gpu": 1,
+                "disk": 1,
+                "cpu": 1,
+                "memory": 1.1,
+                "time": 1
+            },
+            "depends": [
+                "GenProp"
+            ],
+            "trays": [
+                {
+                    "iterations": 2,
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/3-SNOBO_Snowstorm.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "args": {
+                                "seed": "$steering(seed)",
+                                "infile": "gen_poly_$steering(GENERATION::this_interaction).i3.zst",
+                                "outfile": "hits_$steering(GENERATION::this_interaction).i3.zst",
+                                "gcdfile": "$steering(gcdfile_pass2)",
+                                "events-per-model": "$steering(SNOWSTORM::events_per_model)",
+                                "domoversizefactor": "$steering(CLSIM::OVERSIZE)",
+                                "cpu": "$steering(SNOWSTORM::USE_CPU)",
+                                "config": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/$steering(SNOWSTORM::CONFIG)"
+                            },
+                            "data": [
+                                {
+                                    "remote": "",
+                                    "local": "gen_poly_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "input"
+                                },
+                                {
+                                    "remote": "",
+                                    "local": "hits_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::SNOWSTORM)/$steering(outfile).i3.zst",
+                                    "local": "hits_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Detector",
+            "requirements": {
+                "gpu": 0,
+                "disk": 1,
+                "cpu": 1,
+                "memory": 1.6,
+                "time": 1
+            },
+            "depends": [
+                "SnowStorm"
+            ],
+            "trays": [
+                {
+                    "iterations": 2,
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/4-process-Det.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "args": {
+                                "seed": "$steering(seed)",
+                                "infile": "hits_$steering(GENERATION::this_interaction).i3.zst",
+                                "outfile": "det_$steering(GENERATION::this_interaction).i3.zst",
+                                "gcdfile": "$steering(gcdfile_pass2)"
+                            },
+                            "data": [
+                                {
+                                    "remote": "",
+                                    "local": "det_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "",
+                                    "local": "hits_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "input"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Level1",
+            "requirements": {
+                "gpu": 0,
+                "disk": 1,
+                "cpu": 1,
+                "memory": 3,
+                "time": 1
+            },
+            "depends": [
+                "Detector"
+            ],
+            "trays": [
+                {
+                    "iterations": 2,
+                    "parameters": {},
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/5-process-L1.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "args": {
+                                "infile": "det_$steering(GENERATION::this_interaction).i3.zst",
+                                "outfile": "level1_$steering(GENERATION::this_interaction).i3.zst",
+                                "gcdfile": "$steering(gcdfile_pass2)"
+                            },
+                            "data": [
+                                {
+                                    "remote": "",
+                                    "local": "det_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "input"
+                                },
+                                {
+                                    "remote": "",
+                                    "local": "level1_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Level2",
+            "requirements": {
+                "gpu": 0,
+                "disk": 5,
+                "cpu": 1,
+                "memory": 1.9,
+                "time": 1
+            },
+            "depends": [
+                "Level1"
+            ],
+            "trays": [
+                {
+                    "iterations": 2,
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/6-process-L2.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh",
+                            "args": {
+                                "i": "level1_$steering(GENERATION::this_interaction).i3.zst",
+                                "o": "level2_$steering(GENERATION::this_interaction).i3.zst",
+                                "g": "$steering(gcdfile_pass2)",
+                                "s": true
+                            },
+                            "data": [
+                                {
+                                    "remote": "",
+                                    "local": "level1_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "input"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::LEVEL2)/Level2_$steering(outfile).i3.zst",
+                                    "local": "level2_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "",
+                                    "local": "level2_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "FinalLevel_NorthernTracks",
+            "requirements": {
+                "gpu": 0,
+                "disk": 5,
+                "cpu": 1,
+                "memory": 2,
+                "time": 1
+            },
+            "depends": [
+                "Level2"
+            ],
+            "trays": [
+                {
+                    "iterations": 2,
+                    "parameters": {},
+                    "modules": [
+                        {
+                            "src": "$steering(metaproject_py3)/src/finallevel_filter_diffusenumu/python/process_L345.py",
+                            "env_clear": true,
+                            "env_shell": "$steering(metaproject_py3)/src/simprod-scripts/resources/scripts/SnowSuite/iceprod2/load_env $steering(env_path_py3)/setup.sh $steering(metaproject_py3)/build/env-shell.sh python",
+                            "args": {
+                                "input": "level2_$steering(GENERATION::this_interaction).i3.zst",
+                                "output": "finallevel_$steering(GENERATION::this_interaction)",
+                                "i3output": "level3_$steering(GENERATION::this_interaction).i3.zst",
+                                "gcd": "$steering(gcdfile_pass2)",
+                                "do_postL5": "True",
+                                "is_mc": "True"
+                            },
+                            "data": [
+                                {
+                                    "remote": "$steering(TARGET::LEVEL2)/Level2_$steering(outfile).i3.zst",
+                                    "local": "level2_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "job_temp",
+                                    "compression": false,
+                                    "movement": "input"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::LEVEL3)/Level3_$steering(outfile).i3.zst",
+                                    "local": "level3_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::FINALLEVEL)/FinalLevel_$steering(outfile).i3.zst",
+                                    "local": "finallevel_$steering(GENERATION::this_interaction).i3.zst",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                },
+                                {
+                                    "remote": "$steering(TARGET::FINALLEVEL)/FinalLevel_$steering(outfile).hdf",
+                                    "local": "finallevel_$steering(GENERATION::this_interaction).hdf",
+                                    "type": "permanent",
+                                    "compression": false,
+                                    "movement": "output"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "description": "GlobalFit verification MC using Snobo Sim. With coincident Air-Showers. DO NOT USE FOR ANALYSES.",
+    "steering": {
+        "batchsys": null,
+        "data": [],
+        "system": {},
+        "parameters": {
+            "gcdfile_pass2": "/cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_AVG_55697-57531_PASS2_SPE_withStdNoise.i3.gz",
+            "seed": "$eval(($(dataset)%20000)*10000 + $(job)*10 + $(iter))",
+            "GENERATION::gamma": 1,
+            "GENERATION::e_min": "1E2",
+            "GENERATION::e_max": "1E4",
+            "GENERATION::n_events": 50000,
+            "GENERATION::zen_min": 0,
+            "GENERATION::zen_max": 180,
+            "GENERATION::radius": 1200,
+            "GENERATION::length": 2400,
+            "GENERATION::type": "All",
+            "GENERATION::interaction1": "CC",
+            "GENERATION::interaction0": "NC",
+            "GENERATION::this_interaction": "$steering(GENERATION::interaction$(iter))",
+            "GENERATION::is_ranged": true,
+            "SNOWSTORM::events_per_model": 100,
+            "SNOWSTORM::CONFIG": "Snowstorm_NominalIce_Cfg.yml",
+            "SNOWSTORM::USE_CPU": false,
+            "CLSIM::OVERSIZE": 5,
+            "CORSIKA::eprimarymin": "600",
+            "CORSIKA::eprimarymax": "$eval(10**(11))",
+            "CORSIKA::run": "$eval($eval($(dataset)*100000 + $(job))%100000000 + 1)",
+            "CORSIKA::seed": "$steering(seed)",
+            "CORSIKA::showers": "$eval($(GENERATION::n_events)*50)",
+            "CORSIKA::version": "v6960-5comp",
+            "subdirectory": "$sprintf('%07d-%07d',$eval($(job)//1000*1000),$eval($(job)//1000*1000+999))",
+            "TARGET::LEVEL2": "gsiftp://gridftp.icecube.wisc.edu/data/sim/IceCube/2019/filtered/level2/snowstorm/$(dataset)/$(subdirectory)",
+            "TARGET::LEVEL3": "gsiftp://gridftp.icecube.wisc.edu/data/sim/IceCube/2019/filtered/level3/snowstorm/$(dataset)/$(subdirectory)",
+            "TARGET::FINALLEVEL": "gsiftp://gridftp.icecube.wisc.edu/data/sim/IceCube/2019/filtered/finallevel/snowstorm/northern_tracks/$(dataset)/$(subdirectory)",
+            "TARGET::GEN": "gsiftp://gridftp.icecube.wisc.edu/data/sim/IceCube/2019/generated/snowstorm/lepton_injector/$(dataset)/$(subdirectory)",
+            "TARGET::SNOWSTORM": "gsiftp://gridftp.icecube.wisc.edu/data/sim/IceCube/2019/generated/snowstorm/photon_propagation/$(dataset)/$(subdirectory)",
+            "metaproject_py2": "/cvmfs/icecube.opensciencegrid.org/users/eganster/combo.branches.snobo.py2-v3.1.1.RHEL_7_x86_64",
+            "env_path_py2": "/cvmfs/icecube.opensciencegrid.org/py2-v3.1.1",
+            "metaproject_py3": "/cvmfs/icecube.opensciencegrid.org/users/eganster/combo.branches.snobo.py3-v4.0.1.RHEL_7_x86_64",
+            "env_path_py3": "/cvmfs/icecube.opensciencegrid.org/py3-v4.0.1",
+            "outfile": "$sprintf('%s_%s.%06d.%06d',$steering(GENERATION::type),$steering(GENERATION::this_interaction),$(dataset),$(job))"
+        },
+        "resources": []
+    },
+    "options": {},
+    "categories": []
+}

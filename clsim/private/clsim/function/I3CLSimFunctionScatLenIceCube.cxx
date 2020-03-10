@@ -97,6 +97,18 @@ bool I3CLSimFunctionScatLenIceCube::CompareTo(const I3CLSimFunction &other) cons
     
 }
 
+I3CLSimFunctionScatLenIceCubePtr I3CLSimFunctionScatLenIceCube::Scale(double coefficient) const
+{
+    return I3CLSimFunctionScatLenIceCubePtr(this->ScaleImpl(coefficient));
+}
+
+I3CLSimFunctionScatLenIceCube* I3CLSimFunctionScatLenIceCube::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionScatLenIceCube(*this);
+    other->b400_ /= coefficient;
+
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionScatLenIceCube::serialize(Archive &ar, unsigned version)

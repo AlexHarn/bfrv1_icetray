@@ -37,13 +37,13 @@ class TrkOpticalPhysics : public G4VPhysicsConstructor
 public:
     TrkOpticalPhysics(const G4String& name,
                       double maxBetaChangePerStep,
-                      uint32_t maxNumPhotonsPerStep,
-                      I3CLSimFunctionConstPtr wlenBias);
+                      uint32_t maxNumPhotonsPerStep);
     virtual ~TrkOpticalPhysics();
     
     virtual void ConstructParticle();
     virtual void ConstructProcess();
-    
+
+    void SetWlenBiasFunction(I3CLSimFunctionConstPtr wlenBias);
 protected:
     TrkCerenkov* theCerenkovProcess;
     

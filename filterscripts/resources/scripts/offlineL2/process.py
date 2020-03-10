@@ -14,48 +14,49 @@ from icecube.filterscripts.offlineL2 import SpecialWriter
 
 def make_parser():
     """Make the argument parser"""
-    from optparse import OptionParser
-    parser = OptionParser()
-    parser.add_option("-s","--simulation", action="store_true",
-        default=False, dest="mc", help="Mark as simulation (MC)")
-    parser.add_option("-i", "--input", action="store",
-        type="string", default="", dest="infile",
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("-s", "--simulation", action="store_true",
+        default=False, dest="mc",
+        help="Mark as simulation (MC)")
+    parser.add_argument("-i", "--input", action="store",
+        type=str, default="", dest="infile",
         help="Input i3 file(s)  (use comma separated list for multiple files)")
-    parser.add_option("-g", "--gcd", action="store",
-        type="string", default="", dest="gcdfile",
+    parser.add_argument("-g", "--gcd", action="store",
+        type=str, default="", dest="gcdfile",
         help="GCD file for input i3 file")
-    parser.add_option("-o", "--output", action="store",
-        type="string", default="", dest="outfile",
+    parser.add_argument("-o", "--output", action="store",
+        type=str, default="", dest="outfile",
         help="Output i3 file")
-    parser.add_option("-n", "--num", action="store",
-        type="int", default=-1, dest="num",
+    parser.add_argument("-n", "--num", action="store",
+        type=int, default=-1, dest="num",
         help="Number of frames to process")
-    parser.add_option("--dstfile", action="store",
-        type="string", default=None, dest="dstfile",
+    parser.add_argument("--dstfile", action="store",
+        type=str, default=None, dest="dstfile",
         help="DST root file (should be .root)")
-    parser.add_option("--gapsfile", action="store",
-        type="string", default=None, dest="gapsfile",
+    parser.add_argument("--gapsfile", action="store",
+        type=str, default=None, dest="gapsfile",
         help="gaps text file (should be .txt)")
-    parser.add_option("--icetopoutput", action="store",
-        type="string", default=None, dest="icetopoutput",
+    parser.add_argument("--icetopoutput", action="store",
+        type=str, default=None, dest="icetopoutput",
         help="Output IceTop file")
-    parser.add_option("--eheoutput", action="store",
-        type="string", default=None, dest="eheoutput",
+    parser.add_argument("--eheoutput", action="store",
+        type=str, default=None, dest="eheoutput",
         help="Output EHE i3 file")
-    parser.add_option("--slopoutput", action="store",
-        type="string", default=None, dest="slopoutput",
+    parser.add_argument("--slopoutput", action="store",
+        type=str, default=None, dest="slopoutput",
         help="Output SLOP file")
-    parser.add_option("--rootoutput", action="store",
-        type="string", default=None, dest="rootoutput",
+    parser.add_argument("--rootoutput", action="store",
+        type=str, default=None, dest="rootoutput",
         help="Output root file")
-    parser.add_option("--photonicsdir", action="store",
-        type="string", default=None,
+    parser.add_argument("--photonicsdir", action="store",
+        type=str, default=None,
         dest="photonicsdir", help="Directory with photonics tables")
-    parser.add_option("--log-level",
-        default="WARN", dest="LOG_LEVEL",
+    parser.add_argument("--log-level",
+        type=str, default="WARN", dest="LOG_LEVEL",
         help="Sets the logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
-    parser.add_option("--log-filename",
-        default=None, dest="logfn",
+    parser.add_argument("--log-filename",
+        type=str, default=None, dest="logfn",
         help="If set logging is redirected to the specified file.")
 
     return parser
@@ -63,7 +64,6 @@ def make_parser():
 def main(options, stats={}):
     """The main L2 processing script"""
     tray = I3Tray()
-
 
     log_levels = {"error" : icetray.I3LogLevel.LOG_ERROR,
                   "warn" : icetray.I3LogLevel.LOG_WARN,
@@ -80,7 +80,6 @@ def main(options, stats={}):
         icetray.set_log_level(icetray.I3LogLevel.LOG_WARN)
 
     if options['logfn']:
-        import os
         pid = os.getpid()
         icetray.logging.rotating_files("%s.%d" % (options['logfn'], pid))
         
@@ -151,7 +150,8 @@ def main(options, stats={}):
     tray.AddModule( "I3Writer", "EventWriter" ,
         Filename = options['outfile'],
         Streams = [icetray.I3Frame.DAQ, icetray.I3Frame.Physics,
-                   icetray.I3Frame.TrayInfo, icetray.I3Frame.Simulation],
+                   icetray.I3Frame.TrayInfo, icetray.I3Frame.Simulation,
+                   icetray.I3Frame.Stream('M')], # added M-frame
         DropOrphanStreams = [icetray.I3Frame.DAQ],
     )
 
@@ -201,38 +201,35 @@ def main(options, stats={}):
         import os
         # now do bzip2
         if os.path.exists('/usr/bin/bzip2'):
-           subprocess.check_call(['/usr/bin/bzip2', '-f']+bzip2_files)   
+            subprocess.check_call(['/usr/bin/bzip2', '-f']+bzip2_files)   
         elif os.path.exists('/bin/bzip2'):
-           subprocess.check_call(['/bin/bzip2', '-f']+bzip2_files)   
+            subprocess.check_call(['/bin/bzip2', '-f']+bzip2_files)   
         else:
-           raise Exception('Cannot find bzip2')
+            raise Exception('Cannot find bzip2')
  
     # clean up forcefully in case we're running this in a loop
     del tray
 
 
+
 ### iceprod stuff ###
 try:
     from iceprod.modules import ipmodule
-except ImportError:
-    print('Module iceprod.modules not found. Will not define IceProd Class')
+except ImportError as e:
+    icetray.logging.log_warn('Module iceprod.modules not found. Will not define IceProd Class')
 else:
     Level2Filter = ipmodule.FromOptionParser(make_parser(),main)
 ### end iceprod stuff ###
-
 
 if __name__ == '__main__':
     # run as script from the command line
     # get parsed args
     parser = make_parser()
-    (options,args) = parser.parse_args()
-    opts = {}
+    args = parser.parse_args()
+
     # convert to dictionary
-    for name in parser.defaults:
-        value = getattr(options,name)
-        if name == 'infile' and ',' in value:
-            value = value.split(',') # split into multiple inputs
-        opts[name] = value
+    opts = vars(args)
+    opts['infile'] = opts['infile'].split(',')
 
     # call main function
     main(opts)

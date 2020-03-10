@@ -12,7 +12,7 @@
 I3_MODULE(PoissonMerger);
 
 PoissonMerger::PoissonMerger(const I3Context& ctx) : 
-  I3Module(ctx),
+  I3ConditionalModule(ctx),
   mcTreeName_("I3MCTree"),
   separateTree_(""),
   primaryType_("corsika"),

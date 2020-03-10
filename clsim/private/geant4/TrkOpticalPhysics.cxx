@@ -42,15 +42,22 @@
 
 TrkOpticalPhysics::TrkOpticalPhysics(const G4String& name, 
                                      double maxBetaChangePerStep,
-                                     uint32_t maxNumPhotonsPerStep,
-                                     I3CLSimFunctionConstPtr wlenBias
+                                     uint32_t maxNumPhotonsPerStep
                                      )
-:  G4VPhysicsConstructor(name),
+:  G4VPhysicsConstructor(name), theCerenkovProcess(nullptr),
 maxBetaChangePerStep_(maxBetaChangePerStep),
-maxNumPhotonsPerStep_(maxNumPhotonsPerStep),
-wlenBias_(wlenBias)
+maxNumPhotonsPerStep_(maxNumPhotonsPerStep)
 {
     G4cout << "<<<< Optical Processes (TrkCerenkov)" << G4endl;
+}
+
+void TrkOpticalPhysics::SetWlenBiasFunction(I3CLSimFunctionConstPtr wlenBias)
+{
+    if (!wlenBias)
+        log_fatal("WavelengthBias is null!");
+    wlenBias_ = wlenBias;
+    if (theCerenkovProcess)
+        theCerenkovProcess->SetWlenBiasFunction(wlenBias_);
 }
 
 TrkOpticalPhysics::~TrkOpticalPhysics()
@@ -64,6 +71,8 @@ void TrkOpticalPhysics::ConstructParticle()
 
 void TrkOpticalPhysics::ConstructProcess()
 {
+    if (!wlenBias_)
+        log_fatal("WavelengthBias is null!");
     // Construct Processes
     
     theCerenkovProcess=new TrkCerenkov();

@@ -41,10 +41,10 @@
 
 #include "G4ParticleTable.hh"
 
-TrkEventAction::TrkEventAction(double maxRefractiveIndex)
+TrkEventAction::TrkEventAction()
 :
 abortRequested_(false),
-maxRefractiveIndex_(maxRefractiveIndex)
+maxRefractiveIndex_(NAN)
 {
 }
 

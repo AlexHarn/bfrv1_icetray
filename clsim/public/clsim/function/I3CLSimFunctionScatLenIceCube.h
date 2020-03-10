@@ -37,7 +37,9 @@
  */
 static const unsigned i3clsimfunctionscatlenicecube_version_ = 0;
 
-struct I3CLSimFunctionScatLenIceCube : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionScatLenIceCube);
+
+class I3CLSimFunctionScatLenIceCube : public I3CLSimFunction
 {
 public:
     I3CLSimFunctionScatLenIceCube(double alpha,
@@ -83,6 +85,7 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionScatLenIceCubePtr Scale(double coefficient) const;
     
     // access to the internal state
     inline double GetAlpha() const {return alpha_;}
@@ -90,7 +93,8 @@ public:
     
 private:
     I3CLSimFunctionScatLenIceCube();
-    
+    virtual I3CLSimFunctionScatLenIceCube* ScaleImpl(double coefficient) const;
+
     double alpha_;
     double b400_;
     
@@ -101,7 +105,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionScatLenIceCube, i3clsimfunctionscatlenicecube_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionScatLenIceCube);
 
 #endif //I3CLSIMFUNCTIONSCATLENICECUBE_H_INCLUDED

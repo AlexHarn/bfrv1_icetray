@@ -35,6 +35,16 @@
 using namespace boost::python;
 namespace bp = boost::python;
 
+namespace {
+
+bp::tuple GetAnisotropyParameters(const I3CLSimMediumProperties &m)
+{
+    auto tuple = m.GetAnisotropyParameters();
+    return bp::make_tuple(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+}
+
+}
+
 void register_I3CLSimMediumProperties()
 {
     {
@@ -62,6 +72,7 @@ void register_I3CLSimMediumProperties()
         .def("GetDirectionalAbsorptionLengthCorrection", &I3CLSimMediumProperties::GetDirectionalAbsorptionLengthCorrection)
         .def("GetPreScatterDirectionTransform", &I3CLSimMediumProperties::GetPreScatterDirectionTransform)
         .def("GetPostScatterDirectionTransform", &I3CLSimMediumProperties::GetPostScatterDirectionTransform)
+        .def("GetAnisotropyParameters", &GetAnisotropyParameters)
         .def("GetIceTiltZShift", &I3CLSimMediumProperties::GetIceTiltZShift)
         .def("SetAbsorptionLength", &I3CLSimMediumProperties::SetAbsorptionLength)
         .def("SetScatteringLength", &I3CLSimMediumProperties::SetScatteringLength)
@@ -71,6 +82,7 @@ void register_I3CLSimMediumProperties()
         .def("SetDirectionalAbsorptionLengthCorrection", &I3CLSimMediumProperties::SetDirectionalAbsorptionLengthCorrection)
         .def("SetPreScatterDirectionTransform", &I3CLSimMediumProperties::SetPreScatterDirectionTransform)
         .def("SetPostScatterDirectionTransform", &I3CLSimMediumProperties::SetPostScatterDirectionTransform)
+        .def("SetAnisotropyParameters", &I3CLSimMediumProperties::SetAnisotropyParameters)
         .def("SetIceTiltZShift", &I3CLSimMediumProperties::SetIceTiltZShift)
         .add_property("AbsorptionLength", &I3CLSimMediumProperties::GetAbsorptionLength, &I3CLSimMediumProperties::SetAbsorptionLength)
         .add_property("ScatteringLength", &I3CLSimMediumProperties::GetScatteringLength, &I3CLSimMediumProperties::SetScatteringLength)

@@ -131,7 +131,15 @@ bool I3CLSimFunctionConstant::CompareTo(const I3CLSimFunction &other) const
     
 }
 
+I3CLSimFunctionConstantPtr I3CLSimFunctionConstant::Scale(double coefficient) const
+{
+    return I3CLSimFunctionConstantPtr(this->ScaleImpl(coefficient));
+}
 
+I3CLSimFunctionConstant* I3CLSimFunctionConstant::ScaleImpl(double coefficient) const
+{
+    return new I3CLSimFunctionConstant(coefficient*value_);
+}
 
 template <class Archive>
 void I3CLSimFunctionConstant::serialize(Archive &ar, unsigned version)

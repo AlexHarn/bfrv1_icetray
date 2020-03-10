@@ -184,6 +184,21 @@ bool I3CLSimFunctionPolynomial::CompareTo(const I3CLSimFunction &other) const
     
 }
 
+I3CLSimFunctionPolynomialPtr I3CLSimFunctionPolynomial::Scale(double coefficient) const
+{
+    return I3CLSimFunctionPolynomialPtr(this->ScaleImpl(coefficient));
+}
+
+I3CLSimFunctionPolynomial* I3CLSimFunctionPolynomial::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionPolynomial(*this);
+    std::transform(other->coefficients_.begin(), other->coefficients_.end(),
+        other->coefficients_.begin(), std::bind(std::multiplies<double>(), std::placeholders::_1, coefficient));
+    other->underflow_ *= coefficient;
+    other->overflow_ *= coefficient;
+
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionPolynomial::serialize(Archive &ar, unsigned version)

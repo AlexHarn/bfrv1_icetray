@@ -109,8 +109,19 @@ bool I3CLSimFunctionScatLenPartic::CompareTo(const I3CLSimFunction &other) const
 
 }
 
+I3CLSimFunctionScatLenParticPtr I3CLSimFunctionScatLenPartic::Scale(double coefficient) const
+{
+    return I3CLSimFunctionScatLenParticPtr(this->ScaleImpl(coefficient));
+}
 
+I3CLSimFunctionScatLenPartic* I3CLSimFunctionScatLenPartic::ScaleImpl(double coefficient) const
+{
+    auto other = new I3CLSimFunctionScatLenPartic(*this);
+    other->volumeConcentrationSmallParticles_ /= coefficient;
+    other->volumeConcentrationLargeParticles_ /= coefficient;
 
+    return other;
+}
 
 template <class Archive>
 void I3CLSimFunctionScatLenPartic::serialize(Archive &ar, unsigned version)

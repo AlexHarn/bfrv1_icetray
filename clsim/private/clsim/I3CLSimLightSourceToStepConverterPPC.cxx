@@ -165,10 +165,8 @@ void I3CLSimLightSourceToStepConverterPPC::SetMaxBunchSize(uint64_t num)
 
 void I3CLSimLightSourceToStepConverterPPC::SetWlenBias(I3CLSimFunctionConstPtr wlenBias)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterPPC already initialized!");
-    
     wlenBias_=wlenBias;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterPPC::SetRandomService(I3RandomServicePtr random)
@@ -181,10 +179,8 @@ void I3CLSimLightSourceToStepConverterPPC::SetRandomService(I3RandomServicePtr r
 
 void I3CLSimLightSourceToStepConverterPPC::SetMediumProperties(I3CLSimMediumPropertiesConstPtr mediumProperties)
 {
-    if (initialized_)
-        throw I3CLSimLightSourceToStepConverter_exception("I3CLSimLightSourceToStepConverterPPC already initialized!");
-
     mediumProperties_=mediumProperties;
+    initialized_=false;
 }
 
 void I3CLSimLightSourceToStepConverterPPC::EnqueueLightSource(const I3CLSimLightSource &lightSource, uint32_t identifier)

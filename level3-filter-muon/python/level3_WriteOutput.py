@@ -332,7 +332,7 @@ def WriteOutput(tray, name, Suffix, output_i3, output_hd5, output_root):
             primaries = mctree.primaries
             if len(primaries)==1:
                 idx=0
-            elif "I3MCWeightDict" in frame:
+            elif (frame.Has("I3MCWeightDict") or frame.Has("EventProperties")):
                 idx=[i for i in range(len(primaries)) if primaries[i].is_neutrino][0]
             elif "CorsikaWeightMap" in frame:
                 wmap=frame["CorsikaWeightMap"]
@@ -385,18 +385,18 @@ def WriteOutput(tray, name, Suffix, output_i3, output_hd5, output_root):
             else :
                 mctree = frame["I3MCTree"]
 
-            if frame.Has("I3MCWeightDict") and not frame.Has("MCMostEnergeticTrack"):
+            if (frame.Has("I3MCWeightDict") or frame.Has("EventProperties")) and not frame.Has("MCMostEnergeticTrack"):
                 # neutrinos aren"t tracks (but are in-ice), so most_energetic_track gets in-ice muon
                 frame["MCMostEnergeticTrack"] = dataclasses.get_most_energetic_track(mctree)
             if frame.Has("CorsikaWeightMap") and not frame.Has("MCMostEnergeticInIce"):
                 # primary nucleons aren"t in-ice (but are tracks), so most_energetic_in_ice get in-ice muon
                 frame["MCMostEnergeticInIce"] = dataclasses.get_most_energetic_inice(mctree)
-            if not frame.Has("MCECenter"):
-                maxE=0
-                for item in frame["MMCTrackList"]:
-                    if item.GetEc()>maxE:
-                        maxE=item.GetEc()
-                frame["MCECenter"]=dataclasses.I3Double(maxE)
+            #if not frame.Has("MCECenter"):
+            #    maxE=0
+            #    for item in frame["MMCTrackList"]:
+            #        if item.GetEc()>maxE:
+            #            maxE=item.GetEc()
+            #    frame["MCECenter"]=dataclasses.I3Double(maxE)
 
     tray.AddModule(GetMostEnergeticTrack, Streams=[icetray.I3Frame.DAQ])
 

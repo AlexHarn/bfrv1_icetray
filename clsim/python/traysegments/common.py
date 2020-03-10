@@ -126,9 +126,10 @@ def setupDetector(GCDFile,
                   IgnoreSubdetectors=['IceTop']):
     """
     Set up data structures used in N different places in clsim
+    :param GCDFile: either a filename or a tuple of (Geometry, Calibration) frames
     """
     
-    from icecube import clsim
+    from icecube import clsim, dataclasses
     from icecube.icetray import logging
     from icecube.clsim import GetDefaultParameterizationList
     from icecube.clsim import GetFlasherParameterizationList

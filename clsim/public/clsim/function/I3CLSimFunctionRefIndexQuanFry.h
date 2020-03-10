@@ -44,7 +44,9 @@
  */
 static const unsigned i3clsimfunctionrefindexquanfry_version_ = 0;
 
-struct I3CLSimFunctionRefIndexQuanFry : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionRefIndexQuanFry);
+
+class I3CLSimFunctionRefIndexQuanFry : public I3CLSimFunction
 {
 public:
     static const double default_salinity;
@@ -129,7 +131,11 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionRefIndexQuanFryPtr Scale(double coefficient) const;
+    
 private:
+    virtual I3CLSimFunctionRefIndexQuanFry* ScaleImpl(double coefficient) const;
+
     double salinity_;
     double temperature_;
     double pressure_;
@@ -159,7 +165,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionRefIndexQuanFry, i3clsimfunctionrefindexquanfry_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionRefIndexQuanFry);
 
 #endif //I3CLSIMFUNCTIONREFINDEXQUANFRY_H_INCLUDED

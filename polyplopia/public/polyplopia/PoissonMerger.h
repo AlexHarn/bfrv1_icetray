@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <set>
-#include <icetray/I3Module.h>
+#include <icetray/I3ConditionalModule.h>
 #include <icetray/I3TrayHeaders.h>
 #include <icetray/I3Logging.h>
 #include "phys-services/I3RandomService.h"
@@ -36,7 +36,7 @@
  *
  * @todo correctly evaluate weight correction for weighted energy spectrum
  */
-class PoissonMerger : public I3Module
+class PoissonMerger : public I3ConditionalModule
 {
   /**
    *Constructor

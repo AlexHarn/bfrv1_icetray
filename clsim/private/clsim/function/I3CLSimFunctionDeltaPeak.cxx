@@ -119,7 +119,15 @@ bool I3CLSimFunctionDeltaPeak::CompareTo(const I3CLSimFunction &other) const
     
 }
 
+I3CLSimFunctionDeltaPeakPtr I3CLSimFunctionDeltaPeak::Scale(double coefficient) const
+{
+    return I3CLSimFunctionDeltaPeakPtr(this->ScaleImpl(coefficient));
+}
 
+I3CLSimFunctionDeltaPeak* I3CLSimFunctionDeltaPeak::ScaleImpl(double coefficient) const
+{
+    return new I3CLSimFunctionDeltaPeak(*this);
+}
 
 template <class Archive>
 void I3CLSimFunctionDeltaPeak::serialize(Archive &ar, unsigned version)

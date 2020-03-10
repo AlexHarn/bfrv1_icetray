@@ -45,7 +45,7 @@ class G4Material;
 class TrkDetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-    TrkDetectorConstruction(I3CLSimMediumPropertiesConstPtr mediumProperties);
+    TrkDetectorConstruction();
     virtual ~TrkDetectorConstruction();
     
     G4VPhysicalVolume* Construct();
@@ -57,6 +57,7 @@ public:
     //rebuild the geometry based on changes. must be called
     void UpdateGeometry();
     G4bool GetUpdated() {return updated;}
+    void SetMediumProperties(I3CLSimMediumPropertiesConstPtr);
 
 private:
     void DefineMaterials();

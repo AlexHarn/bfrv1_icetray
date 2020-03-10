@@ -37,7 +37,9 @@
  */
 static const unsigned i3clsimfunctionfromtable_version_ = 0;
 
-struct I3CLSimFunctionFromTable : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionFromTable);
+
+class I3CLSimFunctionFromTable : public I3CLSimFunction
 {
 public:
     static const bool default_storeDataAsHalfPrecision;
@@ -121,10 +123,13 @@ public:
      * Shall compare to another I3CLSimFunction object
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
-    
+
+    I3CLSimFunctionFromTablePtr Scale(double coefficient) const;
+
 private:
     I3CLSimFunctionFromTable();
-    
+    virtual I3CLSimFunctionFromTable* ScaleImpl(double coefficient) const;
+
     double startWlen_;
     double wlenStep_;
     std::vector<double> wlens_;
@@ -140,7 +145,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionFromTable, i3clsimfunctionfromtable_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionFromTable);
 
 #endif //I3CLSIMFUNCTIONFROMTABLE_H_INCLUDED

@@ -28,6 +28,7 @@
 
 #include <icetray/OMKey.h>
 #include <icetray/python/std_map_indexing_suite.hpp>
+#include <dataclasses/I3Map.h>
 
 #include <clsim/function/I3CLSimFunction.h>
 
@@ -52,8 +53,11 @@
 using namespace boost::python;
 namespace bp = boost::python;
 
-struct I3CLSimFunctionWrapper : I3CLSimFunction, bp::wrapper<I3CLSimFunction>
+I3_FORWARD_DECLARATION(I3CLSimFunctionWrapper);
+
+class I3CLSimFunctionWrapper : public I3CLSimFunction, public bp::wrapper<I3CLSimFunction>
 {
+public:
     // pure virtual
     virtual bool HasNativeImplementation() const {utils::python_gil_holder gil; return this->get_override("HasNativeImplementation")();}
     virtual bool HasDerivative() const {utils::python_gil_holder gil; return this->get_override("HasDerivative")();}
@@ -62,6 +66,7 @@ struct I3CLSimFunctionWrapper : I3CLSimFunction, bp::wrapper<I3CLSimFunction>
     virtual double GetMaxWlen() const {utils::python_gil_holder gil; return this->get_override("GetMaxWlen")();}
     virtual std::string GetOpenCLFunction(const std::string &functionName) const {utils::python_gil_holder gil; return this->get_override("GetOpenCLFunction")(functionName);}
     virtual bool CompareTo(const I3CLSimFunction &other) const {utils::python_gil_holder gil; return this->get_override("CompareTo")(other);}
+    I3CLSimFunctionWrapperPtr Scale(double coefficient) const {utils::python_gil_holder gil; return this->get_override("__mul__")(coefficient);}
     
     // default implementation
     virtual double GetDerivative(double wlen) const {utils::python_gil_holder gil; if (override f = this->get_override("GetDerivative")) {return f(wlen);} else {return I3CLSimFunction::GetDerivative(wlen);}}
@@ -69,6 +74,8 @@ struct I3CLSimFunctionWrapper : I3CLSimFunction, bp::wrapper<I3CLSimFunction>
     
     double default_GetDerivative(double wlen) const {return this->I3CLSimFunction::GetDerivative(wlen);}
     std::string default_GetOpenCLFunctionDerivative(const std::string &functionName) const {return this->I3CLSimFunction::GetOpenCLFunctionDerivative(functionName);}
+private:
+    virtual I3CLSimFunctionWrapper* ScaleImpl(double coefficient) const {utils::python_gil_holder gil; return this->get_override("__mul__")(coefficient);}
     
 };
 
@@ -77,11 +84,34 @@ bool I3CLSimFunction_equalWrap(const I3CLSimFunction &a, const I3CLSimFunction &
     return a==b;
 }
 
+namespace {
+
+typedef I3Map<OMKey, I3CLSimFunctionConstPtr> I3CLSimFunctionPtrMap;
+
+// apply scale, preserving aliases
+boost::shared_ptr<I3CLSimFunctionPtrMap> scale_I3CLSimFunctionPtrMap(const I3CLSimFunctionPtrMap &self, double coefficient)
+{
+    auto other = boost::make_shared<I3CLSimFunctionPtrMap>();
+    std::map<const I3CLSimFunction*,I3CLSimFunctionPtr> duplicates;
+    for (const auto &pair : self) {
+        // skip null entries
+        if (!pair.second)
+            continue;
+        auto dup = duplicates.find(pair.second.get());
+        if (dup == duplicates.end())
+            dup = duplicates.emplace(pair.second.get(), (*pair.second)*coefficient).first;
+        other->emplace(pair.first, dup->second);
+    }
+    return other;
+}
+
+}
+
 void register_I3CLSimFunction()
 {
     {
         bp::scope I3CLSimFunction_scope = 
-        bp::class_<I3CLSimFunctionWrapper, boost::shared_ptr<I3CLSimFunctionWrapper>, boost::noncopyable>("I3CLSimFunction")
+        bp::class_<I3CLSimFunctionWrapper, boost::shared_ptr<I3CLSimFunctionWrapper>, bp::bases<I3FrameObject>, boost::noncopyable>("I3CLSimFunction")
         .def("HasNativeImplementation", bp::pure_virtual(&I3CLSimFunction::HasNativeImplementation))
         .def("HasDerivative", bp::pure_virtual(&I3CLSimFunction::HasDerivative))
         .def("GetValue", bp::pure_virtual(&I3CLSimFunction::GetValue))
@@ -90,7 +120,7 @@ void register_I3CLSimFunction()
         .def("GetOpenCLFunction", bp::pure_virtual(&I3CLSimFunction::GetOpenCLFunction))
         .def("CompareTo", bp::pure_virtual(&I3CLSimFunction::CompareTo))
         .def("__eq__", &I3CLSimFunction_equalWrap)
-        
+
         .def("GetDerivative", &I3CLSimFunction::GetDerivative, &I3CLSimFunctionWrapper::default_GetDerivative)
         .def("GetOpenCLFunctionDerivative", &I3CLSimFunction::GetOpenCLFunctionDerivative, &I3CLSimFunctionWrapper::default_GetOpenCLFunctionDerivative)
         ;
@@ -103,12 +133,16 @@ void register_I3CLSimFunction()
 
     // values that are different for each DOM
     {
-        typedef std::map<OMKey, I3CLSimFunctionConstPtr> I3CLSimFunctionPtrMap;
+        typedef I3Map<OMKey, I3CLSimFunctionConstPtr> I3CLSimFunctionPtrMap;
         I3_POINTER_TYPEDEFS(I3CLSimFunctionPtrMap);
-        bp::class_<I3CLSimFunctionPtrMap, I3CLSimFunctionPtrMapPtr>("I3CLSimFunctionMap")
+        bp::class_<I3CLSimFunctionPtrMap, I3CLSimFunctionPtrMapPtr, bp::bases<I3FrameObject> >("I3CLSimFunctionMap")
             .def(bp::std_map_indexing_suite<I3CLSimFunctionPtrMap>())
+            .def("__mul__", &scale_I3CLSimFunctionPtrMap)
         ;
         bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionPtrMap>, boost::shared_ptr<const I3CLSimFunctionPtrMap> >();
+        bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionPtrMap>, boost::shared_ptr<std::map<OMKey, I3CLSimFunctionConstPtr>> >();
+        bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionPtrMap>, boost::shared_ptr<const std::map<OMKey, I3CLSimFunctionConstPtr>> >();
+        
         utils::register_const_ptr<I3CLSimFunctionPtrMap>();
     }
 
@@ -130,6 +164,7 @@ void register_I3CLSimFunction()
             )
            )
          )
+         .def("__mul__", &I3CLSimFunctionConstant::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionConstant>, boost::shared_ptr<const I3CLSimFunctionConstant> >();
@@ -157,6 +192,7 @@ void register_I3CLSimFunction()
            )
          )
         .def("GetPeakPosition", &I3CLSimFunctionDeltaPeak::GetPeakPosition)
+        .def("__mul__", &I3CLSimFunctionDeltaPeak::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionDeltaPeak>, boost::shared_ptr<const I3CLSimFunctionDeltaPeak> >();
@@ -207,6 +243,7 @@ void register_I3CLSimFunction()
         .def("GetEntryValue", &I3CLSimFunctionFromTable::GetEntryValue)
         .def("GetEntryWavelength", &I3CLSimFunctionFromTable::GetEntryWavelength)
         .def("GetInEqualSpacingMode", &I3CLSimFunctionFromTable::GetInEqualSpacingMode)
+        .def("__mul__", &I3CLSimFunctionFromTable::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionFromTable>, boost::shared_ptr<const I3CLSimFunctionFromTable> >();
@@ -235,6 +272,7 @@ void register_I3CLSimFunction()
             )
            )
          )
+         .def("__mul__", &I3CLSimFunctionScatLenPartic::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionScatLenPartic>, boost::shared_ptr<const I3CLSimFunctionScatLenPartic> >();
@@ -287,6 +325,7 @@ void register_I3CLSimFunction()
             )
            )
          )
+        .def("__mul__", &I3CLSimFunctionRefIndexQuanFry::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionRefIndexQuanFry>, boost::shared_ptr<const I3CLSimFunctionRefIndexQuanFry> >();
@@ -334,6 +373,7 @@ void register_I3CLSimFunction()
             )
            )
          )
+        .def("__mul__", &I3CLSimFunctionRefIndexIceCube::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionRefIndexIceCube>, boost::shared_ptr<const I3CLSimFunctionRefIndexIceCube> >();
@@ -387,6 +427,7 @@ void register_I3CLSimFunction()
         .add_property("E", &I3CLSimFunctionAbsLenIceCube::GetE)
         .add_property("aDust400", &I3CLSimFunctionAbsLenIceCube::GetADust400)
         .add_property("deltaTau", &I3CLSimFunctionAbsLenIceCube::GetDeltaTau)
+        .def("__mul__", &I3CLSimFunctionAbsLenIceCube::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionAbsLenIceCube>, boost::shared_ptr<const I3CLSimFunctionAbsLenIceCube> >();
@@ -419,6 +460,7 @@ void register_I3CLSimFunction()
         .def("GetB400", &I3CLSimFunctionScatLenIceCube::GetB400)
         .add_property("alpha", &I3CLSimFunctionScatLenIceCube::GetAlpha)
         .add_property("b400", &I3CLSimFunctionScatLenIceCube::GetB400)
+        .def("__mul__", &I3CLSimFunctionScatLenIceCube::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionScatLenIceCube>, boost::shared_ptr<const I3CLSimFunctionScatLenIceCube> >();
@@ -466,6 +508,7 @@ void register_I3CLSimFunction()
               )
              )
         .def("GetCoefficients", &I3CLSimFunctionPolynomial::GetCoefficients, bp::return_value_policy<bp::copy_const_reference>())
+        .def("__mul__", &I3CLSimFunctionPolynomial::Scale)
         ;
     }
     bp::implicitly_convertible<boost::shared_ptr<I3CLSimFunctionPolynomial>, boost::shared_ptr<const I3CLSimFunctionPolynomial> >();

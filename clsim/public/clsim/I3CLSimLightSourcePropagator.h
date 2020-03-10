@@ -8,8 +8,7 @@
 struct I3CLSimStep;
 I3_FORWARD_DECLARATION(I3CLSimLightSource);
 I3_FORWARD_DECLARATION(I3CLSimMediumProperties);
-struct I3CLSimFunction;
-typedef boost::shared_ptr<const I3CLSimFunction> I3CLSimFunctionConstPtr;
+I3_FORWARD_DECLARATION(I3CLSimFunction);
 I3_FORWARD_DECLARATION(I3RandomService);
 
 class I3CLSimLightSourcePropagator {

@@ -115,13 +115,13 @@ class ClSim(ipmodule.ParsingModule):
         # Configure IceTray services
         if os.path.exists(self.summaryfile):
            summary = ReadI3Summary(self.summaryfile)
-        else: 
+        else:
            summary = dataclasses.I3MapStringDouble()
         tray.context['I3SummaryService'] = summary
 
         # RNG
         rngstate    = "rng.state"
-        if not os.path.exists(rngstate): 
+        if not os.path.exists(rngstate):
            rngstate = ''
            self.logger.warning("Warning: no RNG state found. Using seed instead.")
 
@@ -142,8 +142,7 @@ class ClSim(ipmodule.ParsingModule):
               raise Exception("Configured empty efficiency list")
         else:
             efficiency = choose_max_efficiency(self.efficiency)
-         
-        from .. import segments 
+        from .. import segments
 
         if self.propagatemuons:
         	randomServiceForPropagators = phys_services.I3SPRNGRandomService(

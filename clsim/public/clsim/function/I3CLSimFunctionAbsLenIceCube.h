@@ -37,7 +37,10 @@
  */
 static const unsigned i3clsimfunctionabslenicecube_version_ = 0;
 
-struct I3CLSimFunctionAbsLenIceCube : public I3CLSimFunction
+I3_FORWARD_DECLARATION(I3CLSimFunctionAbsLenIceCube);
+// I3_POINTER_TYPEDEFS(I3CLSimFunctionAbsLenIceCube);
+
+class I3CLSimFunctionAbsLenIceCube : public I3CLSimFunction
 {
 public:
     I3CLSimFunctionAbsLenIceCube(double kappa,
@@ -88,6 +91,8 @@ public:
      */
     virtual bool CompareTo(const I3CLSimFunction &other) const;
     
+    I3CLSimFunctionAbsLenIceCubePtr Scale(double coefficient) const;
+    virtual I3CLSimFunctionAbsLenIceCube* ScaleImpl(double coefficient) const;
     
     // access to the internal state
     inline double GetKappa() const {return kappa_;}
@@ -116,7 +121,5 @@ private:
 
 
 I3_CLASS_VERSION(I3CLSimFunctionAbsLenIceCube, i3clsimfunctionabslenicecube_version_);
-
-I3_POINTER_TYPEDEFS(I3CLSimFunctionAbsLenIceCube);
 
 #endif //I3CLSIMFUNCTIONABSLENICECUBE_H_INCLUDED
