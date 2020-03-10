@@ -45,10 +45,10 @@ tray.AddModule("I3DSTModule16", "dst_NSIDE_1024",
    HealPixNSide=1024,
    IgnoreDirectHits=True)
 
-tray.AddModule("I3DSTModule16", "dst_NSIDE_516", 
-   DSTName="I3DST_NSIDE_516",
-   DSTHeaderName="I3DSTHeader_NSIDE_516",
-   HealPixNSide=516,
+tray.AddModule("I3DSTModule16", "dst_NSIDE_512", 
+   DSTName="I3DST_NSIDE_512",
+   DSTHeaderName="I3DSTHeader_NSIDE_512",
+   HealPixNSide=512,
    IgnoreDirectHits=True)
 
 

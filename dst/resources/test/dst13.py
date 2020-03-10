@@ -15,7 +15,7 @@ from icecube.icetray import I3Int
 from icecube.dst.dsttest import CheckFrameIndex
 from icecube import filter_tools
 
-dstfile = "dsttest.root"
+dstfile = "dsttest.hdf5"
 
 i3_ports = expandvars("$I3_TESTDATA")
 gcdfile = i3_ports + "/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"

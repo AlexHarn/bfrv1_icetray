@@ -9,7 +9,7 @@ def filterStream(f, StreamName='TDST'):
 
 @icetray.traysegment
 def ExtractDST13(tray, name, 
-	dst_output_filename  = "I3DST13.root",
+	dst_output_filename  = "I3DST13.hdf5",
 	dstname      = "I3DST13",
 	extract_to_frame = True,
 	If = lambda f: True):
@@ -21,18 +21,18 @@ def ExtractDST13(tray, name,
 	from icecube import dst
 	from icecube import phys_services
 	from icecube.tableio import I3TableWriter
-	from icecube.rootwriter import I3ROOTTableService
-	from icecube.hdfwriter import I3HDFTableService
 	from . import TDSTConverter
 	
 	# Open output file
 	if dst_output_filename.endswith('.root'):
 	# Open output file
+	   from icecube.rootwriter import I3ROOTTableService
 	   table_service = I3ROOTTableService(filename= dst_output_filename,  
                                    master= "dst", #Default name: "MasterTree".
                                    #mode=RECREATE,     
                                    )
 	elif dst_output_filename.endswith('.hdf5') or dst_output_filename.endswith('.hd5'):
+	   from icecube.hdfwriter import I3HDFTableService
 	   table_service = I3HDFTableService(dst_output_filename, 6)
 
 	if "I3RandomService" not in tray.context:
@@ -60,7 +60,7 @@ def ExtractDST13(tray, name,
 	
 @icetray.traysegment
 def ExtractDST(tray, name, 
-	dst_output_filename  = "I3DST.root",
+	dst_output_filename  = "I3DST.hdf5",
 	dstname      = "I3DST",
 	simulation = False,
 	extract_to_frame = False,
@@ -75,8 +75,6 @@ def ExtractDST(tray, name,
 	from icecube import dst
 	from icecube import phys_services
 	from icecube.tableio import I3TableWriter
-	from icecube.rootwriter import I3ROOTTableService
-	from icecube.hdfwriter import I3HDFTableService
 	from . import TDSTConverter        
 
 	
@@ -84,11 +82,13 @@ def ExtractDST(tray, name,
 
 	if dst_output_filename.endswith('.root'):
 	# Open output file
+	   from icecube.rootwriter import I3ROOTTableService
 	   table_service = I3ROOTTableService(filename= dst_output_filename,  
                                    master= "dst", #Default name: "MasterTree".
                                    #mode=RECREATE,     
                                    )
 	elif dst_output_filename.endswith('.hdf5'):
+	   from icecube.hdfwriter import I3HDFTableService
 	   table_service = I3HDFTableService(dst_output_filename, 6)
 
 	if "I3RandomService" not in tray.context:
