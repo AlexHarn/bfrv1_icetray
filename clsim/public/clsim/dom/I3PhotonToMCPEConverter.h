@@ -76,16 +76,6 @@ public:
      */
     void DAQ(I3FramePtr frame);
 
-    /**
-     * The module needs to process DetectorStatus frames
-     */
-    virtual void DetectorStatus(I3FramePtr frame);
-    
-    /**
-     * The module needs to process Calibration frames
-     */
-    virtual void Calibration(I3FramePtr frame);
-
     virtual void Finish();
 
     
@@ -93,48 +83,13 @@ private:
     // parameters
     
     /// Parameter: A random number generating service (derived from I3RandomService).
-    I3RandomServicePtr randomService_;
+    boost::shared_ptr<I3CLSimPhotonToMCPEConverter> mcpeGenerator_;
 
     /// Parameter: Name of the input I3PhotonSeriesMap frame object. 
     std::string inputPhotonSeriesMapName_;
 
     /// Parameter: Name of the output I3MCPESeries frame object. 
     std::string outputMCPESeriesMapName_;
-
-    /// Parameter: Wavelength acceptance of the (D)OM as a I3WlenDependedValue object.
-    I3CLSimFunctionConstPtr wavelengthAcceptance_;
-
-    /// Parameter: Angular acceptance of the (D)OM as a I3WlenDependedValue object.
-    I3CLSimFunctionConstPtr angularAcceptance_;
-
-    /// Parameter: Specifiy the \"oversize factor\" (i.e. DOM radius scaling factor) you used during the
-    ///            CLSim run. The photon arrival times will be corrected.
-    double DOMOversizeFactor_;
-
-    /// Parameter: Specifiy the \"pancake factor\" of a DOM. This is the factor a DOM has been *shrunk* again
-    ///            (in the direction of the photon) after oversizing. You should set this to whatever
-    ///            value you used during running I3CLSimModule. And most of the time this is the same as the
-    ///            oversize factor.
-    double DOMPancakeFactor_;
-
-    /// Parameter: Specifiy the DOM radius. Do not include oversize factors here.
-    double DOMRadiusWithoutOversize_;
-
-    /// Parameter: Default relative efficiency. This value is used if no entry is available from I3Calibration.
-    double defaultRelativeDOMEfficiency_;
-
-    /// Parameter: Always use the default relative efficiency, ignore other values from I3Calibration.
-    bool replaceRelativeDOMEfficiencyWithDefault_;
-
-    /// Parameter: Do not generate hits for OMKeys not found in the I3DetectorStatus.I3DOMStatusMap
-    bool ignoreDOMsWithoutDetectorStatusEntry_;
-
-    /// Parameter: Make photon position/radius check a warning only (instead of a fatal condition)
-    bool onlyWarnAboutInvalidPhotonPositions_;
-
-    /// Parameter: Assume that photon positions are relative to modules rather
-    /// than absolute
-    bool photonPositionsAreRelative_;
 
     /// Parameter: Compress the output I3MCPEs
     bool mergeHits_;
@@ -147,9 +102,6 @@ private:
     
     template <typename PhotonMapType>
     std::pair<I3MCPESeriesMapPtr,I3ParticleIDMapPtr> Convert(I3FramePtr frame);
-
-    I3CalibrationConstPtr calibration_;
-    I3DetectorStatusConstPtr status_;
     
     // record some statistics
     uint64_t numGeneratedHits_;
