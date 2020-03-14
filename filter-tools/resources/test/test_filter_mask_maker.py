@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 from icecube import icetray,dataclasses,filter_tools
 from I3Tray import I3Tray
