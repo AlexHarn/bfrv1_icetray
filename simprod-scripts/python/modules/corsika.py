@@ -71,7 +71,6 @@ def CorsikaReaderTraySegment(tray,name,
          NEvents=cors.nevents,
          OverSampling=oversampling,
          LegacyOverSampling=legacyoversampling,
-         CylinderRadius = 500, CylinderHeight = 1000,
          SimulateIceTop = SimulateIceTop,
          TankResponse="param",
          KeepMCHits=False,
@@ -93,8 +92,6 @@ def CorsikaReaderTraySegment(tray,name,
           spric                      = cors.spric is True or cors.spric == 'T',
           ThetaMin                   = cors.cthmin*I3Units.degree,
           ThetaMax                   = cors.cthmax*I3Units.degree,
-          cylinderLength             = cors.length*I3Units.meter,
-          cylinderRadius             = cors.radius*I3Units.meter,
           energyprimarymin           = cors.emin*I3Units.GeV,
           energyprimarymax           = cors.emax*I3Units.GeV,
 
@@ -123,8 +120,6 @@ def CorsikaReaderTraySegment(tray,name,
         nevents          = cors.nevents,
         ThetaMin         = cors.cthmin*I3Units.degree,
         ThetaMax         = cors.cthmax*I3Units.degree,
-        cylinderLength   = cors.length*I3Units.meter,
-        cylinderRadius   = cors.radius*I3Units.meter,
         OverSamplingFactor = oversampling,
         MCTreeName = mctree
         )
@@ -180,8 +175,6 @@ def configure_corsika(params):
     cors.cthmin  = params.cthmin
     cors.cthmax  = params.cthmax
     cors.seed    = params.corsikaseed
-    cors.radius  = params.radius
-    cors.length  = params.length
     cors.atmod   = atmod
     cors.runnum  = params.runnum
     cors.cache   = 1
@@ -267,11 +260,8 @@ class CorsikaGenerator(ipmodule.ParsingModule):
         self.AddParameter("eprimarymax",'CR max energy',1.0e5)
         self.AddParameter("eprimarymin","CR min energy",600.0)
         self.AddParameter("fluxsum","", 0.131475115)
-        self.AddParameter("length","",1600.0)
         self.AddParameter("OverSampling","Number of times to sample each shower",1)
         self.AddParameter("LegacyOverSampling","Legacy mode for oversmapling ",False)
-        self.AddParameter("radius","",800.0)
-        
         self.AddParameter("model","corsika model","sibyll")
         self.AddParameter("lemodel","corsika low-energy model","gheisha")
         self.AddParameter('corsikaVersion','version of corsika to run','v6900')
@@ -448,10 +438,8 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
         self.AddParameter("eprimarymax",'CR max energy',1.0e9)
         self.AddParameter("eprimarymin","CR min energy",600.0)
         self.AddParameter("fluxsum","", 0.131475115)
-        self.AddParameter("length","",1600.0)
         self.AddParameter("OverSampling","Oversampling factor",1)
         self.AddParameter("LegacyOverSampling","Legacy mode Oversampling",False)
-        self.AddParameter("radius","",800.0)
         
         self.AddParameter("model","corsika model","sibyll")
         self.AddParameter("lemodel","corsika low-energy model","gheisha")
@@ -574,8 +562,6 @@ class Corsika5ComponentGenerator(ipmodule.ParsingModule):
                generator.SetParameter("eprimarymax",setting.EnergyPrimaryMax)
                generator.SetParameter("eprimarymin", setting.EnergyPrimaryMin)
                generator.SetParameter('CORSIKAseed',self.corsikaseed*5+counter)
-               generator.SetParameter('length',self.length)
-               generator.SetParameter('radius',self.radius)
                generator.SetParameter('model',self.model)
                generator.SetParameter('lemodel',self.lemodel)
                generator.SetParameter('corsikaVersion',self.corsikaversion)

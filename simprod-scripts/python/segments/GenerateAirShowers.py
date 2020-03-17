@@ -8,8 +8,6 @@ def GenerateAirShowers(tray, name,
     NEvents=1,
     OverSampling=1,
     LegacyOverSampling=False,
-    CylinderHeight=1200,
-    CylinderRadius=600,
     SimulateIceTop=True,
     TankResponse="param",
     KeepMCHits=False,
@@ -22,8 +20,6 @@ def GenerateAirShowers(tray, name,
 	:param GCDFile: path to GCD file to read first
 	:param NEvents: passed to I3CORSIKAReader (and ignored for CORSIKA files >= v74000, where it is part of the run header)
 	:param OverSampling: Number of times each shower will be read (each with a different impact location)
-	:param CylinderHeight: height of IceCube-centered target cylinder
-	:param CylinderRadius: radius of target cylinder
 	:param SimulateIceTop: simulate IceTop response
 	:param TankResponse: how to simulate IceTop response: 'param' for parameterization, 'g4' for GEANT4
 	:param KeepMCHits: keep IceTop MCHits
