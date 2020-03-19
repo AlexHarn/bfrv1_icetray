@@ -28,6 +28,10 @@ if(ROOT_FOUND)
     USE_TOOLS root
     USE_PROJECTS dataclasses icetray phys-services rootwriter tableio)
 
+  i3_test_scripts(
+    resources/test/*.py
+    )
+
 
 else(ROOT_FOUND)
 
