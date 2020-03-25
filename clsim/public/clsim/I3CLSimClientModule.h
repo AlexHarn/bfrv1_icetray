@@ -169,6 +169,7 @@ private:
                                             std::deque<double> &timeOffsets);
 
     void CosmicGeneraterToLightSources(I3MCTree &mcTree,
+                                       I3Frame  &frame,
                                        std::deque<I3CLSimLightSource> &lightSources,
                                        std::deque<double> &timeOffsets);
   

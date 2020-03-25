@@ -21,6 +21,7 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/simclasses/I3ExtraGeometryItemCylinder.cxx
   private/simclasses/I3NuGenInfo.cxx  
   private/simclasses/I3CorsikaInfo.cxx  
+  private/simclasses/I3ShowerBias.cxx
   
   # tableio converters
   private/simclasses/converter/I3PhotonConverter.cxx

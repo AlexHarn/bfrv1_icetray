@@ -10,6 +10,8 @@ Release Notes
 On the trunk
 ------------
 
+- Fix suppoert for biased CORSIKA shower generation
+
 Feb. 5, 2020 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
 Combo Release V00-00-01

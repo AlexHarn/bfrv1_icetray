@@ -1,4 +1,4 @@
-
+#include "simclasses/I3ShowerBias.h"
 #include "corsika-reader/I3CorsikaWeight.h"
 #include "corsika-reader/I3CORSIKAService.h"
 #include "corsika-reader/I3CORSIKAReaderUtils.h"
@@ -8,8 +8,6 @@ double muon_energy_threshold(double max_range)
 	double a=0.212/1.2, b=0.251e-3/1.2;
 	return (std::exp(max_range*b) - 1)*a/b;
 }
-
-typedef I3Map<I3ParticleID, std::tuple<CorsikaClient::BiasParticleType, double, double>> ShowerBiasMap;
 
 void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 {
@@ -50,8 +48,8 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 	    1e21
 	}};
 	
-	ShowerBiasMap::mapped_type bias(CorsikaClient::Mu,1,1);
-	auto biases = frame.Get<boost::shared_ptr<const ShowerBiasMap>>("ShowerBias");
+	I3ShowerBias bias(I3ShowerBias::Mu,1);
+	auto biases = frame.Get<I3ShowerBiasMapConstPtr>();
 	if (biases) {
 		auto it = biases->find(primary.GetID());
 		if (it != biases->end())
@@ -69,10 +67,7 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 	    primary.GetEnergy(),
 	    std::acos(-local_zenith*primary.GetDir()),
 	    (-primary.GetDir()).GetAzimuth() - magnetic_north_,
-	    std::get<0>(bias),
-	    std::get<1>(bias),
-		elcuts
-	);
+            bias.type,bias.target,elcuts);
 	
 	std::vector<float> header = CorsikaClient::GetEventHeader();
 	i3_assert(header.size() == 273);
@@ -85,10 +80,10 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 		log_fatal("Observation level is not curved");
 	if (header[92] != 0)
 		log_fatal("Coordinate system is not aligned with magnetic north!");
-	
+
 	// Check that bias specification came back the same
-	i3_assert(header[219] == float(std::get<1>(bias)));
-	i3_assert(header[220] == float(std::get<0>(bias)));
+        i3_assert(header[219] == float(bias.target));
+        i3_assert(header[220] == float(bias.type));
 	
 	// Store core position as a rotation around the center of the Earth
 	core_position_.SetOrientation(local_zenith, I3Direction(0,1,0).Cross(local_zenith));

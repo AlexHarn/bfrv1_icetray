@@ -163,7 +163,9 @@ CorsikaClient::CorsikaClient(const std::string &corsika_executable, config_type 
 CorsikaClient::~CorsikaClient() {}
 
 std::vector<double>
-CorsikaClient::StartShower(uint32_t particle_id, double energy, double theta, double phi, BiasParticleType bias_target, double bias_factor, std::array<double,4> elcuts)
+CorsikaClient::StartShower(uint32_t particle_id, double energy, double theta,
+                           double phi, I3ShowerBias::BiasParticleType bias_target,
+                           double bias_factor, std::array<double,4> elcuts)
 {
 	{
 		std::array<double,6> initial = {{double(particle_id),energy,theta,phi,double(bias_target),bias_factor}};

@@ -12,18 +12,9 @@
 #include "icetray/load_project.h"
 #include "corsika-reader/I3CORSIKAReaderUtils.h"
 #include "corsika-reader/I3CorsikaWeight.h"
-
-namespace bp=boost::python;
-
-#ifdef USE_CORSIKA_CLIENT
 #include "corsika-reader/I3CORSIKAService.h"
 
-void add_bias(I3Particle &p, float mu_bias, I3Frame& frame){
-  auto biases = boost::make_shared<ShowerBiasMap>();
-  biases->emplace(p.GetID(), ShowerBiasMap::mapped_type(CorsikaClient::Mu,mu_bias,1));
-  frame.Put("ShowerBias", biases);
-}
-#endif //USE_CORSIKA_CLIENT
+namespace bp=boost::python;
 
 BOOST_PYTHON_MODULE(corsika_reader)
 {
@@ -45,7 +36,6 @@ BOOST_PYTHON_MODULE(corsika_reader)
     ;
 
 #ifdef USE_CORSIKA_CLIENT 
-  bp::def("add_bias",&add_bias);
   bp::class_<CorsikaService,
              boost::shared_ptr<CorsikaService>,
              bp::bases<I3IncrementalEventGeneratorService>,

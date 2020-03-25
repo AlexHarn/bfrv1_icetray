@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdint>
 #include <array>
+#include "simclasses/I3ShowerBias.h"
 
 class CorsikaClientImpl;
 
@@ -30,12 +31,6 @@ public:
 		config_type();
 	};
 	
-	enum BiasParticleType {
-		Mu = 0,
-		NuMu,
-		NuE
-	};
-	
 	/// param[in] corsika_executable path to CORSIKA binary
 	CorsikaClient(const std::string &corsika_executable, config_type=config_type());
 	~CorsikaClient();
@@ -50,7 +45,10 @@ public:
 	///
 	/// @returns A particle block containing the primary at the top of the
 	///          atmosphere.
-	std::vector<double> StartShower(uint32_t particle_id, double energy, double theta, double phi, BiasParticleType bias_target=Mu, double bias_factor=1, std::array<double,4> elcuts={{0.3, 0.3, 0.003, 0.003}});
+	std::vector<double> StartShower(
+          uint32_t particle_id, double energy, double theta, double phi,
+          I3ShowerBias::BiasParticleType I3ShowerBiasBiasbias_target=I3ShowerBias::Mu,
+          double bias_factor=1, std::array<double,4> elcuts={{0.3, 0.3, 0.003, 0.003}});
 	
 	/// Get the next particle at the observation level. Blocks until the next
 	/// particle or the event end block is recieved.

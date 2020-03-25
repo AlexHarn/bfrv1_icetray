@@ -807,7 +807,7 @@ bool I3CLSimClientModule::DigestOtherFrame(I3FramePtr frame)
           I3MCTreePtr newtree = boost::make_shared<I3MCTree>(*MCTree);
 
           if (cosmicGenerator_){
-            CosmicGeneraterToLightSources(*newtree, lightSources, timeOffsets);
+            CosmicGeneraterToLightSources(*newtree, *frame, lightSources, timeOffsets);
           }else{        
             ConvertMCTreeToLightSources(*newtree, lightSources, timeOffsets);
           }
@@ -920,6 +920,7 @@ void I3CLSimClientModule::Finish()
 
 
 void I3CLSimClientModule::CosmicGeneraterToLightSources(I3MCTree &mcTree,
+                                                        I3Frame &frame,
                                                         std::deque<I3CLSimLightSource> &lightSources,
                                                         std::deque<double> &timeOffsets)
   
@@ -942,8 +943,7 @@ void I3CLSimClientModule::CosmicGeneraterToLightSources(I3MCTree &mcTree,
                           }
                         }
                       };
-  I3Frame dummy_frame;          
-  cosmicGenerator_->Generate(mcTree, dummy_frame, emitParticle);
+  cosmicGenerator_->Generate(mcTree, frame, emitParticle);
 }
 
 //////////////

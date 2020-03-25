@@ -6,8 +6,6 @@
 #include <dataclasses/I3Orientation.h>
 #include "corsika-reader/CorsikaClient.h"
 
-typedef I3Map<I3ParticleID, std::tuple<CorsikaClient::BiasParticleType, double, double>> ShowerBiasMap;
-
 /// @brief IceTray client for RemoteControl CORSIKA
 ///
 /// This client is stateful; see also CorsikaClient
