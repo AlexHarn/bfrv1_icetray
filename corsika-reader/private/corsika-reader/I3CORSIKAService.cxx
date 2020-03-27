@@ -1,5 +1,5 @@
 #include "simclasses/I3ShowerBias.h"
-#include "corsika-reader/I3CorsikaWeight.h"
+#include "simclasses/I3CorsikaWeight.h"
 #include "corsika-reader/I3CORSIKAService.h"
 #include "corsika-reader/I3CORSIKAReaderUtils.h"
 
@@ -48,7 +48,7 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 	    1e21
 	}};
 	
-	I3ShowerBias bias(I3ShowerBias::Mu,1);
+	I3ShowerBias bias(I3ShowerBias::Mu,1.0);
 	auto biases = frame.Get<I3ShowerBiasMapConstPtr>();
 	if (biases) {
 		auto it = biases->find(primary.GetID());
@@ -133,18 +133,17 @@ bool CorsikaService::NextParticle(I3Particle &particle)
 
 void CorsikaService::EndEvent(I3Frame &frame)
 {
-	// TODO store this somewhere
-	auto header = GetEventHeader();
-	auto trailer = GetEventEnd();
-	
-	I3CorsikaWeightPtr weight_obj=boost::make_shared<I3CorsikaWeight>();
-	weight_obj->primary=primary_;
-	weight_obj->bias_factor = header[219];
-	weight_obj->bias_target = header[220];
-	weight_obj->weight = trailer[266];
-	weight_obj->max_x = trailer[267];
-
-	frame.Put("I3CorsikaWeight",weight_obj);
+  auto header = GetEventHeader();
+  auto trailer = GetEventEnd();
+  I3ShowerBias bias(I3ShowerBias::BiasParticleType(header[220]),
+                    header[219]);
+  I3CorsikaWeightPtr weight_obj=boost::make_shared<I3CorsikaWeight>();
+  weight_obj->primary=primary_;
+  weight_obj->bias = bias;
+  weight_obj->weight = trailer[266];
+  weight_obj->max_x = trailer[267];
+  
+  frame.Put("I3CorsikaWeight",weight_obj);
 }
 	
 void CorsikaService::FillParticle(const std::vector<double> &block, I3Particle &particle, bool use_elevation)

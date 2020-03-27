@@ -1,5 +1,7 @@
 #include <simclasses/I3CorsikaInfo.h>
+#include "simclasses/converter/I3CorsikaInfoConverter.h"
 #include <icetray/python/dataclass_suite.hpp>
+#include <tableio/converter/pybindings.h>
 
 namespace bp=boost::python;
 
@@ -23,4 +25,7 @@ void register_I3CorsikaInfo()
     ;
   
   register_pointer_conversions<I3CorsikaInfo>();
+
+  I3CONVERTER_NAMESPACE(simclasses);
+  I3CONVERTER_EXPORT_DEFAULT(I3CorsikaInfoConverter, "Dumps I3CorsikaInfo S-Frame object");
 }
