@@ -101,7 +101,7 @@ tray.AddModule("Rename","rename_mmc", Keys=['MMCTrackList','SignalMMCTrackList']
 if args.propagate:
     tray.AddSegment(segments.PropagateMuons, 'propagator',
                RandomService= randomService,
-               SaveState=False,
+               SaveState=True,
                InputMCTreeName=BGTreeName,
                OutputMCTreeName="BackgroundI3MCTree",
 #               **PROPOSALParams
