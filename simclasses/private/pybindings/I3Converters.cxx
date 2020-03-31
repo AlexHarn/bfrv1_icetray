@@ -28,6 +28,7 @@
 
 #include "simclasses/converter/I3PhotonConverter.h"
 #include "simclasses/converter/I3CorsikaWeightConverter.h"
+#include "simclasses/converter/I3CorsikaInfoConverter.h"
 // #include "clsim/converter/I3MCHitConverterWithIDs.h"
 #include "simclasses/converter/I3MCPEConverterWithIDs.h"
 #include "tableio/converter/pybindings.h"
@@ -38,7 +39,7 @@ void register_I3Converters()
 
     I3CONVERTER_EXPORT_DEFAULT(I3PhotonConverter, "Dumps a single I3Photon to a table column");
     I3_MAP_CONVERTER_EXPORT_DEFAULT(I3PhotonSeriesMapConverter,"Dumps all I3Photons in a I3PhotonSeriesMap");
-
+    I3CONVERTER_EXPORT_DEFAULT(I3CorsikaInfoConverter, "Dumps an S-Frame object describing a CORSIKA generation surface");
     I3CONVERTER_EXPORT_DEFAULT(I3CorsikaWeightConverter, "Dumps a CORSIKA weight object to a table column");
 
     // this is not the default converter, the default one is in dataclasses
