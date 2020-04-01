@@ -125,7 +125,7 @@ from icecube.clsim.traysegments.I3CLSimMakePhotons import I3CLSimMakePhotonsWith
 from icecube.ice_models import icewave
 from icecube.ice_models import angsens_unified
 from icecube.snowstorm import Perturber, MultivariateNormal, DeltaDistribution, UniformDistribution
-from icecube.snowstorm import all_perturbers # Snowstorm perturbers
+from icecube.snowstorm import all_parametrizations # Snowstorm parametrizations
 from icecube import phys_services
 print("done")
 
@@ -377,17 +377,18 @@ for name, params in perturbation_cfg.items():
     if params["type"] == "delta":
         print("-> adding {} of type {}".format(name, params["type"]))
         params = params["delta"]
-        perturber.add(name, all_perturbers[name], DeltaDistribution(params["x0"]))
+        perturber.add(name, all_parametrizations[name],
+                      DeltaDistribution(params["x0"]))
     elif params["type"] == "gauss":
         print("-> adding {} of type {}".format(name, params["type"]))
         params = params["gauss"]
         # Caution: MultivariateNormal expect the covariance matrix as first argument, so we need to use sigma**2
-        perturber.add(name, all_perturbers[name],
+        perturber.add(name, all_parametrizations[name],
                       MultivariateNormal(dataclasses.I3Matrix(np.diag(params["sigma"])**2), params["mu"]))
     elif params["type"] == "uniform":
         print("-> adding {} of type {}".format(name, params["type"]))
         params = params["uniform"]
-        perturber.add(name, all_perturbers[name],
+        perturber.add(name, all_parametrizations[name],
                       UniformDistribution([dataclasses.make_pair(*limits) for limits in params["limits"]]))
     else:
         raise NotImplementedError("Perturbation '{}' of type '{}' not implemented.".format(name, params["type"]))
