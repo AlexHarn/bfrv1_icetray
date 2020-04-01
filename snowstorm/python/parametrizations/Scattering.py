@@ -2,11 +2,13 @@ import copy
 
 from icecube import clsim
 
+from ..parametrization import Parametrization
 
-class Scattering:
+
+class Scattering(Parametrization):
     def transform(self, x, frame):
         """
-        Scale the scattering by a factor
+        Scale the global ice-scattering by a factor.
         """
 
         assert len(x) == 1

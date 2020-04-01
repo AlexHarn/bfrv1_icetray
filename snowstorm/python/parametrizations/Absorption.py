@@ -1,12 +1,14 @@
 import copy
 
-#from icecube import clsim
+from icecube import clsim
+
+from ..parametrization import Parametrization
 
 
-class Absorption:
+class Absorption(Parametrization):
     def transform(self, x, frame):
         """
-        Scale the absorption by a factor
+        Scale the global ice-absorption by a factor.
         """
 
         assert len(x) == 1

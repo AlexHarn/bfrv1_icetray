@@ -2,8 +2,10 @@ import copy
 
 from icecube import clsim
 
+from ..parametrization import Parametrization
 
-class DOMEfficiency:
+
+class DOMEfficiency(Parametrization):
     def transform(self, x, frame):
         """
         Scale the overall DOM efficiency by a factor.
@@ -16,8 +18,9 @@ class DOMEfficiency:
         del(frame['WavelengthGenerationBias'])
         del(frame['WavelengthAcceptance'])
 
-        # do the scaling
+        # scale the DOMEfficiency by scaling the DOM wavelength acceptance
         scaled_acceptance = acceptance * x[0]
+        # scale the generation bias accordingly
         scaled_bias = bias * x[0]
 
         # write bias and acceptance back to the frame
