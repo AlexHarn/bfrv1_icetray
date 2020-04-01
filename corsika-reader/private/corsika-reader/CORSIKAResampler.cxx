@@ -115,7 +115,7 @@ void CORSIKAResampler::Simulation(I3FramePtr frame)
 
 void CORSIKAResampler::DAQ(I3FramePtr frame)
 {
-	log_info("%s: %s", GetName().c_str(), __PRETTY_FUNCTION__);
+	log_debug("%s: %s", GetName().c_str(), __PRETTY_FUNCTION__);
 	log_trace("%s: %s", GetName().c_str(), __PRETTY_FUNCTION__);
 	if (!frame->Has(orig_mctree_name_) )
 		log_fatal("No tree %s found in frame!",orig_mctree_name_.c_str());
