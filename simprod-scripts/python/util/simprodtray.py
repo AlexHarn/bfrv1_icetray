@@ -13,7 +13,7 @@ import os
 # Set up default/root logging level
 logging.basicConfig()
 rootLogger = logging.getLogger('')
-rootLogger.setLevel(logging.DEBUG)
+rootLogger.setLevel(logging.INFO)
 
 
 def _add_i3_summary_service(tray, summaryfile, summaryin):
@@ -129,7 +129,6 @@ def RunI3Tray(params, configure_tray, simulationname, stats=dict(),
         logger.info("{0}:{1}".format(param, value))
 
     # Set Up Tray
-    icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_DEBUG)
     tray = I3Tray()
 
     # Configure Tray
