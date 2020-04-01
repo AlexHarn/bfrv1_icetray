@@ -34,6 +34,7 @@ parser.add_argument("-g", "--gcdfile", dest="gcdfile",
 parser.add_argument("--log-level", dest="log_level",
                     type=str, default="WARN",
                     help="Sets the icetray logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
+
 args = parser.parse_args()
 
 print("")

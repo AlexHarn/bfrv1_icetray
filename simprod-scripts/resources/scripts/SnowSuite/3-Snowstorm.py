@@ -86,6 +86,11 @@ parser.add_argument("--UseI3PropagatorService", dest="UseI3PropagatorService",
                     type=str2bool, default=True,
                     nargs='?', const=False,
                     help="Call this flag for NOT using I3PropagatorService.")
+
+parser.add_argument("--log-level", dest="log_level",
+                    type=str, default="WARN",
+                    help="Sets the icetray logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
+
 args = parser.parse_args()
 
 print("Called with:")
@@ -135,6 +140,16 @@ UseCPUs                = args.cpu
 UseGPUs                = not args.cpu
 DOMOversizeFactor      = args.domoversizefactor
 UseI3PropagatorService = args.UseI3PropagatorService
+log_level              = args.log_level
+
+# set icetray logging level
+log_levels = {"error" : icetray.I3LogLevel.LOG_ERROR,
+              "warn" : icetray.I3LogLevel.LOG_WARN,
+              "info" : icetray.I3LogLevel.LOG_INFO,
+              "debug" : icetray.I3LogLevel.LOG_DEBUG,
+              "trace" : icetray.I3LogLevel.LOG_TRACE}
+if log_level.lower() in log_levels.keys():
+    icetray.set_log_level(log_levels[log_level.lower()])
 
 # read either yaml or json config file for Snowstorm
 print("Reading Snowstorm config... ", end="")

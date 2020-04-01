@@ -54,6 +54,10 @@ parser.add_argument("--TimeWindow", dest="time_window",
                     type=float, required=True,
                     help="Coincident event time window in *microseconds*.")
 
+parser.add_argument("--log-level", dest="log_level",
+                    type=str, default="WARN",
+                    help="Sets the icetray logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
+
 args = parser.parse_args()
 print("Called with:")
 for key, v in vars(args).items():
@@ -83,10 +87,19 @@ if args.is_corsika:
 else:
     MCtype = "not_corsika"
 
-MCTreeName         = args.mctree_name
-TimeWindow         = args.time_window * I3Units.microsecond
-Rate               = float("nan") # get from background file
+MCTreeName  = args.mctree_name
+TimeWindow  = args.time_window * I3Units.microsecond
+Rate        = float("nan") # get from background file
+log_level   = args.log_level
 
+# set icetray logging level
+log_levels = {"error" : icetray.I3LogLevel.LOG_ERROR,
+              "warn" : icetray.I3LogLevel.LOG_WARN,
+              "info" : icetray.I3LogLevel.LOG_INFO,
+              "debug" : icetray.I3LogLevel.LOG_DEBUG,
+              "trace" : icetray.I3LogLevel.LOG_TRACE}
+if log_level.lower() in log_levels.keys():
+    icetray.set_log_level(log_levels[log_level.lower()])
 
 print("Preparing Tray...", end="")
 tray = I3Tray()
