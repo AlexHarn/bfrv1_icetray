@@ -1,10 +1,11 @@
-.. _snowstorm_perturbers:
-SnowStorm Perturbers
+.. _snowstorm_parametrizations:
+SnowStorm Parametrizations
 ====================
 
-All SnowStorm perturbers are defined as classes with a single ``transform`` method used when being applied. For details on how to use/apply perturbers in simulation refer to :ref:`SnowsStorm Configuration <snowstorm_configuration>`.
+All SnowStorm parametrizations are defined as classes inheriting from the `Prametrization` base class and need to have ``transform`` method.
+For details on how to use/apply parametrizations/perturbers in simulation refer to :ref:`SnowsStorm Configuration <snowstorm_configuration>`.
 
-The following list is an overview of all perturbers currently implemented:
+The following list is an overview of all parametrizations currently implemented:
 
 
 Absorption
@@ -12,7 +13,7 @@ Absorption
 
 * Identifier: ``Absorption``
 
-This perturber scales the overall (global) ice absorption coefficient with reference to the baseline ice model.
+This parametrization scales the overall (global) ice absorption coefficient with reference to the baseline ice model.
 
 
 AnisotropyScale
@@ -20,7 +21,7 @@ AnisotropyScale
 
 * Identifier: ``AnisotropyScale``
 
-This perturber scales the ice anisotropy strength.
+This parametrization scales the ice anisotropy strength.
 
 .. note:
     It does (and can) **not** change the direction of the anisotropy axis but change the strength of the ice anisotropy only!
@@ -31,7 +32,7 @@ DOMEfficiency
 
 * Identifier: ``AnisotropyScale``
 
-This perturber scales the DOMEfficiency of all DOMs with a factor. The reference DOMEfficiency is taken from the baseline ice model specified in the SnowStorm configuration file.
+This parametrization scales the DOMEfficiency of all DOMs with a factor. The reference DOMEfficiency is taken from the baseline ice model specified in the SnowStorm configuration file.
 
 
 HoleIce
@@ -39,10 +40,10 @@ HoleIce
 
 The `MSU Forward HoleIce wikipage <https://wiki.icecube.wisc.edu/index.php/MSU_Forward_Hole_Ice>`_ for more details on the holeIce model.
 
-For SnowStorm, there are two perturbers for two different HoleIce models/parametrizations:
+For SnowStorm, there are two parametrizations for two different HoleIce models/parametrizations:
 
 .. note::
-   Both HoleIce models depend on two parameters! Make sure to specify a sampling distribution for both, see :ref:`SnowStorm  Configuration <snowstorm_configuration>` for mote details.
+   Both HoleIce models depend on two parameters! Make sure to specify a sampling distribution for both, see :ref:`SnowStorm  Configuration <snowstorm_configuration>` for more details.
 
 
 MSU HoleIce
@@ -73,4 +74,4 @@ Scattering
 
 * Identifier: ``Scattering``
 
-This perturber scales the overall (global) ice scattering coefficient with reference to the baseline ice model.
+This parametrization scales the overall (global) ice scattering coefficient with reference to the baseline ice model.

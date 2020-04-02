@@ -11,5 +11,5 @@ Details on the simulation approach can be found in the `SnowStorm paper <https:/
    :maxdepth: 3
 
    introduction
-   perturber
+   parametrizations
    config

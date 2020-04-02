@@ -2,7 +2,7 @@
 SnowStorm Configuration
 =======================
 
-When producing SnowStorm simulations as described in the :ref:`Snowstorm Simulation chain <snowstorm_introduction>` (step 3), the perturbers can be easily configured by a configuration file.
+When producing SnowStorm simulations as described in the :ref:`Snowstorm Simulation chain <snowstorm_introduction>` (step 3), the parametrizations to use can be easily configured by a configuration file.
 Supported filetypes are ``json`` and ``yaml``.
 Examples of configuration files (``yaml``) can be found in the `SnowSuite <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/meta-projects/combo/trunk/simprod-scripts/resources/scripts/SnowSuite>`_ script collection.
 
@@ -12,7 +12,7 @@ An overview and details of ice models can be found on `this wikipage <https://wi
 Baseline IceModel
 -----------------
 
-Before configuring the perturbes, the baseline ice model (e.g. for Absorption and DOMEfficiency scaling) must be set by:
+Before configuring the perturber, the baseline ice model (e.g. for Absorption and DOMEfficiency scaling) must be set by:
 
 * ``IceModelLocation``
     Location of the baseline ice model to use.
@@ -20,18 +20,18 @@ Before configuring the perturbes, the baseline ice model (e.g. for Absorption an
 and
 
 * ``HoleIceParametrization``
-    Baseline HoleIce to be used. In case a HoleIce perturber is added, it will overwrite the model specified here. However, a parametrization must be specified for the first initialization.
+    Baseline HoleIce to be used. In case a HoleIce parametrization is added, it will overwrite the model specified here. However, a parametrization must be specified for the first initialization.
 
 
-Adding perturbers
------------------
+Adding Parametrizations
+-----------------------
 
-An overview of all currently implemented perturbers can be found :ref:`here <snowstorm_perturbers>`.
+An overview of all currently implemented parametrizations can be found :ref:`here <snowstorm_parametrizations>`.
 
-All perturbers that should be used/applied in the simulation can be simply added as subitems to the ``Perturbations`` section of the configuration file.
-The name must therefore match the perturber's identifier listed in :ref:`SnowStorm Perturbers <snowstorm_perturbers>`.
+All parametrizations that should be used/applied by the perturber in the simulation can be simply added as subitems to the ``Perturbations`` section of the configuration file.
+The name must therefore match the parametrization's identifier listed in :ref:`SnowStorm Parametrizations <snowstorm_parametrizations>`.
 
-For example, adding the perturber for scaling the DOMEfficiency looks like this:
+For example, adding the parametrization for scaling the DOMEfficiency looks like this:
 
 .. code-block:: yaml
 
@@ -41,7 +41,7 @@ For example, adding the perturber for scaling the DOMEfficiency looks like this:
         uniform:
             limits: [[0.9, 1.1]]
 
-The sampling distribution can be individually specified for each perturber by the ``type`` argument followed by the distribution's name.
+The sampling distribution can be individually specified for each parametrization by the ``type`` argument followed by the distribution's name.
 In the example above, a uniform sampling distribution between 0.9 and 1.1 is specified.
 
 The parameters of the sampling distributions, e.g. the limits of the uniform distribution, are defined as subitems of the distribution's name.
@@ -77,7 +77,7 @@ The following list contains all valid ``type`` identifiers for the sampling dist
     .. note::
         ``limits`` must be a list of tuples (or lists with two items).
 
-In case of a perturber depending on more than one parameter, e.g. HoleIce, multiple values for ``x0`` (delta), ``mu, sigma`` (gauss) or ``limits`` (uniform) must be given:
+In case of a parametrization depending on more than one parameter, e.g. HoleIce, multiple values for ``x0`` (delta), ``mu, sigma`` (gauss) or ``limits`` (uniform) must be given:
 
 .. code-block:: yaml
 
@@ -88,9 +88,9 @@ In case of a perturber depending on more than one parameter, e.g. HoleIce, multi
         sigma: [*sigma0*, *sigma1*]
 
 .. note:
-    There is currently no option for sampling parameters for one perturber according to two different distributions. 
+    There is currently no option for sampling parameters for one parametrization according to two different distributions. 
 
-The above distributions can be used for all perturbers listed in :ref:`SnowStorm Perturbers <snowstorm_perturbers>` except for the IceWavePlusModes which needs different identifiers:
+The above distributions can be used for all parametrizations listed in :ref:`SnowStorm Parametrizations <snowstorm_parametrizations>` except for the IceWavePlusModes which need different identifiers:
 
 .. code-block:: yaml
 
@@ -99,4 +99,4 @@ The above distributions can be used for all perturbers listed in :ref:`SnowStorm
         type: default
 
 .. note:
-    There is currently only a ``default`` perturbation type for the IceWavePlusModes. Applying them can be controlled with the ``apply`` keyword.
+    There is currently only a ``default`` type for the IceWavePlusModes. Applying them can be controlled with the ``apply`` keyword.
