@@ -1,0 +1,45 @@
+# project: snowstorm
+# reviewer: Austin Schneider
+# url: https://code.icecube.wisc.edu/svn/meta-projects/combo/branches/snobo/snowstorm
+# revision: 179605
+# date: 2020-03-30
+
+First Glance:
+* No documentation present
+* No example scripts present
+* Two python test scripts exist, although this seems lacking given that there are more than two classes in the project
+* No c++ tests exist
+* Compiles in debug mode with no warnings using snobo revision 179605
+* All tests pass
+
+Documentation:
+* No documentation
+* No output from icetray-inspect
+
+Source code:
+* Directory structure matches recommendations
+* Headers define classes that represent probability distributions
+* All these classes inherit from the `Distribution` virtual class which is in turn derived from `I3FrameObject`.
+* Classes derived from `Distribution` require a destructor, a `Sample` method that takes and `I3RandomService`, and a `LogPDF` method.
+* All classes use `icecube::serialization`.
+* Additional comments showing the mathematical operations performed at each step and a reference for those not familiar with the Cholesky decomposition multivariate normal sample method or gsl_blas are needed for `std::vector<double> MultivariateNormal::Sample(I3RandomService &rng) const`.
+* Should line 58 actually read // (x-mu)' * (L^-1)' * L^-1 * (x-mu) or // (x-mu)' * S^-1 * (x-mu) instead of // (x-mu)' * L^-1 * (x-mu) ?
+* I'm not sure what type is assigned to DistributionPtr, hopefully it's a shared pointer?
+* After reading test_Perturber.py it seems the perturbers are supposed to store values in the frame, but this is not clear from the source code alone.
+
+Coding standards:
+* Naming looks good besides the change of names from c++ to python
+* log_fatal is only present in the configuration step, no other logging
+
+Readability:
+* Overall things looks good, but there are some improvements described above that I think need to be included (context, more verbose comments)
+* Python functions could use better documentation of the arguments
+
+Usability:
+* The interface is pretty simple
+
+Other:
+* Unit tests would be pretty easy to implement for the distributions in python as there are equivalents in scipy
+
+Conclusions:
+* I didn't see anything BAD that needs to be changed, there are just some additions that need to be made before this can pass review (docs, comments, tests).
