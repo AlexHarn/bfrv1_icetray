@@ -126,11 +126,11 @@ Cable Shadow
 ------------
 
 While the IceCube DOM has nearly uniform azimuthal acceptance, roughly 1/10th
-of the photocathode is shadowed by the 2.3 cm diameter communications and power
-cable. The clsim photon propagation kernel accounts for this by recording
-photon intersections with DOMs only if the photon path does not intersect the
-cable near the DOM. The cable is assumed to be an 2.3 cm diameter, vertical,
-opqaue cylinder with infinite vertical extent, flush with the DOM sphere.
+of the photocathode is shadowed by the communications and power cable. The
+clsim photon propagation kernel accounts for this by recording photon
+intersections with DOMs only if the photon path does not intersect the cable
+near the DOM. The cable is assumed to be a vertical, opqaue cylinder with 46 mm
+diameter and infinite vertical extent, flush with the DOM sphere.
 
 This treatment, however, is disabled by default. It can be enabled by setting
 the CableOrientation parameter of I3CLSimMakePhotons (or a derived tray
