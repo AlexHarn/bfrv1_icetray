@@ -238,10 +238,11 @@ def I3CLSimMakePhotons(tray, name,
     :param DOMRadius:
         Allow the DOMRadius to be set externally, for things like mDOMs.
     :param CableOrientation:
-        Path to cable orientation file. If set, blocks photons that would have
-        to pass through the best-fit position of the cable to reach a DOM. This
-        reduces the isotropic efficiency by ~10%. Set to None to disable
-        simulation of the cable shadow.
+        Path to cable orientation file, e.g. $I3_BUILD/ice-models/resources/models/cable_position/orientation.led7.txt.
+        If set, blocks photons that would have to pass through the best-fit
+        position of the cable to reach a DOM. This reduces the isotropic
+        efficiency by ~10%. Set to None to disable simulation of the cable
+        shadow.
     :param OverrideApproximateNumberOfWorkItems:
         Allows to override the auto-detection for the maximum number of parallel work items.
         You should only change this if you know what you are doing.
@@ -305,15 +306,15 @@ def I3CLSimMakePhotons(tray, name,
     # bind to a random port on localhost
     server = clsim.I3CLSimServer('tcp://127.0.0.1:*', clsim.I3CLSimStepToPhotonConverterSeries(converters))
     address = server.GetAddress()
-    logging.log_info("Server listening at {}".format(address))
+    logging.log_info("Server listening at {}".format(address), unit="clsim")
     # stash server instance in the context to keep it alive
-    tray.context['CLSimServer'] = server
+    tray.context[name+'CLSimServer'] = server
 
     if UseGPUs:
         if UseI3PropagatorService:
-            logging.log_warn("Propagating muons and photons in the same process. This may starve your GPU.")
+            logging.log_warn("Propagating muons and photons in the same process. This may starve your GPU.", unit="clsim")
         if UseGeant4:
-            logging.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.")
+            logging.log_warn("Running Geant and photon propagation in the same process. This will likely starve your GPU.", unit="clsim")
 
     module_config = \
     tray.Add(I3CLSimMakePhotonsWithServer, name,

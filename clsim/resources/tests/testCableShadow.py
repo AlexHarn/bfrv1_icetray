@@ -4,13 +4,7 @@ import sys, os
 from I3Tray import *
 from icecube.simprod.util import *
 import icecube.simclasses
-from icecube.clsim.shadow import *
-from icecube.simclasses import I3CylinderMap
 from os.path import expandvars
-
-cable_map = I3CylinderMap()
-
-seed = 10
 
 randomService = phys_services.I3GSLRandomService(seed = 1)
 
@@ -73,14 +67,11 @@ class generateEvent(icetray.I3Module):
             self.RequestSuspension()
 
 if __name__ == "__main__":
+    icetray.logging.set_level_for_unit("testCableShadow", "INFO")
 
     tray = I3Tray()
 
     tray.AddModule("I3InfiniteSource" , "streams" , Prefix=expandvars(gcd_file),Stream = icetray.I3Frame.DAQ)
-
-    tray.Add(AddCylinders , Cable_map = cable_map ,Length_of_cylinder = 17.0, Radius_of_cylinder = 0.023)
-
-    tray.Add("Dump")
 
     tray.AddModule("I3MCEventHeaderGenerator","gen_header",
                    Year = 2009,
@@ -90,7 +81,7 @@ if __name__ == "__main__":
                    IncrementEventID=True)
 
     tray.AddModule(generateEvent , "generateEvent",
-                   Type = dataclasses.I3Particle.ParticleType.MuMinus,
+                   Type = dataclasses.I3Particle.ParticleType.EMinus,
                    NEvents = 1,
                    XCoord = -256.14,
                    YCoord = -521.08,
@@ -111,30 +102,34 @@ if __name__ == "__main__":
                     UseOnlyDeviceNumber=0,
                     UseCPUs = not usegpus,                    
                     PhotonSeriesName = photonSeriesName,
+                    MCPESeriesName = None,
                     MCTreeName = MCTreeName,
                     RandomService = randomService,
                     IceModelLocation = expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
+                    CableOrientation = None,
                     GCDFile = gcd_file)
-
-
-    tray.AddModule("I3ShadowedPhotonRemoverModule",
-                   "PhotonRemover",
-                   InputPhotonSeriesMapName = "Photons",
-                   OutputPhotonSeriesMapName = "ShadowedPhotons",
-                   Cable_Map = "CableMap",
-                   Distance = 125.0)
-
+    tray.AddSegment(clsim.I3CLSimMakePhotons,"MakePhotonsWithShadow",
+                    UseGPUs = usegpus,
+                    UseOnlyDeviceNumber=0,
+                    UseCPUs = not usegpus,
+                    PhotonSeriesName = photonSeriesName+"AfterShadow",
+                    MCPESeriesName = None,
+                    MCTreeName = MCTreeName,
+                    RandomService = randomService,
+                    IceModelLocation = expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
+                    CableOrientation = expandvars("$I3_BUILD/ice-models/resources/models/cable_position/orientation.led7.txt"),
+                    GCDFile = gcd_file)
 
     tray.AddModule("I3NullSplitter","physics")
 
     import unittest
     class SanityCheck(unittest.TestCase):
-        photons = 'Photons'
-        shadowed_photons = 'ShadowedPhotons'
+        photons = photonSeriesName
+        shadowed_photons = photonSeriesName+"AfterShadow"
 
 
         def testKeys(self):
-            self.assert_(self.shadowed_photons in self.frame, "The shadowed_photons actually shows up in the frame.")
+            self.assertTrue(self.shadowed_photons in self.frame, "The shadowed_photons actually shows up in the frame.")
 
         def testEnergy(self):
             non_shadowed = self.frame[self.photons]
@@ -147,10 +142,12 @@ if __name__ == "__main__":
             count_shadowed = 0
             for i in shadowed.values():
                 count_shadowed+= len(i)
-            print(count_photons-count_shadowed)
-            self.assert_((count_photons - count_shadowed) > 0, "Photons removed")
+            icetray.logging.log_info("photons before shadow: {} after: {}".format(count_photons, count_shadowed), unit="testCableShadow")
+            print(count_photons, count_shadowed)
+            self.assertGreater(count_photons, 0, "some photons made it to DOMs")
+            self.assertGreater(count_photons, count_shadowed, "some photons removed")
+            self.assertAlmostEqual(count_shadowed/float(count_photons), 0.9, delta=0.03, msg="approximately 10% photons removed")
 
-    tray.AddModule('Dump', 'dump')
     tray.AddModule(icetray.I3TestModuleFactory(SanityCheck), 'testy')
 
 

@@ -62,7 +62,7 @@ def configureOpenCLDevices(UseGPUs=True, UseCPUs=False, OverrideApproximateNumbe
             openCLDevices.append(device)
 
     if not openCLDevices:
-        icetray.logging.log_fatal("No matching OpenCL devices. Devices: {} Selection: UseCPUs={}, UseGPUs={}, UseOnlyDeviceNumber={}. ".format(', '.join([d.device for d in I3CLSimOpenCLDevice.GetAllDevices()]), UseCPUs, UseGPUs, UseOnlyDeviceNumber))
+        icetray.logging.log_fatal("No matching OpenCL devices. Devices: {} Selection: UseCPUs={}, UseGPUs={}, UseOnlyDeviceNumber={}. ".format(', '.join([d.device for d in I3CLSimOpenCLDevice.GetAllDevices()]), UseCPUs, UseGPUs, UseOnlyDeviceNumber), unit="clsim")
     return openCLDevices
 
 def parseIceModel(IceModelLocation, disableTilt=False):
@@ -162,7 +162,7 @@ def setupDetector(GCDFile,
         tray.Execute()
 
         if CableOrientation:
-            icetray.logging.log_warn("Explicitly simulating cable shadow. This will reduce overall DOM efficiency by ~10%.")
+            icetray.logging.log_warn("Explicitly simulating cable shadow. This will reduce overall DOM efficiency by ~10%.", unit="clsim")
             pluck_geo.frame['CableShadow'] = GetIceCubeCableShadow(CableOrientation) if isinstance(CableOrientation, str) else CableOrientation
 
         geometry = clsim.I3CLSimSimpleGeometryFromI3Geometry(
@@ -294,7 +294,7 @@ def setupDetector(GCDFile,
         for spectrum in spectrumTable:
             if spectrum:
                 wavelengthGenerators.append(clsim.makeWavelengthGenerator(spectrum, wavelengthGenerationBias, mediumProperties))
-        logging.log_info("number of spectra (1x Cherenkov + Nx flasher): {}".format(len(spectrumTable)))
+        logging.log_info("number of spectra (1x Cherenkov + Nx flasher): {}".format(len(spectrumTable)), unit="clsim")
     else:
         # no spectrum table is necessary when only using the Cherenkov spectrum
         spectrumTable = None
