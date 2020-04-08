@@ -97,6 +97,9 @@ public:
     ~impl();
 
     std::map<std::string, double> GetStatistics() const;
+
+    std::string GetAddress() const;
+
 private:
     std::vector<I3CLSimStepToPhotonConverterPtr> converters_;
     std::size_t workgroupSize_, maxBunchSize_;
@@ -111,6 +114,7 @@ private:
 
     std::thread serverThread_;
     std::vector<std::thread> workerThreads_;
+    std::string frontendAddress_;
 };
 
 I3CLSimServer::impl::impl(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) :
@@ -155,6 +159,7 @@ I3CLSimServer::impl::impl(const std::string &address, const std::vector<I3CLSimS
         // in the destructor will have an effect
         zmq::message_t ping;
         heartbeat_.recv(&ping);
+        frontendAddress_ = deserialize<std::string>(ping);
         heartbeat_.send(ping);
     }
     
@@ -219,11 +224,18 @@ void I3CLSimServer::impl::ServerThread(const std::string &bindAddress)
     control.connect("inproc://control");
     control.setsockopt(ZMQ_SUBSCRIBE, "", 0);
     {
-        // Signal main thread that we're alive
+        // Send bound address to the main thread
+        std::string boundAddress;
+        size_t size = std::max(size_t(1024), bindAddress.size());
+        boundAddress.resize(size);
+        frontend.getsockopt(ZMQ_LAST_ENDPOINT, &boundAddress.front(), &size);
+        boundAddress.resize(size);
+
         zmq::socket_t heartbeat(context_, ZMQ_REQ);
         heartbeat.connect("inproc://heartbeat");
+
         zmq::message_t ping;
-        heartbeat.send(ping);
+        heartbeat.send(serialize(boundAddress));
         heartbeat.recv(&ping);
     }
     
@@ -596,6 +608,11 @@ std::map<std::string, double> I3CLSimServer::impl::GetStatistics() const
     return summary;
 }
 
+std::string I3CLSimServer::impl::GetAddress() const
+{
+    return frontendAddress_;
+}
+
 namespace {
 
 SET_LOGGER("I3CLSimClient");
@@ -891,6 +908,11 @@ I3CLSimServer& I3CLSimServer::operator=(I3CLSimServer &&) = default;
 std::map<std::string, double> I3CLSimServer::GetStatistics() const
 {
     return impl_->GetStatistics();
+}
+
+std::string I3CLSimServer::GetAddress() const
+{
+    return impl_->GetAddress();
 }
 
 ///////////////////////// I3CLSimCleint interface /////////////////////////////

@@ -15,6 +15,13 @@ public:
     I3CLSimServer& operator=(const I3CLSimServer &) = delete;
 
     std::map<std::string, double> GetStatistics() const;
+
+    /// Get the address the server is bound to. This may differ from the
+    /// address passed to the ctor if that address contains wildcards
+    /// instructing the system to assign a random port.
+    /// See: http://api.zeromq.org/4-3:zmq-tcp
+    std::string GetAddress() const;
+
 private:
     class impl;
     std::unique_ptr<impl> impl_;

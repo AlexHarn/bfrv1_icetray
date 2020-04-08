@@ -293,7 +293,6 @@ def I3CLSimMakePhotons(tray, name,
         UseOnlyDeviceNumber=UseOnlyDeviceNumber
 	)
 
-    address = 'ipc://'+tempfile.mktemp(prefix='clsim-server-')
     converters = setupPropagators(RandomService, clsimParams,
         UseGPUs=UseGPUs,
         UseCPUs=UseCPUs,
@@ -303,7 +302,10 @@ def I3CLSimMakePhotons(tray, name,
         EnableDoubleBuffering=EnableDoubleBuffering,
         DoublePrecision=DoublePrecision
     )
-    server = clsim.I3CLSimServer(address, clsim.I3CLSimStepToPhotonConverterSeries(converters))
+    # bind to a random port on localhost
+    server = clsim.I3CLSimServer('tcp://127.0.0.1:*', clsim.I3CLSimStepToPhotonConverterSeries(converters))
+    address = server.GetAddress()
+    logging.log_info("Server listening at {}".format(address))
     # stash server instance in the context to keep it alive
     tray.context['CLSimServer'] = server
 

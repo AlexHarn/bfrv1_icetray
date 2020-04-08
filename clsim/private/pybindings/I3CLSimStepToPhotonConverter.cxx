@@ -295,6 +295,7 @@ void register_I3CLSimServer()
     
     bp::class_<I3CLSimServer, boost::shared_ptr<I3CLSimServer>, boost::noncopyable>("I3CLSimServer", bp::init<const std::string&, const ConverterSeries&>())
         .def("GetStatistics", &GetStatistics)
+        .def("GetAddress", &I3CLSimServer::GetAddress)
     ;
     
     bp::class_<I3CLSimClient, boost::shared_ptr<I3CLSimClient>, boost::noncopyable>("I3CLSimClient", bp::init<const std::string&>())

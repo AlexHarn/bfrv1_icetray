@@ -129,8 +129,8 @@ test_client(DummyConverter(), 10)
 
 # Now, call through the server in a separate process
 converters = clsim.I3CLSimStepToPhotonConverterSeries([DummyConverter()])
-address = 'ipc://'+tempfile.mktemp(prefix='clsim-server-')
-server = clsim.I3CLSimServer(address,converters)
+server = clsim.I3CLSimServer('tcp://127.0.0.1:*',converters)
+address = server.GetAddress()
 
 def fire_a_few(num_steps=10, base=0):
     # NB: the Python logging bridge deadlocks from secondary threads in Py3

@@ -461,8 +461,6 @@ while inputStream.more():
     tray.Add(Bumper, NumFrames=NumEventsPerModel)
 
     # initialize CLSim server and setup the propagators
-    server_location = tempfile.mkstemp(prefix='clsim-server-')[1]
-    address = 'ipc://'+server_location
     converters = setupPropagators(RandomService, config,
         UseGPUs=UseGPUs,
         UseCPUs=UseCPUs,
@@ -470,7 +468,8 @@ while inputStream.more():
         DoNotParallelize=DoNotParallelize,
         UseOnlyDeviceNumber=UseOnlyDeviceNumber
     )
-    server = clsim.I3CLSimServer(address, clsim.I3CLSimStepToPhotonConverterSeries(converters))
+    server = clsim.I3CLSimServer("tcp://127.0.0.1:*", clsim.I3CLSimStepToPhotonConverterSeries(converters))
+    server_location = server.GetAddress()
 
     # stash server instance in the context to keep it alive
     tray.context['CLSimServer'] = server
