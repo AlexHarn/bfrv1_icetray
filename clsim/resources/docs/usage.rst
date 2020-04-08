@@ -125,46 +125,26 @@ a python object (instead of a I3Service) is demonstrated.
 Cable Shadow
 ------------
 
-Within the IceCube Neutrino Observatory there are corrections that must be made in the simulation software to
-ensure that the results are accurate. These corrections are made due to the properties of the ice such as
-contamination from dust and changes in the absorption and scattering properties. Noise is also properly
-simulated looking at the response of the Digital Optical Modules.
+While the IceCube DOM has nearly uniform azimuthal acceptance, roughly 1/10th
+of the photocathode is shadowed by the 2.3 cm diameter communications and power
+cable. The clsim photon propagation kernel accounts for this by recording
+photon intersections with DOMs only if the photon path does not intersect the
+cable near the DOM. The cable is assumed to be an 2.3 cm diameter, vertical,
+opqaue cylinder with infinite vertical extent, flush with the DOM sphere.
 
+This treatment, however, is disabled by default. It can be enabled by setting
+the CableOrientation parameter of I3CLSimMakePhotons (or a derived tray
+segment) to the path to a file giving the azimuthal orientation of the cable at
+each DOM. Examples include:
 
-One aspect of the detector that we needed to implement was the presence of physical objects found within the
-detector that were not properly implemented. This includes the cables that provide power to the DOMs and
-transmit data to the surface. These cables affect the number of detected photons. Photons are completely
-absorbed by the cables removing them from the simulation all together. This corresponds to about 5% of photons
-produced in the simulation.
+* ice-models/resources/models/cable_position/orientation.led7.txt: positions derived from an analysis of the intensity at neighboring strings when LED 7 was flashed (source-oriented). This assumes that the angle between LED 7 and the cable is always 90 degrees, and constrains the positions to within a few degrees.
+* ice-models/resources/models/cable_position/orientation.shadow.txt: positions derived from an analysis of the received intensity compared to simulation as a function of the simulated cable position. This makes no assumptions on the rotation of the cable w.r.t. to the DOM mainboard, but only constrains the position to tens of degrees.
 
-Simulating these cables were simply implemented by introducing a set of cylinders throughout the detector. Each
-of these cylinders are placed next to a DOM oriented azimuthally in the direction best known to us due to
-flasher data. The cylinders edge is then set to be flush with the surface of the DOM and extend vertically up
-and down to a specified length to best represent the appearance of a cable. The radius of the cylinder is set to
-2.3 cm which is known from construction.
-
-
-Once these cables are implemented into the detector the set of photons which had been detected by each DOM is
-then checked to see if they interacted with the cable. The last known direction is taken from each photon and is
-then backpropagated from the surface of the DOM for a certain distance along a line. If this line intersects the
-edge of the cylinder the photon is then removed from the simulation.
-
-An example of using Cable Shadow is by first adding cylinders to the geometry::
-
-  from icecube.simclasses import I3CylinderMap
-  cable_map = I3CylinderMap()
-  tray.Add(AddCylinders , Cable_map = cable_map ,Length_of_cylinder = 17.0, Radius_of_cylinder = 0.023)
-
-Then running the I3ShadowPhotonRemoverModule to remove photons::
-
-  tray.AddModule("I3ShadowedPhotonRemoverModule",
-               "PhotonRemover",
-	       InputPhotonSeriesMapName = "Photons",
-               OutputPhotonSeriesMapName = "ShadowedPhotons",
-               Cable_Map = "CableMap",
-               Distance = 125.0)
-
-  
+Either option reduces the average DOM acceptance by 10%, but in a
+directionally-specific way. The UnshadowedFraction parameter that has been used
+to account for the cable shadow/DOM efficiency in the past is _not_
+automatically adjusted to compensate, so downstream analyzers will have to
+handle this themselves.
 
 .. figure:: First_Cable_Shadow_image.png
    :scale: 50 %
