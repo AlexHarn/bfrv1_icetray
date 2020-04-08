@@ -43,6 +43,7 @@ void register_I3CylinderMap();
 void register_I3NuGenInfo();
 void register_I3CorsikaInfo();
 void register_I3CorsikaWeight();
+void register_I3ShowerBias();
 
 BOOST_PYTHON_MODULE(simclasses)
 {
@@ -58,6 +59,7 @@ BOOST_PYTHON_MODULE(simclasses)
   register_I3NuGenInfo();  
   register_I3CorsikaInfo();
   register_I3CorsikaWeight();
+  register_I3ShowerBias();
   BOOST_PP_SEQ_FOR_EACH(I3_REGISTER, ~, REGISTER_THESE_THINGS);
 }
 

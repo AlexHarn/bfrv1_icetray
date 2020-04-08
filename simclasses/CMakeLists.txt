@@ -71,6 +71,7 @@ i3_add_pybindings(simclasses
   private/pybindings/I3NuGenInfo.cxx 
   private/pybindings/I3CorsikaInfo.cxx 
   private/pybindings/I3CorsikaWeight.cxx
+  private/pybindings/I3ShowerBias.cxx  
   USE_TOOLS boost python
   USE_PROJECTS simclasses icetray tableio
   )
