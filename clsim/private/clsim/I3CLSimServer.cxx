@@ -877,6 +877,7 @@ public:
     impl(const std::string &address, const std::vector<I3CLSimStepToPhotonConverterPtr> &converters) {}
 
     std::map<std::string, double> GetStatistics() const { return std::map<std::string, double>(); }
+    std::string GetAddress() const { return ""; }
 };
 
 class I3CLSimClient::impl : no_zmq {
