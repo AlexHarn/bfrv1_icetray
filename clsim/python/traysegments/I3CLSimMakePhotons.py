@@ -339,7 +339,7 @@ def I3CLSimMakePhotons(tray, name,
             if not 'I3SummaryService' in self.context:
                 return
             summary = self.context['I3SummaryService']
-            server = self.context['CLSimServer']
+            server = self.context[name+'CLSimServer']
             prefix = 'I3CLSimModule_'+name+'_makePhotons_clsim_'
             for k, v in server.GetStatistics().items():
                 summary[prefix+k] = v
