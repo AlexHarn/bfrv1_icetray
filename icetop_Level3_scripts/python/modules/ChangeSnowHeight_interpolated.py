@@ -64,9 +64,9 @@ class ChangeSnowHeight_interpolated(icetray.I3Module):
         csvread = csv.reader(file,delimiter=',')
         #csvread = csv.reader(file, "rU")
         ## Skip the first line (no matter how many fields are in it) -- it's a header:
-        csvread.__next__()
+        next(csvread)
         ## Save the next line... it contains the dates for each column
-        strarray = csvread.__next__()
+        strarray = next(csvread)
         
         ### --- Kath replaces the clunky routine with a more graceful one using scipy.interpolate ---
         ## Convert them all to "days since <reference date>"
