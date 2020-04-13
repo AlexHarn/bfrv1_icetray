@@ -169,6 +169,7 @@ TEST(3_number_of_events){
 	tray.GetContext().Put(earthmodelService,earthModelName);
 	tray.AddModule("I3InfiniteSource")("Stream",I3Frame::Stream('Q'));
 	tray.AddModule("VolumeLeptonInjector")
+	("EarthModel",earthModelName)
 	("NEvents",nEvents)
 	("MinimumEnergy",1e2)
 	("MaximumEnergy",1e6)
