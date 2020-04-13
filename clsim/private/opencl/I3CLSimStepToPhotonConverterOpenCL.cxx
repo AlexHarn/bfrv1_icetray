@@ -1026,7 +1026,7 @@ void I3CLSimStepToPhotonConverterOpenCL::OpenCLThread_impl_downloadPhotons(boost
 #ifdef I3_LOG4CPLUS_LOGGING
         LOG_IMPL(INFO, "Num photons to copy (buffer %u): %" PRIu32, bufferIndex, numberOfGeneratedPhotons);
 #else
-        log_info("Num photons to copy (buffer %u): %" PRIu32, bufferIndex, numberOfGeneratedPhotons);
+        log_debug("Num photons to copy (buffer %u): %" PRIu32, bufferIndex, numberOfGeneratedPhotons);
 #endif
 
 #ifdef DUMP_STATISTICS
@@ -1160,7 +1160,7 @@ I3CLSimStepToPhotonConverterOpenCL::DumpStatistics(const cl::Event &kernelFinish
              platformName.c_str(), deviceName.c_str(),
              (starving?"[starving]":""));
 #else
-    log_info("kernel statistics: %s%g nanoseconds/photon (util: %.0f%%) (%s %s) %s",
+    log_debug("kernel statistics: %s%g nanoseconds/photon (util: %.0f%%) (%s %s) %s",
              (timeStart==timeEnd)?"<=":"",
              static_cast<double>(kernel_duration_in_nanoseconds)/static_cast<double>(totalNumberOfPhotons),
              utilization*100.,

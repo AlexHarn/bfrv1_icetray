@@ -635,10 +635,10 @@ namespace I3CLSimHelper
             double xPrecision = geoDomPosMaxAbsX_inTemplate/32767.;
             double yPrecision = geoDomPosMaxAbsY_inTemplate/32767.;
             
-            log_info(" -> using 2 bytes for deltaX storage vs. string mean X. => precision=%fmm", xPrecision/I3Units::mm);
-            log_info(" -> using 2 bytes for deltaY storage vs. string mean Y. => precision=%fmm", yPrecision/I3Units::mm);
+            log_debug(" -> using 2 bytes for deltaX storage vs. string mean X. => precision=%fmm", xPrecision/I3Units::mm);
+            log_debug(" -> using 2 bytes for deltaY storage vs. string mean Y. => precision=%fmm", yPrecision/I3Units::mm);
         } else {
-            log_info(" -> using 4 byte floats for deltaX and deltaY vs. string mean (x,y)-pos");
+            log_debug(" -> using 4 byte floats for deltaX and deltaY vs. string mean (x,y)-pos");
         }
 
         const std::string typeString = useShortsInsteadOfFloats?"short":"float";
@@ -967,10 +967,10 @@ namespace I3CLSimHelper
                 }
             }
             
-            log_info("subdetector #%u (\"%s\"):", subdetectorNum, subdetectorNameList[subdetectorNum].c_str());
-            log_info("Geometry cell division: %ux%u", cellGridNumX[subdetectorNum], cellGridNumY[subdetectorNum]);
-            log_info("from x=%fm, width=%fm", cellStartX[subdetectorNum], cellWidthX[subdetectorNum]);
-            log_info("from y=%fm, width=%fm", cellStartY[subdetectorNum], cellWidthY[subdetectorNum]);
+            log_debug("subdetector #%u (\"%s\"):", subdetectorNum, subdetectorNameList[subdetectorNum].c_str());
+            log_debug("Geometry cell division: %ux%u", cellGridNumX[subdetectorNum], cellGridNumY[subdetectorNum]);
+            log_debug("from x=%fm, width=%fm", cellStartX[subdetectorNum], cellWidthX[subdetectorNum]);
+            log_debug("from y=%fm, width=%fm", cellStartY[subdetectorNum], cellWidthY[subdetectorNum]);
         }
         
         
@@ -1115,14 +1115,14 @@ namespace I3CLSimHelper
             }
         }
         
-        log_info("There are %u string sets:", numStringSets);
+        log_debug("There are %u string sets:", numStringSets);
         for (unsigned int stringSetNum=0;stringSetNum<numStringSets;++stringSetNum)
         {
-            log_info(" * Set %u:", stringSetNum);
-            log_info("   Geometry layer division: %u layers", geoLayerNum[stringSetNum]);
-            log_info("   from z=%fm, height=%fm",
-                     layerStartZ[stringSetNum],
-                     layerHeight[stringSetNum]);
+            log_debug(" * Set %u:", stringSetNum);
+            log_debug("   Geometry layer division: %u layers", geoLayerNum[stringSetNum]);
+            log_debug("   from z=%fm, height=%fm",
+                      layerStartZ[stringSetNum],
+                      layerHeight[stringSetNum]);
         }
         
         
