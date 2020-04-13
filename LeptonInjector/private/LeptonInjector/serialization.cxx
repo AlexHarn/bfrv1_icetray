@@ -288,6 +288,7 @@ namespace LeptonInjector{
             GetParameter("Overwrite", overwrite);
             if(does_file_exist( outputPath.c_str() )){
                 if(!overwrite){
+                    iAmOverwriting=true;
                     log_warn("Notice: LIC file already exists. Appending to end!");
                 }else{
                     log_warn("Notice: LIC file already exists. Overwriting!");
@@ -305,8 +306,10 @@ namespace LeptonInjector{
 		void S(boost::shared_ptr<I3Frame> frame){
 			if(frame->Has("LeptonInjectorProperties")){
 				if(!wroteParticleTypes){
-					MAKE_ENUM_VECTOR(type,I3Particle,I3Particle::ParticleType,I3PARTICLE_H_I3Particle_ParticleType);
-					writeEnumDefBlock(output, "I3Particle::ParticleType", type);
+                    if (!iAmOverwriting){
+					    MAKE_ENUM_VECTOR(type,I3Particle,I3Particle::ParticleType,I3PARTICLE_H_I3Particle_ParticleType);
+    					writeEnumDefBlock(output, "I3Particle::ParticleType", type);
+                    }
 					wroteParticleTypes=true;
 				}
 				boost::shared_ptr<const I3FrameObject> config
@@ -327,6 +330,7 @@ namespace LeptonInjector{
 		std::ofstream output;
 		bool wroteParticleTypes;
         bool overwrite;
+        bool iAmOverwriting=false; //tells the module to skip writing the EnumDefBlock part 
 	};
 	
 	I3_MODULE(InjectionConfigSerializer);
