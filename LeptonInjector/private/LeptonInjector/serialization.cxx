@@ -256,20 +256,48 @@ namespace LeptonInjector{
 		if(!os.good())
 			log_fatal("Writing volume injection config block failed");
 	}
-	
+    
+    bool does_file_exist(const char *filename){
+        /*
+        Very basic check to see if the file at the specified path exists. 
+
+        Note: will fail if file exists and is locked by another program. Will wind up problematic in a moment either way... 
+        */
+        std::ifstream infile(filename);
+        return infile.good();
+
+    }
+
 	class InjectionConfigSerializer : public I3Module{
 	public:
 		InjectionConfigSerializer(const I3Context& ctx):
-		I3Module(ctx),wroteParticleTypes(false){
+		I3Module(ctx),wroteParticleTypes(false),overwrite(false){
 			Register(I3Frame::Stream('S'),&InjectionConfigSerializer::S);
 			AddParameter("OutputPath","");
+            AddParameter("Overwrite","Overwrites LIC files on True, appends on False", false);
 			AddOutBox("OutBox");
 		}
+
+        void setOverwrite( bool overwrite_ ){
+            this->overwrite = overwrite_;
+        }
 		
 		void Configure(){
 			std::string outputPath;
 			GetParameter("OutputPath",outputPath);
-			output.open(outputPath.c_str());
+            GetParameter("Overwrite", overwrite);
+            if(does_file_exist( outputPath.c_str() )){
+                if(!overwrite){
+                    log_warn("Notice: LIC file already exists. Appending to end!");
+                }else{
+                    log_warn("Notice: LIC file already exists. Overwriting!");
+                }
+            }
+            if(overwrite){
+    		   	output.open(outputPath.c_str(), std::ofstream::out | std::ofstream::trunc);
+            }else{
+    		   	output.open(outputPath.c_str(), std::ofstream::out | std::ofstream::app);
+            }
 			if(!output.good())
 				log_fatal_stream("Failed to open " << outputPath << " for writing");
 		}
@@ -298,6 +326,7 @@ namespace LeptonInjector{
 	private:
 		std::ofstream output;
 		bool wroteParticleTypes;
+        bool overwrite;
 	};
 	
 	I3_MODULE(InjectionConfigSerializer);

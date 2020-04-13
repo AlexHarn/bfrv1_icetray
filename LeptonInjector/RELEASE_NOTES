@@ -19,3 +19,14 @@ Oct 07, 2019 Ben Smithers (bsmithers@mail.icecube.wisc.edu)
 * changed CMakeLists to include the hdf5 tool
 * fixed the header for writing LIC files
 * added module for writing LIC files as hdf5 files instead of binary files
+
+Apr 02, 2020 Ben Smithers
+--------------------------------------------------------------------
+* removed hdf5 serializer, it was never quite finished
+* fixed memory leak found by @claudiok and with suggestion by @cweaver
+* merged into Combo trunk. Hurray! 
+* wiped `python/__init__.py` of all the commented code. 
+
+Apr 12, 2020 Ben Smithers
+--------------------------------------------------------------------
+* allowed user to specify whether to append to a LIC file or overwrite it
