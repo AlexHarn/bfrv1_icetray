@@ -47,15 +47,17 @@ void CorsikaService::StartShower(I3Particle &primary, const I3Frame &frame)
 	    1e21,
 	    1e21
 	}};
-	
+
+        save_weight_=false;
 	I3ShowerBias bias(I3ShowerBias::Mu,1.0);
 	auto biases = frame.Get<I3ShowerBiasMapConstPtr>();
 	if (biases) {
 		auto it = biases->find(primary.GetID());
-		if (it != biases->end())
-			bias = it->second;
+		if (it != biases->end()){
+                  save_weight_=true;                  
+                  bias = it->second;
+                }
 	}
-
 	// Some conversions between IceTray and CORSIKA conventions:
 	// - Particle encoding: PDG -> CORSIKA
 	// - Zenith angle: relative to z axis -> relative to zenith angle at
@@ -133,17 +135,20 @@ bool CorsikaService::NextParticle(I3Particle &particle)
 
 void CorsikaService::EndEvent(I3Frame &frame)
 {
-  auto header = GetEventHeader();
-  auto trailer = GetEventEnd();
-  I3ShowerBias bias(I3ShowerBias::BiasParticleType(header[220]),
-                    header[219]);
-  I3CorsikaWeightPtr weight_obj=boost::make_shared<I3CorsikaWeight>();
-  weight_obj->primary=primary_;
-  weight_obj->bias = bias;
-  weight_obj->weight = trailer[266];
-  weight_obj->max_x = trailer[267];
-  
-  frame.Put("I3CorsikaWeight",weight_obj);
+
+  if (save_weight_){
+    auto header = GetEventHeader();
+    auto trailer = GetEventEnd();
+    I3ShowerBias bias(I3ShowerBias::BiasParticleType(header[220]),
+                      header[219]);
+    I3CorsikaWeightPtr weight_obj=boost::make_shared<I3CorsikaWeight>();
+    weight_obj->primary=primary_;
+    weight_obj->bias = bias;
+    weight_obj->weight = trailer[266];
+    weight_obj->max_x = trailer[267];
+    
+    frame.Put("I3CorsikaWeight",weight_obj);
+  }
 }
 	
 void CorsikaService::FillParticle(const std::vector<double> &block, I3Particle &particle, bool use_elevation)

@@ -12,8 +12,10 @@
 class CorsikaService : public I3IncrementalEventGeneratorService, private CorsikaClient {
 public:
 	CorsikaService(const std::string &corsika_executable) :
-	    CorsikaClient(corsika_executable)
+          CorsikaClient(corsika_executable), save_weight_(false)
 	{}
+
+  virtual ~CorsikaService(){;}
 	
 	/// @brief Start simulation for an air shower
 	///
@@ -43,6 +45,7 @@ private:
 	void FillParticle(const std::vector<double> &block, I3Particle &particle, bool use_elevation);
 
 	I3Particle primary_;
+  bool save_weight_;
 };
 
 #endif // I3CORSIKASERVICE_H_INCLUDED

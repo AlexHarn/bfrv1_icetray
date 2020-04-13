@@ -33,7 +33,7 @@ public:
 	
 	/// param[in] corsika_executable path to CORSIKA binary
 	CorsikaClient(const std::string &corsika_executable, config_type=config_type());
-	~CorsikaClient();
+  virtual ~CorsikaClient();
 	
 	/// Start a new shower simulation. Blocks until an event header and primary
 	/// are received from CORSIKA
