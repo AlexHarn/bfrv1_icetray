@@ -184,7 +184,7 @@ class I3BORSSnowCorrectionService : public I3SnowCorrectionServiceBase {
 
 };
 
-//---------------- RADE ---------------------
+//---------------- RADE #1: BASIC---------------------
 /**
  * @class I3RadeBasicSnowCorrectionService
  * @brief This one implements Kath's second attempt at a radius-dependent function
@@ -219,9 +219,44 @@ class I3RadeBasicSnowCorrectionService : public I3SnowCorrectionServiceBase {
 
 };
 
+//---------------- RADE #2: MUON---------------------
+/**
+ * @class I3RadeMuonSnowCorrectionService
+ * @brief This one implements Kath's second attempt at a radius-dependent function
+ *
+ */
+class I3RadeMuonSnowCorrectionService : public I3SnowCorrectionServiceBase {
+ public:
+  
+  /// default constructor/destructors for unit tests
+  I3RadeMuonSnowCorrectionService(const std::string& name, double rmin);
+  I3RadeMuonSnowCorrectionService(const I3Context &c);
+  virtual ~I3RadeMuonSnowCorrectionService(){}
+  
+  void Configure();
+
+  /// Standard functions
+  virtual double AttenuationFactor(const I3Position&,
+                                   double snowDepth,
+                                   const I3Particle&,
+                                   const I3LaputopParams&) const;
+
+  virtual void FillSnowDiagnostics(SnowCorrectionDiagnosticsPtr diag,
+                                   I3ParticleConstPtr hypoth,
+                                   I3LaputopParamsConstPtr paramPtr) const;
+
+  // Additional functions
+  double Slope(double r, double s125) const;
+
+ private:
+    // Internal variables
+    double fRminimum_;
+
+};
+
 I3_POINTER_TYPEDEFS( I3SnowCorrectionServiceBase );
 I3_POINTER_TYPEDEFS( I3SimpleSnowCorrectionService );
 I3_POINTER_TYPEDEFS( I3BORSSnowCorrectionService );
 I3_POINTER_TYPEDEFS( I3RadeBasicSnowCorrectionService );
-
+I3_POINTER_TYPEDEFS( I3RadeMuonSnowCorrectionService );
 #endif
