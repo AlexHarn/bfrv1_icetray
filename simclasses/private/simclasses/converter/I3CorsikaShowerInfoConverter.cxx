@@ -45,7 +45,7 @@ I3TableRowDescriptionPtr I3CorsikaShowerInfoConverter::CreateDescription(const I
   desc->AddField<double>("ghLambdac", "1/(g/cm^2)", "Gaisser-Hillas fit parameter: \"c\" part of lambda = a + bt + ct^2");
   desc->AddField<double>("ghRedChiSqr", "", "Reduced chi-square of the Gaisser-Hillas fit");
   desc->AddField<double>("resampleRadius", "m", "Radius of the resampling area");
-  desc->AddField<double>("weight", "m", "Radius of the resampling area");
+  desc->AddField<double>("weight", "", "Weighting factor due to resampling");
   desc->AddField<uint16_t>("nResample", "", "Number of samples created of the shower");
   desc->AddField<uint16_t>("nResampleNominal", "", "Nominal number of samples of the shower (what was requested).");
 
@@ -110,7 +110,7 @@ size_t I3CorsikaShowerInfoConverter::FillRows(const I3CorsikaShowerInfo& info, I
 
   if (nLongSteps_) {
     if (info.longProfile.size() != nLongSteps_) {
-      log_warn("%s: This event has a longitudinal profile with %zu steps, while "
+      log_info("%s: This event has a longitudinal profile with %zu steps, while "
 	       "the converter is configured to hold %zu longitudinal steps.",
 	       __PRETTY_FUNCTION__, info.longProfile.size(), nLongSteps_);
     }
