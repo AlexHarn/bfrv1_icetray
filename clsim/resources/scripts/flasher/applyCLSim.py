@@ -3,12 +3,15 @@
 from __future__ import print_function
 from optparse import OptionParser
 import os
+from os.path import expandvars
 import string
 
 usage = "usage: %prog [options] inputfile"
 parser = OptionParser(usage)
 parser.add_option("-o", "--outfile", default=None,
                   dest="OUTFILE", help="Write output to OUTFILE (.i3{.gz} format)")
+parser.add_option("-g", "--gcd",default=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55380_corrected.i3.gz"),
+                  dest="GCDFILE", help="Read geometry from GCDFILE (.i3{.gz} format)")
 parser.add_option("-i", "--infile", default="test_flashes.i3",
                   dest="INFILE", help="Read input from INFILE (.i3{.gz} format)")
 parser.add_option("-s", "--seed",type="int",default=12346,
@@ -111,13 +114,15 @@ else:
     photonSeriesName = "PropagatedPhotons"
 
 tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
+    GCDFile = options.GCDFILE,
     PhotonSeriesName = photonSeriesName,
-    ParallelEvents = options.MAXPARALLELEVENTS,
     RandomService = randomService,
     UseGPUs=False,
     UseCPUs=True,
+    DoNotParallelize=True,
     IceModelLocation=expandvars("$I3_BUILD/ice-models/resources/models/spice_mie"),
-    FlasherInfoVectName="I3FlasherInfo")
+    FlasherInfoVectName="I3FlasherInfo",
+    UseI3PropagatorService=False,)
 
 tray.AddModule("I3Writer","writer",
     Filename = outdir+outfile)
