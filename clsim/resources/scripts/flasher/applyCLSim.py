@@ -10,7 +10,7 @@ usage = "usage: %prog [options] inputfile"
 parser = OptionParser(usage)
 parser.add_option("-o", "--outfile", default=None,
                   dest="OUTFILE", help="Write output to OUTFILE (.i3{.gz} format)")
-parser.add_option("-g", "--gcd",default=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55380_corrected.i3.gz"),
+parser.add_option("-g", "--gcd",default=expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"),
                   dest="GCDFILE", help="Read geometry from GCDFILE (.i3{.gz} format)")
 parser.add_option("-i", "--infile", default="test_flashes.i3",
                   dest="INFILE", help="Read input from INFILE (.i3{.gz} format)")
@@ -18,8 +18,7 @@ parser.add_option("-s", "--seed",type="int",default=12346,
                   dest="SEED", help="Initial seed for the random number generator")
 parser.add_option("-r", "--runnumber", type="int", default=1,
                   dest="RUNNUMBER", help="The run number for this simulation")
-parser.add_option("-p", "--max-parallel-events", type="int", default=10,
-                  dest="MAXPARALLELEVENTS", help="maximum number of events(==frames) that will be processed in parallel")
+parser.add_option("--use-gpu", default=False, action="store_true")
 parser.add_option("--keep-photon-data", action="store_false", default=True,
                   dest="REMOVEPHOTONDATA", help="Keep I3Photons before writing the output file (in addition to I3MCPEs")
 
@@ -96,10 +95,15 @@ from icecube import icetray, dataclasses, dataio, phys_services
 from icecube import clsim
 
 # a random number generator
-randomService = phys_services.I3SPRNGRandomService(
-    seed = options.SEED,
-    nstreams = 10000,
-    streamnum = options.RUNNUMBER)
+try:
+    randomService = phys_services.I3SPRNGRandomService(
+        seed = options.SEED,
+        nstreams = 10000,
+        streamnum = options.RUNNUMBER)
+except AttributeError:
+    randomService = phys_services.I3GSLRandomService(
+        seed = options.SEED*10000 + options.RUNNUMBER,
+    )
 
 tray = I3Tray()
 
@@ -117,8 +121,8 @@ tray.AddSegment(clsim.I3CLSimMakeHits, "makeCLSimHits",
     GCDFile = options.GCDFILE,
     PhotonSeriesName = photonSeriesName,
     RandomService = randomService,
-    UseGPUs=False,
-    UseCPUs=True,
+    UseGPUs=options.use_gpu,
+    UseCPUs=not options.use_gpu,
     DoNotParallelize=True,
     IceModelLocation=expandvars("$I3_BUILD/ice-models/resources/models/spice_mie"),
     FlasherInfoVectName="I3FlasherInfo",

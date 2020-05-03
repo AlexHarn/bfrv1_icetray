@@ -9,7 +9,7 @@ parser.add_option("-o", "--outfile",default="test_flashes.i3",
                   dest="OUTFILE", help="Write output to OUTFILE (.i3{.gz} format)")
 parser.add_option("-s", "--seed",type="int",default=12344,
                   dest="SEED", help="Initial seed for the random number generator")
-parser.add_option("-g", "--gcd",default=expandvars("$I3_TESTDATA/sim/GeoCalibDetectorStatus_IC86.55380_corrected.i3.gz"),
+parser.add_option("-g", "--gcd",default=expandvars("$I3_TESTDATA/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz"),
                   dest="GCDFILE", help="Read geometry from GCDFILE (.i3{.gz} format)")
 parser.add_option("-r", "--runnumber", type="int", default=1,
                   dest="RUNNUMBER", help="The run number for this simulation")
@@ -38,10 +38,15 @@ import numpy
 tray = I3Tray()
 
 # a random number generator
-randomService = phys_services.I3SPRNGRandomService(
-    seed = options.SEED,
-    nstreams = 10000,
-    streamnum = options.RUNNUMBER)
+try:
+    randomService = phys_services.I3SPRNGRandomService(
+        seed = options.SEED,
+        nstreams = 10000,
+        streamnum = options.RUNNUMBER)
+except AttributeError:
+    randomService = phys_services.I3GSLRandomService(
+        seed = options.SEED*10000 + options.RUNNUMBER,
+    )
 
 tray.AddModule("I3InfiniteSource","streams",
                Prefix=options.GCDFILE,
