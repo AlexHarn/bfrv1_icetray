@@ -35,6 +35,7 @@
 #include "clsim/I3CLSimLightSourceToStepConverterAsync.h"
 #include "clsim/I3CLSimEventStatistics.h"
 #include "clsim/dom/I3CLSimPhotonToMCPEConverter.h"
+#include <icetray/python/gil_holder.hpp>
 
 I3_MODULE(I3CLSimClientModule);
 
@@ -867,7 +868,9 @@ bool I3CLSimClientModule::DigestOtherFrame(I3FramePtr frame)
     }
     
     assert( particleIndices.size() == lightSources.size() );
-    // Do the potentially blocking enqueue outside of the critical section
+    // Do the potentially blocking enqueue outside of the critical section,
+    // and release the GIL while blocked
+    boost::python::detail::allow_threads gatorpit;
     for (std::size_t i=0;i<lightSources.size();++i) {
         stepGenerator_->EnqueueLightSource(lightSources[i], particleIndices[i]);
         log_debug_stream("Enqueued "<<i+1<<" of "<<lightSources.size()<<" light sources");
@@ -884,8 +887,11 @@ void I3CLSimClientModule::Finish()
     Flush();
     
     // Flush step generator and wait for collector thread to stop
-    stepGenerator_->EnqueueBarrier();
-    StopThreads();
+    {
+        boost::python::detail::allow_threads gatorpit;
+        stepGenerator_->EnqueueBarrier();
+        StopThreads();
+    }
 
     // Finalize frame cache in the edge case where no frames contained work
     // NB: we are the only thread alive at this point; no need for locks
