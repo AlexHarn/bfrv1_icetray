@@ -429,6 +429,9 @@ while inputStream.more():
         if isinstance(v, icetray.I3FrameObject):
             model[k] = v
 
+    # add EventsPerModel to M-frame
+    model["SnowstormEventsPerModel"] = dataclasses.I3UInt64(NumEventsPerModel)
+
     # apply perturbations in the order they were configured
     perturber.perturb(RandomService, model)
 
