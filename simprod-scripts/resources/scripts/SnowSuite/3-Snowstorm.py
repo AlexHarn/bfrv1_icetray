@@ -483,7 +483,7 @@ while inputStream.more():
     # add CLSim server to tray
     module_config = \
         tray.Add(I3CLSimMakePhotonsWithServer,
-            ServerAddress=address,
+            ServerAddress=server_location,
             DetectorSettings=config,
             MCTreeName=MCTreeName,
             OutputMCTreeName=OutputMCTreeName,
@@ -534,9 +534,6 @@ while inputStream.more():
         summary["TotalCLSimTrayTime"] = time_CLSimTray
     else:
         summary["TotalCLSimTrayTime"] += time_CLSimTray
-
-    # remove the temp file made by the server location thingy
-    os.unlink(server_location)
     
     # increase model counter
     model_counter += 1
