@@ -17,6 +17,7 @@ parser.add_argument('--output', type=str, metavar='FILE', help='Shiny new Level 
 parser.add_argument('--MCgcd',type=str,metavar='FILE',help="GCD used in MC to use as a base.")
 parser.add_argument('--L2-gcdfile', dest='L2_gcdfile', help='Manually specify the L2 GCD file to be used. When you run in Madison with the standard L3 GCD diff, this is not needed.')
 parser.add_argument('--VEMCal-dir', dest='VEMCal_dir', help='Manually specify the directory holding VEMCal (xml) files.  When you run in Madison, this is not needed.')
+parser.add_argument('--pass2a', action="store_true", help='Look for the L2GCD in the "pass2a" location, as opposed to regular level2?')
 
 args = parser.parse_args()
 
@@ -32,7 +33,7 @@ icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_INFO)
 tray = I3Tray()
 
 if not args.L2_gcdfile:
-    gcd = icetop_Level3_scripts.functions.find_L2_GCD_from_date(args.runnumber, args.day, args.month, args.year)
+    gcd = icetop_Level3_scripts.functions.find_L2_GCD_from_date(args.runnumber, args.day, args.month, args.year, args.pass2a)
     icetray.logging.log_info('Using found L2 GCD: {0}'.format(gcd))
 else:
     icetray.logging.log_info('Using user-defined L2 GCD: %s'%args.L2_gcdfile)
