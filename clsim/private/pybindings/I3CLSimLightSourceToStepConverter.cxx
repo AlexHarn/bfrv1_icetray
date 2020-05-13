@@ -146,8 +146,13 @@ bp::tuple GetConversionResultWithBarrierInfoAndMarkers(I3CLSimLightSourceToStepC
 {
     bool barrierWasReset = false;
     auto ret = obj.GetConversionResultWithBarrierInfoAndMarkers(barrierWasReset, timeout);
-    
-    return bp::make_tuple(std::get<0>(ret), bp::list(std::get<1>(ret)), std::get<2>(ret), barrierWasReset);
+    bp::list markers(std::get<1>(ret));
+    bp::dict particleHistories;
+    for (const auto &item : std::get<2>(ret)) {
+        particleHistories[item.first] = item.second;
+    }
+
+    return bp::make_tuple(std::get<0>(ret), markers, particleHistories, barrierWasReset);
 }
 
 void register_I3CLSimLightSourceToStepConverter()

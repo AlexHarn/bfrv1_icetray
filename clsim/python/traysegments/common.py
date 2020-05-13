@@ -353,4 +353,4 @@ def setupPropagators(RandomService,
             doublePrecision=DoublePrecision
             )
         
-    return map(create_converter, openCLDevices)
+    return [create_converter(device) for device in openCLDevices]

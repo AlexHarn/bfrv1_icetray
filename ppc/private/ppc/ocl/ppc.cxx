@@ -19,6 +19,16 @@
 #include <CL/opencl.h>
 #endif
 
+#include <boost/math/common_factor_rt.hpp>
+#include <cassert>
+
+#ifdef USE_I3_LOGGING
+#include "icetray/I3Logging.h"
+#else
+#define log_info_stream(msg) \
+    do { std::cerr << msg << std::endl; } while (0)
+#endif
+
 using namespace std;
 
 namespace xppc{
@@ -429,6 +439,23 @@ namespace xppc{
       q.pz = new photon[pmxo];
     }
   }
+  
+  size_t getMaxBunchSize() { return pmxo; }
+  
+  size_t getWorkgroupSize()
+  {
+    size_t workgroupSize = 0;
+    for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++) {
+      if (workgroupSize == 0) {
+        workgroupSize = i->nthr;
+      } else {
+        workgroupSize = boost::math::lcm(workgroupSize, i->nthr);
+      }
+    }
+    
+    assert( getMaxBunchSize() % workgroupSize == 0 );
+    return workgroupSize;
+  }
 
   void fin(){
     for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++) i->set(), i->fin();
@@ -554,7 +581,7 @@ namespace xppc{
     if(old>0){
       d.hidx=0;
       for(vector<gpu>::iterator i=gpus.begin(); i!=gpus.end(); i++) i->set(), i->kernel_i();
-      cerr<<"photons: "<<old<<"  hits: "<<d.hidx<<endl;
+      log_info_stream("photons: "<<old<<"  hits: "<<d.hidx);
     }
 
     {
