@@ -1,12 +1,24 @@
 
 #include "clsim/dom/I3CLSimPhotonToMCPEConverter.h"
 #include "clsim/dom/I3PhotonToMCPEConverter.h"
+#include "simclasses/I3CompressedPhoton.h"
 
 namespace bp = boost::python;
+
+bp::object Convert_Photon(const I3CLSimPhotonToMCPEConverter &self, const ModuleKey &key, const I3CompressedPhoton &photon)
+{
+    auto hit = self.Convert(key, photon);
+    if (hit) {
+        return bp::make_tuple(std::get<0>(*hit), std::get<1>(*hit));
+    } else {
+        return bp::object();
+    }
+}
 
 void register_I3CLSimPhotonToMCPEConverter()
 {
     bp::class_<I3CLSimPhotonToMCPEConverter, boost::shared_ptr<I3CLSimPhotonToMCPEConverter>, boost::noncopyable>("I3CLSimPhotonToMCPEConverter", bp::no_init)
+        .def("Convert", Convert_Photon)
     ;
 }
 

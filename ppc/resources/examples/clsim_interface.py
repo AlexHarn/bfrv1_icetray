@@ -6,16 +6,20 @@ Demo: feeding the same steps through CLSim and PPC
 
 from __future__ import print_function
 
-from icecube import ppc, clsim, phys_services, dataclasses
+from icecube import icetray, ppc, clsim, phys_services, dataclasses, simclasses
 from os.path import expandvars, join, isfile
 from os import environ
 import tempfile, shutil
 
 import numpy
 
-# DetectorParams = clsim.traysegments.common.setupDetector(expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'), DOMOversizeFactor=16)
-DetectorParams = clsim.traysegments.common.setupDetector(expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'), DOMOversizeFactor=10)
-
+DetectorParams = clsim.traysegments.common.setupDetector(
+    GCDFile=expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'),
+    DOMOversizeFactor=1,
+    HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.nominal"),
+    IceModelLocation=expandvars("$I3_SRC/ice-models/resources/models/spice_3.2.2-for_clsim")
+)
+icetray.logging.set_level_for_unit('ppc', 'WARN')
 
 rng = phys_services.I3GSLRandomService(0)
 
@@ -46,7 +50,7 @@ stepGenerator.Initialize()
 
 p = dataclasses.I3Particle()
 p.type = p.EMinus
-p.energy = 1e4
+p.energy = 1e2
 p.time = 0
 p.pos = dataclasses.I3Position(0,0,-400)
 p.dir = dataclasses.I3Direction(0,0)
@@ -80,4 +84,36 @@ while True:
 	if barrierWasReset:
 		break
 
-# numpy.savez('photons', **photons)
+n_ppc = len(photons['ppc'])
+n_clsim = len(photons['clsim'])
+print('total unweighted {ppc: %d, clsim: %d} photons (ppc/clsim=%.3f)' % (n_ppc, n_clsim, n_ppc/float(n_clsim)))
+n_ppc = sum([p.weight for p in photons['ppc']])
+n_clsim = sum([p.weight for p in photons['clsim']])
+print('total weighted {ppc: %d, clsim: %d} photons (ppc/clsim=%.3f)' % (n_ppc, n_clsim, n_ppc/float(n_clsim)))
+
+# Down-convert to MCPEs. If the Cherenkov photon generator is configured
+# correctly, this should remove any constant or wavelength-dependent scale
+# factors that may be present in the raw number of detected photons.
+hitter = clsim.I3CLSimPhotonToMCPEConverterForDOMs(
+    rng,
+    DetectorParams['WavelengthAcceptance'],
+    DetectorParams['AngularAcceptance']
+)
+def generate_mcpe(photons):
+	for clsim_photon in photons:
+		p = simclasses.I3CompressedPhoton()
+		p.dir = clsim_photon.dir
+		p.pos = clsim_photon.pos
+		p.time = clsim_photon.time
+		p.wavelength = clsim_photon.wavelength
+		p.weight = clsim_photon.weight
+		key = dataclasses.ModuleKey(clsim_photon.stringID, clsim_photon.omID)
+		hit = hitter.Convert(key, p)
+		if hit:
+			yield hit[1]
+
+n_ppc = len(list(generate_mcpe(photons['ppc'])))
+n_clsim = len(list(generate_mcpe(photons['clsim'])))
+print('total {ppc: %d, clsim: %d} MCPE (ppc/clsim=%.3f)' % (n_ppc, n_clsim, n_ppc/float(n_clsim)))
+
+numpy.savez('photons', **photons)
