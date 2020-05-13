@@ -628,8 +628,10 @@ __kernel void propagate(__private uint num,
       float sy=max(0.f, ra*e.bfr[4]*exp(-e.bfr[5]*pow(atan(e.bfr[7]*sdt), e.bfr[6])));
       float mx=max(0.f, rb*e.bfr[8]*atan(e.bfr[11]*sdt*cdt)*exp(-e.bfr[9]*sdt+e.bfr[10]*cdt));
 
-      float dnx=sx*grnd(&s)+mx;
-      float dny=sy*grnd(&s);
+      float r=sqrt(-2*log(xrnd(&s)));
+      float q=2*FPI*xrnd(&s);
+      float dnx=sx*r*sin(q)+mx;
+      float dny=sy*r*cos(q);
 
       dnx/=2, dny/=2;
       float den=dnx*dnx+dny*dny;
