@@ -40,7 +40,7 @@ def MakeCLSimPropagator(DetectorParams, UseCPUs=False, UseGPUs=True):
     with open(join(tmpdir, 'cfg.txt'), 'w') as f:
         write = lambda v: f.write('{}\n'.format(v))
         write(DetectorParams['DOMOversizeFactor'])
-        write(DetectorParams['UnshadowedFraction'])
+        write(DetectorParams['UnshadowedFraction']*DetectorParams['MediumProperties'].efficiency)
 
         # FIXME: extract scattering parameters from ice model
         icemodel = DetectorParams['MediumProperties']
