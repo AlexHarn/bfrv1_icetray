@@ -16,6 +16,7 @@ if(OPENCL_FOUND)
     USE_TOOLS opencl
     )
   target_link_libraries(ppc xppc)
+  target_link_libraries(xppc icetray)
   target_compile_definitions(xppc PRIVATE -DXLIB -DUSE_I3_LOGGING)
   i3_add_pybindings(ppc
     private/ppc/pybindings.cxx
