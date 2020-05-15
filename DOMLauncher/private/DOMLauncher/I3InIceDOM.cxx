@@ -96,7 +96,10 @@ void I3InIceDOM::CreateLCLinks(const I3DOMMap& domMap,const I3OMGeoMap &domGeo){
 void I3InIceDOM::MakeCoarseChargeStamp(const dlud::DiscCross& discrx,
                                        int chip,
                                        I3DOMLaunch &domLaunch){
-   double analogReadOut[nFADCCoarseChargeStampBins];
+   //One extra trailing bin must be digitized in case the last bin checked
+   //(nFADCCoarseChargeStampBins-1) is the highest and we need to report 
+   //the sample after it. 
+   double analogReadOut[nFADCCoarseChargeStampBins+1];
    std::vector<int>& coarseChargeStamp = domLaunch.GetRawChargeStamp();
    int max = 0;
    uint index = 0;
@@ -105,15 +108,16 @@ void I3InIceDOM::MakeCoarseChargeStamp(const dlud::DiscCross& discrx,
    //bin and its neighbors in the 16 first bins.
    if(discrx.type == dlud::HLC || discrx.type == dlud::CPU_REQUESTED){
       std::vector<int> &rawWaveForm = domLaunch.GetRawFADC();
-      for(uint i = 0; i < nFADCCoarseChargeStampBins; i++){
+      for(uint i = 0; i < nFADCCoarseChargeStampBins+1; i++){
          analogReadOut[i] = rawWaveForm[i];
-         if(rawWaveForm[i]>max){
+         //only the bins [1,nFADCCoarseChargeStampBins] are checked for being the maximum
+         if(i>0 && i<nFADCCoarseChargeStampBins && analogReadOut[i]>max){
             max = rawWaveForm[i];
             index = i;
          }
       }
    }
-    else if(discrx.type == dlud::SLC){//If launch is SLC we need to compute the 16 bin
+    else if(discrx.type == dlud::SLC){//If launch is SLC we need to compute the 17 bin
                                 //long waveform to decide which bin in the largest.
         double gain = domCal_.fadcGain;
         double transitDeltaTime = transitTime_ - domCal_.fadcDeltaT;
@@ -129,17 +133,17 @@ void I3InIceDOM::MakeCoarseChargeStamp(const dlud::DiscCross& discrx,
             return;
         }
         //making sure the array is reset to zero
-        for(uint i = 0; i < nFADCCoarseChargeStampBins; i++) analogReadOut[i] = 0;
+        for(uint i = 0; i < nFADCCoarseChargeStampBins+1; i++) analogReadOut[i] = 0;
     
 
-      for(uint i = 0; i < nFADCCoarseChargeStampBins; i++){
+      for(uint i = 0; i < nFADCCoarseChargeStampBins+1; i++){
         double binTime = discrx.time + (i+1)*binLength;
         double t = binTime - transitDeltaTime;
         analogReadOut[i] += norm * waveform_.WaveFormAmplitude(t,*fadcSPETemplatePtr_);         
       }
 
       //digitizing waveform
-      for( uint i = 0; i < nFADCCoarseChargeStampBins; i++){
+      for(uint i = 0; i < nFADCCoarseChargeStampBins+1; i++){
 
          // convert from GV to counts
          analogReadOut[i] /= gain;
@@ -151,25 +155,25 @@ void I3InIceDOM::MakeCoarseChargeStamp(const dlud::DiscCross& discrx,
          //10 bits, 2^10-1
          if(analogReadOut[i] > digitizerDynamicRange) analogReadOut[i] = digitizerDynamicRange;
          if(analogReadOut[i] < 0) analogReadOut[i] = 0;
-         if(max < analogReadOut[i]){
+         //only the bins [1,nFADCCoarseChargeStampBins] are checked for being the maximum
+         if(i>0 && i<nFADCCoarseChargeStampBins && max<analogReadOut[i]){
             max = int(analogReadOut[i]);
             index = i;
       }
     }
 
   }
-  //Recording the neighboring bins of the maximum too. Exceptions are when the maximum
-  //is bin 0 or 15 then we send 0,1,2 and 13,14,15 respectivaly.
-  if(index == 15) coarseChargeStamp.push_back(int(analogReadOut[index - 2]));
+  //Recording the neighboring bins of the maximum too. There is an exception 
+  //when the maximum is bin 0; then we send 0,1,2, and change the 'maximum'
+  //index to be the middle of the shifted range. 
+  //if(index == 0) index = 1;
+  assert(index>0 && index<nFADCCoarseChargeStampBins);
 
-  if(index > 0) coarseChargeStamp.push_back(int(analogReadOut[index - 1]));
-
+  coarseChargeStamp.push_back(int(analogReadOut[index - 1]));
   coarseChargeStamp.push_back(int(analogReadOut[index]));
+  coarseChargeStamp.push_back(int(analogReadOut[index + 1]));
 
-  if(index < 15) coarseChargeStamp.push_back(int(analogReadOut[index + 1]));
-
-  if(index == 0) coarseChargeStamp.push_back(int(analogReadOut[index + 2]));
-  domLaunch.SetChargeStampHighestSample(index+1);
+  domLaunch.SetChargeStampHighestSample(index);
 
   //Extra trickiness: Charge stamps are stored in payloads as 3 9-bit integers
   //plus one extra 'exponent' bit.

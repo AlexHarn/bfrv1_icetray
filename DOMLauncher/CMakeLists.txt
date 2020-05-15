@@ -68,6 +68,7 @@ if(SUITESPARSE_FOUND)
 if(EXISTS ${CMAKE_SOURCE_DIR}/wavedeform)
     LIST(APPEND LIB_${PROJECT_NAME}_TEST_SOURCEFILES
         private/test/RoundTripChargeTest.cxx
+        private/test/RoundTripTimingTest.cxx
         private/test/PulseTemplateTests.cxx
     )
 
