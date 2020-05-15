@@ -50,13 +50,12 @@ def MakeCLSimPropagator(DetectorParams, UseCPUs=False, UseGPUs=True):
     
     shutil.copy(expandvars('$I3_BUILD/ppc/resources/ice/rnd.txt'), tmpdir)
     
+    # configure unit angular acceptance, disabling angular downsampling in PPC
     with open(join(tmpdir, 'as.dat'), 'w') as f:
-        write = lambda v: f.write('{}\n'.format(v))
-        # FIXME get maximum value from somewhere
-        write(1.0)
-        for c in DetectorParams['AngularAcceptance'].GetCoefficients():
-            write(c)
+        for _ in range(2):
+            f.write('{}\n'.format(1.0))
 
+    # convert generation bias to cumulative distribution of photon wavelengths
     with open(join(tmpdir, 'wv.dat'), 'w') as f:
         # integrate Cherenkov spectrum weighted with given bias
         bias = DetectorParams['WavelengthGenerationBias']

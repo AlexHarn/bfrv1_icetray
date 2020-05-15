@@ -45,10 +45,11 @@ void I3CLSimStepToPhotonConverterPPC::Initialize()
         om.r[2]=geometry_->GetPosZ(i)/I3Units::m;
         xppc::i3oms.push_back(om);
         
-        // NB: since we disabled PE generation, PMT high voltage and relative
-        // DOM efficiency don't actually matter here
-        xppc::hvs[om]=0;
-        xppc::rdes[om]=std::make_pair(1., 0);
+        // Setting PMT high voltage > 0, RDE to 1.0, and om type to 1, and
+        // as.dat to 1\n1, prevents xppc::print() from down-sampling photons
+        // to account for wavelength and angular efficiency.
+        xppc::hvs[om]=1200;
+        xppc::rdes[om]=std::make_pair(1.0, 1);
     }
 
     int gpu(-1);
@@ -56,8 +57,7 @@ void I3CLSimStepToPhotonConverterPPC::Initialize()
     
     xppc::choose(gpu);
     xppc::ini();
-    xppc::setSaveAllPhotons(true);
-    
+
     // Harmonize bunch sizes
     maxBunchSize_ = xppc::getMaxBunchSize();
     workgroupSize_ = xppc::getWorkgroupSize();

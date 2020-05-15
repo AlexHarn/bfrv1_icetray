@@ -13,9 +13,6 @@ namespace xppc{
 
   size_t getMaxBunchSize();
   size_t getWorkgroupSize();
-  // if true, emit all photons that hit DOMs, otherwise, sub-sample according
-  // to angular efficiency
-  void setSaveAllPhotons(bool);
 
   struct mcid:std::pair<int,unsigned long long>{
     int frame;

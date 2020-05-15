@@ -207,10 +207,6 @@ float res(float val, float bin){
   return bin>0?(floor(val/bin)+0.5)*bin:val;
 }
 
-bool saveAllPhotons=false;
-
-void setSaveAllPhotons(bool v) { saveAllPhotons=v; }
-
 deque<mcid> flnz;
 
 struct pout{
@@ -251,7 +247,7 @@ void print(){
 
     name n=q.names[h.i];
 
-    bool flag=saveAllPhotons || n.hv>0;
+    bool flag=n.hv>0;
 
     float nx, ny, nz, rx, ry, rz;
 
@@ -262,7 +258,7 @@ void print(){
       nx=pts*ppc, ny=pts*pps, nz=ptc;
     }
 
-    if(flag && !saveAllPhotons){
+    if(flag){
       if(q.mas>0){
 	float sum;
 	{
@@ -279,7 +275,7 @@ void print(){
       }
     }
 
-    if(flag && !saveAllPhotons){
+    if(flag){
       float rc=0.023f;
       float dc=OMR+rc;
 
@@ -300,7 +296,7 @@ void print(){
       }
     }
 
-    if(flag && !saveAllPhotons){
+    if(flag){
       float rde=n.rde, f;
       if(rdef){
 	float r=q.rde[h.z];
