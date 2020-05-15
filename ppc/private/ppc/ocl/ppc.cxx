@@ -19,7 +19,6 @@
 #include <CL/opencl.h>
 #endif
 
-#include <boost/math/common_factor_rt.hpp>
 #include <cassert>
 
 #ifdef USE_I3_LOGGING
@@ -409,6 +408,10 @@ namespace xppc{
     return gcd(b%a, a);
   }
 
+  int lcm(int a, int b){
+    return a*b/gcd(a, b);
+  }
+
   vector<gpu> gpus;
 
   void ini(){
@@ -449,7 +452,7 @@ namespace xppc{
       if (workgroupSize == 0) {
         workgroupSize = i->nthr;
       } else {
-        workgroupSize = boost::math::lcm(workgroupSize, i->nthr);
+        workgroupSize = lcm(workgroupSize, i->nthr);
       }
     }
     
