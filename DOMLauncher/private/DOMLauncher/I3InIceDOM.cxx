@@ -163,10 +163,6 @@ void I3InIceDOM::MakeCoarseChargeStamp(const dlud::DiscCross& discrx,
     }
 
   }
-  //Recording the neighboring bins of the maximum too. There is an exception 
-  //when the maximum is bin 0; then we send 0,1,2, and change the 'maximum'
-  //index to be the middle of the shifted range. 
-  //if(index == 0) index = 1;
   assert(index>0 && index<nFADCCoarseChargeStampBins);
 
   coarseChargeStamp.push_back(int(analogReadOut[index - 1]));
