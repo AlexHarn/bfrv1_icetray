@@ -13,9 +13,18 @@ import tempfile, shutil
 
 import numpy
 
+parser = ArgumentParser()
+parser.add_argument('-g', '--gcd-file', default=expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'))
+parser.add_argument('--use-gpus', default=False, action='store_true')
+parser.add_argument('--oversize', default=1, type=int)
+parser.add_argument('--energy', default=1e3, type=float)
+parser.add_argument('-o', '--output-file', default=None)
+
+args = parser.parse_args()
+
 DetectorParams = clsim.traysegments.common.setupDetector(
-    GCDFile=expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'),
-    DOMOversizeFactor=1,
+    GCDFile=args.gcd_file,
+    DOMOversizeFactor=args.oversize,
     HoleIceParameterization=expandvars("$I3_SRC/ice-models/resources/models/angsens/as.nominal"),
     IceModelLocation=expandvars("$I3_SRC/ice-models/resources/models/spice_3.2.2-for_clsim")
 )
@@ -24,9 +33,9 @@ icetray.logging.set_level_for_unit('ppc', 'WARN')
 rng = phys_services.I3GSLRandomService(0)
 
 from icecube.ppc import MakeCLSimPropagator
-ppcer = MakeCLSimPropagator(DetectorParams, UseGPUs=False, UseCPUs=True)
+ppcer = MakeCLSimPropagator(DetectorParams, UseGPUs=args.use_gpus, UseCPUs=not args.use_gpus)
 
-clsimer = clsim.traysegments.common.setupPropagators(rng, DetectorParams, UseCPUs=True)[0]
+clsimer = clsim.traysegments.common.setupPropagators(rng, DetectorParams, UseCPUs=not args.use_gpus)[0]
 
 print('---> ppc granularity %d, bunch size %d' % (ppcer.workgroupSize, ppcer.maxNumWorkitems))
 print('---> clsim granularity %d, bunch size %d' % (clsimer.workgroupSize, clsimer.maxNumWorkitems))
@@ -37,6 +46,9 @@ except ImportError:
     from fractions import gcd
 lcm = lambda a,b: a*b/gcd(a,b)
 granularity = int(lcm(ppcer.workgroupSize, clsimer.workgroupSize))
+maxBunchSize = min((clsimer.maxNumWorkitems, ppcer.maxNumWorkitems))
+maxBunchSize -= (maxBunchSize % granularity)
+print('---> common granularity %d, bunch size %d' % (granularity, maxBunchSize))
 
 stepGenerator = clsim.I3CLSimLightSourceToStepConverterAsync()
 
@@ -44,13 +56,13 @@ stepGenerator.SetLightSourceParameterizationSeries(DetectorParams['Parameterizat
 stepGenerator.SetMediumProperties(DetectorParams['MediumProperties'])
 stepGenerator.SetRandomService(rng)
 stepGenerator.SetWlenBias(DetectorParams['WavelengthGenerationBias'])
-stepGenerator.SetMaxBunchSize(clsimer.maxNumWorkitems)
+stepGenerator.SetMaxBunchSize(maxBunchSize)
 stepGenerator.SetBunchSizeGranularity(granularity)
 stepGenerator.Initialize()
 
 p = dataclasses.I3Particle()
 p.type = p.EMinus
-p.energy = 1e2
+p.energy = args.energy
 p.time = 0
 p.pos = dataclasses.I3Position(0,0,-400)
 p.dir = dataclasses.I3Direction(0,0)
@@ -116,4 +128,5 @@ n_ppc = len(list(generate_mcpe(photons['ppc'])))
 n_clsim = len(list(generate_mcpe(photons['clsim'])))
 print('total {ppc: %d, clsim: %d} MCPE (ppc/clsim=%.3f)' % (n_ppc, n_clsim, n_ppc/float(n_clsim)))
 
-numpy.savez('photons', **photons)
+if args.output_file:
+    numpy.savez(args.output_file, **photons)
