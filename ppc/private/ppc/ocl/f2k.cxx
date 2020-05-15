@@ -64,7 +64,7 @@ float yield(float E, int type){  // cascades
    *     anti_proton parameterization.
    **/
 
-  p.n.s[3]=0, p.f=0;
+  p.n.w=0, p.f=0;
 
   if(type>100){
     float E0, m, f0, rms0, gamma;
@@ -135,7 +135,7 @@ float yield(float E, int type){  // cascades
     }
   }
   else if(type<0){
-    p.n.s[3]=7.5f;
+    p.n.w=7.5f;
     p.f=0;
     p.a=0; p.b=0;
   }
@@ -165,7 +165,7 @@ float yield(float E, float dr){  // bare muon
   float logE=logf(max(m0, E));
   float extr=1+max(0.0f, 0.1880f+0.0206f*logE);
   float nph=dr>0?dr*extr:0;
-  p.n.s[3]=dr;
+  p.n.w=dr;
   p.f=1/extr;
   p.a=0, p.b=0;
   return q.eff*ppm*nph;
@@ -452,7 +452,7 @@ unsigned long long bnldev(unsigned long long n, double pp){
 
 template <class T> void addp(float rx, float ry, float rz, float t, float E, T xt, float scale = 1){
   p.type=0;
-  p.r.s[3]=t; p.r.s[0]=rx; p.r.s[1]=ry; p.r.s[2]=rz;
+  p.r.w=t; p.r.x=rx; p.r.y=ry; p.r.z=rz;
   p.beta=1; p.tau=0;
 
   unsigned long long num=poidev(scale*yield(E, xt)/ovr);
@@ -467,8 +467,8 @@ template void addp(float, float, float, float, float, float, float);
 
 void addp_clst(float rx, float ry, float rz, float t, unsigned long long n, float dr, float beta){
   p.type=0;
-  p.r.s[3]=t; p.r.s[0]=rx; p.r.s[1]=ry; p.r.s[2]=rz;
-  p.n.s[3]=dr; p.f=1.f; p.a=0, p.b=0;
+  p.r.w=t; p.r.x=rx; p.r.y=ry; p.r.z=rz;
+  p.n.w=dr; p.f=1.f; p.a=0, p.b=0;
   p.beta=beta; p.tau=0;
 
   // when 0<q.mas<1 assume n is given for DOM w/o the maximum of the OM sensitivy curve rescaling (i.e. as if q.mas=1)
@@ -479,8 +479,8 @@ void addp_clst(float rx, float ry, float rz, float t, unsigned long long n, floa
 
 void addp_mopo(float rx, float ry, float rz, float t, float light, float length, float beta, float tau, float fr){
   p.type=0;
-  p.r.s[3]=t; p.r.s[0]=rx; p.r.s[1]=ry; p.r.s[2]=rz;
-  p.n.s[3]=length; p.f=fr; p.a=0; p.b=0;
+  p.r.w=t; p.r.x=rx; p.r.y=ry; p.r.z=rz;
+  p.n.w=length; p.f=fr; p.a=0; p.b=0;
   p.beta=beta; p.tau=tau;
 
   unsigned long long num=poidev(light*ppm*q.eff/ovr);
@@ -506,7 +506,7 @@ void efin(){
 void sett(float nx, float ny, float nz, pair<int,unsigned long long> id, int frame){
   mcid ID; ID.first=id.first; ID.second=id.second; ID.frame=frame;
   flnz.push_back(ID); finc();
-  p.q=flne; p.n.s[0]=nx; p.n.s[1]=ny; p.n.s[2]=nz;
+  p.q=flne; p.n.x=nx; p.n.y=ny; p.n.z=nz;
 }
 #else
 
@@ -525,7 +525,7 @@ void f2k(){
       th=180-th; ph=ph<180?ph+180:ph-180;
       th*=FPI/180; ph*=FPI/180;
       float costh=cosf(th), sinth=sinf(th), cosph=cosf(ph), sinph=sinf(ph);
-      p.q=flne; p.n.s[0]=sinth*cosph; p.n.s[1]=sinth*sinph; p.n.s[2]=costh;
+      p.q=flne; p.n.x=sinth*cosph; p.n.y=sinth*sinph; p.n.z=costh;
       if(0==strcmp(name, "amu+") || 0==strcmp(name, "amu-") || 0==strcmp(name, "amu")) addp(x, y, z, t, E, l);
       else{
 	int type=0;
@@ -602,8 +602,8 @@ const DOM& flset(int str, int dom){
       }
   }
 
-  p.r.s[0]=r[0]; p.r.s[1]=r[1]; p.r.s[2]=r[2]; p.r.s[3]=0;
-  p.n.s[0]=0; p.n.s[1]=0; p.n.s[2]=1;
+  p.r.x=r[0]; p.r.y=r[1]; p.r.z=r[2]; p.r.w=0;
+  p.n.x=0; p.n.y=0; p.n.z=1;
 
   float fwid=9.7f;
   {

@@ -18,6 +18,9 @@ if(OPENCL_FOUND)
   target_link_libraries(ppc xppc)
   target_link_libraries(xppc icetray)
   target_compile_definitions(xppc PRIVATE -DXLIB -DUSE_I3_LOGGING)
+  set_target_properties(xppc PROPERTIES
+    CXX_EXTENSIONS YES
+  )
   i3_add_pybindings(ppc
     private/ppc/pybindings.cxx
     USE_PROJECTS clsim ppc
