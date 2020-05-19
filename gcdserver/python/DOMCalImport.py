@@ -219,15 +219,19 @@ def doInsert(db, runValid, i3msHost, files):
     errCode = 0
     fileCnt = 0
     with calDBInserter(db, runValid, i3msHost) as inserter:
-        importer = DOMCalImporter(geoDB, inserter)
-        for file in files:
-            try:
-                importer.importFile(os.path.abspath(file))
-                fileCnt += 1
-            except Exception as e:
-                errCode = -1
-                print("Unable to import file %s: %s" % (file, e))
-        inserter.commit()
+        # Import in 1000 file chunks to avoid overloading I3MS memory
+        CHKSZ = 1000
+        chunks = [files[x : x + CHKSZ] for x in range(0, len(files), CHKSZ)]
+        for chunk in chunks:
+            importer = DOMCalImporter(geoDB, inserter)
+            for file in chunk:
+                try:
+                    importer.importFile(os.path.abspath(file))
+                    fileCnt += 1
+                except Exception as e:
+                    errCode = -1
+                    print("Unable to import file %s: %s" % (file, e))
+            inserter.commit()
     print("Imported %d DOMCal file(s)" % fileCnt)
     return errCode
 
