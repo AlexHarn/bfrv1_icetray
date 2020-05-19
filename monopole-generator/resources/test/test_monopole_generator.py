@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import unittest
 from icecube import icetray, dataclasses, dataio
 from icecube import monopole_generator
