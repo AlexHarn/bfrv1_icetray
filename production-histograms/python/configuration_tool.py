@@ -1,7 +1,12 @@
 import os
 import sys
 import glob
-from icecube import icetray, dataio, dataclasses, simclasses, recclasses
+
+import icecube
+import icecube.icetray
+import icecube.dataio
+import icecube.dataclasses
+import icecube.simclasses
 
 from icecube.production_histograms.generate_collection_name import generate_collection_name
 from icecube.production_histograms.histogram_modules.simulation.mctree_primary import I3MCTreePrimaryModule
@@ -15,12 +20,12 @@ from icecube.production_histograms.histograms.simulation.noise_occupancy import 
 from icecube.production_histograms.histograms.particle_histogram_generator import generate_particle_histograms
 
 _type_to_histogram = {
-    dataclasses.I3MCTree: [I3MCTreePrimaryModule, I3MCTreeModule, SecondaryMultiplicity],
-    simclasses.I3MCPESeriesMap: [I3MCPEModule, NoiseOccupancy],
-    simclasses.I3MCPulseSeriesMap: [PMTResponseModule],
-    dataclasses.I3DOMLaunchSeriesMap: [InIceResponseModule],
-    dataclasses.I3TriggerHierarchy: [TriggerModule],
-    dataclasses.I3Particle: []
+    icecube.dataclasses.I3MCTree: [I3MCTreePrimaryModule, I3MCTreeModule, SecondaryMultiplicity],
+    icecube.simclasses.I3MCPESeriesMap: [I3MCPEModule, NoiseOccupancy],
+    icecube.simclasses.I3MCPulseSeriesMap: [PMTResponseModule],
+    icecube.dataclasses.I3DOMLaunchSeriesMap: [InIceResponseModule],
+    icecube.dataclasses.I3TriggerHierarchy: [TriggerModule],
+    icecube.dataclasses.I3Particle: []
 }
 
 def _known_type(frame_object):
@@ -63,7 +68,7 @@ def _configure_from_frame(frame, frame_key):
     
     if _known_type(frame_object):
         # this is something we want to histogram
-        if isinstance(frame_object, dataclasses.I3Particle):
+        if isinstance(frame_object, icecube.dataclasses.I3Particle):
             histograms.extend(generate_particle_histograms(frame_key))
         else:
             for module in _get_modules(frame_object):
@@ -81,8 +86,13 @@ def _configure(filename, histograms):
     assert(isinstance(histograms, dict))
     goodfile = True
     try:
-        i3file = dataio.I3File(filename)
+        i3file = icecube.dataio.I3File(filename)
         for frame in i3file:
+            # Don't attempt to deserialize TrayInfo frames.
+            # This throws the following error:
+            # SystemError: <Boost.Python.function object at 0x291b310> returned a result with an error set
+            if frame.Stop == icecube.icetray.I3Frame.TrayInfo:
+                continue
             for frame_key in frame.keys():
                 if frame_key not in histograms:
                     hlist = _configure_from_frame(frame, frame_key)
@@ -100,10 +110,10 @@ def generate_histogram_configuration_list(i3files):
     out which histograms need to be loaded.
     '''
     if not isinstance(i3files, list):
-        icetray.logging.log_fatal("Expecting a list of I3File names.")    
+        icecube.icetray.logging.log_fatal("Expecting a list of I3File names.")    
 
     if not i3files:
-        icetray.logging.log_fatal("Passed an empty list")    
+        icecube.icetray.logging.log_fatal("Passed an empty list")    
         
     histograms = dict()
     good_filelist = list()
@@ -112,7 +122,7 @@ def generate_histogram_configuration_list(i3files):
     file_counter = 0
     for filename in i3files:
         file_counter += 1
-        icetray.logging.log_info("Processing file (%d/%d): %s " % (file_counter, len(i3files), filename))
+        icecube.icetray.logging.log_info("Processing file (%d/%d): %s " % (file_counter, len(i3files), filename))
         if _configure(filename, histograms):
             good_filelist.append(filename)
         else:
