@@ -63,6 +63,35 @@ I3PhotonConverter::CreateDescription
     return desc;
 }
 
+I3TableRowDescriptionPtr
+I3CompressedPhotonSeriesMapConverter::CreateDescription
+(const value_type &value)
+{
+    I3TableRowDescriptionPtr desc(new I3TableRowDescription());
+
+    desc->isMultiRow_ = true;
+    desc->AddField<int32_t>("string", "", "String number");
+    desc->AddField<uint32_t>("om", "", "OM number");
+    desc->AddField<tableio_size_t>("vector_index", "", "index in vector");
+
+    desc->AddField<double>  ("weight",             "",       "photon weight");
+    desc->AddField<uint64_t>("partmajorid",        "",       "negative log likelihood");
+    desc->AddField<int32_t> ("partminorid",        "",       "negative log likelihood");
+
+    desc->AddField<double>  ("wavelength",         "nm",     "the photon wavelength");
+    desc->AddField<double>  ("group_velocity",     "m/ns",   "the photon's group velocity");
+
+    desc->AddField<double>  ("time",               "ns",     "arrival time of the photon on the DOM surface");
+    desc->AddField<double>  ("x",                  "m",      "photon position on the DOM surface (x coordinate)");
+    desc->AddField<double>  ("y",                  "m",      "photon position on the DOM surface (y coordinate)");
+    desc->AddField<double>  ("z",                  "m",      "photon position on the DOM surface (z coordinate)");
+
+    desc->AddField<double>  ("zen",                "radian", "zenith angle of the photon direction vector");
+    desc->AddField<double>  ("azi",                "radian", "azimuthal angle of the photon direction vector");
+
+    return desc;
+}
+
 std::size_t
 I3PhotonConverter::FillRows
 (const I3Photon &photon, I3TableRowPtr rows)
@@ -96,6 +125,51 @@ I3PhotonConverter::FillRows
     rows->Set<uint32_t>("num_scattered",      photon.GetNumScattered());
     
     return 1;
+}
+
+std::size_t
+I3CompressedPhotonSeriesMapConverter::GetNumberOfRows
+(const value_type &map)
+{
+    size_t n = 0;
+    for (auto &pair : map) {
+        n += pair.second.size();
+    }
+    return n;
+}
+
+std::size_t
+I3CompressedPhotonSeriesMapConverter::FillRows
+(const value_type &map, I3TableRowPtr rows)
+{
+    size_t index = 0;
+    for (auto &pair : map) {
+        tableio_size_t vecindex = 0;
+        for (auto &photon : pair.second) {
+            rows->SetCurrentRow(index);
+            rows->Set<int32_t>("string", pair.first.GetString());
+            rows->Set<uint32_t>("om", pair.first.GetOM());
+            rows->Set<tableio_size_t>("vector_index", vecindex);
+            rows->Set<double>  ("weight",             photon.GetWeight());
+            rows->Set<uint64_t>("partmajorid",        photon.GetParticleMajorID());
+            rows->Set<int32_t> ("partminorid",        photon.GetParticleMinorID());
+
+            rows->Set<double>  ("wavelength",         photon.GetWavelength()/I3Units::nanometer);
+            rows->Set<double>  ("group_velocity",     photon.GetGroupVelocity()/(I3Units::m/I3Units::ns));
+    
+            rows->Set<double>  ("time",               photon.GetTime()/I3Units::ns);
+            rows->Set<double>  ("x",                  photon.GetPos().GetX()/I3Units::m);
+            rows->Set<double>  ("y",                  photon.GetPos().GetY()/I3Units::m);
+            rows->Set<double>  ("z",                  photon.GetPos().GetZ()/I3Units::m);
+    
+            rows->Set<double>  ("zen",                photon.GetDir().GetZenith()/I3Units::rad);
+            rows->Set<double>  ("azi",                photon.GetDir().GetAzimuth()/I3Units::rad);
+            index++;
+            vecindex++;
+        }
+    }
+
+    return index;
 }
 
 void I3PhotonConverter::AddFields(I3TableRowDescriptionPtr desc, const value_type& val)

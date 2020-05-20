@@ -28,6 +28,7 @@
 #include "tableio/converter/I3MapConverter.h"
 
 #include "simclasses/I3Photon.h"
+#include "simclasses/I3CompressedPhoton.h"
 
 class I3PhotonConverter : public I3ConverterImplementation<I3Photon>
 {
@@ -43,3 +44,17 @@ private:
 };
 
 typedef I3MapModuleKeyVectorConverter<I3PhotonConverter, I3PhotonSeriesMap> I3PhotonSeriesMapConverter;
+
+class I3CompressedPhotonSeriesMapConverter : public I3ConverterImplementation<I3CompressedPhotonSeriesMap>
+{
+public:
+    typedef booked_type value_type;
+
+    void AddFields(I3TableRowDescriptionPtr, const value_type&  = value_type());
+    void FillSingleRow(const value_type&, I3TableRowPtr);
+
+private:
+    I3TableRowDescriptionPtr CreateDescription(const value_type &example);
+    std::size_t GetNumberOfRows(const value_type& value);
+    std::size_t FillRows(const value_type &value, I3TableRowPtr rows);
+};
