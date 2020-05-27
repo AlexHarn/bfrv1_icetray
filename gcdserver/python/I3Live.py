@@ -1,9 +1,25 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from icecube.gcdserver.RunData import RunData
-
-import urllib2
+import urllib
 import json
 import ssl
+
+try: 
+    from urllib.parse import urlencode 
+    from urllib.request import Request
+    from urllib.request import urlopen
+    from urllib.error import HTTPError 
+except ImportError as err:
+    from urllib import urlencode
+    from urllib2 import Request
+    from urllib2 import urlopen
+    from urllib2 import HTTPError 
+
+
+from icecube.gcdserver.RunData import RunData
 
 RUN_INFO_PAGE = "run_info"
 FLASHER_DATA_PAGE = "flasher_data"
@@ -21,19 +37,18 @@ def getLiveData(runNumber, hostname, user, password, pageName):
     Get configuration name and good start/stop time from I3Live URL
     """
     url = "https://%s/%s/" % (hostname, pageName)
-    payload = "user=%s&pass=%s&run_number=%d" % (user, password, runNumber)
-    req = urllib2.Request(url, payload)
+    params = {'user': user, 
+          'pass': password, 
+          'run_number': runNumber}
+    data = urlencode(params).encode("utf-8")
+    req = Request(url)
     try:
-        try:
-            # First, try disabling the certificate check (Python 2.7+)
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            return (urllib2.urlopen(req, context=ctx)).read()
-        except AttributeError:
-            # Python 2.6: Certificate check is broken. Don't need to avoid it.
-            return (urllib2.urlopen(req)).read()
-    except urllib2.HTTPError as err:
+        # First, try disabling the certificate check (Python 2.7+)
+        ctx = ssl._create_unverified_context()
+
+        return urlopen(req,data=data,context=ctx).read()
+
+    except HTTPError as err:
         if err.code == 404:
             raise I3LiveException("Invalid run number")
         elif err.code == 403:

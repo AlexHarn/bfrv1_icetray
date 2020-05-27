@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 
 """
 Compares two GCD files. The result is printed and returned as exit code:
@@ -34,7 +37,7 @@ def openI3File(fileName):
     try:
         return dataio.I3File(fileName, 'r')
     except:
-        print "Unable to open file: %s" % fileName
+        print ("Unable to open file: %s" % fileName)
         exit(1)
 
 
@@ -43,7 +46,7 @@ def getDetectorStatusFrame(fileName):
     while True:
         fr = f.pop_frame()
         if fr is None:
-            print "File %s: Missing D Frame" % fileName
+            print ("File %s: Missing D Frame" % fileName)
             exit(1)
         if fr.Stop == icetray.I3Frame.DetectorStatus:
             return fr
@@ -81,7 +84,7 @@ def printAttrStack():
         str += "%s." % s
     if len(attrstack) > 0:
         str += "%s:" % attrstack[-1]
-    print "  in '%s'" % str
+    print ("  in '%s'" % str)
 
 
 def printAttrMismatch(values):
@@ -119,7 +122,7 @@ def checkAttr(objs, attr, compare=typeCompare):
 
 def printExtraKeys(fileName, keySet):
     if len(keySet) > 0:
-        print "ERROR: Extra keys in file %s: %s" % (fileName, list(keySet))
+        print ("ERROR: Extra keys in file %s: %s" % (fileName, list(keySet)))
 
 
 def checkAndIntersectKeys(maps, error):
@@ -127,7 +130,7 @@ def checkAndIntersectKeys(maps, error):
     if keys[0] != keys[1]:
         error[0] = True
         printAttrStack()
-        print "ERROR: Keys differ.  Summary:"
+        print ("ERROR: Keys differ.  Summary:")
         printExtraKeys(fileNames[0], keys[0] - keys[1])
         printExtraKeys(fileNames[1], keys[1] - keys[0])
     return keys[0] & keys[1]
@@ -139,7 +142,7 @@ def checkAndIntersectKeysDirect(keys, error):
         if len(missing1) > 0 or len(missing2) > 0:
             error[0] = True
             printAttrStack()
-            print "ERROR: Keys differ.  Summary:"
+            print ("ERROR: Keys differ.  Summary:")
             printExtraKeys(fileNames[0], missing1)
             printExtraKeys(fileNames[1], missing2)
         # Take the key intersection and run from there
@@ -389,7 +392,7 @@ def compareGCD():
          ('I3DetectorStatus', compareStatus)])
     for (key, fxn) in sections:
         try:
-            print "\nChecking %s" % key
+            print ("\nChecking %s" % key)
             if not fxn([ds[0][key], ds[1][key]]):
                 same_files = False
         except KeyError:
@@ -397,7 +400,7 @@ def compareGCD():
 
             for i in range(2):
                 if key not in ds[i]:
-                    print "File %s: Missing key %s" % (fileNames[i], key)
+                    print ("File %s: Missing key %s" % (fileNames[i], key))
 
     return same_files
 

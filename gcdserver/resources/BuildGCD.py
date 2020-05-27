@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+#from __future__ import unicode_literals
 
 import sys
+
 
 from icecube.gcdserver.OptionParser import GCDOptionParser
 from icecube.gcdserver.I3GeometryBuilder import buildI3Geometry
@@ -21,7 +26,7 @@ def buildGCD(db, i3LiveHost, runNumber, outFilePath):
     """
     runData = getLiveRunData(runNumber, i3LiveHost)
     if runData.startTime is None:
-        print "No run data available for run %s" % runNumber
+        print ("No run data available for run %s" % runNumber)
         return
 
     blobDB = fillBlobDB(db, run=int(runNumber),
@@ -55,11 +60,11 @@ if __name__ == "__main__":
                       help="Name of output GCD file")
     (options, args) = parser.parse_args()
     if options.run == None:
-        print "Run number not specified"
+        print ("Run number not specified")
         parser.print_help()
         sys.exit(1)
     if options.outputFile == None:
-        print "Output file not specified"
+        print ("Output file not specified")
         parser.print_help()
         sys.exit(1)
 

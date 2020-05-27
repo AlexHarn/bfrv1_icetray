@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
+from __future__ import print_function
 
 from icecube.gcdserver.I3FlasherSubrunMapBuilder import buildI3FlasherSubrunMap
 from icecube.gcdserver.I3Live import getLiveFlasherData
@@ -14,7 +16,7 @@ def main():
     # Print the entrire I3FlasherSubrunMap object to see all the data
     #print flasherSubrunMap
     # Print the subruns for which we have data
-    print "Subruns available: %s" % [s for s in list(flasherSubrunMap.keys())]
+    print ("Subruns available: %s" % [s for s in list(flasherSubrunMap.keys())])
     # Examine subrun 1:
     subrun = 1
     subrunData = flasherSubrunMap[subrun]
@@ -24,14 +26,14 @@ def main():
     # Examine OMKey(86, 41)
     omKey = icetray.OMKey(86, 41)
     domData = subrunData[omKey]
-    print "Data for %s: %s" % (omKey, domData)
+    print ("Data for %s: %s" % (omKey, domData))
     # Access the data for this DOM
-    print "Printing data for %s:" % omKey
-    print "  Brightness: %s" % domData.brightness
-    print "  Window': %s" % domData.window
-    print "  Rate: %s" % domData.rate
-    print "  Mask: %s" % domData.mask
-    print "  Delay: %s" % domData.delay
+    print ("Printing data for %s:" % omKey)
+    print ("  Brightness: %s" % domData.brightness)
+    print ("  Window': %s" % domData.window)
+    print ("  Rate: %s" % domData.rate)
+    print ("  Mask: %s" % domData.mask)
+    print ("  Delay: %s" % domData.delay)
 
 
 if __name__ == "__main__":

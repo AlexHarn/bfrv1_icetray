@@ -278,7 +278,7 @@ def dumpI3OmDb(geoInserter, calInserter, omdb):
             try:
                 domid = mbidMap[mbid]
             except KeyError:
-                print "DomDroop: Skipping unassociated mbid: %s" % mbid
+                print ("DomDroop: Skipping unassociated mbid: %s" % mbid)
                 continue
             o = G.DataObject(domid, C.ObjectType.TOROID_DROOP)
             o.data[C.Keys.TAU0] = row[1]
@@ -304,11 +304,11 @@ def main():
                       help="MySQL user name")
     (options, args) = parser.parse_args()
     if options.sqlHost == None:
-        print "I3OmDb MySQL host not specified"
+        print ("I3OmDb MySQL host not specified")
         parser.print_help()
         sys.exit(1)
     if options.runValid == None:
-        print "Calibration runValid not specified"
+        print ("Calibration runValid not specified")
         parser.print_help()
         sys.exit(1)
 
