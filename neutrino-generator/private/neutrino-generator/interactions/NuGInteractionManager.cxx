@@ -52,7 +52,7 @@ NuGInteractionManager::NuGInteractionManager(const I3Context &c)
                 "Name of cross section model (=modelname). "
                 "modelname.list must "
                 "exist under cross_section_data,"
-                " either in $I3_DATA/neutrino-generator/ or $I3_BUILD/neutrino-generator.",
+                " either in $I3_DATA/neutrino-generator/ or $I3_TESTDATA/neutrino-generator.",
                   xsec_model_string_);
 
 }

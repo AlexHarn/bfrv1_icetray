@@ -246,7 +246,6 @@ class I3NuGInteractionInfo : public I3ServiceBase {
 
   /**
    *  Location of the cross section tables.
-   *  Default value is $I3_BUILD/neutrino-generator/cross_section_data/
    */
   std::string tablesDir_;
 

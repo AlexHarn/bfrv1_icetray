@@ -37,9 +37,9 @@ guess_table_path(const std::string &tablepath)
             return path;
     }
 
-    // check I3_BUILD
-    if (getenv("I3_BUILD") != NULL) {
-        path = std::string(getenv("I3_BUILD"))
+    // check I3_TESTDATA
+    if (getenv("I3_TESTDATA") != NULL) {
+        path = std::string(getenv("I3_TESTDATA"))
             + std::string("/neutrino-generator/cross_section_data/");
         if (fs::exists(path))
             return path;

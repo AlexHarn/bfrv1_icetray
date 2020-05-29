@@ -6,7 +6,7 @@ void PlotTauDecayFinalStateFile(){
   //log energy is given by 1 + energybinN*0.1
   //gSystem->Clear();
 
-  string dir(getenv("I3_BUILD"));
+  string dir(getenv("I3_TESTDATA"));
   dir +="/neutrino-generator/cross_section_data/decay/";
 
   string file1 = dir + "tau_decay_tauola.dat";

@@ -17,8 +17,8 @@ from os.path import expandvars
 CS_PATH = None
 if os.environ['I3_DATA'] and os.path.exists(expandvars("$I3_DATA/neutrino-generator/cross_section_data")) :
     CS_PATH = os.path.exists(expandvars("$I3_DATA/neutrino-generator/cross_section_data"))
-elif os.path.exists(expandvars("$I3_BUILD/neutrino-generator/cross_section_data")) :
-    CS_PATH = os.path.exists(expandvars("$I3_BUILD/neutrino-generator/cross_section_data"))
+elif os.path.exists(expandvars("$I3_TESTDATA/neutrino-generator/cross_section_data")) :
+    CS_PATH = os.path.exists(expandvars("$I3_TESTDATA/neutrino-generator/cross_section_data"))
 else :
     print "ERROR : Can't find cross section data. "
     sys.exit()

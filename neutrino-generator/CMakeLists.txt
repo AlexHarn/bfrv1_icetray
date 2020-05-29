@@ -49,20 +49,6 @@ SET(LIB_${PROJECT_NAME}_PROJECTS serialization icetray phys-services dataclasses
 SET(LIB_${PROJECT_NAME}_TOOLS python boost)
 SET(LIB_${PROJECT_NAME}_EXTRA_LIBRARIES "")
 
-## d/l cross section data to the nugen build directory
-if(EXISTS /cvmfs/icecube.opensciencegrid.org/data/neutrino-generator/cross_section_data)
-  colormsg(CYAN   "+-- /cvmfs/icecube.opensciencegrid.org/data/neutrino-generator/cross_section_data exists, skipping download")
-elseif(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/cross_section_data)
-  colormsg(CYAN   "+-- ${CMAKE_CURRENT_BINARY_DIR}/cross_section_data exists, skipping download")
-else()
-  colormsg(RED    "+-- ${CMAKE_CURRENT_BINARY_DIR}/cross_section_data does not exist.  Downloading...")
-  colormsg(GREEN  "+-- Downloading and unpacking the crosssection data files...")
-  execute_process(COMMAND 
-    ${CMAKE_SOURCE_DIR}/neutrino-generator/resources/download_crosssection_data.sh ${CMAKE_CURRENT_BINARY_DIR})
-  colormsg(GREEN "+-- ...download complete.")
-endif()
-
-
 if(ROOT_FOUND AND USE_ROOT AND GENIE_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/genie-icetray)
 	colormsg(GREEN "+-- genie-icetray found. building with GENIE support.")
 
