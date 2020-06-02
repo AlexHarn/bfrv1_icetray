@@ -57,12 +57,12 @@ class TestShadowFraction(icecube.icetray.I3Module):
             # Uncomment the following lines to render
             # the histogram and fit result
             # 
-            import pylab            
-            pylab.hist(self.shadow_fractions)
-            X = numpy.arange(bin_centers[0], bin_centers[-1], 0.01)
-            Y = gaussian(X, popt[0], popt[1], popt[2])
-            pylab.plot(X, Y, '-')
-            pylab.show()
+            #import pylab            
+            #pylab.hist(self.shadow_fractions)
+            #X = numpy.arange(bin_centers[0], bin_centers[-1], 0.01)
+            #Y = gaussian(X, popt[0], popt[1], popt[2])
+            #pylab.plot(X, Y, '-')
+            #pylab.show()
         except ImportError:
             average_shadow_fractions = sum(self.shadow_fractions)/float(len(self.shadow_fractions))
             print(average_shadow_fractions)
