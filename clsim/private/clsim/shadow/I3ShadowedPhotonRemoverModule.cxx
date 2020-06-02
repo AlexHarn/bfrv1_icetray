@@ -28,29 +28,39 @@
 #define __STDC_FORMAT_MACROS
 #endif 
 #include <inttypes.h>
-
 #include <vector>
+#include <iostream>
 
 #include "clsim/shadow/I3ShadowedPhotonRemoverModule.h"
-
 #include "simclasses/I3ExtraGeometryItemCylinder.h"
-
-#include <boost/foreach.hpp>
-
 #include "simclasses/I3CompressedPhoton.h"
-
 #include "dataclasses/I3Double.h"
-
-//#include "dataclasses/geometry/I3Geometry.h"
-
 #include "dataclasses/I3Constants.h"
-
 #include "simclasses/I3CylinderMap.h"
 
-#include <iostream>
-// The module
 I3_MODULE(I3ShadowedPhotonRemoverModule);
 
+/**
+ * Given a cylinder and a photon determine whether the photon intersects the cylinder
+ * backpropagating a given distance.
+ */
+bool I3ShadowPhotonRemover::is_shadowed(const I3Position& photon_position,
+					const I3Direction& photon_direction,
+					const I3ExtraGeometryItemCylinder& cylinder,
+					const double distance){
+
+  // The zenith and azimuth denotes the direction
+  // the particle came from, so using these for phi
+  // and theta amounts to back-propagating the photon,
+  // which is what we want to do.
+  double phi{photon_direction.GetAzimuth()};
+  double theta{photon_direction.GetZenith()};
+  double dx{distance * sin(theta) * cos(phi)};
+  double dy{distance * sin(theta) * sin(phi)};
+  double dz{distance * cos(theta)};
+  const I3Position& line_end{dx, dy, dz};
+  return cylinder.DoesLineIntersect(photon_position, line_end);  
+}
 
 I3ShadowedPhotonRemoverModule::I3ShadowedPhotonRemoverModule(const I3Context& context) 
 : I3ConditionalModule(context)
@@ -60,29 +70,24 @@ I3ShadowedPhotonRemoverModule::I3ShadowedPhotonRemoverModule(const I3Context& co
                  "Name of the input I3PhotonSeriesMap frame object.",
                  inputPhotonSeriesMapName_);
 
-    outputPhotonSeriesMapName_="PropagatedPhotonsWithShadow";
-
+    outputPhotonSeriesMapName_=inputPhotonSeriesMapName_+"Shadowed";
     AddParameter("OutputPhotonSeriesMapName",
                  "Name of the output I3PhotonSeriesMap frame object.",
                  outputPhotonSeriesMapName_);
 
-    AddParameter("Cable_Map",
+    AddParameter("CableMapName",
 		 "Map containing all the cables found in the geometry",
-		 cylinder_map_);
+		 cylinder_map_name_);
 
-    distance = 10.0;
-
+    distance_ = 10.0;
     AddParameter("Distance" ,
 		 "Distance from where photon hits DOM to extended distance to last scatter" , 
-		 distance) ;
-
-    // add an outbox
-    AddOutBox("OutBox");
+		 distance_) ;
 }
 
 I3ShadowedPhotonRemoverModule::~I3ShadowedPhotonRemoverModule()
 {
-    log_trace("%s", __PRETTY_FUNCTION__);
+  log_trace("%s", __PRETTY_FUNCTION__);
 }
 
 
@@ -92,11 +97,8 @@ void I3ShadowedPhotonRemoverModule::Configure()
 
     GetParameter("InputPhotonSeriesMapName", inputPhotonSeriesMapName_);
     GetParameter("OutputPhotonSeriesMapName", outputPhotonSeriesMapName_);
-    GetParameter("Cable_Map" , cylinder_map_);
-    GetParameter("Distance",distance);
-
-
-    // set up the worker class
+    GetParameter("CableMapName", cylinder_map_name_);
+    GetParameter("Distance", distance_);
 }
 
 
@@ -104,67 +106,50 @@ void I3ShadowedPhotonRemoverModule::DAQ(I3FramePtr frame)
 {
     log_trace("%s", __PRETTY_FUNCTION__);
     
-    //const I3Geometry& geometry = frame->Get<I3Geometry>();
+    I3CompressedPhotonSeriesMapConstPtr input = frame->Get<I3CompressedPhotonSeriesMapConstPtr>(inputPhotonSeriesMapName_);
+    if(!input)
+      log_fatal("Frame does not contain an I3CompressedPhotonSeriesMap named \"%s\".",
+		inputPhotonSeriesMapName_.c_str());
 
+    I3CylinderMapConstPtr cylinder_map = frame->Get<I3CylinderMapConstPtr>(cylinder_map_name_);
+    if(!cylinder_map)
+      log_fatal("Oooops.");
 
-
-    I3CompressedPhotonSeriesMapConstPtr inputCompressedPhotonSeriesMap = frame->Get<I3CompressedPhotonSeriesMapConstPtr>(inputPhotonSeriesMapName_);
-    if (!inputCompressedPhotonSeriesMap) log_fatal("Frame does not contain an I3CompressedPhotonSeriesMap named \"%s\".",
-                                         inputPhotonSeriesMapName_.c_str());
+    const I3Geometry& geo = frame->Get<I3Geometry>();
     
-    // allocate the output hitSeriesMap
-    I3CompressedPhotonSeriesMapPtr outputCompressedPhotonSeriesMap(new I3CompressedPhotonSeriesMap());
-    
-    BOOST_FOREACH(const I3CompressedPhotonSeriesMap::value_type &it, *inputCompressedPhotonSeriesMap)
-    {
-        const ModuleKey &key = it.first;
-        const I3CompressedPhotonSeries &photons = it.second;
-
-        //// Find the current OM in the geometry map
-        //I3OMGeoMap::const_iterator geo_it = geometry.omgeo.find(key);
-        //if (geo_it == geometry.omgeo.end())
-        //        log_fatal("OM (%i/%u) not found in the current geometry map!", key.GetString(), key.GetOM());
-        //const I3OMGeo &om = geo_it->second;
-
-        
-        // a pointer to the output vector. The vector will be allocated 
-        // by the map, this is merely a pointer to it in case we have multiple
-        // photons per OM.
-        I3CompressedPhotonSeries *out_photons = NULL;
-
-        BOOST_FOREACH(const I3CompressedPhoton &photon, photons)
-        {
-            
-            I3CompressedPhoton out_photon = photon;
-            const bool isShadowed = 
-            shadowedPhotonRemover_->IsPhotonShadowed(out_photon);
-
-            if (isShadowed) continue;
-
-            // allocate the output vector if not already done
-            if (!out_photons) out_photons = &(outputCompressedPhotonSeriesMap->insert(std::make_pair(key, I3CompressedPhotonSeries())).first->second);
-
-            // add a new copy of the input photon to the output list
-            out_photons->push_back(out_photon);
+    I3CompressedPhotonSeriesMapPtr output(new I3CompressedPhotonSeriesMap());    
+    for(const auto& element: *input){
+        const ModuleKey& mkey = element.first;
+	const OMKey& omkey{mkey.GetString(), mkey.GetOM()};
+        const I3CompressedPhotonSeries& photons = element.second;
+	const auto& map_pair = cylinder_map->find(omkey);
+	
+	if(map_pair == end(*cylinder_map))
+	  continue;
+	
+	auto cylinder = map_pair->second;
+        I3CompressedPhotonSeries unshadowed_photons;
+	auto dom_pos = geo.omgeo.at(omkey).position;
+        for(auto photon: photons){
+	  // Want the photon position in the detector frame
+	  // The position of an I3CompressedPhoton is in the DOM frame.
+	  auto photon_pos = photon.GetPos();
+	  const auto& lab_frame_position{dom_pos + photon_pos};
+	  if(!I3ShadowPhotonRemover::is_shadowed(lab_frame_position,
+						 photon.GetDir(),
+						 cylinder,
+						 distance_)){
+	    unshadowed_photons.push_back(photon);	    
+	  }
         }
-        
-        
+
+	// if there are photons that survive then add them to the output map
+	if(unshadowed_photons.size()){	  
+	  (*output)[mkey] = unshadowed_photons;
+	}
     }
 
-    // store the output I3MCHitSeriesMap
-    frame->Put(outputPhotonSeriesMapName_, outputCompressedPhotonSeriesMap);
-    
-    // that's it!
+    frame->Put(outputPhotonSeriesMapName_, output);    
     PushFrame(frame);
 }
-
-void I3ShadowedPhotonRemoverModule::Geometry(I3FramePtr frame)
-{
-  log_trace("%s", __PRETTY_FUNCTION__);
-  
-  const I3CylinderMap& cylinder_map = frame->Get<I3CylinderMap>(cylinder_map_);
-  shadowedPhotonRemover_ = I3ShadowedPhotonRemoverPtr(new I3ShadowedPhotonRemover(cylinder_map , distance ));
-
-  PushFrame(frame);
-};
   

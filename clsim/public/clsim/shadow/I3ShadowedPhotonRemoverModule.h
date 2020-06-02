@@ -27,65 +27,47 @@
 #ifndef I3SHADOWEDPHOTONREMOVERMODULE_H_INCLUDED
 #define I3SHADOWEDPHOTONREMOVERMODULE_H_INCLUDED
 
-#include "icetray/I3Module.h"
-#include "icetray/I3ConditionalModule.h"
-
-#include "dataclasses/geometry/I3Geometry.h"
-
-#include "clsim/shadow/I3ShadowedPhotonRemover.h"
-
 #include <string>
 
+#include "icetray/I3Module.h"
+#include "icetray/I3ConditionalModule.h"
+#include "dataclasses/geometry/I3Geometry.h"
 #include "simclasses/I3CylinderMap.h"
+
 /**
  * @brief This module removes photons that have paths intersecting 
  *   with any shadowing part of the detecor (such as cables).
  *   This code is NOT functional at the moment.
  */
+namespace I3ShadowPhotonRemover{
+  bool is_shadowed(const I3Position& photon_position,
+		   const I3Direction& photon_direction,
+		   const I3ExtraGeometryItemCylinder& cylinder,
+		   const double distance);
+}
+
 class I3ShadowedPhotonRemoverModule : public I3ConditionalModule
 {
 public:
-    /**
-     * Builds an instance of this class
-     */
-    I3ShadowedPhotonRemoverModule(const I3Context& ctx);
-    
-    /**
-     * Destroys an instance of this class
-     */
-    ~I3ShadowedPhotonRemoverModule();
-    
-    /**
-     * This module takes a configuration parameter and so it must be configured.
-     */
-    virtual void Configure();
-    
-    /**
-     * The module needs to process Physics frames
-     */
-    void DAQ(I3FramePtr frame);
-    void Geometry(I3FramePtr frame);
-
+  I3ShadowedPhotonRemoverModule(const I3Context& ctx);
+  ~I3ShadowedPhotonRemoverModule();
+  virtual void Configure();
+  void DAQ(I3FramePtr frame);
     
 private:
-    // parameters
-    
-    /// Parameter: Name of the input I3PhotonSeriesMap frame object. 
-    std::string inputPhotonSeriesMapName_;
-
-    /// Parameter: Name of the output I3PhotonSeriesMap frame object. 
-    std::string outputPhotonSeriesMapName_;
-    std::string cylinder_map_;
-    double distance;
-    I3ShadowedPhotonRemoverPtr shadowedPhotonRemover_;
-
-private:
-    // default, assignment, and copy constructor declared private
-    I3ShadowedPhotonRemoverModule();
-    I3ShadowedPhotonRemoverModule(const I3ShadowedPhotonRemoverModule&);
-    I3ShadowedPhotonRemoverModule& operator=(const I3ShadowedPhotonRemoverModule&);
-
-    SET_LOGGER("I3ShadowedPhotonRemoverModule");
+  /// Parameter: Name of the input I3PhotonSeriesMap frame object. 
+  std::string inputPhotonSeriesMapName_;
+  std::string outputPhotonSeriesMapName_;
+  std::string cylinder_map_name_;
+  double distance_;
+  
+  I3CylinderMapConstPtr cylinder_map_;
+  // default, assignment, and copy constructor declared private
+  I3ShadowedPhotonRemoverModule();
+  I3ShadowedPhotonRemoverModule(const I3ShadowedPhotonRemoverModule&);
+  I3ShadowedPhotonRemoverModule& operator=(const I3ShadowedPhotonRemoverModule&);
+  
+  SET_LOGGER("I3ShadowedPhotonRemoverModule");
 };
 
 #endif //I3SHADOWEDPHOTONREMOVERMODULE_H_INCLUDED

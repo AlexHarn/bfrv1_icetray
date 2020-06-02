@@ -35,7 +35,7 @@ namespace bp = boost::python;
 #define REGISTER_THESE_THINGS                       \
     /*(I3Photon)(I3CompressedPhoton)*/              \
     (I3CLSimEventStatistics)/*(I3Converters)*/      \
-    (I3CLSimFlasherPulse)(I3ShadowedPhotonRemover)  \
+    (I3CLSimFlasherPulse)                           \
 
 #ifndef BUILD_CLSIM_DATACLASSES_ONLY
 // all these do depend on either OpenCL and/or Geant4

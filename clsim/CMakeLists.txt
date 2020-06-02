@@ -81,7 +81,7 @@ SET(LIB_${PROJECT_NAME}_SOURCEFILES
   private/clsim/util/I3TauSanitizer.cxx
   private/clsim/dom/I3PhotonToMCPEConverter.cxx
   # private/clsim/dom/I3PhotonToMCHitConverterForMDOMs.cxx
-  private/clsim/shadow/I3ShadowedPhotonRemover.cxx
+  # private/clsim/shadow/I3ShadowedPhotonRemover.cxx
   private/clsim/shadow/I3ShadowedPhotonRemoverModule.cxx
 
   # tableio converters
@@ -102,7 +102,7 @@ SET(LIB_${PROJECT_NAME}_PYBINDINGS_SOURCEFILES
   private/pybindings/I3CLSimEventStatistics.cxx
   private/pybindings/I3CLSimFlasherPulse.cxx
   # private/pybindings/I3Converters.cxx
-  private/pybindings/I3ShadowedPhotonRemover.cxx
+  # private/pybindings/I3ShadowedPhotonRemover.cxx
   private/pybindings/module.cxx
 )
 
@@ -321,6 +321,7 @@ if(NOT BUILD_CLSIM_DATACLASSES_ONLY)
   # run python tests if in full-build mode
   set(TEST_SCRIPTS
     resources/tests/testCableShadow.py
+    resources/tests/testShadowPhotonRemover.py
     resources/tests/testCascadeExtension.py
     resources/tests/testMakePhotons.py
     resources/tests/testScalarFieldIceTiltZShift.py

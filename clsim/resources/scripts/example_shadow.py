@@ -1,37 +1,42 @@
 #!/usr/bin/env python 
 
-from icecube import icetray,dataio, clsim , dataclasses,phys_services
-import sys, os
-from I3Tray import *
-from icecube.simprod.util import *
+import sys
+import os
+import os.path
+import logging
+
+try:
+    import pylab
+except ImportError:
+    logging.warn("matplotlib not found.")
+
+import icecube.icetray
+import icecube.dataio
+import icecube.clsim
+import icecube.clsim.shadow
+import icecube.clsim.shadow.cylinder_utils
+import icecube.dataclasses
+import icecube.phys_services
 import icecube.simclasses
-from icecube.clsim.shadow import *
-from icecube.simclasses import I3CylinderMap
-from os.path import expandvars
 
+from I3Tray import I3Tray
+from I3Tray import I3Units
 
-cable_map = I3CylinderMap()
-
-outfile = 'test_shadow.i3'
-seed = 10
-
-randomService = phys_services.I3GSLRandomService(seed = seed)
-
+randomService = icecube.phys_services.I3GSLRandomService(seed = 10)
 gcd_file = os.getenv('I3_TESTDATA') + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
-
-class generateEvent(icetray.I3Module):
+        
+class GenerateEvent(icecube.icetray.I3Module):
     def __init__(self, context):
-        icetray.I3Module.__init__(self, context)
+        icecube.icetray.I3Module.__init__(self, context)
         self.AddParameter("I3RandomService", "the service", None)
-        self.AddParameter("Type", "", dataclasses.I3Particle.ParticleType.EMinus)
+        self.AddParameter("Type", "", icecube.dataclasses.I3Particle.ParticleType.EMinus)
         self.AddParameter("Energy", "", 10.*I3Units.TeV)
         self.AddParameter("NEvents", "", 1)
         self.AddParameter("XCoord", "", 0.)
         self.AddParameter("YCoord", "", 0.)
         self.AddParameter("ZCoord", "", 0.)
-        self.AddParameter("Primary_direction","",dataclasses.I3Direction(0.,0.,-1.))
-        self.AddParameter("Daughter_direction","",dataclasses.I3Direction(0.,0.,-1.))
-        self.AddOutBox("OutBox")
+        self.AddParameter("PrimaryDirection","",icecube.dataclasses.I3Direction(0.,0.,-1.))
+        self.AddParameter("DaughterDirection","",icecube.dataclasses.I3Direction(0.,0.,-1.))
 
     def Configure(self):
         self.rs = self.GetParameter("I3RandomService")
@@ -41,29 +46,29 @@ class generateEvent(icetray.I3Module):
         self.xCoord = self.GetParameter("XCoord")
         self.yCoord = self.GetParameter("YCoord")
         self.zCoord = self.GetParameter("ZCoord")
-        self.primary_direction = self.GetParameter("Primary_direction")
-        self.daughter_direction = self.GetParameter("Daughter_direction")
+        self.primary_direction = self.GetParameter("PrimaryDirection")
+        self.daughter_direction = self.GetParameter("DaughterDirection")
 
         self.eventCounter = 0
 
     def DAQ(self, frame):
-        daughter = dataclasses.I3Particle()
+        daughter = icecube.dataclasses.I3Particle()
         daughter.type = self.particleType
         daughter.energy = self.energy
-        daughter.pos = dataclasses.I3Position(self.xCoord,self.yCoord,self.zCoord)
+        daughter.pos = icecube.dataclasses.I3Position(self.xCoord,self.yCoord,self.zCoord)
         daughter.dir = self.daughter_direction
         daughter.time = 0.
-        daughter.location_type = dataclasses.I3Particle.LocationType.InIce
+        daughter.location_type = icecube.dataclasses.I3Particle.LocationType.InIce
 
-        primary = dataclasses.I3Particle()
-        primary.type = dataclasses.I3Particle.ParticleType.NuE
+        primary = icecube.dataclasses.I3Particle()
+        primary.type = icecube.dataclasses.I3Particle.ParticleType.NuE
         primary.energy = self.energy
-        primary.pos = dataclasses.I3Position(self.xCoord,self.yCoord,self.zCoord)
+        primary.pos = icecube.dataclasses.I3Position(self.xCoord,self.yCoord,self.zCoord)
         primary.dir = self.primary_direction
         primary.time = 0.
-        primary.location_type = dataclasses.I3Particle.LocationType.Anywhere
+        primary.location_type = icecube.dataclasses.I3Particle.LocationType.Anywhere
 
-        mctree = dataclasses.I3MCTree()
+        mctree = icecube.dataclasses.I3MCTree()
         mctree.add_primary(primary)
         mctree.append_child(primary,daughter)
 
@@ -77,58 +82,51 @@ class generateEvent(icetray.I3Module):
 
 
 tray = I3Tray()
+cable_map_name = 'CableMap'
+tray.Add("I3InfiniteSource" , 
+         Prefix=os.path.expandvars(gcd_file),
+         Stream=icecube.icetray.I3Frame.DAQ)
 
-tray.AddModule("I3InfiniteSource" , "streams" , Prefix=expandvars(gcd_file),Stream = icetray.I3Frame.DAQ)
-
-tray.Add(AddCylinders , Cable_map = cable_map ,Length_of_cylinder = 17.0, Radius_of_cylinder = 0.023)
+tray.Add(icecube.clsim.shadow.cylinder_utils.AddCylinders,
+         CableMapName = cable_map_name,
+         CylinderLength = 17.0,
+         CylinderRadius = 0.023)
 
 tray.Add("Dump")
 
-tray.AddModule("I3MCEventHeaderGenerator","gen_header",
-               Year = 2009,
-               DAQTime=158100000000000000,
-               RunNumber=1,
-               EventID=1,
-               IncrementEventID=True)
-
-tray.AddModule(generateEvent , "generateEvent",
-               Type = dataclasses.I3Particle.ParticleType.MuMinus,
-               NEvents = 1,
-               XCoord = -256.14,
-               YCoord = -521.08,
-               ZCoord = 496.03,
-               Primary_direction = dataclasses.I3Direction(0 , 0 ,-1),
-               Daughter_direction = dataclasses.I3Direction(0 , 0 , -1),
-               I3RandomService = randomService,
-               Energy = 10.0*I3Units.TeV )
+tray.Add(GenerateEvent,
+         Type = icecube.dataclasses.I3Particle.ParticleType.MuMinus,
+         NEvents = 10,
+         XCoord = -256.14,
+         YCoord = -521.08,
+         ZCoord = 496.03,
+         PrimaryDirection = icecube.dataclasses.I3Direction(0 , 0 ,-1),
+         DaughterDirection = icecube.dataclasses.I3Direction(0 , 0 , -1),
+         I3RandomService = randomService,
+         Energy = 10.0*I3Units.TeV )
 
 photonSeriesName = "Photons"
-MCTreeName = "I3MCTree"
-MMCTrackListName= None
+usegpus = any([device.gpu for device in icecube.clsim.I3CLSimOpenCLDevice.GetAllDevices()])    
+tray.Add(icecube.clsim.I3CLSimMakePhotons,
+         UseGPUs = usegpus,
+         UseOnlyDeviceNumber=0,
+         UseCPUs = not usegpus,                    
+         PhotonSeriesName = photonSeriesName,
+         RandomService = randomService,
+         IceModelLocation = os.path.expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
+         GCDFile = gcd_file)
 
+tray.Add("I3ShadowedPhotonRemoverModule",
+         InputPhotonSeriesMapName = photonSeriesName,
+         OutputPhotonSeriesMapName = photonSeriesName+'Shadowed',
+         CableMapName = cable_map_name,
+         Distance = 20.0)
 
-tray.AddSegment(clsim.I3CLSimMakePhotons,"MakePhotons",
-                UseGPUs = False,
-                UseCPUs = True,
-                PhotonSeriesName = photonSeriesName,
-                MCTreeName = MCTreeName,
-                RandomService = randomService,
-                IceModelLocation = expandvars("$I3_BUILD/ice-models/resources/models/spice_lea"),
-                GCDFile = gcd_file
-            )
+tray.AddModule(icecube.clsim.shadow.cylinder_utils.HistogramShadowFraction,
+               PhotonMapName=photonSeriesName,
+               ShadowedPhotonMapName=photonSeriesName+'Shadowed',
+)
 
-
-tray.AddModule("I3ShadowedPhotonRemoverModule",
-               "PhotonRemover",
-               InputPhotonSeriesMapName = "Photons",
-               OutputPhotonSeriesMapName = "ShadowedPhotons",
-               Cable_Map = "CableMap",
-               Distance = 125.0)
-
-
-tray.AddModule("I3NullSplitter","physics")
-
-tray.Add("I3Writer","writer",filename=outfile)
+tray.Add("I3Writer", filename='shadowed_photons_removed.i3')
 
 tray.Execute()
-tray.Finish()
