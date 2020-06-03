@@ -5,16 +5,12 @@ import os
 import os.path
 import logging
 
-try:
-    import pylab
-except ImportError:
-    logging.warn("matplotlib not found.")
+import numpy
 
 import icecube.icetray
 import icecube.dataio
 import icecube.clsim
 import icecube.clsim.shadow
-import icecube.clsim.GetIceCubeCableShadow
 import icecube.clsim.shadow.cylinder_utils
 import icecube.dataclasses
 import icecube.phys_services
@@ -25,6 +21,7 @@ from I3Tray import I3Units
 
 randomService = icecube.phys_services.I3GSLRandomService(seed = 10)
 gcd_file = os.getenv('I3_TESTDATA') + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
+cable_orientations = os.path.expandvars("$I3_BUILD/ice-models/resources/models/cable_position/orientation.led7.txt")
 
 class InjectCables(icecube.icetray.I3Module):
     '''
@@ -39,7 +36,33 @@ class InjectCables(icecube.icetray.I3Module):
         self.cable_map_name = self.GetParameter("CableMapName")
         
     def Geometry(self, frame):
-        frame[self.cable_map_name] = icecube.clsim.GetIceCubeCableShadow.GetIceCubeCableShadow()
+        dom_radius=165.1*I3Units.mm
+        cable_radius=23*I3Units.mm
+        cable_length=10*I3Units.m
+
+        radius = dom_radius + cable_radius
+        cylinder_map = icecube.simclasses.I3CylinderMap()
+
+        geo = frame['I3Geometry'].omgeo
+        
+        for string, om, angle, _ in numpy.loadtxt(cable_orientations,
+                                                  dtype=[('string',int),('om',int),('angle',float),('angle_err',float)]):
+            dx = radius*numpy.cos(numpy.radians(angle))
+            dy = radius*numpy.sin(numpy.radians(angle))
+            
+            top_relative = icecube.dataclasses.I3Position(dx, dy, cable_length/2.)
+            bottom_relative = icecube.dataclasses.I3Position(dx, dy, -cable_length/2.)
+            
+            omkey = icecube.icetray.OMKey(int(string),int(om))
+            dom_position = geo[omkey].position
+
+            # want positions in lab/detector coordinates
+            cylinder_top = dom_position + top_relative
+            cylinder_bottom = dom_position + bottom_relative
+            cylinder_map[omkey] = icecube.simclasses.I3ExtraGeometryItemCylinder(cylinder_top, cylinder_bottom, cable_radius)
+                
+        frame[self.cable_map_name] = cylinder_map
+        self.PushFrame(frame)        
         
 class GenerateEvent(icecube.icetray.I3Module):
     def __init__(self, context):
@@ -103,11 +126,15 @@ tray.Add("I3InfiniteSource" ,
          Prefix=os.path.expandvars(gcd_file),
          Stream=icecube.icetray.I3Frame.DAQ)
 
+# AddCylinders puts a cylinder next to each DOM using
+# the same orientation for each cylinder.
+# It's recommended to use the measured orientations,
+# which is what InjectCables does.
 #tray.Add(icecube.clsim.shadow.cylinder_utils.AddCylinders,
 #         CableMapName = cable_map_name,
 #         CylinderLength = 17.0,
 #         CylinderRadius = 0.023)
-tray.Add(InjectCables, cable_map_name=cable_map_name)
+tray.Add(InjectCables, CableMapName=cable_map_name)
 
 tray.Add("Dump")
 
@@ -139,7 +166,7 @@ tray.Add("I3ShadowedPhotonRemoverModule",
          CableMapName = cable_map_name,
          Distance = 20.0)
 
-tray.AddModule(icecube.clsim.shadow.cylinder_utils.HistogramShadowFraction,
+tray.AddModule(icecube.clsim.shadow.cylinder_utils.AverageShadowFraction,
                PhotonMapName=photonSeriesName,
                ShadowedPhotonMapName=photonSeriesName+'Shadowed',
 )
