@@ -14,6 +14,7 @@ import icecube.icetray
 import icecube.dataio
 import icecube.clsim
 import icecube.clsim.shadow
+import icecube.clsim.GetIceCubeCableShadow
 import icecube.clsim.shadow.cylinder_utils
 import icecube.dataclasses
 import icecube.phys_services
@@ -24,6 +25,21 @@ from I3Tray import I3Units
 
 randomService = icecube.phys_services.I3GSLRandomService(seed = 10)
 gcd_file = os.getenv('I3_TESTDATA') + '/GCD/GeoCalibDetectorStatus_IC86.55697_corrected_V2.i3.gz'
+
+class InjectCables(icecube.icetray.I3Module):
+    '''
+    This module injects cylinders as cables reading the measured orientations
+    stored in a text file in the ice-models project.
+    '''
+    def __init__(self, context):
+        icecube.icetray.I3Module.__init__(self, context)
+        self.AddParameter("CableMapName", "Frame key of the cable map",'CableMap')
+
+    def Configure(self):
+        self.cable_map_name = self.GetParameter("CableMapName")
+        
+    def Geometry(self, frame):
+        frame[self.cable_map_name] = icecube.clsim.GetIceCubeCableShadow.GetIceCubeCableShadow()
         
 class GenerateEvent(icecube.icetray.I3Module):
     def __init__(self, context):
@@ -87,10 +103,11 @@ tray.Add("I3InfiniteSource" ,
          Prefix=os.path.expandvars(gcd_file),
          Stream=icecube.icetray.I3Frame.DAQ)
 
-tray.Add(icecube.clsim.shadow.cylinder_utils.AddCylinders,
-         CableMapName = cable_map_name,
-         CylinderLength = 17.0,
-         CylinderRadius = 0.023)
+#tray.Add(icecube.clsim.shadow.cylinder_utils.AddCylinders,
+#         CableMapName = cable_map_name,
+#         CylinderLength = 17.0,
+#         CylinderRadius = 0.023)
+tray.Add(InjectCables, cable_map_name=cable_map_name)
 
 tray.Add("Dump")
 
