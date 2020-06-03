@@ -111,10 +111,7 @@ void I3ShadowedPhotonRemoverModule::DAQ(I3FramePtr frame)
       log_fatal("Frame does not contain an I3CompressedPhotonSeriesMap named \"%s\".",
 		inputPhotonSeriesMapName_.c_str());
 
-    I3CylinderMapConstPtr cylinder_map = frame->Get<I3CylinderMapConstPtr>(cylinder_map_name_);
-    if(!cylinder_map)
-      log_fatal("Oooops.");
-
+    const I3CylinderMap& cylinder_map = frame->Get<I3CylinderMap>(cylinder_map_name_);
     const I3Geometry& geo = frame->Get<I3Geometry>();
     
     I3CompressedPhotonSeriesMapPtr output(new I3CompressedPhotonSeriesMap());    
@@ -122,9 +119,9 @@ void I3ShadowedPhotonRemoverModule::DAQ(I3FramePtr frame)
         const ModuleKey& mkey = element.first;
 	const OMKey& omkey{mkey.GetString(), mkey.GetOM()};
         const I3CompressedPhotonSeries& photons = element.second;
-	const auto& map_pair = cylinder_map->find(omkey);
+	const auto& map_pair = cylinder_map.find(omkey);
 	
-	if(map_pair == end(*cylinder_map))
+	if(map_pair == end(cylinder_map))
 	  continue;
 	
 	auto cylinder = map_pair->second;
