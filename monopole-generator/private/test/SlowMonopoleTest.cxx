@@ -174,17 +174,23 @@ TEST(TestMFP) {
   TestingMFPConstraints(0, false);
   TestingMFPConstraints(NAN, false);
   I3GSLRandomServicePtr random(new I3GSLRandomService(time(NULL)));
-  double mfpTest = 1 / (random->Uniform(1, 100));
+  // FIXME: https://code.icecube.wisc.edu/projects/icecube/ticket/2431
+  //double mfpTest = 1 / (random->Uniform(1, 100));
+  double mfpTest{1};
   TestingMFPConstraints(mfpTest, true);
 }
 
 TEST(TestScaling) {
   I3GSLRandomServicePtr random(new I3GSLRandomService(time(NULL)));
-  double mfpTest = 1 / (random->Uniform(1, 100));
+  // FIXME: https://code.icecube.wisc.edu/projects/icecube/ticket/2431
+  //double mfpTest = 1 / (random->Uniform(1, 100));
+  double mfpTest{1};
   TestingScaleEnergy(mfpTest, false, 0.94 * I3Units::GeV);
   TestingScaleEnergy(mfpTest, true, (0.94 * I3Units::GeV) / (mfpTest));
   //Check that it doesn't scale energy when mfp>1
-  double mfpTest2 = random->Uniform(1, 100);
+  // FIXME: https://code.icecube.wisc.edu/projects/icecube/ticket/2431
+  //double mfpTest2 = random->Uniform(1, 100);
+  double mfpTest2{1.1};
   TestingScaleEnergy(mfpTest2, false, 0.94 * I3Units::GeV);
   TestingScaleEnergy(mfpTest2, true, 0.94 * I3Units::GeV);
 }
