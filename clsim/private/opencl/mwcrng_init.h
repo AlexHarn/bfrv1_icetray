@@ -34,25 +34,36 @@ inline int init_MWC_RNG(uint64_t *x, uint32_t *a,
     {
         bool success = 0;
         namespace fs = boost::filesystem;
-        safeprimes_file = "safeprimes_base32.txt"; 
-        if (getenv("I3_BUILD")) {
-            const fs::path I3_BUILD(getenv("I3_BUILD"));
-            if (fs::exists(I3_BUILD/"clsim/resources/safeprimes_base32.gz")) {
-                safeprimes_file = (I3_BUILD/"/clsim/resources/safeprimes_base32.gz").string();
+        safeprimes_file = "safeprimes_base32.txt";
+        if (getenv("I3_TESTDATA")) {
+            const fs::path I3_TESTDATA(getenv("I3_TESTDATA"));
+            if (fs::exists(I3_TESTDATA/"clsim/safeprimes_base32.gz")) {
+                safeprimes_file = (I3_TESTDATA/"clsim/safeprimes_base32.gz").string();
                 success = 1;
             }
-            else if (fs::exists(I3_BUILD/"clsim/resources/safeprimes_base32.txt")) {
-              safeprimes_file = (I3_BUILD/"/clsim/resources/safeprimes_base32.txt").string();
+            else if (fs::exists(I3_TESTDATA/"clsim/safeprimes_base32.txt")) {
+              safeprimes_file = (I3_TESTDATA/"clsim/safeprimes_base32.txt").string();
               success = 1;
             }
-          }
+          }	
         if (!success && getenv("I3_DATA")) {
             const fs::path I3_DATA(getenv("I3_DATA"));
             if (fs::exists(I3_DATA/"safeprimes_base32.gz")) {
                 safeprimes_file = (I3_DATA/"safeprimes_base32.gz").string();
+                success = 1;
             }
             else if (fs::exists(I3_DATA/"safeprimes_base32.txt")) {
               safeprimes_file = (I3_DATA/"safeprimes_base32.txt").string();
+	      success = 1;
+            }
+          }
+        if (!success && getenv("I3_BUILD")) {
+            const fs::path I3_BUILD(getenv("I3_BUILD"));
+            if (fs::exists(I3_BUILD/"clsim/resources/safeprimes_base32.gz")) {
+                safeprimes_file = (I3_BUILD/"/clsim/resources/safeprimes_base32.gz").string();
+            }
+            else if (fs::exists(I3_BUILD/"clsim/resources/safeprimes_base32.txt")) {
+              safeprimes_file = (I3_BUILD/"/clsim/resources/safeprimes_base32.txt").string();
             }
           }
     }
