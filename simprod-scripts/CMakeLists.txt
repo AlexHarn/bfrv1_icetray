@@ -17,7 +17,9 @@ if (SPRNG_FOUND)
   )
 endif(SPRNG_FOUND)    
 
-i3_test_scripts(${TEST_SCRIPT_LIST})
+if(NOT ${COVERAGE})
+  i3_test_scripts(${TEST_SCRIPT_LIST})
+endif()
 
 if(NOT EXISTS resources/testdata)
     file(MAKE_DIRECTORY resources/testdata)
