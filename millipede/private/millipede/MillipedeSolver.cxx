@@ -256,7 +256,7 @@ Millipede::SolveEnergyLosses(MillipedeDOMCacheMap &datamap,
 	}
 
 	cholmod_dense *unfolded = pcg_poisson(basis, extra_terms, data, noise,
-	    1e-8, 0, 100, c);
+	    1e-10, 0, 100, c);
 	
 	cholmod_l_free_sparse(&extra_terms, c);
 	cholmod_l_free_dense(&noise, c);
