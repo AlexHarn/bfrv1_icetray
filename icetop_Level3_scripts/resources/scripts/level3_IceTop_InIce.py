@@ -28,8 +28,14 @@ def main(args, outputLevel=2):
     from icecube import dataio, icetop_Level3_scripts, dataclasses, phys_services, frame_object_diff
     from icecube.icetop_Level3_scripts import icetop_globals
 
-    icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_ERROR)
-    icetray.I3Logger.global_logger.set_level_for_unit("MakeQualityCuts",icetray.I3LogLevel.LOG_INFO)
+    ## Did the user set the log level?
+    if (outputLevel == 1):  # debug
+        icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_DEBUG)
+    elif (outputLevel == 0):  # trace
+        icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_TRACE)
+    else:
+        icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_ERROR)
+        icetray.I3Logger.global_logger.set_level_for_unit("MakeQualityCuts",icetray.I3LogLevel.LOG_INFO)
 
     if not args.L3_gcdfile:
         if args.isMC:
@@ -70,9 +76,11 @@ def main(args, outputLevel=2):
                     do_select = args.select,
                     isMC=args.isMC,
                     add_jitter=args.add_jitter,
-                    snowLambda=args.snowLambda
+                    snowLambda=args.snowLambda,
+                    pass2a=args.pass2a,
+                    ignore_slc_calib=args.noSLC
                     )
-    
+
     if args.do_inice:
         itpulses='IceTopHLCSeedRTPulses'
             
@@ -93,6 +101,7 @@ def main(args, outputLevel=2):
                         do_select=args.select,
                         IceTopTrack='Laputop',
                         IceTopPulses=itpulses,
+                        pass2a=args.pass2a
                         )
 
     if args.waveforms:
@@ -281,7 +290,7 @@ if __name__ == "__main__":
     parser.add_argument("--waveforms", action="store_true", dest="waveforms", help="Extract waveforms (only if more than 5 stations in HLC VEM pulses)")
     parser.add_argument("--select", action="store_true", dest="select", help="Apply selection (containment, max. signal and min. stations). Default is to calculate variables but not filter", default=False)
     parser.add_argument("--print-usage", action="store_true", dest="print_usage", help="Print CPU time usage at the end")
-    parser.add_argument("--debug", action="store_const", dest="log_level", help="Trace log-level", const=1, metavar="N", default=2)
+    parser.add_argument("--debug", action="store_const", dest="log_level", help="Debug log-level", const=1, metavar="N", default=2)
     parser.add_argument("--trace", action="store_const", dest="log_level", help="Trace log-level", const=0, metavar="N", default=2)
     parser.add_argument('--L3-gcdfile', dest='L3_gcdfile', help='Manually specify the L3 (diff) GCD file to be used. When you run in Madison, this is not needed.')
     parser.add_argument('--L2-gcdfile', dest='L2_gcdfile', help='Manually specify the L2 GCD file to be used. When you run in Madison with the standard L3 GCD diff, this is not needed.')
@@ -294,13 +303,13 @@ if __name__ == "__main__":
     parser.add_argument("--livetime", action="store", type=str, dest="livetime", help="Livetime file name, only needed for data. Needs to be pickle file", metavar="BASENAME")
     parser.add_argument("--spe-corr",action="store_true",dest="spe_corr",help="Should we do the SPE correction Level3?")
     parser.add_argument("--snow-lambda", action="store", type=float, dest="snowLambda", help="Attenuation factor for snow. If not defined, use the one defined for every year.")
+    parser.add_argument("--noSLC",action="store_true",dest="noSLC",help="Ignore SLC's and do not calibrate them? (Use this for experimentation, not production!)")
+    parser.add_argument("--pass2a",action="store_true",dest="pass2a",help="Use the frame-object naming conventions from pass2a?")
     parser.add_argument('inputFiles',help="Input file(s)",type=str,nargs="*")
 
     (args) = parser.parse_args()
     ok=True
     
-    icetray.I3Logger.global_logger.set_level(icetray.I3LogLevel.LOG_INFO)
-
     if not len(args.inputFiles)>0:
         icetray.logging.log_error("No input files found!")
         ok=False

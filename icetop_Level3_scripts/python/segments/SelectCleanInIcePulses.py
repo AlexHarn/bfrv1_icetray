@@ -7,6 +7,7 @@ def SelectCleanInIcePulses(tray,name,
                            CleanCoincPulses='CleanCoincPulses',
                            IceTopTrack='Laputop',
                            isMC=False,
+                           Pass2a=False,
                            If=lambda fr: True
                            ):
     # This segment actually does some preparations for the reconstruction of the energy loss of the muon bundle with millipede. 
@@ -32,7 +33,8 @@ def SelectCleanInIcePulses(tray,name,
                            Output='SaturationWindows', Waveforms='CalibratedWaveforms') #Current Threshold : default ( 50 mA)        
         
     else:
-        if Detector=="IC79" or Detector=="IC86.2011":
+        ## ---- NOTE: BEHAVIOR OF THIS (NOT DOING THIS) ON 2011-Pass2a IS UNKNOWN! --KR
+        if (Detector=="IC79" or Detector=="IC86.2011") and not Pass2a:
             tray.AddModule('I3WaveCalibrator', name + '_wavecal',
                            Launches='InIceRawData',
                            Waveforms='CalibratedWaveforms',

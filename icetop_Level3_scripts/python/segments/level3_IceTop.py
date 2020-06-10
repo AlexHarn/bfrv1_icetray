@@ -8,6 +8,8 @@ def level3_IceTop(tray, name,
                   simulate_background_rate=0, # For now, we set this to 0. No background simulation was decided at the CR call.
                   add_jitter=False,
                   snowLambda=None,
+                  pass2a=False,
+                  ignore_slc_calib=False
                   ):
 
     """
@@ -63,8 +65,15 @@ def level3_IceTop(tray, name,
             return True 
         tray.AddModule(replace_MCPrimary,name+'replace_MCPrim',Streams=[icetray.I3Frame.DAQ])
     
-    # Remove all inice frames. Then remove the lonely Q frames. Actually, this should already be fine, but not in IC86 simulations. 
-    tray.AddModule(lambda frame: frame['I3EventHeader'].sub_event_stream == icetop_globals.names[detector]["sub_event_stream"], name+'_subevent_stream')    
+    # Remove all inice frames. Then remove the lonely Q frames. Actually, this should already be fine, but not in IC86 simulations.
+    # Choose a stream
+    if (pass2a):
+        icetopStreamName = icetop_globals.names_pass2a[detector]["sub_event_stream"]
+    else:
+        icetopStreamName = icetop_globals.names[detector]["sub_event_stream"]
+    log_info("Looking for the icetop stream: ", icetopStreamName)
+    tray.AddModule(lambda frame: frame['I3EventHeader'].sub_event_stream == icetopStreamName, name+'_subevent_stream')
+
     tray.AddModule("I3OrphanQDropper",name+"_drop_q")
 
     # Now remove all events which did not pass a decent IT trigger (STA.. -trigger) and for STA3 events they should pass the smallshower filter.
@@ -73,7 +82,8 @@ def level3_IceTop(tray, name,
     if not isMC:
         tray.AddSegment(icetop_Level3_scripts.segments.ReRunFilters,name+"_rerunFilters",
                         Detector=detector,
-                        isMC=isMC)        
+                        isMC=isMC,
+                        Pass2a=pass2a)        
         
     # Remove now all Physics frames for MC.
     if isMC and simulate_background_rate > 0:
@@ -81,18 +91,21 @@ def level3_IceTop(tray, name,
             
     # Unify naming over all years.
     # Convert excluded_stations to excluded_tanks for all years
-    tray.AddModule(icetop_Level3_scripts.modules.UpdateNames, name+'_UpdateNames', Detector=detector)
+    tray.AddModule(icetop_Level3_scripts.modules.UpdateNames, name+'_UpdateNames', Detector=detector, Pass2a=pass2a)
 
     # Do SLC calibration (both charge and time)
-    from icecube.tpx.segments import CalibrateSLCs
-    tray.AddSegment(CalibrateSLCs, name+'_OfflineIceTopSLCVEMPulses',
-                    SLCVEMPulses=icetop_globals.icetop_slc_vem_pulses,   # input 
-                    SLCTankPulses=icetop_globals.icetop_slc_pulses,       # output, together with icetop_globals.icetop_slc_vem_pulses+'Calibrated' and TankPulseMergerExcludedSLCTanks
-                    )
-    
-    tray.AddModule(icetop_Level3_scripts.modules.I3IceTopSLCTimeCorrect,name+'_SLCTimeCorrect',
-                   SLCPulses=icetop_globals.icetop_slc_pulses,
-                   If=lambda fr: icetop_globals.icetop_slc_pulses in fr and len(fr[icetop_globals.icetop_slc_pulses])>0)
+    if (not ignore_slc_calib):
+        from icecube.tpx.segments import CalibrateSLCs
+        tray.AddSegment(CalibrateSLCs, name+'_OfflineIceTopSLCVEMPulses',
+                        SLCVEMPulses=icetop_globals.icetop_slc_vem_pulses,   # input
+                        SLCTankPulses=icetop_globals.icetop_slc_pulses,       # output, together with icetop_globals.icetop_slc_vem_pulses+'Calibrated' and TankPulseMergerExcludedSLCTanks
+                        )
+        
+        tray.AddModule(icetop_Level3_scripts.modules.I3IceTopSLCTimeCorrect,name+'_SLCTimeCorrect',
+                       SLCPulses=icetop_globals.icetop_slc_pulses,
+                       If=lambda fr: icetop_globals.icetop_slc_pulses in fr and len(fr[icetop_globals.icetop_slc_pulses])>0)
+    else:
+        log_warn("You have chosen to NOT calibrate SLC's! I hope that's what you intended!")
     
     # Do background simulation
     # After slc calibration 
@@ -114,10 +127,17 @@ def level3_IceTop(tray, name,
 
     # Do VEMCal correction for data, on all tankpulses.
     if not isMC:
-        tray.AddModule(icetop_Level3_scripts.modules.RecalibrateVEMPulses,
-                 InputPulsesP  = [icetop_globals.icetop_clean_hlc_pulses],
-                 InputPulsesQ  = [icetop_globals.icetop_hlc_pulses, icetop_globals.icetop_slc_pulses]
-                 )
+        if ignore_slc_calib:
+            tray.AddModule(icetop_Level3_scripts.modules.RecalibrateVEMPulses,
+                     InputPulsesP  = [icetop_globals.icetop_clean_hlc_pulses],
+                     InputPulsesQ  = [icetop_globals.icetop_hlc_pulses]
+                     )
+        else:
+            tray.AddModule(icetop_Level3_scripts.modules.RecalibrateVEMPulses,
+                     InputPulsesP  = [icetop_globals.icetop_clean_hlc_pulses],
+                     InputPulsesQ  = [icetop_globals.icetop_hlc_pulses, icetop_globals.icetop_slc_pulses]
+                     )
+                     
     # Remove the L2 reconstructions
     tray.AddSegment(icetop_Level3_scripts.segments.level2_IceTop.RemoveOldLevel2, name+'_RemoveOldLevel2')
 

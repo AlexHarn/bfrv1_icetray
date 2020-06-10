@@ -8,6 +8,7 @@ def level3_Coinc(tray,name,
                  InIcePulses='InIcePulses',
                  IceTopPulses='CleanedHLCTankPulses',
                  isMC=False,
+                 pass2a=False,
                  do_select=False,
                  domeff=0.99, #Beware!
                  spline_dir="/data/sim/sim-new/downloads/spline-tables/"
@@ -18,22 +19,22 @@ def level3_Coinc(tray,name,
     import math
     
 
-    # This module tries to select the inice pulses which are in a coincident time window with the IceTop pulses.                                                                                        
-    # Normally, it only looks to the trigger and then selects pulses in a time window around this.                                                                                                      
-    # However, if there are more multiple IT triggers, it uses the IT pulses in this P frame to find the correct IT trigger for this P frame.                                                            
-    # This module only runs if the coincident filter is passed and if there are good IT pulses in this P frame.                                                                                          
+    # This module tries to select the inice pulses which are in a coincident time window with the IceTop pulses.
+    # Normally, it only looks to the trigger and then selects pulses in a time window around this.
+    # However, if there are more multiple IT triggers, it uses the IT pulses in this P frame to find the correct IT trigger for this P frame.
+    # This module only runs if the coincident filter is passed and if there are good IT pulses in this P frame.
     # Otherwise we would put IC pulses in P frames which have for example only one cleaned, thus nbad, pulse.                                                                                             
     # We could probably make this module even smarter...                                                                 
     from icecube import coinc_twc
     tray.AddModule("I3CoincTWC<I3RecoPulseSeries>",name+"_CoincTWC",
-                   CheckSingleSMTs = True,          # default                                                                                                                                               
-                   cleanWindowMaxLength = 6500.,    # default                                                                                                                                               
-                   cleanWindowMinus = 300.,         # default                                                                                                                                               
-                   cleanWindowPlus = 400.,          # default                                                                                                                                               
-                   IceTopVEMPulsesName = IceTopPulses,  # just be safe to select IT SMT, if random coinc, will NOT pass the whole chain of cuts!                                                          
+                   CheckSingleSMTs = True,          # default
+                   cleanWindowMaxLength = 6500.,    # default
+                   cleanWindowMinus = 300.,         # default
+                   cleanWindowPlus = 400.,          # default
+                   IceTopVEMPulsesName = IceTopPulses,  # just be safe to select IT SMT, if random coinc, will NOT pass the whole chain of cuts!
                    InputResponse = InIcePulses,
-                   KeepLookingForCausalTrigger = False,   # default                                                                                                                                         
-                   KeepMultipleCausalTriggers = True,   # default                                                                                                                                           
+                   KeepLookingForCausalTrigger = False,   # default
+                   KeepMultipleCausalTriggers = True,   # default
                    OutputResponse =icetop_globals.inice_coinc_pulses,
                    TriggerHierarchyName = 'I3TriggerHierarchy',
                    UseSMT3 = False,
@@ -41,19 +42,20 @@ def level3_Coinc(tray,name,
                    MaxTimeDiff = 1500.,         # should be sharper? NO, just need to find A IT trigger, good reco + InIce size will clean out remaining random coinc!                                      
                    WindowMax = 7000.,
                    WindowMin = 2000.,          # 2000 should be suited for inclined showers up to 65 degrees, which land outside IceTop and hit the edge of IceCube.                                        
-                   Strategy = 'method2',       # 99.6% efficient!! vs 98% of method1                                                                                                                        
+                   Strategy = 'method2',       # 99.6% efficient!! vs 98% of method1
                    Stream = icetray.I3Frame.Physics,
                    If= lambda fr: (("IceTop_StandardFilter" in fr and fr["IceTop_StandardFilter"].value) or ("IceTop_InFillFilter" in fr and fr["IceTop_InFillFilter"].value)) and IceTopPulses in fr and len(dataclasses.I3RecoPulseSeriesMap.from_frame(fr,IceTopPulses).keys())>0
                    )
 
-    # This segment actually does some preparations for the reconstruction of the energy loss of the muon bundle with millipede.                                                                           
+    # This segment actually does some preparations for the reconstruction of the energy loss of the muon bundle with millipede. 
     # It cleans the inice pulses according to the inice track, and outputs NCh_+CleanCoincPulses, which is a boolean to see whether the cleaned pulses contain at least 8 DOMs.                             
-    # It furthermore handles time windows and calibration errata.                                                                                                                                         
+    # It furthermore handles time windows and calibration errata.
     tray.AddSegment(icetop_Level3_scripts.segments.SelectCleanInIcePulses,name+'_selectClean',
                     CoincPulses=icetop_globals.inice_coinc_pulses,
                     IceTopTrack=IceTopTrack,
                     Detector=Detector,
-                    CleanCoincPulses=icetop_globals.inice_clean_coinc_pulses,   
+                    CleanCoincPulses=icetop_globals.inice_clean_coinc_pulses,
+                    Pass2a=pass2a,
                     If=lambda fr: icetop_globals.inice_coinc_pulses in fr
                     )
 

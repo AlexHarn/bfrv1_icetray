@@ -5,7 +5,8 @@ from icecube.icetop_Level3_scripts import icetop_globals
 def ReRunFilters(tray,name,
                  Detector=None,
                  isMC=False,
-                 Pulses=icetop_globals.icetop_clean_hlc_pulses
+                 Pulses=icetop_globals.icetop_clean_hlc_pulses,
+                 Pass2a=False
                  ):
     '''
     This segment is ran because of the inconsistency between the different years regarding filtermask names, etc.
@@ -17,7 +18,7 @@ def ReRunFilters(tray,name,
     '''
     from icecube import filterscripts, icetop_Level3_scripts, dataclasses
     from icecube.icetray.i3logging import log_info,log_debug,log_fatal,log_warn
-    from icecube.icetop_Level3_scripts.icetop_globals import names
+    from icecube.icetop_Level3_scripts.icetop_globals import names, names_pass2a
 
     icetray.load('smallshower-filter', False)                                                                                                                                                                   
     # This unpacking is not needed for the I3CosmicRayFilter module, but is done such that the final output in L3 is the same for all events in all years.
@@ -36,10 +37,12 @@ def ReRunFilters(tray,name,
     tray.AddModule(UnpackDSTTriggers,name+"_unpackDSTTriggers",
                    Streams = [icetray.I3Frame.DAQ]
                    )
-
+    
+    
     # For IC79, and IC86.2011, we check whether one of the IT only filters (IceTopSTA or IceTop_InFill) is passed.
     # If so, we keep the event with its according L2 prescale.
-    if Detector=="IC79" or Detector=="IC86.2011":
+    ## ---- NOTE: BEHAVIOR OF THIS (NOT DOING THIS) ON 2011-Pass2a IS UNKNOWN! --KR
+    if (Detector=="IC79" or Detector=="IC86.2011") and not Pass2a:
         if Detector=="IC79":
             filters=["IceTopSTA3_10","IceTopSTA8_10"]
         else:
@@ -68,6 +71,7 @@ def ReRunFilters(tray,name,
         tray.AddModule(ITonlyFilters,name+"_CheckITFilters",Filters=filters, isMC=isMC, filterMaskName=filterMaskName)
         # If we remove P, we should also remove the Q frames
         tray.AddModule("I3OrphanQDropper",name+"_drop_IC79_IC86_2011_Q")
+    
 
     # Now run the filters again on the P frames.
     tray.AddModule('I3FilterModule<I3CosmicRayFilter_13>', name + '_CRFilter13',
@@ -77,18 +81,20 @@ def ReRunFilters(tray,name,
                    TriggerKey         = 'I3TriggerHierarchy'
                    )
     
+    
     # Run the SmallShower filter on the IceTopSTA3-only events
-    # This module searches for "good" STA3-STA4 events, i.e. not on the edge and clustered.                                                                                                                 
+    # This module searches for "good" STA3-STA4 events, i.e. not on the edge and clustered.
+    
     # First delete the L2 ones (They should actually be fine, but okay.)
     tray.AddModule("Delete",name+"_deleteSmallShower",
                    Keys=["IsSmallShower","SmallShowerNStations"])
 
     IceTopSmallShowerFilter = icetray.module_altconfig('I3IcePickModule<I3SmallShowerFilter>',
-                                                       CacheResults = False,                     # Default                                                                                            
-                                                       DiscardEvents = True,                    # Default                                                                                                  
-                                                       FilterGeometry = "IC86",                  # Current detector configuration                                                                   
-                                                       InvertFrameOutput = False,                # Default                                                                                         
-                                                       NEventsToPick = -1                        # Default                                                                                          
+                                                       CacheResults = False,                     # Default
+                                                       DiscardEvents = True,                    # Default
+                                                       FilterGeometry = "IC86",                  # Current detector configuration
+                                                       InvertFrameOutput = False,                # Default
+                                                       NEventsToPick = -1                        # Default
                                                        )
 
     tray.AddModule('I3IcePickModule<I3SmallShowerFilter>', name + "_SmallShowerFilter",
@@ -143,4 +149,5 @@ def ReRunFilters(tray,name,
         def AddPrescale(frame):
             frame["IceTop_EventPrescale"]=icetray.I3Int(1)
         tray.AddModule(AddPrescale,name+"_addDummyPrescale")
+    
     

@@ -2,7 +2,7 @@ from icecube.icetray import I3ConditionalModule, I3Frame
 from icecube import dataclasses
 from icecube.dataclasses import I3RecoPulseSeriesMapMask, I3EventHeader
 from icecube.icetray.i3logging import log_info, log_warn, log_debug, log_trace
-from icecube.icetop_Level3_scripts.icetop_globals import names
+from icecube.icetop_Level3_scripts.icetop_globals import names, names_pass2a
 
 class UpdateNames(I3ConditionalModule):
     """
@@ -12,11 +12,17 @@ class UpdateNames(I3ConditionalModule):
         I3ConditionalModule.__init__(self, ctx)
         self.AddOutBox("OutBox")
         self.AddParameter("Detector", "Detector configuration (IC79 or IC86.20*).")
-        
+        self.AddParameter("Pass2a", "Use naming convensions from pass2a?")
+
     def Configure(self):
         self.detector = self.GetParameter("Detector")
-        self.l2_names = names[self.detector]
-        self.l3_names = names['Level3']
+        self.p2a = self.GetParameter("Pass2a")
+        if (self.p2a):
+            self.l2_names = names_pass2a[self.detector]
+            self.l3_names = names_pass2a['Level3']
+        else:
+            self.l2_names = names[self.detector]
+            self.l3_names = names['Level3']
         
         # Make a list of names which possibly need to be changed, if their name is different in L2 compared to L3.
         # For the subevent stream we make a boolean. 
