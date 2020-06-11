@@ -5,6 +5,10 @@
 Release Notes
 =============
 
+trunk
+-----
+- Added parameter to ``I3SimpleFitter`` to identify the ``I3Geometry`` key to get from the frame
+
 Dec. 20, 2019 Alex Olivas (aolivas@umd.edu)
 -------------------------------------------
 Combo Release V00-00-00

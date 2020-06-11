@@ -129,6 +129,7 @@ class I3SimpleFitter : public I3ConditionalModule
         TraceModeType traceMode_;
 
         std::string fitName_;
+        std::string geometryName_;
         unsigned int eventNr_;
         unsigned int nSeeds_;
         unsigned int nSuccessFits_;

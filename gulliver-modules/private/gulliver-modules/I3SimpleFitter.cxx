@@ -58,6 +58,10 @@ I3SimpleFitter::I3SimpleFitter(const I3Context& ctx) : I3ConditionalModule(ctx)
                  "Seed service to use",
                  seedService_);
 
+    AddParameter("GeometryName",
+                 "Name of the I3Geometry object to use",
+                 geometryName_ = I3DefaultName<I3Geometry>::value());
+
     AddParameter("OutputName",
                  "Name of output I3Particle, and prefix for any fit parameter "
                  "frame objects",
@@ -119,6 +123,7 @@ void I3SimpleFitter::Configure()
     GetParameter("Parametrization", parametrization_);
     GetParameter("LogLikelihood", likelihood_);
     GetParameter("SeedService", seedService_);
+    GetParameter("GeometryName", geometryName_);
     GetParameter("OutputName", fitName_);
     GetParameter("StoragePolicy", storagePolicyString_);
     GetParameter("NonStdName", nonStdName_);
@@ -237,7 +242,7 @@ void I3SimpleFitter::Geometry(I3FramePtr frame)
     log_debug("(%s) Welcome to the Geometry method of I3SimpleFitter.",
               GetName().c_str());
 
-    const I3Geometry& geometry = frame->Get<I3Geometry>();
+    const I3Geometry& geometry = frame->Get<I3Geometry>(geometryName_);
     fitterCore_->SetGeometry(geometry);
 
     PushFrame(frame, "OutBox");
