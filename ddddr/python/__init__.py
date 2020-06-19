@@ -6,7 +6,7 @@ load_pybindings(__name__,__path__)
 
 try:
     import icecube.tableio
-    import converters
+    from . import converters
 except ImportError:
     pass
 
