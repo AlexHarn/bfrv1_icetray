@@ -12,8 +12,8 @@ def make_parser():
     parser.add_option("--waveforms", action="store_true", dest="waveforms", help="Extract waveforms (only if more than 5 stations in HLC VEM pulses)")
     parser.add_option("--select", action="store_true", dest="select", help="Apply selection (containment, max. signal and min. stations). Default is to calculate variables but not filter", default=False)
     parser.add_option("--print-usage", action="store_true", dest="print_usage", help="Print CPU time usage at the end")
-    parser.add_option("--debug", action="store_const", dest="log_level", help="Trace log-level", const=1, metavar="N", default=2)
-    parser.add_option("--trace", action="store_const", dest="log_level", help="Trace log-level", const=0, metavar="N", default=2)
+    #parser.add_option("--debug", action="store_const", dest="log_level", help="Trace log-level", const=1, metavar="N", default=2)
+    #parser.add_option("--trace", action="store_const", dest="log_level", help="Trace log-level", const=0, metavar="N", default=2)
     parser.add_option('--L3-gcdfile', dest='L3_gcdfile', help='Manually specify the L3 (diff) GCD file to be used. When you run in Madison, this is not needed.')
     parser.add_option('--L2-gcdfile', dest='L2_gcdfile', help='Manually specify the L2 GCD file to be used. When you run in Madison with the standard L3 GCD diff, this is not needed.')
     parser.add_option("-m","--isMC", action="store_true",dest="isMC", help= "Is this data or MC?")
@@ -26,6 +26,8 @@ def make_parser():
     parser.add_option("--spe-corr",action="store_true",dest="spe_corr",help="Should we do the SPE correction Level3?")
     parser.add_option("--snow-lambda", action="store", type=float, dest="snowLambda", help="Attenuation factor for snow. If not defined, use the one defined for every year.")
     parser.add_option("-i","--infile",action="store",dest="infile",type=str,help="List of infiles")
+    parser.add_option("--noSLC",action="store_true",dest="noSLC",help="Ignore SLC's and do not calibrate them? (Use this for experimentation, not production!)")
+    parser.add_option("--pass2a",action="store_true",dest="pass2a",help="Use the frame-object naming conventions from pass2a?")
     #parser.add_option('inputFiles',help="Input file(s)",type=str,nargs="*")
     
     return parser
@@ -184,7 +186,9 @@ def main(options, stats={}):
                     do_select = options['select'],
                     isMC=options['isMC'],
                     add_jitter=options['add_jitter'],
-                    snowLambda=options['snowLambda']
+                    snowLambda=options['snowLambda'],
+                    pass2a=options['pass2a'],
+                    ignore_slc_calib=options['noSLC']
                     )
     
     if options['do_inice']:
@@ -207,6 +211,7 @@ def main(options, stats={}):
                         do_select=options['select'],
                         IceTopTrack='Laputop',
                         IceTopPulses=itpulses,
+                        pass2a=options['pass2a']
                         )
 
     if options['waveforms']:

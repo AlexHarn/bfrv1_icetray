@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from icecube import icetray, dataio, dataclasses, phys_services
 from icecube.tableio import I3TableWriter
 from icecube.rootwriter import I3ROOTTableService
+from icecube.hdfwriter import I3HDFTableService
 from icecube.icetop_Level3_scripts import icetop_globals
 from icecube.frame_object_diff.segments import uncompress
 from I3Tray import *
@@ -16,7 +17,7 @@ def get_detector_from_filename(input_file):
     m = re.search("Level[^_]+_(IC[^_]+)_", input_file)
     if not m:
         raise ValueError("cannot parse %s for detector config" % input_file)
-    print m
+    print(m)
     return m.group(1)
 
 
@@ -34,7 +35,7 @@ def get_dataset_from_filename(input_file):
         raise ValueError("cannot parse %s for dataset" % input_file)
     return int(m.group(1))
 
-parser = ArgumentParser(usage='%s [options] -o <filename>.i3[.bz2|.gz] {i3 file list}'%os.path.basename(sys.argv[0]))
+parser = ArgumentParser(usage='%s [options] -o <filename>.root {i3 file list}'%os.path.basename(sys.argv[0]))
 parser.add_argument("-o", "--output", action="store", type=str, dest="output", help="Output file name", metavar="BASENAME")
 parser.add_argument("--do-inice", action="store_true",dest="do_inice",help= "Also do in-ice reco?")
 parser.add_argument("-n", action="store", type=int, dest="n", help="number of frames to process", metavar="N")
@@ -75,8 +76,7 @@ else:
     if args.output[-5:]==".root":
         table_service = I3ROOTTableService(args.output)
     elif args.output[-3:]==".h5":
-        icetray.logging.log_error("I do not know how to handle h5 files yet.")
-        ok=False
+        table_service = I3HDFTableService(args.output)
     else:
         icetray.logging.log_error("Wrong extension for booking.")
         ok=False
