@@ -46,13 +46,15 @@ const double I3CLSimMediumProperties::default_layersHeight=10000.*I3Units::m;
 const double I3CLSimMediumProperties::default_mediumDensity=1.*I3Units::g/I3Units::cm3;
 const double I3CLSimMediumProperties::default_rockZCoordinate=I3CLSimMediumProperties::default_layersZStart;
 const double I3CLSimMediumProperties::default_airZCoordinate=-I3CLSimMediumProperties::default_layersZStart;
+const double I3CLSimMediumProperties::default_meanCosineTheta=0.9;
 
 I3CLSimMediumProperties::I3CLSimMediumProperties(double mediumDensity,
                                                  uint32_t layersNum, 
                                                  double layersZStart, 
                                                  double layersHeight,
                                                  double rockZCoordinate,
-                                                 double airZCoordinate)
+                                                 double airZCoordinate,
+                                                 double meanCosineTheta)
 :
 mediumDensity_(mediumDensity),
 layersNum_(layersNum),
@@ -60,6 +62,7 @@ layersZStart_(layersZStart),
 layersHeight_(layersHeight),
 rockZCoordinate_(rockZCoordinate),
 airZCoordinate_(airZCoordinate),
+meanCosineTheta_(meanCosineTheta),
 forcedMinWlen_(-std::numeric_limits<double>::infinity()),
 forcedMaxWlen_(std::numeric_limits<double>::infinity()),
 anisotropyDirAzimuth_(0),
@@ -201,6 +204,14 @@ bool I3CLSimMediumProperties::IsReady() const
     return true;
 }
 
+bool I3CLSimMediumProperties::HasBirefringence() const
+{
+    if ( bfrParas_.empty() || bfrLayerScaling_.empty() )
+        return false;
+    else
+        return true;
+}
+
 const std::vector<I3CLSimFunctionConstPtr> &I3CLSimMediumProperties::GetAbsorptionLengths() const
 {
     return absorptionLength_;
@@ -276,6 +287,16 @@ I3CLSimScalarFieldConstPtr I3CLSimMediumProperties::GetIceTiltZShift() const
     return iceTiltZShift_;
 }
 
+std::vector<double> I3CLSimMediumProperties::GetBirefringenceParameters() const
+{
+    return bfrParas_;
+}
+
+std::vector<double> I3CLSimMediumProperties::GetBirefringenceLayerScaling() const
+{
+    return bfrLayerScaling_;
+}
+
 void I3CLSimMediumProperties::SetAbsorptionLength(uint32_t layer, I3CLSimFunctionConstPtr ptr)
 {
     if (layer >= layersNum_) log_fatal("Invalid layer num: %" PRIu32, layer);
@@ -330,6 +351,15 @@ void I3CLSimMediumProperties::SetIceTiltZShift(I3CLSimScalarFieldConstPtr ptr)
     iceTiltZShift_=ptr;
 }
 
+void I3CLSimMediumProperties::SetBirefringenceParameters(std::vector<double> bfrParas)
+{
+    bfrParas_ = bfrParas;
+}
+
+void I3CLSimMediumProperties::SetBirefringenceLayerScaling(std::vector<double> bfrLayerScaling)
+{
+    bfrLayerScaling_ = bfrLayerScaling;
+}
 
 namespace {
     template <typename T, class Archive>

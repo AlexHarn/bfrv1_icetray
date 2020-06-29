@@ -10,12 +10,13 @@ from icecube import icetray, ppc, clsim, phys_services, dataclasses, simclasses
 from os.path import expandvars, join, isfile
 from os import environ
 import tempfile, shutil
+from argparse import ArgumentParser
 
 import numpy
 
 parser = ArgumentParser()
 parser.add_argument('-g', '--gcd-file', default=expandvars('$I3_DATA/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz'))
-parser.add_argument('--use-gpus', default=False, action='store_true')
+parser.add_argument('--use-gpus', default=True, action='store_true')
 parser.add_argument('--oversize', default=1, type=int)
 parser.add_argument('--energy', default=1e3, type=float)
 parser.add_argument('-o', '--output-file', default=None)

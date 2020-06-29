@@ -448,18 +448,22 @@ void register_I3CLSimFunction()
          "I3CLSimFunctionScatLenIceCube",
          bp::init<
          double,
+         double,
          double
          >(
            (
             bp::arg("alpha"),
-            bp::arg("b400")
+            bp::arg("b400"),
+            bp::arg("bfrCorrection")=0
             )
            )
          )
         .def("GetAlpha", &I3CLSimFunctionScatLenIceCube::GetAlpha)
         .def("GetB400", &I3CLSimFunctionScatLenIceCube::GetB400)
+        .def("GetBfrCorrection", &I3CLSimFunctionScatLenIceCube::GetBfrCorrection)
         .add_property("alpha", &I3CLSimFunctionScatLenIceCube::GetAlpha)
         .add_property("b400", &I3CLSimFunctionScatLenIceCube::GetB400)
+        .add_property("bfrCorrection", &I3CLSimFunctionScatLenIceCube::GetBfrCorrection)
         .def("__mul__", &I3CLSimFunctionScatLenIceCube::Scale)
         ;
     }

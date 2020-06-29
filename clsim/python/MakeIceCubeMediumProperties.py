@@ -16,7 +16,8 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # 
 # 
-# $Id: MakeIceCubeMediumProperties.py 118519 2014-04-05 16:42:23Z claudio.kopper $
+# $Id: MakeIceCubeMediumProperties.py 118519 2014-04-05 16:42:23Z
+# claudio.kopper $
 # 
 # @file MakeIceCubeMediumProperties.py
 # @version $Revision: 118519 $
@@ -99,24 +100,35 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
     meanCosineTheta       = icemodel_cfg[3]
 
     hasAnisotropy = False
-    if len(icemodel_cfg) > 4 and len(icemodel_cfg) < 7:
-        raise RuntimeError(iceDataDirectory+"/cfg.txt has more than 4 lines (this means you probably get ice anisotropy), but it needs at least 7 lines in this case.")
+    if len(icemodel_cfg) > 4 and len(icemodel_cfg) < 7:  # Anisotropy
+        raise RuntimeError(iceDataDirectory+"/cfg.txt has more than 4 lines (this means you probably get ice anisotropy/birefringence), but it needs at least 7 lines in this case.")
     elif len(icemodel_cfg) > 4:
         hasAnisotropy = True
         anisotropyDirAzimuth  = icemodel_cfg[4]*I3Units.deg # direction of ice tilt (perp. to flow)
         magnitudeAlongDir     = icemodel_cfg[5]             # magnitude of ice anisotropy along tilt
         magnitudePerpToDir    = icemodel_cfg[6]             # magnitude of ice anisotropy along flow
 
+    # The lines in between are for hole ice and other anisotropy models currently
+    # not supported in clsim.
+
+    hasBFR = False  # Birifringence
+    if len(icemodel_cfg) > 16 and len(icemodel_cfg) < 28:  # Birefringence
+        raise RuntimeError(iceDataDirectory+"/cfg.txt has more than 16 lines (this means you probably get birefringence), but it needs at least 28 lines in this case.")
+    elif len(icemodel_cfg) > 16:
+        hasBFR = True
+        bfrParas = icemodel_cfg[16:]
+        if len(bfrParas) > 12:
+            raise RuntimeError(iceDataDirectory+"/cfg.txt has more parameters than expected.")
 
     if liuScatteringFraction<0. or liuScatteringFraction>1.:
         raise RuntimeError("Invalid Liu(SAM) scattering fraction configured in cfg.txt: value=%g" % liuScatteringFraction)
     if meanCosineTheta<-1. or meanCosineTheta>1.:
         raise RuntimeError("Invalid <cos(theta)> configured in cfg.txt: value=%g" % meanCosineTheta)
     
-    depth = icemodel_dat[0]*I3Units.m
-    b_e400 = icemodel_dat[1]
-    a_dust400 = icemodel_dat[2]
-    delta_tau = icemodel_dat[3]
+    depth = icemodel_dat[0]*I3Units.m  # depth (z coordinate) of each layer
+    b_e400 = icemodel_dat[1]  # dust scattering length for each layer
+    a_dust400 = icemodel_dat[2]  # dust absorption length for each layer
+    delta_tau = icemodel_dat[3]  # relative temperature difference for each layer
     
     # check delta_tau values against formula
     # According to the IceCube paper, these values should be calculated like this.
@@ -160,7 +172,7 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
     # layerZ is in z-coordinates, from bottom to top (ascending z)
     depthAtBottomOfLayer = depth + layerHeight
     layerZStart = detectorCenterDepth - depthAtBottomOfLayer
-    layerZEnd = detectorCenterDepth - depth
+    # layerZEnd = detectorCenterDepth - depth
     
     ##### start making the medium property object
     
@@ -170,7 +182,8 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
                                 layersHeight=layerHeight,
                                 rockZCoordinate=-870.*I3Units.m,
                                 # TODO: inbetween: from 1740 upwards: less dense ice (factor 0.825)
-                                airZCoordinate=1940.*I3Units.m)
+                                airZCoordinate=1940.*I3Units.m,
+                                meanCosineTheta=meanCosineTheta)
     
     # None of the IceCube wlen-dependent functions have a fixed minimum
     # or maximum wavelength value set. We need to set some sensible range here.
@@ -187,14 +200,12 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
         fractionOfFirstDistribution=liuScatteringFraction)
     m.SetScatteringCosAngleDistribution(iceCubeScatModel)
     
-    if not hasAnisotropy:
+    if not hasAnisotropy or hasBFR:  # the old anisotropy model and the new BFR model are mutually exclusive
         # no ice/water anisotropy. all of these three are no-ops
         m.SetDirectionalAbsorptionLengthCorrection(I3CLSimScalarFieldConstant(1.))
         m.SetPreScatterDirectionTransform(I3CLSimVectorTransformConstant())
         m.SetPostScatterDirectionTransform(I3CLSimVectorTransformConstant())
     else:
-        # print("Anisotropy! Whooo!", anisotropyDirAzimuth/I3Units.deg, magnitudeAlongDir, magnitudePerpToDir)
-
         absLenScaling, preScatterTransform, postScatterTransform = \
             util.GetSpiceLeaAnisotropyTransforms(
                 anisotropyDirAzimuth,
@@ -205,11 +216,12 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
         m.SetDirectionalAbsorptionLengthCorrection(absLenScaling)
         m.SetPreScatterDirectionTransform(preScatterTransform)
         m.SetPostScatterDirectionTransform(postScatterTransform)
-        m.SetAnisotropyParameters(anisotropyDirAzimuth,magnitudeAlongDir,magnitudePerpToDir);
+
+    if hasAnisotropy or hasBFR:  # BFR needs anisotropyDirAzimuth
+        m.SetAnisotropyParameters(anisotropyDirAzimuth, magnitudeAlongDir,
+                                  magnitudePerpToDir)
 
     if useTilt:
-        # print("Tilt! Wheee!")
-
         m.SetIceTiltZShift(
             util.GetIceTiltZShift(
                 tiltDirectory = iceDataDirectory,
@@ -220,11 +232,16 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
         # no ice tilt
         m.SetIceTiltZShift(I3CLSimScalarFieldConstant(0.))
 
+    if hasBFR:
+        if len(icemodel_dat) < 7:
+            raise RuntimeError("There are birifringence parameters in cfg.txt but the 7th column for BFR scaling in icemodel.dat is missing!")
+        bfrLayerScale = icemodel_dat[6][::-1]
+        m.SetBirefringenceParameters(bfrParas)
+        m.SetBirefringenceLayerScaling(bfrLayerScale)
+
     phaseRefIndex = I3CLSimFunctionRefIndexIceCube(mode="phase")
     groupRefIndex = I3CLSimFunctionRefIndexIceCube(mode="group")
     for i in range(len(layerZStart)):
-        #print "layer {0}: depth at bottom is {1} (z_bottom={2}), b_400={3}".format(i, depthAtBottomOfLayer[i], layerZStart[i], b_400[i])
-        
         m.SetPhaseRefractiveIndex(i, phaseRefIndex)
 
         # the IceCube group refractive index parameterization is not exactly 
@@ -238,8 +255,8 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
                                                         deltaTau=delta_tau[i])
         m.SetAbsorptionLength(i, absLen)
 
-        scatLen = I3CLSimFunctionScatLenIceCube(alpha=alpha,
-                                                          b400=b_400[i])
+        scatLen = I3CLSimFunctionScatLenIceCube(alpha=alpha, b400=b_400[i])
+
         m.SetScatteringLength(i, scatLen)
 
     if not returnParameters:
@@ -254,4 +271,6 @@ def MakeIceCubeMediumProperties(detectorCenterDepth = 1948.07*I3Units.m,
             parameters["anisotropyDirAzimuth"]=float('NaN')
             parameters["anisotropyMagnitudeAlongDir"]=float('NaN')
             parameters["anisotropyMagnitudePerpToDir"]=float('NaN')
+        if hasBFR:
+            parameters["bfrParameters"]=bfrParas
         return (m, parameters)

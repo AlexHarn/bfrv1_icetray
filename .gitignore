@@ -1,2 +1,8 @@
 # Ignore all compiled Python modules.
 *.py[cod]
+
+# vim swap files
+.*.swp
+
+*.npz
+*.png

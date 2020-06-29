@@ -338,7 +338,9 @@ namespace I3CLSimModuleHelper {
         conv->SetPhotonHistoryEntries(photonHistoryEntries);
 
         conv->Compile();
-        //log_trace("%s", conv.GetFullSource().c_str());
+        //log_trace("%s", conv->GetFullSource().c_str());
+        //std::cout << conv->GetFullSource();
+        //exit(0);
         
         std::size_t maxWorkgroupSize = conv->GetMaxWorkgroupSize();
         if (limitWorkgroupSize!=0) {

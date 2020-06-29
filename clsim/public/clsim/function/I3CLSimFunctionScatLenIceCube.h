@@ -43,7 +43,8 @@ class I3CLSimFunctionScatLenIceCube : public I3CLSimFunction
 {
 public:
     I3CLSimFunctionScatLenIceCube(double alpha,
-                                  double b400
+                                  double b400,
+                                  double bfrCorrection=0
                                  );
     virtual ~I3CLSimFunctionScatLenIceCube();
     
@@ -90,6 +91,7 @@ public:
     // access to the internal state
     inline double GetAlpha() const {return alpha_;}
     inline double GetB400() const {return b400_;}
+    inline double GetBfrCorrection() const {return bfrCorrection_;}
     
 private:
     I3CLSimFunctionScatLenIceCube();
@@ -97,6 +99,7 @@ private:
 
     double alpha_;
     double b400_;
+    double bfrCorrection_;
     
     
     friend class icecube::serialization::access;

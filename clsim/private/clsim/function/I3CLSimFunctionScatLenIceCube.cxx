@@ -35,12 +35,11 @@
 using namespace I3CLSimHelper;
 
 I3CLSimFunctionScatLenIceCube::
-I3CLSimFunctionScatLenIceCube(double alpha,
-                                        double b400
-                                        )
+I3CLSimFunctionScatLenIceCube(double alpha, double b400, double bfrCorrection)
 :
 alpha_(alpha),
-b400_(b400)
+b400_(b400),
+bfrCorrection_(bfrCorrection)
 { 
 }
 
@@ -53,12 +52,19 @@ I3CLSimFunctionScatLenIceCube::~I3CLSimFunctionScatLenIceCube()
 double I3CLSimFunctionScatLenIceCube::GetValue(double wlen) const
 {
     const double x = wlen/I3Units::nanometer;
-    return I3Units::m/( b400_ * std::pow(x/400., -alpha_) );
+    return I3Units::m/( b400_ * std::pow(x/400., -alpha_) - bfrCorrection_);
 }
 
 
 std::string I3CLSimFunctionScatLenIceCube::GetOpenCLFunction(const std::string &functionName) const
 {
+    /*
+     * WARNING: This function is not actually called. There is an optimized
+     * version in I3CLSimHelperGenerateMediumPropertiesSource_Optimizers.cxx
+     * that is called instead...
+     */
+    log_fatal("Attempting to call I3CLSimFunctionScatLenIceCube::GetOpenCLFunction, which is not supported anymore! The optimized version in I3CLSimHelperGenerateMediumPropertiesSource_Optimizers.cxx is used instead.");
+
     std::string funcDef = 
     std::string("inline float ") + functionName + std::string("(float wlen)\n");
 
@@ -69,16 +75,18 @@ std::string I3CLSimFunctionScatLenIceCube::GetOpenCLFunction(const std::string &
     "{\n"
     "    const float alpha = " + ToFloatString(alpha_) + ";\n"
     "    const float b400 = " + ToFloatString(b400_) + ";\n"
+    "    const float bfrCorrection = " + ToFloatString(bfrCorrection_) + ";\n"
     "    \n"
     "#ifdef USE_NATIVE_MATH\n"
-    "    return " + ToFloatString(I3Units::m) + "*native_recip( b400 * native_powr(wlen*" + refWlenAsString + ", -alpha) );\n"
+    "    return " + ToFloatString(I3Units::m) + "*native_recip( b400 * native_powr(wlen*" + refWlenAsString + ", -alpha) - bfrCorrection );\n"
     "#else\n"
-    "    return " + ToFloatString(I3Units::m) + "/( b400 * powr(wlen*" + refWlenAsString + ", -alpha) );\n"
+    "    return " + ToFloatString(I3Units::m) + "/( b400 * powr(wlen*" + refWlenAsString + ", -alpha) - bfrCorrection);\n"
     "#endif\n"
     "}\n"
     ;
     
-    return funcDef + ";\n\n" + funcDef + funcBody;
+    //return funcDef + ";\n\n" + funcDef + funcBody;
+    return "";
 }
 
 bool I3CLSimFunctionScatLenIceCube::CompareTo(const I3CLSimFunction &other) const
@@ -87,7 +95,8 @@ bool I3CLSimFunctionScatLenIceCube::CompareTo(const I3CLSimFunction &other) cons
     {
         const I3CLSimFunctionScatLenIceCube &other_ = dynamic_cast<const I3CLSimFunctionScatLenIceCube &>(other);
         return ((other_.alpha_ == alpha_) &&
-                (other_.b400_ == b400_));
+                (other_.b400_ == b400_) &&
+                (other_.bfrCorrection_ == bfrCorrection_));
     }
     catch (const std::bad_cast& e)
     {
@@ -119,6 +128,7 @@ void I3CLSimFunctionScatLenIceCube::serialize(Archive &ar, unsigned version)
     ar & make_nvp("I3CLSimFunction", base_object<I3CLSimFunction>(*this));
     ar & make_nvp("alpha", alpha_);
     ar & make_nvp("b400", b400_);
+    ar & make_nvp("bfrCorrection", bfrCorrection_);
 }
 
 

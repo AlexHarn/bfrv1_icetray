@@ -795,6 +795,46 @@ __kernel void propKernel(
         photonPosAndTime.w += inv_groupvel*distancePropagated;
         photonTotalPathLength += distancePropagated;
 
+#ifdef BIREFRINGENCE
+        float dot = flowX*photonDirAndWlen.x + flowY*photonDirAndWlen.y;
+        float sdt = sqrt(1 - dot*dot);
+        float cdt = fabs(dot);
+
+        // aniz az=ez->az[J]; I think: az.ra = bfrLayerScaling[currentPhotonLayer]
+        float rb = bfrLayerScaling[min(max(findLayerForGivenZPos(photonPosAndTime.z), 0), MEDIUM_LAYERS-1)]*distancePropagated;
+        float ra = sqrt(rb);
+        float sx=max(0.f, ra*bfrParas[0]*exp(-bfrParas[1]*pow(atan(bfrParas[3]*sdt), bfrParas[2])));
+        float sy=max(0.f, ra*bfrParas[4]*exp(-bfrParas[5]*pow(atan(bfrParas[7]*sdt), bfrParas[6])));
+        float mx=max(0.f, rb*bfrParas[8]*atan(bfrParas[11]*sdt*cdt)*exp(-bfrParas[9]*sdt+bfrParas[10]*cdt));
+
+        float r=sqrt(-2*log(RNG_CALL_UNIFORM_CO));
+        float q = 2*PI*RNG_CALL_UNIFORM_CO;
+        float dnx=sx*r*sin(q)+mx;
+        float dny=sy*r*cos(q);
+
+        dnx/=2, dny/=2;
+        float den=dnx*dnx+dny*dny;
+        float dnz=-den; den=2/(1+den);
+        dnx*=den, dny*=den, dnz*=den;
+
+        float3 flow=(float3)(flowX, flowY, 0);
+        float3 qz = photonDirAndWlen.xyz;
+        float3 qx=flow-dot*qz; if(dot<0) qx=-qx;
+        float qn=qx.x*qx.x+qx.y*qx.y+qx.z*qx.z;
+        if(qn>0) qx*=rsqrt(qn); else qx=(float3)(0, 0, 1);
+        float3 qy=(float3)(qz.y*qx.z-qz.z*qx.y, qz.z*qx.x-qz.x*qx.z, qz.x*qx.y-qz.y*qx.x);
+
+        photonDirAndWlen.xyz += qx*dnx+qy*dny+qz*dnz;
+
+        // normalize
+        #ifdef USE_NATIVE_MATH
+            photonDirAndWlen.xyz = fast_normalize(photonDirAndWlen.xyz);
+        #else
+            const float norm = rsqrt(photonDirAndWlen.x*photonDirAndWlen.x + photonDirAndWlen.y*photonDirAndWlen.y + photonDirAndWlen.z*photonDirAndWlen.z);
+            photonDirAndWlen.xyz *= norm;
+        #endif
+#endif // Birefringence
+
         // absorb or scatter the photon
         if (abs_lens_left < EPSILON) 
         {

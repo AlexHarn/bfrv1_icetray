@@ -54,13 +54,15 @@ public:
     static const double default_layersHeight;
     static const double default_rockZCoordinate;
     static const double default_airZCoordinate;
+    static const double default_meanCosineTheta;
     
     I3CLSimMediumProperties(double mediumDensity=default_mediumDensity,
                             uint32_t layersNum=default_layersNum, 
                             double layersZStart=default_layersZStart, 
                             double layersHeight=default_layersHeight,
                             double rockZCoordinate=default_rockZCoordinate,
-                            double airZCoordinate=default_airZCoordinate);
+                            double airZCoordinate=default_airZCoordinate,
+                            double meanCosineTheta=default_meanCosineTheta);
     ~I3CLSimMediumProperties();
 
     /**
@@ -68,6 +70,12 @@ public:
      */
     bool IsReady() const;
     
+    /**
+     * Returns true if the loaded icemodel uses birefringence, in which case we
+     * also assume it's IceCube.
+     */
+    bool HasBirefringence() const;
+
     const std::vector<I3CLSimFunctionConstPtr> &GetAbsorptionLengths() const;
     const std::vector<I3CLSimFunctionConstPtr> &GetScatteringLengths() const;
     const std::vector<I3CLSimFunctionConstPtr> &GetPhaseRefractiveIndices() const;
@@ -82,6 +90,8 @@ public:
     I3CLSimVectorTransformConstPtr GetPreScatterDirectionTransform() const;
     I3CLSimVectorTransformConstPtr GetPostScatterDirectionTransform() const;
     std::tuple<double,double,double> GetAnisotropyParameters() const;
+    std::vector<double> GetBirefringenceParameters() const;
+    std::vector<double> GetBirefringenceLayerScaling() const;
     
     I3CLSimScalarFieldConstPtr GetIceTiltZShift() const;
 
@@ -95,6 +105,8 @@ public:
     void SetPostScatterDirectionTransform(I3CLSimVectorTransformConstPtr ptr);
     void SetAnisotropyParameters(double anisotropyDirAzimuth, double magnitudeAlongDir, double magnitudePerpToDir);
     void SetIceTiltZShift(I3CLSimScalarFieldConstPtr ptr);
+    void SetBirefringenceParameters(std::vector<double> bfrParas);
+    void SetBirefringenceLayerScaling(std::vector<double> bfrLayerScaling);
 
     double GetMinWavelength() const;
     double GetMaxWavelength() const;
@@ -106,6 +118,7 @@ public:
     inline double GetLayersHeight() const {return layersHeight_;}
     inline double GetRockZCoord() const {return rockZCoordinate_;}
     inline double GetAirZCoord() const {return airZCoordinate_;}
+    inline double GetMeanCosineTheta() const {return meanCosineTheta_;}
     
     // The user can specify a minimum and maximum wavelength.
     // This is necessary if none of the I3CLSimFunctions
@@ -127,6 +140,8 @@ private:
     
     double rockZCoordinate_;
     double airZCoordinate_;
+
+    double meanCosineTheta_;
     
     double forcedMinWlen_;
     double forcedMaxWlen_;
@@ -136,6 +151,9 @@ private:
     double anisotropyDirAzimuth_;
     double magnitudeAlongDir_;
     double magnitudePerpToDir_;
+
+    std::vector<double> bfrParas_;
+    std::vector<double> bfrLayerScaling_;
 
     std::vector<I3CLSimFunctionConstPtr> absorptionLength_;
     std::vector<I3CLSimFunctionConstPtr> scatteringLength_;

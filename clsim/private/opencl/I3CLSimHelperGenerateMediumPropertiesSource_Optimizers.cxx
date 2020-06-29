@@ -200,7 +200,7 @@ namespace I3CLSimHelper
         // are all of them of type I3CLSimFunctionScatLenIceCube?
         const std::vector<I3CLSimFunctionScatLenIceCubeConstPtr> layeredFunctionIceCube =
         dynamic_vector_contents_cast<I3CLSimFunctionScatLenIceCube>(layeredFunction, worked);
-        if (layeredFunctionIceCube.size() <= 1) worked=false;
+        if (layeredFunctionIceCube.size() < 1) worked=false;
         if (!worked) return std::string("");
         
         {
@@ -224,7 +224,7 @@ namespace I3CLSimHelper
         }
         code << "};\n";
         code << "\n";
-        
+
         code << "inline float " << functionName << "(unsigned int layer, float wlen);\n\n";
         code << "inline float " << functionName << "(unsigned int layer, float wlen)\n";
         code << "{\n";
@@ -233,11 +233,19 @@ namespace I3CLSimHelper
 
         code << "    const float alpha = " << ToFloatString(layeredFunctionIceCube[0]->GetAlpha()) << ";\n";
         code << "    \n";
+        code << "#ifdef BIREFRINGENCE\n"; // only do the BFR correction calculation if BFR is enabled
         code << "#ifdef USE_NATIVE_MATH\n";
-        code << "    return " << ToFloatString(I3Units::meter) << "*native_recip( " << functionName << "_b400[layer] * native_powr(wlen*" + refWlenAsString + ", -alpha) );\n";
-        code << "#else\n";
-        code << "    return " << ToFloatString(I3Units::meter) << "/( " << functionName << "_b400[layer] * powr(wlen*" + refWlenAsString + ", -alpha) );\n";
-        code << "#endif\n";
+        code << "    return " << ToFloatString(I3Units::meter) << "*native_recip( " << functionName << "_b400[layer] * native_powr(wlen*" + refWlenAsString + ", -alpha) - bfrScatteringCorrection[layer] );\n";
+        code << "#else\n"; // USE_NATIVE_MATH
+        code << "    return " << ToFloatString(I3Units::meter) << "/( " << functionName << "_b400[layer] * powr(wlen*" + refWlenAsString + ", -alpha) - bfrScatteringCorrection[layer]);\n";
+        code << "#endif\n"; // USE_NATIVE_MATH
+        code << "#else\n"; // BIREFRINGENCE
+        code << "#ifdef USE_NATIVE_MATH\n";
+        code << "    return " << ToFloatString(I3Units::meter) << "*native_recip( " << functionName << "_b400[layer] * native_powr(wlen*" + refWlenAsString + ", -alpha));\n";
+        code << "#else\n"; // USE_NATIVE_MATH
+        code << "    return " << ToFloatString(I3Units::meter) << "/( " << functionName << "_b400[layer] * powr(wlen*" + refWlenAsString + ", -alpha));\n";
+        code << "#endif\n"; // USE_NATIVE_MATH
+        code << "#endif\n"; // BIREFRINGENCE
         
         code << "}\n";
         code << "\n";

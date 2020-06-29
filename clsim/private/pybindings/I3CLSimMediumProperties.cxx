@@ -51,7 +51,7 @@ void register_I3CLSimMediumProperties()
         bp::scope I3CLSimMediumProperties_scope = 
         bp::class_<I3CLSimMediumProperties, bases<I3FrameObject>, boost::shared_ptr<I3CLSimMediumProperties> >
         ("I3CLSimMediumProperties",
-         bp::init<double, uint32_t, double, double, double, double>
+         bp::init<double, uint32_t, double, double, double, double, double>
          (
           (
            bp::arg("mediumDensity")=I3CLSimMediumProperties::default_mediumDensity,
@@ -59,11 +59,13 @@ void register_I3CLSimMediumProperties()
            bp::arg("layersZStart")=I3CLSimMediumProperties::default_layersZStart,
            bp::arg("layersHeight")=I3CLSimMediumProperties::default_layersHeight,
            bp::arg("rockZCoordinate")=I3CLSimMediumProperties::default_rockZCoordinate,
-           bp::arg("airZCoordinate")=I3CLSimMediumProperties::default_airZCoordinate
+           bp::arg("airZCoordinate")=I3CLSimMediumProperties::default_airZCoordinate,
+           bp::arg("meanCosineTheta")=I3CLSimMediumProperties::default_meanCosineTheta
           )
          )
         )
         .def("IsReady", &I3CLSimMediumProperties::IsReady)
+        .def("HasBirefringence",  &I3CLSimMediumProperties::HasBirefringence)
         .def("GetAbsorptionLength", &I3CLSimMediumProperties::GetAbsorptionLength)
         .def("GetScatteringLength", &I3CLSimMediumProperties::GetScatteringLength)
         .def("GetPhaseRefractiveIndex", &I3CLSimMediumProperties::GetPhaseRefractiveIndex)
@@ -74,6 +76,8 @@ void register_I3CLSimMediumProperties()
         .def("GetPostScatterDirectionTransform", &I3CLSimMediumProperties::GetPostScatterDirectionTransform)
         .def("GetAnisotropyParameters", &GetAnisotropyParameters)
         .def("GetIceTiltZShift", &I3CLSimMediumProperties::GetIceTiltZShift)
+        .def("GetBirefringenceParameters", &I3CLSimMediumProperties::GetBirefringenceParameters)
+        .def("GetBirefringenceLayerScaling", &I3CLSimMediumProperties::GetBirefringenceLayerScaling)
         .def("SetAbsorptionLength", &I3CLSimMediumProperties::SetAbsorptionLength)
         .def("SetScatteringLength", &I3CLSimMediumProperties::SetScatteringLength)
         .def("SetPhaseRefractiveIndex", &I3CLSimMediumProperties::SetPhaseRefractiveIndex)
@@ -84,6 +88,8 @@ void register_I3CLSimMediumProperties()
         .def("SetPostScatterDirectionTransform", &I3CLSimMediumProperties::SetPostScatterDirectionTransform)
         .def("SetAnisotropyParameters", &I3CLSimMediumProperties::SetAnisotropyParameters)
         .def("SetIceTiltZShift", &I3CLSimMediumProperties::SetIceTiltZShift)
+        .def("SetBirefringenceParameters", &I3CLSimMediumProperties::SetBirefringenceParameters)
+        .def("SetBirefringenceLayerScaling", &I3CLSimMediumProperties::SetBirefringenceLayerScaling)
         .add_property("AbsorptionLength", &I3CLSimMediumProperties::GetAbsorptionLength, &I3CLSimMediumProperties::SetAbsorptionLength)
         .add_property("ScatteringLength", &I3CLSimMediumProperties::GetScatteringLength, &I3CLSimMediumProperties::SetScatteringLength)
         .add_property("PhaseRefractiveIndex", &I3CLSimMediumProperties::GetPhaseRefractiveIndex, &I3CLSimMediumProperties::SetPhaseRefractiveIndex)
@@ -93,6 +99,8 @@ void register_I3CLSimMediumProperties()
         .add_property("PreScatterDirectionTransform", &I3CLSimMediumProperties::GetPreScatterDirectionTransform, &I3CLSimMediumProperties::SetPreScatterDirectionTransform)
         .add_property("PostScatterDirectionTransform", &I3CLSimMediumProperties::GetPostScatterDirectionTransform, &I3CLSimMediumProperties::SetPostScatterDirectionTransform)
         .add_property("IceTiltZShift", &I3CLSimMediumProperties::GetIceTiltZShift, &I3CLSimMediumProperties::SetIceTiltZShift)
+        .add_property("BirefringenceParameters", &I3CLSimMediumProperties::GetBirefringenceParameters, &I3CLSimMediumProperties::SetBirefringenceParameters)
+        .add_property("BirefringenceLayerScaling", &I3CLSimMediumProperties::GetBirefringenceLayerScaling, &I3CLSimMediumProperties::SetBirefringenceLayerScaling)
 
         .def("GetMinWavelength", &I3CLSimMediumProperties::GetMinWavelength)
         .def("GetMaxWavelength", &I3CLSimMediumProperties::GetMaxWavelength)
@@ -110,6 +118,7 @@ void register_I3CLSimMediumProperties()
 
         .def("GetRockZCoord", &I3CLSimMediumProperties::GetRockZCoord)
         .def("GetAirZCoord", &I3CLSimMediumProperties::GetAirZCoord)
+        .def("GetMeanCosineTheta", &I3CLSimMediumProperties::GetMeanCosineTheta)
         .add_property("RockZCoord", &I3CLSimMediumProperties::GetRockZCoord)
         .add_property("AirZCoord", &I3CLSimMediumProperties::GetAirZCoord)
 

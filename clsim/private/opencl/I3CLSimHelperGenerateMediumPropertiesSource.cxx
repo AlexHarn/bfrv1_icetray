@@ -34,12 +34,16 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
+#include <cmath>
 
 #include "dataclasses/I3Constants.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
+
+#include "clsim/function/I3CLSimFunctionScatLenIceCube.h"
 
 #include "opencl/I3CLSimHelperGenerateMediumPropertiesSource_Optimizers.h"
 
@@ -225,6 +229,70 @@ namespace I3CLSimHelper
         code << "#define MEDIUM_LAYER_BOTTOM_POS " << ToFloatString(mediumProperties.GetLayersZStart()) << "\n";
         code << "#define MEDIUM_LAYER_THICKNESS  " << ToFloatString(mediumProperties.GetLayersHeight()) << "\n";
         code << "\n";
+        if ( mediumProperties.HasBirefringence() )
+        {
+            code << "///////////////// START Birefringence ////////////////\n";
+
+            code << "#define BIREFRINGENCE // Enables Birefringance propagation kernel code\n";
+            // generate variables for x and y component of the flow axis
+            double anisotropyDirAzimuth = std::get<0>(mediumProperties.GetAnisotropyParameters());
+            code << "__constant float flowX = " << cos(anisotropyDirAzimuth) << ";\n";
+            code << "__constant float flowY = " << sin(anisotropyDirAzimuth) << ";\n\n";
+
+            // generate constant array for BFR parameters
+            std::vector<double> bfrParas = mediumProperties.GetBirefringenceParameters();
+            code << "__constant float bfrParas[12] = {\n";
+            for ( int i=0; i<12; i++ )
+            {
+                code << "    " << bfrParas[i] << ",\n";
+            }
+            code << "};\n";
+            code << "\n";
+
+            // generate constant array for BFR layer scaling
+            std::vector<double> bfrLayerScaling = mediumProperties.GetBirefringenceLayerScaling();
+            code << "__constant float bfrLayerScaling["<< mediumProperties.GetLayersNum() << "] = {\n";
+            for ( uint32_t i=0; i<mediumProperties.GetLayersNum(); i++ )
+            {
+                code << "    " << bfrLayerScaling[i] << ",\n";
+            }
+            code << "};\n";
+            code << "\n";
+
+            // Compute the BFR correction term (copied from PPC's ini.cxx)
+            // It's an integration over azumuth (x is cosine theta I believe)
+            // Ask Dima for clarification
+            double bfrCorrection = 0;
+
+            double step=0.01, sum=0;
+            for(double x=step/2; x<1; x+=step)
+            {
+                double y=std::sqrt(1-x*x);
+                double sx=std::max(0.d, bfrParas[0]*std::exp(-bfrParas[1]*std::pow(std::atan(bfrParas[3]*y), bfrParas[2])));
+                double sy=std::max(0.d, bfrParas[4]*std::exp(-bfrParas[5]*std::pow(std::atan(bfrParas[7]*y), bfrParas[6])));
+                double mx=std::max(0.d, bfrParas[8]*std::atan(bfrParas[11]*y*x)*std::exp(-bfrParas[9]*y+bfrParas[10]*x));
+                bfrCorrection += sx*sx + sy*sy + mx*mx;
+            }
+            bfrCorrection *= step/2;
+
+            // Adjust by 1/(1 - g) to subtract it directly from the effective
+            // coefficients
+            bfrCorrection /= ( 1 - mediumProperties.GetMeanCosineTheta() );
+
+            // generate constant array for BFR mie scattering correction terms
+            code << "__constant float bfrScatteringCorrection["<< mediumProperties.GetLayersNum() << "] = {\n";
+            for ( uint32_t i=0; i<mediumProperties.GetLayersNum(); i++ )
+            {
+                code << "    " << bfrCorrection*bfrLayerScaling[i] << ",\n";
+            }
+            code << "};\n";
+            code << "\n";
+
+            // TODO: Add checks for negative scattering length due to BFR
+            // correction here
+
+            code << "///////////////// END Birefringence ////////////////\n";
+        }
 
         // phase refractive index
         if (mediumProperties.GetPhaseRefractiveIndices()[0]->HasDerivative())
