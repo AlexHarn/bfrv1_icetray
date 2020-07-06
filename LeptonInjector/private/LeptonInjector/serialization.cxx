@@ -75,6 +75,7 @@ namespace LeptonInjector{
 		
 		ar & make_nvp("radius", radius);
 		ar & make_nvp("z", z);
+        ar & make_nvp("totalColumnDepth", totalColumnDepth);
 	}
 	
 	template<typename T>
