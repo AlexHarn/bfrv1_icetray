@@ -1,7 +1,10 @@
 # IPython log file
 
 import numpy as np
-import cPickle as pickle
+try:
+   import cPickle as pickle
+except:
+   import pickle
 import os, sys
 from argparse import ArgumentParser
 from icecube.icetop_Level3_scripts.histograms import Livetime
@@ -32,13 +35,19 @@ def findbincenters(binedges):
     
 def fitLivetime(livetime_pickleFile):
     from ROOT import TH1F, TF1, TFile, TObject
-    hist_dict=pickle.load(open(livetime_pickleFile))
-    if len(hist_dict.keys())>1:
-        icetray.logging.log_fatal("There should only be the livetime in here! File: %s"%livetime_pickleFile)
+    hist_dict=pickle.load(open(livetime_pickleFile, 'rb'), encoding='latin-1')
+    ## In new files, there is a 'filelist' at the end here, so do not do this check.
+    ## Instead, we'll just look for the element called "Livetime"
+    #if len(hist_dict.keys())>1:
+    #    icetray.logging.log_fatal("There should only be the livetime in here! File: %s"%livetime_pickleFile)
 
-    lifetime_counts= np.array(hist_dict.values()[0].bin_values)
-
-    temp, binedges = np.histogram([],range = [hist_dict.values()[0].xmin, hist_dict.values()[0].xmax], bins = len(hist_dict.values()[0].bin_values))
+    ltobj = hist_dict['Livetime']
+    if type(ltobj) is dict:  ## The new py3 style?
+        lifetime_counts= np.array(ltobj['bin_values'])
+        temp, binedges = np.histogram([],range = [ltobj['xmin'], ltobj['xmax']], bins = len(ltobj['bin_values']))
+    else:
+        lifetime_counts= np.array(ltobj.bin_values)
+        temp, binedges = np.histogram([],range = [ltobj.xmin, ltobj.xmax], bins = len(ltobj.bin_values))
 
     bincenters=findbincenters(binedges)
 
@@ -56,7 +65,7 @@ def fitLivetime(livetime_pickleFile):
     rootoutfile.Close()
     tau = fit.GetParameter(1)
     tot_lifetime=tau*sum(lifetime_counts)
-    print tot_lifetime
+    print(tot_lifetime)
     return tot_lifetime
 
 hist = {}
@@ -66,7 +75,7 @@ yerr={}
 dataset_dict={}
 
 pickleFile=args.infile
-hist_dict=pickle.load(open(pickleFile))
+hist_dict=pickle.load(open(pickleFile, 'rb'), encoding='latin-1')
 vars_list_1d = hist_dict.keys() 
 dataset=args.inleg
 
@@ -76,11 +85,22 @@ xlabel[dataset]={}
 yerr[dataset]={}
 
 for key in hist_dict.keys():
-    hist[dataset][key] = np.array(hist_dict[key].bin_values)
-    #print dataset, key, hist[dataset][key]
-    temp, binedges[dataset][key] = np.histogram([],range = [hist_dict[key].xmin, hist_dict[key].xmax], bins = len(hist_dict[key].bin_values))
-    xlabel[dataset][key]=key # No expression histogram
-    yerr[dataset][key] = np.ones_like(hist_dict[key].bin_values)
+    if not (key == 'filelist'):   ## New pickle files have this in there for some reason, old ones don't
+        obj = hist_dict[key]
+        if type(obj) is dict:  ## The new py3 style?
+            #print("Found new style: ", dataset, key, type(obj), obj)
+            hist[dataset][key] = np.array(obj['bin_values'])
+            temp, binedges[dataset][key] = np.histogram([],range = [obj['xmin'], obj['xmax']], bins = len(obj['bin_values']))
+            xlabel[dataset][key]=key # No expression histogram
+            yerr[dataset][key] = np.ones_like(obj['bin_values'])
+        else: # isinstance(key, icecube.icetop_Level3_scripts.histograms.getLivetime.Livetime):  ## The old py2 style?
+            #print("Found old style: ", dataset, key, type(obj), obj)
+            hist[dataset][key] = np.array(obj.bin_values)
+            temp, binedges[dataset][key] = np.histogram([],range = [obj.xmin, obj.xmax], bins = len(obj.bin_values))
+            xlabel[dataset][key]=key # No expression histogram
+            yerr[dataset][key] = np.ones_like(obj.bin_values)
+    else:
+        print(dataset, ": Skipping the filelist at the end which is not a histogram")
 
 dataset_dict[dataset]={}
 dataset_dict[dataset]['Dataset_label']=dataset
@@ -88,7 +108,7 @@ dataset_dict[dataset]['Color']='r'
 
 pickleFile_ref=args.reffile
 
-hist_dict_ref=pickle.load(open(pickleFile_ref))
+hist_dict_ref=pickle.load(open(pickleFile_ref, 'rb'), encoding='latin-1')
 vars_list_1d_ref = hist_dict_ref.keys()
 dataset_ref=args.refleg
 
@@ -123,7 +143,8 @@ if args.reflivetime:
 
 # Get good order
 vars_list_1d=[]
-fileWithKeys=open("/home/sam/IceCube/software/IceRec/V05-00-00/src/icetop_Level3_scripts/resources/examples/histos/listWithPlots_L3.txt")
+i3src = os.getenv("I3_SRC")
+fileWithKeys=open(i3src+"/icetop_Level3_scripts/resources/examples/histos/listWithPlots_L3.txt")
 for line in fileWithKeys:
     if len(line.split())>0:
         if args.with_cuts:
