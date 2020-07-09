@@ -15,15 +15,18 @@ parser.add_argument("input", help="Pickle file to convert.")
 args = parser.parse_args()
 
 import os
-import cPickle as pickle
+try:
+   import cPickle as pickle
+except:
+   import pickle
 
 from icecube.production_histograms.histograms.histogram import Histogram
 
-with open(args.input) as infile:
-    histograms = pickle.load(infile)
-    for key, value in histograms.iteritems():
+with open(args.input, 'rb') as infile:
+    histograms = pickle.load(infile, encoding='latin-1')
+    for key, value in histograms.items():
         if isinstance(value, Histogram):
             histograms[key] = value.__getstate__()
 
-with open(args.input,'w') as outfile:
+with open(args.input,'wb') as outfile:
     pickle.dump(histograms, outfile)

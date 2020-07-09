@@ -23,7 +23,10 @@ parser.add_option("-o","--output_pickle_filename",
 (options, args) = parser.parse_args()
 
 import os
-import cPickle as pickle
+try:
+   import cPickle as pickle
+except:
+   import pickle
 import glob
 
 file_list = glob.glob(options.INPATH)
@@ -47,9 +50,9 @@ def add(h1, h2):
 
 histograms = None
 for fn in file_list :
-    f = open(fn)
+    f = open(fn,'rb')
     if not histograms :
-        histograms = pickle.load(f)
+        histograms = pickle.load(f,encoding='latin-1')
         f.close()
         continue
 
@@ -58,6 +61,6 @@ for fn in file_list :
         histograms[key] = add(histograms[key], new_histograms[key])
     f.close()
 
-f = open(options.OUTFILENAME, "w")
+f = open(options.OUTFILENAME, 'wb')
 pickle.dump(histograms,f)
 f.close()
