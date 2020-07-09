@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from icecube.icetop_Level3_scripts.histograms import Livetime
 from icecube import icetray
 
-parser = ArgumentParser(usage='%s [arguments] -o <filename>.i3[.bz2|.gz] {N}'%os.path.basename(sys.argv[0]))
+parser = ArgumentParser(usage='%s -i <newhistos.pickle> -r <oldhistos.pickle> --inlivetime <newlivetime.pickle> -- reflivetime <oldlivetime.pickle> [arguments] -o <outplots.pdf>'%os.path.basename(sys.argv[0]))
 parser.add_argument("--with-cuts", action="store_true", default=False, dest="with_cuts", help="Plot the distributions after cuts.")
 parser.add_argument("-o","--outfile",action="store",type=str, dest="outfile",help="Outfile pdf name which will store the plots.")
 parser.add_argument("-i","--infile",action="store",type=str, dest="infile",help="Input pickle file which will be compared to the ref pickle file.")

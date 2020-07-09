@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from icecube import icetray, dataio, dataclasses, icetop_Level3_scripts
 from I3Tray import I3Tray
 
-parser = ArgumentParser(usage='%s [arguments] -o <filename>.i3[.bz2|.gz] {N}'%os.path.basename(sys.argv[0]))
+parser = ArgumentParser(usage='%s <inputfile.i3> [arguments] --histos <histofilename.pickle> --livetime <livetimefilename.pickle>'%os.path.basename(sys.argv[0]))
 parser.add_argument("--histos", action="store", type=str, dest="histos", help="Histograms file name. Needs to be pickle file", metavar="BASENAME")
 parser.add_argument("--livetime", action="store", type=str, dest="livetime", help="Livetime file name, only needed for data. Needs to be pickle file", metavar="BASENAME")
 parser.add_argument("-n", action="store", type=int, dest="n", help="number of frames to process")
