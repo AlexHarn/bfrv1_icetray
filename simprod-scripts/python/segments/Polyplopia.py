@@ -156,6 +156,7 @@ def PolyplopiaPhotons(tray, name,
            util.SetGPUEnvironmentVariables(GPU)
 
         tray.AddModule("Rename","rename_pes", Keys=[PhotonSeriesName,'SignalI3MCPEs'])
+        tray.AddModule("Rename","rename_pids", Keys=[PhotonSeriesName+'ParticleIDMap','SignalI3MCPEsParticleIDMap'])
 
         if UsePPC: # Propagate photons
            tray.AddSegment(segments.PPCTraySegment,"ppc_photons",
@@ -263,6 +264,7 @@ def PolyplopiaMergePEs(tray, name,
            WeightMap="I3MCWeightDict"
 
       tray.AddModule("Rename","rename_pes", Keys=["I3MCPESeriesMap",'SignalI3MCPEs'])
+      tray.AddModule("Rename","rename_pids", Keys=["I3MCPESeriesMapParticleIDMap",'SignalI3MCPEsParticleIDMap'])
 
       from icecube.polyplopia import PoissonPEMerger
       tray.Add(PoissonPEMerger,"merge",

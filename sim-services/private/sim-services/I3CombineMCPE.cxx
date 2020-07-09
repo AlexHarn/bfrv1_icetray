@@ -78,6 +78,7 @@ void I3CombineMCPE::DAQ(I3FramePtr frame)
     }
 
     frame->Put(outputResponse_, output);
+    frame->Put(outputResponse_+"ParticleIDMap",outputInfo);
     PushFrame(frame,"OutBox");
 }
 
