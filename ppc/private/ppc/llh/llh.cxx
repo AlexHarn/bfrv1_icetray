@@ -408,19 +408,22 @@ typedef struct{
   }
 
   vector<hit> draw, sraw;
-  double dbin[num], sbin[num], dtot, stot;
+  double dbin[num], sbin[num], dtot, stot, qtot;
 
   int n1, n2, ntop;
   double *dtop, *stop;
 
   void prep(double t0){
     this->t0=t0;
-    for(int k=0; k<num; k++) dbin[k]=0; dtot=0;
-    for(vector<hit>::const_iterator j=draw.begin(); j!=draw.end(); ++j) if(isok(j->t)){
+    for(int k=0; k<num; k++) dbin[k]=0; dtot=0; qtot=0;
+    for(vector<hit>::const_iterator j=draw.begin(); j!=draw.end(); ++j) {
       double t=floor((j->t-t0)/lbin), q=j->q;
       if(cutz) if(t<=0 || t>=num-2) q=0;
-      if(t<0) t=0; else if(t>=num) t=num-1;
-      dbin[int(t)]+=q; dtot+=q;
+      qtot+=q;
+      if(isok(j->t)){
+	if(t<0) t=0; else if(t>=num) t=num-1;
+	dbin[int(t)]+=q; dtot+=q;
+      }
     }
 
     {
@@ -559,7 +562,7 @@ typedef struct{
   }
 
   bool in(){
-    return dtot<qsat*drep && dtot>qmin*drep && (!flasher || dom.first!=fla.first || abs(dom.second-fla.second)>fsep);
+    return qtot<qsat*drep && qtot>qmin*drep && (!flasher || dom.first!=fla.first || abs(dom.second-fla.second)>fsep);
   }
 } dat;
 
