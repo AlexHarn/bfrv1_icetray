@@ -60,12 +60,6 @@ class I3DST16: public I3FrameObject
 		vector<uint16_t> triggers_; ///< list of encoded triggers
 		vector<std::string> recos_; ///< list of reconstructions
 
-		/// 1st reconstruction - LF (4 B)                
-		uint32_t reco1_;
-
-		/// 2nd reconstruction - DP (4 B)
-		uint32_t reco2_;
-
 		/// Number of DOMs (after cleaning) (2 B)
 		uint16_t nchannel_;
 
@@ -85,6 +79,12 @@ class I3DST16: public I3FrameObject
 
 
 	public:
+
+		/// 1st reconstruction - LF (4 B)                
+		uint32_t reco1_;
+
+		/// 2nd reconstruction - DP (4 B)
+		uint32_t reco2_;
 
 		template <class Archive> void serialize(Archive&,unsigned);
 		I3DST16();
@@ -272,7 +272,7 @@ class I3DST16: public I3FrameObject
      * mutator to set DSTReco object
      * @param dir DSTReco first reconstruction direction
      */ 
-		void SetReco2Direction(int32_t dir) { reco2_ = dir; }
+	void SetReco2Direction(int32_t dir) { reco2_ = dir; }
 
 	/**
      * accessor to get DSTReco object

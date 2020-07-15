@@ -19,8 +19,6 @@ using std::cout;
 I3DST16::I3DST16() : 
 	t0_(0),
 	t1_(0),
-	reco1_(),
-	reco2_(),
 	nchannel_(0),
 	nstring_(0),
 	cog_(0,0,0),
@@ -30,7 +28,9 @@ I3DST16::I3DST16() :
 	logE_(0),
 	event_id_(0),
 	sub_event_id_(0),
-	triggertag_(0)
+	triggertag_(0),
+	reco1_(),
+	reco2_()
 { }
 
 void I3DST16::SetRlogL(double rlogl)
