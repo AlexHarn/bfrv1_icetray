@@ -31,6 +31,14 @@ parser.add_argument("-g", "--gcdfile", dest="gcdfile",
                     default=None, type=str, required=True,
                     help="the full path to the calibration file")
 
+parser.add_argument("--InputMCTreeName", dest="input_mctree_name",
+                    default="I3MCTree_preMuonProp", type=str, required=False,
+                    help="Name of input I3MCTree object for muon propagation")
+
+parser.add_argument("--OutputMCTreeName", dest="output_mctree_name",
+                    default="I3MCTree", type=str, required=False,
+                    help="Name of output MCTree object after muon propagation")
+
 parser.add_argument("--log-level", dest="log_level",
                     type=str, default="WARN",
                     help="Sets the icetray logging level (ERROR, WARN, INFO, DEBUG, TRACE)")
@@ -52,6 +60,8 @@ seed        = int(args.seed)
 infile      = args.infile
 outfile     = args.outfile
 gcdfile     = args.gcdfile
+InputMCTreeName  = args.input_mctree_name
+OutputMCTreeName = args.output_mctree_name
 log_level   = args.log_level
 
 
@@ -87,12 +97,10 @@ randomServicePropagators = phys_services.I3GSLRandomService(seed=seed)
 tray.Add(dataio.I3Reader, "reader",
          filenamelist=[gcdfile, infile])
 
-tray.AddModule("Rename", keys=["I3MCTree", "I3MCTree_preMuonProp"])
-
 tray.AddSegment(segments.PropagateMuons, "PropagateMuons",
-                RandomService = randomServicePropagators)
-
-tray.AddModule("Delete", keys=["I3MCTree_preMuonProp"])
+                RandomService = randomServicePropagators,
+                InputMCTreeName = InputMCTreeName,
+                OutputMCTreeName = OutputMCTreeName)
 
 tray.AddModule("I3Writer", Filename=outfile,
                DropOrphanStreams=[icetray.I3Frame.TrayInfo],
