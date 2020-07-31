@@ -24,6 +24,8 @@ typedef cpuset_t cpu_set_t;
 #include "splineutil.h"
 #include "cholesky_solve.h"
 
+enum { WAIT, RUN, TERMINATE } worker_thread_state;
+
 static int
 intcmp(const void *xa, const void *xb);
 
