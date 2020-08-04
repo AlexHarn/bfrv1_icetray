@@ -117,10 +117,6 @@ from icecube import phys_services
 from icecube.icetray import I3Units
 print("done")
 
-# check python version
-if sys.version_info[0]>2:
-    warnings.warn("Warning! LIC files written in Python3 are currently unreadable!")
-
 # set icetray logging level
 log_levels = {"error" : icetray.I3LogLevel.LOG_ERROR,
               "warn" : icetray.I3LogLevel.LOG_WARN,
@@ -161,23 +157,33 @@ def get_fs_particle_NC(nu_type):
         raise Exception("I don't recogize what a '{}' is. Try Electron, Muon, Tau, or All.".format(nu_type))
 
 
-print("Setting up injectors...", end="")
+print("Setting up injectors...")
 # need to prepare a list of injectors with which to instantiate the generator module
 # the cross sections and final state particles will all depend on which interaction we're doing.
 dis_xs_folder = "/cvmfs/icecube.opensciencegrid.org/data/neutrino-generator/cross_section_data/csms_differential_v1.0"
 injector_list = []
 
 if interaction.lower()=='gr':
-    raise NotImplementedError("GR interaction not implemented!")
-    """
     # in a GR interaciton, you have a NuEBar annihilate with an e-. Need to conserve charge + lepton no.
     party_pairs = [[dataclasses.I3Particle.ParticleType.EMinus  , dataclasses.I3Particle.ParticleType.NuEBar  ],
                    [dataclasses.I3Particle.ParticleType.MuMinus , dataclasses.I3Particle.ParticleType.NuMuBar ],
                    [dataclasses.I3Particle.ParticleType.TauMinus, dataclasses.I3Particle.ParticleType.NuTauBar],
                    [dataclasses.I3Particle.ParticleType.Hadrons , dataclasses.I3Particle.ParticleType.Hadrons ]]
-    doubly = os.path.join(dis_xs_folder, "single_xs_gr.fits")
-    total  = os.path.join(dis_xs_folder, "total_xs_gr.fits")
-    """
+    
+    dis_xs_folder_GR = "/data/user/bsmithers/cross_sections"
+    doubly = os.path.join(dis_xs_folder_GR, "single_xs_gr.fits")
+    total  = os.path.join(dis_xs_folder_GR, "total_xs_gr.fits")
+    
+    for final_states in party_pairs:
+        print("Adding GR injector for {} + {}".format(final_states[0], final_states[1]))
+        injector = LeptonInjector.injector(
+            NEvents                            = int(nEvents/len(party_pairs)),
+            FinalType1                         = final_states[0],
+            FinalType2                         = final_states[1],
+            DoublyDifferentialCrossSectionFile = doubly,
+            TotalCrossSectionFile              = total,
+            Ranged                             = True)
+        injector_list.append(injector)
 elif interaction.lower()=='cc':
     final_states = get_fs_particle_CC(nu_type)
     
