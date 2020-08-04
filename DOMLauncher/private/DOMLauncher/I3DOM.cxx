@@ -264,6 +264,7 @@ bool I3DOM::Configure(const I3DOMCalibration& cal,
   return success;
 }
 
+
 void I3DOM::Reset(bool full){
     //for normal simulation (one event one frame) the DOM will be
     //fully reset but for Multi Frame Events only the

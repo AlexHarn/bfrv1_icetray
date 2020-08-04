@@ -102,14 +102,26 @@ public:
 			oldM = newM; 
 			oldS = newS;
 		}
+		if (x > maximum)
+		{
+			maximum = x;
+		}
+		if (x < minimum)
+		{
+			minimum = x;
+		}
 	}
 	uint64_t count() const{ return n; }
 	T mean() const{ return (n ? newM : T(0.)); }
 	T variance() const{ return (n ? newS/(n-1) : T(0.)); }
 	T stddev() const{ return sqrt(variance()); }
+	T max() const { return maximum;}
+	T min() const { return minimum;}
 private:
 	uint64_t n;
-	T oldM, newM, oldS, newS;
+	T oldM = 0, newM = 0, oldS = 0, newS = 0;
+	T maximum = 0;
+	T minimum = 2000;
 };
 }
 
@@ -137,11 +149,13 @@ public:
 					fracPart-=1.;
 				fracPart*=expectedSpacing;
 				//std::cout << " (" << fracPart << ')';
+				//log_warn_stream(" (" << fracPart << ")");
 				stat.insert(fracPart);
 			}
 			//std::cout << '\n';
 		}
-		std::cout << "Average timing bias: " << stat.mean()/I3Units::ns << " ns with std. dev. " << stat.stddev()/I3Units::ns << " ns" << std::endl;
+		//log_warn_stream("Average timing bias: " << stat.mean()/I3Units::ns << " ns with std. dev. " << stat.stddev()/I3Units::ns << " ns");
+		log_warn_stream("Maximum timing bias: " << stat.max()/I3Units::ns << " ns and minimum " << stat.min()/I3Units::ns << " ns");
 		ENSURE(std::abs(stat.mean())<binSize(lcMode)/2,"Mean extracted pulse time should be within one half digitizer bin of injected time");
 	}
 };

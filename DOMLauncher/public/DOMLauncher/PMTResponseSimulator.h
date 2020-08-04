@@ -9,6 +9,7 @@
 #include <simclasses/I3MCPulse.h>
 #include <dataclasses/physics/I3ParticleID.h>
 #include <simclasses/I3ParticleIDMap.hpp>
+#include "dataclasses/geometry/I3OMGeo.h"
 
 class I3Calibration;
 class I3DOMCalibration;
@@ -88,10 +89,6 @@ private:
 	///         produced by a single photoelectron
 	double normalHitWeight(unsigned int w, const boost::shared_ptr<I3SumGenerator>& speDistribution);
 
-	///Generates a random time jitter value for a hit
-	///\return A random time offset, in nanoseconds
-	double PMTJitter();
-
 	///Computes the amount by which prepulses are early at a given voltage
 	///\param voltage The operating voltage of the DOM
 	///\return A time offset, in nanoseconds
@@ -131,7 +128,8 @@ public:
 	std::pair<std::vector<I3MCPulse>, ParticlePulseIndexMap>
 	processHits(const std::vector<I3MCPE>& inputHits, OMKey dom,
 	            const I3DOMCalibration& cal, const I3DOMStatus& status,
-	            const ParticlePulseIndexMap& pePedigree);
+	            const ParticlePulseIndexMap& pePedigree, 
+	            const I3OMGeo::OMType domType);
 
 	///Reweights the hits in the given series to mimic the effects of saturation in the PMT.
 	///  The 'inverse' saturation parameterization from T. Waldenmeier is used.
