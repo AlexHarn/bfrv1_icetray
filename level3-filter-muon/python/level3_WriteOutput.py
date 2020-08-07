@@ -431,7 +431,6 @@ def WriteOutput(tray, name, Suffix, output_i3, output_hd5, output_root):
             Filename = output_i3,
             SkipKeys=["CalibratedWaveforms", "CleanIceTopRawData", "CleanInIceRawData"],
             DropOrphanStreams=[icetray.I3Frame.DAQ,
-                               icetray.I3Frame.Stream('M'),
                                icetray.I3Frame.TrayInfo],
             Streams=[icetray.I3Frame.DAQ,
                      icetray.I3Frame.Physics,
