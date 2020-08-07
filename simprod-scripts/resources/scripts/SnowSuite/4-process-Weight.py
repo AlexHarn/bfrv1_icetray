@@ -157,8 +157,8 @@ def LW_calculate_weight(frame):
     
     # write weight to frame
     LeptonWeigtherDict = dataclasses.I3MapStringDouble()
-    LeptonWeigtherDict["OneWeight"] = weight_OneWeight
-    LeptonWeigtherDict["Powerlaw"]  = weight_Powerlaw
+    LeptonWeigtherDict["FluxLessWeight"] = weight_OneWeight
+    LeptonWeigtherDict["PowerlawWeight"]  = weight_Powerlaw
     frame["LeptonWeigtherDict"] = LeptonWeigtherDict
     
     # delete LWevent to be sure its gone
