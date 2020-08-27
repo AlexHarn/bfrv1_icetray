@@ -39,7 +39,7 @@ def gen_plots_pdf(dataset_dict,options,var_list_1d, hist,y_err,binedges,xlabel,l
         for prim in hist.keys():
             
             if np.sum(hist[prim][var])==0:
-                print 'empty hist', prim, var
+                print('empty hist', prim, var)
                 continue
 
             mpl.plot_hist(binedges[prim][var], hist[prim][var], livetime_dict[prim],
@@ -80,7 +80,7 @@ def gen_plots_pdf(dataset_dict,options,var_list_1d, hist,y_err,binedges,xlabel,l
                     continue
                 
                 if np.sum(hist[prim][var])==0:
-                    print 'empty hist', prim, var
+                    print('empty hist', prim, var)
                     continue
             
                 # Load numer, denom and bincenters values

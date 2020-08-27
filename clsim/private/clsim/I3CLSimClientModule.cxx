@@ -809,9 +809,8 @@ bool I3CLSimClientModule::DigestOtherFrame(I3FramePtr frame)
 
           if (cosmicGenerator_){
             CosmicGeneraterToLightSources(*newtree, *frame, lightSources, timeOffsets);
-          }else{        
-            ConvertMCTreeToLightSources(*newtree, lightSources, timeOffsets);
-          }
+          }    
+          ConvertMCTreeToLightSources(*newtree, lightSources, timeOffsets);
 
           frame->Delete(MCTreeName_);
           frame->Put(MCTreeName_,newtree);

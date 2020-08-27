@@ -78,8 +78,6 @@ typedef struct {
 
 } descent_trial;
 
-enum { WAIT, RUN, TERMINATE } worker_thread_state;
-
 void
 evaluate_descent(void *trial_);
 

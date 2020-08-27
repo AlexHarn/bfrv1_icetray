@@ -40,8 +40,8 @@ def IceTopContainment(name):
 
 def IceTopRecoPulses(name):
     histograms = []
-    histograms.append(PhysicsHistogram(-1., 5., 100, name+"TotCharge", "log10(sum([p.charge for f in [frame] if '%s' in frame for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').iteritems() for p in pulses]))"%(name,name)))
-    histograms.append(PhysicsHistogram(0., 162., 162, name+"NPulses", "len([p for f in [frame] if '%s' in frame for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').iteritems() for p in pulses])"%(name,name)))
+    histograms.append(PhysicsHistogram(-1., 5., 100, name+"TotCharge", "log10(sum([p.charge for f in [frame] if '%s' in f for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').items() for p in pulses]))"%(name,name)))
+    histograms.append(PhysicsHistogram(0., 162., 162, name+"NPulses", "len([p for f in [frame] if '%s' in f for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').items() for p in pulses])"%(name,name)))
     return histograms
 
 # You cannot give a list to the histogram class. If you want to get individual charges, write your own module.
@@ -49,8 +49,8 @@ def IceTopRecoPulses(name):
 
 def InIceRecoPulses(name):
     histograms = []
-    histograms.append(PhysicsHistogram(0., 7., 100, name+"TotCharge", "log10(sum([p.charge for f in [frame] if '%s' in frame for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').iteritems() for p in pulses]))"%(name,name)))
-    histograms.append(PhysicsHistogram(0., 5000., 100, name+"NPulses", "len([p for f in [frame] if '%s' in frame for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').iteritems() for p in pulses])"%(name,name)))
+    histograms.append(PhysicsHistogram(0., 7., 100, name+"TotCharge", "log10(sum([p.charge for f in [frame] if '%s' in f for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').items() for p in pulses]))"%(name,name)))
+    histograms.append(PhysicsHistogram(0., 5000., 100, name+"NPulses", "len([p for f in [frame] if '%s' in f for k,pulses in dataclasses.I3RecoPulseSeriesMap.from_frame(f, '%s').items() for p in pulses])"%(name,name)))
     return histograms
 
 #Millipede parameters, to check the branch where the LaputopTrack is used for the reconstruction.

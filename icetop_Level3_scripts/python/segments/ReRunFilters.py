@@ -143,7 +143,7 @@ def ReRunFilters(tray,name,
 
     tray.AddModule("I3OrphanQDropper",name+"_drop_q_unfiltered")
 
-    if Detector!="IC79" and Detector!="IC86.2011":
+    if (Detector!="IC79" and Detector!="IC86.2011") or Pass2a:
         # For the other years, just add a dummy prescale.
         # Only run it after all filtering, saves a bit of time
         def AddPrescale(frame):

@@ -124,8 +124,6 @@ def CascadeL3(tray, name, gcdfile, infiles, output_i3, AmplitudeTable, TimingTab
     # L3 cut happens here
     tray.AddModule(cutBranches,'Level3_Cut',year=Year)
 
-    tray.AddModule('I3OrphanQDropper', 'drop_unwanted_q')
-
     # multi calc for all L3 events
     tray.AddSegment(multiCalculator,'multiCalc_AllL3',
                     pulses='SRTOfflinePulses',

@@ -102,7 +102,7 @@ def plot_hist(xedges, ws, livetime,axes=None, **kwargs):
   xy[0][0] = xedges[0]
   xy[0][-1] = xedges[-1]
 
-  for i in xrange(m):
+  for i in range(m):
     xy[0][1 + 2 * i] = xedges[i]
     xy[1][1 + 2 * i] = ws[i]/livetime
     xy[0][1 + 2 * i + 1] = xedges[i + 1]

@@ -241,7 +241,7 @@ TEST(1b_JitterDistributionWithMerging){
 	
 	I3Context context;
 	ServiceFactoryWrapper rng(context,"I3GSLRandomServiceFactory");
-	rng.Configure()("Seed",82365);
+	rng.Configure()("Seed",823650);
 	rng.installService();
 	PMTResponseSimulatorTestSetup rts(context);
 	rts.Configure()("UsePMTJitter",true)("PrePulseProbability",0)("LatePulseProbability",0)("AfterPulseProbability",0)("ApplySaturation",false)("MergeHits",true);

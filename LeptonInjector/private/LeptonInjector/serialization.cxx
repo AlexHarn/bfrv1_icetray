@@ -75,6 +75,7 @@ namespace LeptonInjector{
 		
 		ar & make_nvp("radius", radius);
 		ar & make_nvp("z", z);
+        ar & make_nvp("totalColumnDepth", totalColumnDepth);
 	}
 	
 	template<typename T>
@@ -93,7 +94,7 @@ namespace LeptonInjector{
 #elif defined(BOOST_BIG_ENDIAN)
 		//write bytes in reverse order
 		for(size_t i=1; i<=dataSize; i++)
-			os.write(data+dataSize-i),1);
+			os.write(data+dataSize-i,1);
 #elif defined(BOOST_PDP_ENDIAN)
 		//complain bitterly
 		#error PDP-endian systems are not supported.
@@ -135,6 +136,7 @@ namespace LeptonInjector{
 		os << little_endian(totalBlockSize)
 		   << little_endian(blockTypeName)
 		   << little_endian(version);
+        os.flush();
 		if(!os.good())
 			log_fatal("Writing block header failed");
 	}
@@ -173,6 +175,7 @@ namespace LeptonInjector{
 			os << little_endian((int64_t)enumerators[i].second)
 			   << little_endian(enumerators[i].first);
 		}
+        os.flush();
 		if(!os.good())
 			log_fatal("Writing enum def block failed");
 	}
@@ -213,6 +216,7 @@ namespace LeptonInjector{
 		   << little_endian(config.totalCrossSectionBlob)
 		   << little_endian(config.injectionRadius/I3Units::meter)
 		   << little_endian(config.endcapLength/I3Units::meter);
+        os.flush();
 		if(!os.good())
 			log_fatal("Writing ranged injection config block failed");
 	}
@@ -253,6 +257,7 @@ namespace LeptonInjector{
 		   << little_endian(config.totalCrossSectionBlob)
 		   << little_endian(config.cylinderRadius/I3Units::meter)
 		   << little_endian(config.cylinderHeight/I3Units::meter);
+        os.flush();
 		if(!os.good())
 			log_fatal("Writing volume injection config block failed");
 	}
@@ -277,6 +282,10 @@ namespace LeptonInjector{
             AddParameter("Overwrite","Overwrites LIC files on True, appends on False", false);
 			AddOutBox("OutBox");
 		}
+
+        ~InjectionConfigSerializer(){ 
+            output.close(); 
+        }
 
         void setOverwrite( bool overwrite_ ){
             this->overwrite = overwrite_;

@@ -59,6 +59,8 @@ void register_I3DST()
 
     //  DST16 objects
     wrap::I3FrameObject<I3DST16>()
+    .def_readwrite("reco1", &I3DST16::reco1_)
+    .def_readwrite("reco2", &I3DST16::reco2_)
     #define PROPS_16 (Time)(COG)(NDOM)(NString)(NDir)(RecoLabel)(TriggerTag)
     BOOST_PP_SEQ_FOR_EACH(WRAP_PROP_RO, I3DST16, PROPS_16)
     ;

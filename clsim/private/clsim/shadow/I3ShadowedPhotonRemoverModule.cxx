@@ -131,7 +131,7 @@ void I3ShadowedPhotonRemoverModule::DAQ(I3FramePtr frame)
 	  // Want the photon position in the detector frame
 	  // The position of an I3CompressedPhoton is in the DOM frame.
 	  auto photon_pos = photon.GetPos();
-	  const auto& lab_frame_position{dom_pos + photon_pos};
+	  const I3Position& lab_frame_position{dom_pos + photon_pos};
 	  if(!I3ShadowPhotonRemover::is_shadowed(lab_frame_position,
 						 photon.GetDir(),
 						 cylinder,

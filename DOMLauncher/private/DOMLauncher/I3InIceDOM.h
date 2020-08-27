@@ -44,7 +44,6 @@ public:
     void CreateLCLinks(const I3DOMMap&,const I3OMGeoMap &);
 
 protected:
-    
     void MakeCoarseChargeStamp(const dlud::DiscCross&, int chip, I3DOMLaunch&);
     
 };

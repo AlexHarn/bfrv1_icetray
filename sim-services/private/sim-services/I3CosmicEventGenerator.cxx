@@ -41,7 +41,7 @@ I3CosmicEventGenerator::Generate(I3MCTree &mctree, I3Frame &frame, std::function
                     }
                 }
             }
-        } else {
+        } else if (primary->GetLocationType()==I3Particle::InIce){
             // TODO: actually detect which primary is supposed to be biased
             
             airShowerSimulator_->StartShower(*primary, frame);
@@ -60,7 +60,8 @@ I3CosmicEventGenerator::Generate(I3MCTree &mctree, I3Frame &frame, std::function
                 }
             }
             airShowerSimulator_->EndEvent(frame);
-        }
+        } 
+        
         biased = false;
     }
     

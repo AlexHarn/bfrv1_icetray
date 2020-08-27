@@ -18,6 +18,8 @@
 #include <dataclasses/calibration/I3Calibration.h>
 
 #include "discreteDistribution.h"
+#include "PMT.cxx"
+
 
 namespace constants = boost::math::constants;
 
@@ -69,11 +71,11 @@ randomServiceName_("I3RandomService")
 	AddParameter("UsePMTJitter",
 	             "Whether the times of pulses should be randomly perturbed",usePMTJitter_);
 	AddParameter("PrePulseProbability",
-	             "The probability that a pulse arrives early",prePulseProbability_);
+	             "The probability that a pulse arrives early in I3DOM",prePulseProbability_);
 	AddParameter("LatePulseProbability",
-	             "The probability that a pulse arrives late",latePulseProbability_);
+	             "The probability that a pulse arrives late in I3DOM",latePulseProbability_);
 	AddParameter("AfterPulseProbability",
-	             "The probability that a pulse produces an accompanying afterpulse",
+	             "The probability that a pulse in I3DOM produces an accompanying afterpulse",
 	             afterPulseProbability_);
 	AddParameter("ApplySaturation",
 	             "Whether the weights of the hits should be modified to account for saturation",
@@ -127,25 +129,6 @@ void PMTResponseSimulator::Configure(){
 			log_fatal("Specifying 'LowMem' for PMTResponseSimulator will not work without also specifying 'MergeHits'");
 		log_warn("Enabling 'low memory' mode, which will attempt to reduce memory use at the cost of longer run time");
 	}
-
-	// This generic charge distribution was taken as the average charge distribution from in-ice data. See https://wiki.icecube.wisc.edu/index.php/SPE_templates.
-	genericChargeDistribution_ = boost::make_shared<I3SumGenerator>(randomService_,
-	    SPEChargeDistribution(
-	        6.9, //exp1_amp
-	        0.027, //exp1_width
-	        0.5487936979998159, //exp2_amp
-	        0.38303036483159947, //exp2_width
-	        0.753056240984677, //gaus_amp
-	        1.0037645548431489, //gaus_mean
-	        0.3199834176880081, //gaus_width
-	        1.25, // compensation factor
-	        1. // SLC mean
-	    ),
-	    0, //minimum value
-	    3, //maximum value
-	    1000, //number of bins
-	    12 //when to switch to gaussian sampling
-	);
 }
 
 bool earlierHit(const I3MCPE& h1, const I3MCPE& h2){ return(h1.time < h2.time); }
@@ -180,17 +163,36 @@ void PMTResponseSimulator::DAQ(I3FramePtr frame){
 		chargeDistributions_.clear();
 		lastCalibration_=calibration;
 	}
+	boost::shared_ptr<const I3Map<OMKey, I3OMGeo>> omGeos = frame->Get<boost::shared_ptr<const I3Map<OMKey, I3OMGeo>>>("I3OMGeo");
+	if (!omGeos)
+	{
+		//log_warn("Could not find I3OMGeo");
+	}
 
 	I3ParticleIDMapPtr outputPIDMap(new I3ParticleIDMap());
 	I3MCPulseSeriesMapPtr outputPulses(new I3MCPulseSeriesMap());
 
-	//iterate over DOMs
+	//iterate over PMTs
 	for(const auto& domPair : *inputHits){
         OMKey dom=domPair.first;
 		std::map<OMKey,I3DOMStatus>::const_iterator omStatus=detStatus->domStatus.find(dom);
 		if(omStatus==detStatus->domStatus.end()){
 			log_debug_stream("No detector status record for " << dom);
 			continue;
+		}
+		I3OMGeo::OMType omType;
+		if (omGeos) 
+		{
+			auto omGeo = (*omGeos).find(dom);
+			if (omGeo == (*omGeos).end())
+			{
+				log_fatal_stream("Missing I3OMGeo for " << dom);	
+			}
+			omType = omGeo->second.omtype;
+		}
+		else // backward compatibility
+		{
+			omType = I3OMGeo::OMType::IceCube;
 		}
 
 		const double pmtVoltage=omStatus->second.pmtHV;
@@ -221,7 +223,7 @@ void PMTResponseSimulator::DAQ(I3FramePtr frame){
 			 inputPedigree->find(dom)->second : dummyPedigree);
 
 		std::pair<std::vector<I3MCPulse>, ParticlePulseIndexMap> pulses=
-		processHits(domPair.second, dom, omCalibration->second, omStatus->second, pePedigree);
+		processHits(domPair.second, dom, omCalibration->second, omStatus->second, pePedigree, omType);
 		outputPulses->insert(std::make_pair(domPair.first,pulses.first));
 		outputPIDMap->insert(std::make_pair(domPair.first,pulses.second));
 	} //end of iteration over DOMs
@@ -233,13 +235,31 @@ void PMTResponseSimulator::DAQ(I3FramePtr frame){
 }
 
 std::pair<std::vector<I3MCPulse>, ParticlePulseIndexMap>
-PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey dom,
+PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey pmtKey,
                                   const I3DOMCalibration& calibration, const I3DOMStatus& status,
-                                  const ParticlePulseIndexMap& pePedigree){
-	log_trace_stream(dom << " has " << inputHits.size() << " input hits");
+                                  const ParticlePulseIndexMap& pePedigree, const I3OMGeo::OMType domType){
+	log_trace_stream(pmtKey << " has " << inputHits.size() << " input hits");
 	std::pair<std::vector<I3MCPulse>, ParticlePulseIndexMap> result;
 	std::vector<I3MCPulse>& outputHits=result.first;
 	ParticlePulseIndexMap& particleMap=result.second;
+	boost::shared_ptr<PMT> pmt;
+	switch (domType)
+	{
+		case I3OMGeo::OMType::IceCube:
+		case I3OMGeo::OMType::IceTop:
+		case I3OMGeo::OMType::PDOM:
+			pmt = boost::make_shared<HamamatsuR7081_02PMT>(prePulseProbability_, latePulseProbability_, randomService_);
+			break;
+		case I3OMGeo::OMType::mDOM:
+			pmt = boost::make_shared<HamamatsuR15458_02PMT>();
+			break;
+		case I3OMGeo::OMType::DEgg:
+			pmt = boost::make_shared<HamamatsuR5912_100PMT>(randomService_);
+			break;
+		default:
+			log_fatal_stream("unknown DOM type " << pmtKey);
+	}
+
 	//If the input PE were merged, each one may have multiple parent particles
 	//recorded in pePedigree. Keep a set of iterators which will together make
 	//one pass over that structure to avoid many binary searches to find the
@@ -256,25 +276,13 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 
 	//ensure that we have an up-to-date charge distribution for the DOM
 	boost::shared_ptr<I3SumGenerator> speDistribution;
-	if(!chargeDistributions_.count(dom)){
-	    auto rawDistribution=calibration.GetCombinedSPEChargeDistribution();
-		if(rawDistribution.IsValid()){
-			speDistribution=boost::make_shared<I3SumGenerator>(randomService_,
-			                  calibration.GetCombinedSPEChargeDistribution(),
-							  0, //minimum value
-							  3, //maximum value
-							  1000, //number of bins
-							  12 //when to switch to gaussian sampling
-							  );
-		}
-		else{
-			log_debug_stream("Falling back to generic charge distribution for " << dom);
-			speDistribution=genericChargeDistribution_;
-		}
-		chargeDistributions_.insert(std::make_pair(dom,speDistribution));
+	if(!chargeDistributions_.count(pmtKey)){
+		speDistribution = pmt->GetSpeDistribution(calibration, randomService_);
+	    
+		chargeDistributions_.insert(std::make_pair(pmtKey,speDistribution));
 	}
 	else
-		speDistribution=chargeDistributions_.find(dom)->second;
+		speDistribution=chargeDistributions_.find(pmtKey)->second;
 
 	const double pmtVoltage=status.pmtHV;
 	uint32_t peIndex=0; //index of the pe we are processing
@@ -312,17 +320,20 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 			//decide randomly which kind of hit to make
 			double ran=randomService_->Uniform(1);
 			bool canMakeAfterpulse=true;
-			if(ran<(1.-prePulseProbability_-latePulseProbability_)){ //regular pulse
+			if(ran<(1.-pmt->GetPrePulseProbability()-pmt->GetLatePulseProbability())){ //regular pulse
 				log_trace("creating an SPE");
 				pulse.source=I3MCPulse::PE;
 				pulse.charge=normalHitWeight(1,speDistribution);
-				pulse.time+=PMTJitter();
+				if(usePMTJitter_)
+					pulse.time+=pmt->PMTJitter(randomService_);
 			}
-			else if(ran<(1.-latePulseProbability_)){ //prepulse
+			else if(ran<(1.-pmt->GetLatePulseProbability())){ //prepulse
 				log_trace("creating a prepulse");
 				pulse.source=I3MCPulse::PRE_PULSE;
 				pulse.charge=prePulseWeight(pmtVoltage);
-				pulse.time+=PMTJitter()+prePulseTimeShift(pmtVoltage);
+				if(usePMTJitter_)
+					pulse.time+=pmt->PMTJitter(randomService_);
+				pulse.time += prePulseTimeShift(pmtVoltage);
 				//A prepulse created by a photon passing through the cathode to
 				//hit the first dynode cannot generate an afterpulse
 				canMakeAfterpulse=false;
@@ -369,12 +380,12 @@ PMTResponseSimulator::processHits(const std::vector<I3MCPE>& inputHits, OMKey do
 	//ensure time ordering
 	MCHitMerging::sortMCHits(outputHits.begin(),outputHits.end(), particleMap);
 	//applying saturation before time-merging is more precise, but slower
-	if(applySaturation_)
+	if(applySaturation_ && !pmt->SkipSaturation())
 		saturate(outputHits,pmtVoltage,calibration);
-	//std::cout << dom << " has " << outputHits.size() << " output hits" << std::endl;
-	if(mergeHits_){
+	//std::cout << pmtKey << " has " << outputHits.size() << " output hits" << std::endl;
+	if(mergeHits_ && !pmt->SkipMergeHits()){
 		MCHitMerging::timeMergeHits(outputHits,particleMap);
-		//std::cout << dom << " has " << outputHits.size() << " output hits after merging" << std::endl;
+		//std::cout << pmtKey << " has " << outputHits.size() << " output hits after merging" << std::endl;
 	}
 	return(result);
 }
@@ -385,31 +396,12 @@ double PMTResponseSimulator::normalHitWeight(unsigned int w, const boost::shared
 	return(speDistribution->Generate(w));
 }
 
-//Taken directly from the I3HitMaker code
-/**
- * Fisher-Tippett variables for well behaved time
- * distribtutions.
- * These values were obtained by fits to Bricktop running
- * at 1345 [V] during DFL studies by C. Wendt. The fits were
- * performed by R. Porrata.
- */
-double PMTResponseSimulator::PMTJitter(){
-	if(!usePMTJitter_)
-		return(0.0);
-
-	const double mu=0.15304; //ns
-	const double beta=1.9184; //ns
-	const double ln_time_upper_bound=0.999998;
-	const double ln_time_lower_bound=1e-7;
-
-	return(fisherTippett(mu,beta,ln_time_lower_bound,ln_time_upper_bound));
-}
 
 //Time shift formula taken from HitMaker
 double PMTResponseSimulator::prePulseTimeShift(double voltage){
 	const double reference_time=31.8; //ns
 	const double reference_voltage=1345.*I3Units::volt; //V
-	return(-reference_time*sqrt(reference_voltage/voltage));
+	return(-reference_time*sqrt(reference_voltage/voltage));	
 }
 
 double PMTResponseSimulator::prePulseWeight(double voltage){
@@ -618,4 +610,5 @@ double PMTResponseSimulator::fisherTippett(double location, double scale,
                                            double logLowerBound, double logUpperBound){
 	return(location - scale * log(-log(randomService_->Uniform(logLowerBound,logUpperBound))));
 }
+
 
